@@ -1,0 +1,930 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:multi-chain-asset-compatibility:assessment-report:1.0",
+  "title": "Assessment report 1.0 (serialized JSON)",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "assessmentId",
+    "mode",
+    "profile",
+    "assetIdentity",
+    "results",
+    "evidence",
+    "capabilitySummary",
+    "startedAt",
+    "completedAt",
+    "limitations"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "assessmentId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mode": {
+      "enum": [
+        "READ_ONLY",
+        "SIMULATION"
+      ]
+    },
+    "profile": {
+      "enum": [
+        "baseline",
+        "exact-receipt"
+      ]
+    },
+    "assetIdentity": {
+      "$ref": "#/definitions/identity"
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/scenario"
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/evidence"
+      }
+    },
+    "capabilitySummary": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "capability",
+          "support",
+          "verdicts"
+        ],
+        "properties": {
+          "capability": {
+            "$ref": "#/definitions/capability"
+          },
+          "support": {
+            "$ref": "#/definitions/support"
+          },
+          "verdicts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/verdict"
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "startedAt": {
+      "$ref": "#/definitions/timestamp"
+    },
+    "completedAt": {
+      "$ref": "#/definitions/timestamp"
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": true,
+  "definitions": {
+    "decimalAmount": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)$"
+    },
+    "signedAmount": {
+      "type": "string",
+      "pattern": "^(0|-?[1-9][0-9]*)$"
+    },
+    "block": {
+      "type": "string",
+      "pattern": "^(UNKNOWN|0|[1-9][0-9]*)$"
+    },
+    "timestamp": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+    },
+    "capability": {
+      "enum": [
+        "IDENTITY",
+        "TRANSFER",
+        "BALANCE",
+        "ALLOWANCE",
+        "DELEGATION",
+        "MINT",
+        "BURN",
+        "FREEZE",
+        "UNFREEZE",
+        "BLACKLIST",
+        "PAUSE",
+        "CLAWBACK",
+        "AUTHORITY_CHANGE",
+        "UPGRADEABILITY",
+        "TRANSFER_FEE",
+        "DECIMAL_HANDLING",
+        "EVENT_TRACKING",
+        "SUPPLY_TRACKING",
+        "ACCOUNT_INITIALIZATION",
+        "FINALITY",
+        "RESOURCE_CONSUMPTION",
+        "SWEEP_COMPATIBILITY"
+      ]
+    },
+    "support": {
+      "enum": [
+        "SUPPORTED",
+        "NOT_SUPPORTED",
+        "UNKNOWN"
+      ]
+    },
+    "verdict": {
+      "enum": [
+        "PASS",
+        "FAIL",
+        "INCONCLUSIVE",
+        "UNSUPPORTED",
+        "NOT_TESTED",
+        "NOT_APPLICABLE"
+      ]
+    },
+    "knowledgeString": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "status",
+            "value"
+          ],
+          "properties": {
+            "status": {
+              "const": "KNOWN"
+            },
+            "value": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": true,
+          "not": {
+            "required": [
+              "reason"
+            ],
+            "properties": {
+              "reason": {}
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "status",
+            "reason"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "UNKNOWN",
+                "NOT_APPLICABLE"
+              ]
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": true,
+          "not": {
+            "required": [
+              "value"
+            ],
+            "properties": {
+              "value": {}
+            }
+          }
+        }
+      ]
+    },
+    "knowledgeDecimals": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "status",
+            "value"
+          ],
+          "properties": {
+            "status": {
+              "const": "KNOWN"
+            },
+            "value": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 255
+            }
+          },
+          "additionalProperties": true,
+          "not": {
+            "required": [
+              "reason"
+            ],
+            "properties": {
+              "reason": {}
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "status",
+            "reason"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "UNKNOWN",
+                "NOT_APPLICABLE"
+              ]
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": true,
+          "not": {
+            "required": [
+              "value"
+            ],
+            "properties": {
+              "value": {}
+            }
+          }
+        }
+      ]
+    },
+    "knowledgeOrigin": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "status",
+            "value"
+          ],
+          "properties": {
+            "status": {
+              "const": "KNOWN"
+            },
+            "value": {
+              "enum": [
+                "NATIVE",
+                "BRIDGED"
+              ]
+            }
+          },
+          "additionalProperties": true,
+          "not": {
+            "required": [
+              "reason"
+            ],
+            "properties": {
+              "reason": {}
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "status",
+            "reason"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "UNKNOWN",
+                "NOT_APPLICABLE"
+              ]
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": true,
+          "not": {
+            "required": [
+              "value"
+            ],
+            "properties": {
+              "value": {}
+            }
+          }
+        }
+      ]
+    },
+    "identity": {
+      "type": "object",
+      "required": [
+        "chainFamily",
+        "networkId",
+        "assetStandard",
+        "contractAddress",
+        "mintAddress",
+        "tokenProgramId",
+        "symbol",
+        "name",
+        "issuer",
+        "implementationAddress",
+        "decimals",
+        "issuerVerificationStatus",
+        "nativeOrBridged",
+        "observedBlockOrSlot",
+        "observedAt"
+      ],
+      "properties": {
+        "chainFamily": {
+          "enum": [
+            "EVM",
+            "TRON",
+            "SOLANA"
+          ]
+        },
+        "networkId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "assetStandard": {
+          "$ref": "#/definitions/knowledgeString"
+        },
+        "contractAddress": {
+          "$ref": "#/definitions/knowledgeString"
+        },
+        "mintAddress": {
+          "$ref": "#/definitions/knowledgeString"
+        },
+        "tokenProgramId": {
+          "$ref": "#/definitions/knowledgeString"
+        },
+        "symbol": {
+          "$ref": "#/definitions/knowledgeMetadataString"
+        },
+        "name": {
+          "$ref": "#/definitions/knowledgeMetadataString"
+        },
+        "issuer": {
+          "$ref": "#/definitions/knowledgeString"
+        },
+        "implementationAddress": {
+          "$ref": "#/definitions/knowledgeString"
+        },
+        "decimals": {
+          "$ref": "#/definitions/knowledgeDecimals"
+        },
+        "issuerVerificationStatus": {
+          "enum": [
+            "UNKNOWN",
+            "VERIFIED",
+            "UNVERIFIED"
+          ]
+        },
+        "nativeOrBridged": {
+          "$ref": "#/definitions/knowledgeOrigin"
+        },
+        "observedBlockOrSlot": {
+          "$ref": "#/definitions/block"
+        },
+        "observedAt": {
+          "$ref": "#/definitions/timestamp"
+        }
+      },
+      "additionalProperties": true
+    },
+    "evidence": {
+      "type": "object",
+      "required": [
+        "id",
+        "provenance",
+        "observedAt",
+        "observedBlockOrSlot",
+        "kind",
+        "data"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provenance": {
+          "enum": [
+            "DOCUMENTED",
+            "OBSERVED",
+            "INFERRED"
+          ]
+        },
+        "observedAt": {
+          "$ref": "#/definitions/timestamp"
+        },
+        "observedBlockOrSlot": {
+          "$ref": "#/definitions/block"
+        },
+        "kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "data": {}
+      },
+      "additionalProperties": true
+    },
+    "balances": {
+      "type": "object",
+      "required": [
+        "sender",
+        "receiver"
+      ],
+      "properties": {
+        "sender": {
+          "$ref": "#/definitions/decimalAmount"
+        },
+        "receiver": {
+          "$ref": "#/definitions/decimalAmount"
+        }
+      },
+      "additionalProperties": true
+    },
+    "observations": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "requested": {
+          "$ref": "#/definitions/decimalAmount"
+        },
+        "balance": {
+          "$ref": "#/definitions/decimalAmount"
+        },
+        "debit": {
+          "$ref": "#/definitions/signedAmount"
+        },
+        "received": {
+          "$ref": "#/definitions/signedAmount"
+        },
+        "initialAllowance": {
+          "$ref": "#/definitions/decimalAmount"
+        },
+        "afterUpdate": {
+          "$ref": "#/definitions/decimalAmount"
+        },
+        "finalAllowance": {
+          "$ref": "#/definitions/decimalAmount"
+        },
+        "allowanceBefore": {
+          "$ref": "#/definitions/decimalAmount"
+        },
+        "allowanceAfter": {
+          "$ref": "#/definitions/decimalAmount"
+        },
+        "allowanceAfterNegative": {
+          "$ref": "#/definitions/decimalAmount"
+        },
+        "receiptDifference": {
+          "$ref": "#/definitions/signedAmount"
+        },
+        "supplyBefore": {
+          "$ref": "#/definitions/decimalAmount"
+        },
+        "supplyAfter": {
+          "$ref": "#/definitions/decimalAmount"
+        },
+        "supplyBeforeNegative": {
+          "$ref": "#/definitions/decimalAmount"
+        },
+        "supplyAfterNegative": {
+          "$ref": "#/definitions/decimalAmount"
+        },
+        "supplyChange": {
+          "$ref": "#/definitions/signedAmount"
+        },
+        "balances": {
+          "$ref": "#/definitions/balances"
+        },
+        "before": {
+          "$ref": "#/definitions/balances"
+        },
+        "after": {
+          "$ref": "#/definitions/balances"
+        },
+        "beforeNegative": {
+          "$ref": "#/definitions/balances"
+        },
+        "afterNegative": {
+          "$ref": "#/definitions/balances"
+        },
+        "metadata": {
+          "type": "object",
+          "required": [],
+          "properties": {
+            "name": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "OK"
+                    },
+                    "value": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": true
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status"
+                  ],
+                  "properties": {
+                    "status": {
+                      "enum": [
+                        "READ_FAILED",
+                        "INVALID_RESPONSE"
+                      ]
+                    },
+                    "errorKind": {
+                      "enum": [
+                        "REVERT",
+                        "RPC_ERROR",
+                        "TRANSPORT_ERROR"
+                      ]
+                    }
+                  },
+                  "additionalProperties": true,
+                  "not": {
+                    "required": [
+                      "value"
+                    ],
+                    "properties": {
+                      "value": {}
+                    }
+                  }
+                }
+              ]
+            },
+            "symbol": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "OK"
+                    },
+                    "value": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": true
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status"
+                  ],
+                  "properties": {
+                    "status": {
+                      "enum": [
+                        "READ_FAILED",
+                        "INVALID_RESPONSE"
+                      ]
+                    },
+                    "errorKind": {
+                      "enum": [
+                        "REVERT",
+                        "RPC_ERROR",
+                        "TRANSPORT_ERROR"
+                      ]
+                    }
+                  },
+                  "additionalProperties": true,
+                  "not": {
+                    "required": [
+                      "value"
+                    ],
+                    "properties": {
+                      "value": {}
+                    }
+                  }
+                }
+              ]
+            },
+            "decimals": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "OK"
+                    },
+                    "value": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 255
+                    }
+                  },
+                  "additionalProperties": true
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status"
+                  ],
+                  "properties": {
+                    "status": {
+                      "enum": [
+                        "READ_FAILED",
+                        "INVALID_RESPONSE"
+                      ]
+                    },
+                    "errorKind": {
+                      "enum": [
+                        "REVERT",
+                        "RPC_ERROR",
+                        "TRANSPORT_ERROR"
+                      ]
+                    }
+                  },
+                  "additionalProperties": true,
+                  "not": {
+                    "required": [
+                      "value"
+                    ],
+                    "properties": {
+                      "value": {}
+                    }
+                  }
+                }
+              ]
+            },
+            "totalSupply": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "OK"
+                    },
+                    "value": {
+                      "$ref": "#/definitions/decimalAmount"
+                    }
+                  },
+                  "additionalProperties": true
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status"
+                  ],
+                  "properties": {
+                    "status": {
+                      "enum": [
+                        "READ_FAILED",
+                        "INVALID_RESPONSE"
+                      ]
+                    },
+                    "errorKind": {
+                      "enum": [
+                        "REVERT",
+                        "RPC_ERROR",
+                        "TRANSPORT_ERROR"
+                      ]
+                    }
+                  },
+                  "additionalProperties": true,
+                  "not": {
+                    "required": [
+                      "value"
+                    ],
+                    "properties": {
+                      "value": {}
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "scenario": {
+      "type": "object",
+      "required": [
+        "assessmentId",
+        "assetIdentity",
+        "scenarioId",
+        "scenarioVersion",
+        "capability",
+        "support",
+        "executionStatus",
+        "verdict",
+        "evidenceReferences",
+        "observedBlockOrSlot",
+        "startedAt",
+        "completedAt",
+        "limitations",
+        "observations"
+      ],
+      "properties": {
+        "assessmentId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "assetIdentity": {
+          "$ref": "#/definitions/identity"
+        },
+        "scenarioId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scenarioVersion": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "capability": {
+          "$ref": "#/definitions/capability"
+        },
+        "support": {
+          "$ref": "#/definitions/support"
+        },
+        "executionStatus": {
+          "enum": [
+            "COMPLETED",
+            "ERROR",
+            "NOT_EXECUTED"
+          ]
+        },
+        "verdict": {
+          "$ref": "#/definitions/verdict"
+        },
+        "evidenceReferences": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "observedBlockOrSlot": {
+          "$ref": "#/definitions/block"
+        },
+        "startedAt": {
+          "$ref": "#/definitions/timestamp"
+        },
+        "completedAt": {
+          "$ref": "#/definitions/timestamp"
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "observations": {
+          "$ref": "#/definitions/observations"
+        }
+      },
+      "additionalProperties": true,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "verdict": {
+                "const": "NOT_TESTED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "executionStatus": {
+                "const": "NOT_EXECUTED"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "executionStatus": {
+                "enum": [
+                  "COMPLETED",
+                  "ERROR"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "verdict": {
+                "enum": [
+                  "PASS",
+                  "FAIL"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "executionStatus": {
+                "const": "COMPLETED"
+              },
+              "evidenceReferences": {
+                "minItems": 1,
+                "type": "array"
+              },
+              "observedBlockOrSlot": {
+                "not": {
+                  "const": "UNKNOWN"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "knowledgeMetadataString": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "status",
+            "value"
+          ],
+          "properties": {
+            "status": {
+              "const": "KNOWN"
+            },
+            "value": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true,
+          "not": {
+            "required": [
+              "reason"
+            ],
+            "properties": {
+              "reason": {}
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "status",
+            "reason"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "UNKNOWN",
+                "NOT_APPLICABLE"
+              ]
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": true,
+          "not": {
+            "required": [
+              "value"
+            ],
+            "properties": {
+              "value": {}
+            }
+          }
+        }
+      ]
+    }
+  }
+}

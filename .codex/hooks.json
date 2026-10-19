@@ -1,0 +1,18 @@
+{
+  "description": "Project-local Router recommendations; no model switching, agent spawning, or chat reset.",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$(git rev-parse --show-toplevel)/tools/intelligent-router/adapters/request.py\" --hook",
+            "timeout": 35,
+            "statusMessage": "Requesting local Router recommendation",
+            "additionalContextLimit": 1800
+          }
+        ]
+      }
+    ]
+  }
+}

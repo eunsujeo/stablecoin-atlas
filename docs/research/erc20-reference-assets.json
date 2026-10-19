@@ -1,0 +1,192 @@
+{
+  "schemaVersion": "1.0",
+  "purpose": "Documented Ethereum address references with linked read-only observations; not issuer approval",
+  "retrievedAt": "2026-10-19T00:08:51Z",
+  "chainFamily": "EVM",
+  "networkId": "1",
+  "assets": [
+    {
+      "label": "USDC",
+      "issuerBrand": "Circle",
+      "contractAddress": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      "provenance": "DOCUMENTED",
+      "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
+      "claim": "Ethereum mainnet address linked by the issuer documentation",
+      "issuerVerificationStatus": "UNKNOWN",
+      "observedBlockOrSlot": {
+        "status": "KNOWN",
+        "value": "26223078"
+      },
+      "onChainAssessment": {
+        "provenance": "OBSERVED",
+        "mode": "READ_ONLY",
+        "report": "../../reports/usdc-readonly.json",
+        "observedAt": "2026-10-19T00:36:50.049Z",
+        "scenarioVerdicts": [
+          {
+            "scenarioId": "ERC20-001",
+            "scenarioVersion": "1.0.0",
+            "capability": "IDENTITY",
+            "verdict": "PASS",
+            "support": "UNKNOWN"
+          },
+          {
+            "scenarioId": "EVM-PROXY-001",
+            "scenarioVersion": "1.1.0",
+            "capability": "UPGRADEABILITY",
+            "verdict": "PASS",
+            "support": "UNKNOWN"
+          },
+          {
+            "scenarioId": "ERC20-000",
+            "scenarioVersion": "1.0.0",
+            "capability": "BALANCE",
+            "verdict": "NOT_TESTED",
+            "support": "UNKNOWN"
+          },
+          {
+            "scenarioId": "ERC20-002",
+            "scenarioVersion": "1.0.0",
+            "capability": "TRANSFER",
+            "verdict": "NOT_TESTED",
+            "support": "UNKNOWN"
+          },
+          {
+            "scenarioId": "ERC20-003",
+            "scenarioVersion": "1.0.0",
+            "capability": "ALLOWANCE",
+            "verdict": "NOT_TESTED",
+            "support": "UNKNOWN"
+          },
+          {
+            "scenarioId": "ERC20-004",
+            "scenarioVersion": "1.0.0",
+            "capability": "ALLOWANCE",
+            "verdict": "NOT_TESTED",
+            "support": "UNKNOWN"
+          },
+          {
+            "scenarioId": "ERC20-005",
+            "scenarioVersion": "1.0.0",
+            "capability": "TRANSFER",
+            "verdict": "NOT_TESTED",
+            "support": "UNKNOWN"
+          },
+          {
+            "scenarioId": "ERC20-006",
+            "scenarioVersion": "1.0.0",
+            "capability": "TRANSFER_FEE",
+            "verdict": "NOT_TESTED",
+            "support": "UNKNOWN"
+          },
+          {
+            "scenarioId": "ERC20-007",
+            "scenarioVersion": "1.0.0",
+            "capability": "PAUSE",
+            "verdict": "NOT_TESTED",
+            "support": "UNKNOWN"
+          },
+          {
+            "scenarioId": "ERC20-007",
+            "scenarioVersion": "1.0.0",
+            "capability": "BLACKLIST",
+            "verdict": "NOT_TESTED",
+            "support": "UNKNOWN"
+          }
+        ]
+      }
+    },
+    {
+      "label": "USD₮ / USDT",
+      "issuerBrand": "Tether",
+      "contractAddress": "0xdac17f958d2ee523a2206206994597c13d831ec7",
+      "provenance": "DOCUMENTED",
+      "source": "https://tether.to/en/supported-protocols/",
+      "claim": "Ethereum USD₮ address linked by the issuer integration documentation; transfer is documented without a Boolean return",
+      "issuerVerificationStatus": "UNKNOWN",
+      "observedBlockOrSlot": {
+        "status": "KNOWN",
+        "value": "26223078"
+      },
+      "onChainAssessment": {
+        "provenance": "OBSERVED",
+        "mode": "READ_ONLY",
+        "report": "../../reports/usdt-readonly.json",
+        "observedAt": "2026-10-19T00:36:49.934Z",
+        "scenarioVerdicts": [
+          {
+            "scenarioId": "ERC20-001",
+            "scenarioVersion": "1.0.0",
+            "capability": "IDENTITY",
+            "verdict": "PASS",
+            "support": "UNKNOWN"
+          },
+          {
+            "scenarioId": "EVM-PROXY-001",
+            "scenarioVersion": "1.1.0",
+            "capability": "UPGRADEABILITY",
+            "verdict": "INCONCLUSIVE",
+            "support": "UNKNOWN"
+          },
+          {
+            "scenarioId": "ERC20-000",
+            "scenarioVersion": "1.0.0",
+            "capability": "BALANCE",
+            "verdict": "NOT_TESTED",
+            "support": "UNKNOWN"
+          },
+          {
+            "scenarioId": "ERC20-002",
+            "scenarioVersion": "1.0.0",
+            "capability": "TRANSFER",
+            "verdict": "NOT_TESTED",
+            "support": "UNKNOWN"
+          },
+          {
+            "scenarioId": "ERC20-003",
+            "scenarioVersion": "1.0.0",
+            "capability": "ALLOWANCE",
+            "verdict": "NOT_TESTED",
+            "support": "UNKNOWN"
+          },
+          {
+            "scenarioId": "ERC20-004",
+            "scenarioVersion": "1.0.0",
+            "capability": "ALLOWANCE",
+            "verdict": "NOT_TESTED",
+            "support": "UNKNOWN"
+          },
+          {
+            "scenarioId": "ERC20-005",
+            "scenarioVersion": "1.0.0",
+            "capability": "TRANSFER",
+            "verdict": "NOT_TESTED",
+            "support": "UNKNOWN"
+          },
+          {
+            "scenarioId": "ERC20-006",
+            "scenarioVersion": "1.0.0",
+            "capability": "TRANSFER_FEE",
+            "verdict": "NOT_TESTED",
+            "support": "UNKNOWN"
+          },
+          {
+            "scenarioId": "ERC20-007",
+            "scenarioVersion": "1.0.0",
+            "capability": "PAUSE",
+            "verdict": "NOT_TESTED",
+            "support": "UNKNOWN"
+          },
+          {
+            "scenarioId": "ERC20-007",
+            "scenarioVersion": "1.0.0",
+            "capability": "BLACKLIST",
+            "verdict": "NOT_TESTED",
+            "support": "UNKNOWN"
+          }
+        ]
+      }
+    }
+  ],
+  "lastVerifiedAt": "2026-10-19T00:17:44Z"
+}

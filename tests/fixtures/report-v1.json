@@ -1,0 +1,216 @@
+{
+  "schemaVersion": "1.0",
+  "assessmentId": "synthetic-v1",
+  "mode": "READ_ONLY",
+  "profile": "baseline",
+  "assetIdentity": {
+    "assetStandard": {
+      "status": "UNKNOWN",
+      "reason": "Synthetic contract specimen; not an asset assessment"
+    },
+    "contractAddress": {
+      "status": "UNKNOWN",
+      "reason": "Synthetic contract specimen; not an asset assessment"
+    },
+    "mintAddress": {
+      "status": "UNKNOWN",
+      "reason": "Synthetic contract specimen; not an asset assessment"
+    },
+    "tokenProgramId": {
+      "status": "UNKNOWN",
+      "reason": "Synthetic contract specimen; not an asset assessment"
+    },
+    "name": {
+      "status": "UNKNOWN",
+      "reason": "Synthetic contract specimen; not an asset assessment"
+    },
+    "symbol": {
+      "status": "UNKNOWN",
+      "reason": "Synthetic contract specimen; not an asset assessment"
+    },
+    "decimals": {
+      "status": "UNKNOWN",
+      "reason": "Synthetic contract specimen; not an asset assessment"
+    },
+    "issuer": {
+      "status": "UNKNOWN",
+      "reason": "Synthetic contract specimen; not an asset assessment"
+    },
+    "nativeOrBridged": {
+      "status": "UNKNOWN",
+      "reason": "Synthetic contract specimen; not an asset assessment"
+    },
+    "implementationAddress": {
+      "status": "UNKNOWN",
+      "reason": "Synthetic contract specimen; not an asset assessment"
+    },
+    "chainFamily": "EVM",
+    "networkId": "31337",
+    "issuerVerificationStatus": "UNKNOWN",
+    "observedBlockOrSlot": "1",
+    "observedAt": "2026-01-01T00:00:00Z"
+  },
+  "results": [],
+  "evidence": [],
+  "capabilitySummary": [
+    {
+      "capability": "IDENTITY",
+      "support": "UNKNOWN",
+      "verdicts": [
+        "NOT_TESTED"
+      ]
+    },
+    {
+      "capability": "TRANSFER",
+      "support": "UNKNOWN",
+      "verdicts": [
+        "NOT_TESTED"
+      ]
+    },
+    {
+      "capability": "BALANCE",
+      "support": "UNKNOWN",
+      "verdicts": [
+        "NOT_TESTED"
+      ]
+    },
+    {
+      "capability": "ALLOWANCE",
+      "support": "UNKNOWN",
+      "verdicts": [
+        "NOT_TESTED"
+      ]
+    },
+    {
+      "capability": "DELEGATION",
+      "support": "UNKNOWN",
+      "verdicts": [
+        "NOT_TESTED"
+      ]
+    },
+    {
+      "capability": "MINT",
+      "support": "UNKNOWN",
+      "verdicts": [
+        "NOT_TESTED"
+      ]
+    },
+    {
+      "capability": "BURN",
+      "support": "UNKNOWN",
+      "verdicts": [
+        "NOT_TESTED"
+      ]
+    },
+    {
+      "capability": "FREEZE",
+      "support": "UNKNOWN",
+      "verdicts": [
+        "NOT_TESTED"
+      ]
+    },
+    {
+      "capability": "UNFREEZE",
+      "support": "UNKNOWN",
+      "verdicts": [
+        "NOT_TESTED"
+      ]
+    },
+    {
+      "capability": "BLACKLIST",
+      "support": "UNKNOWN",
+      "verdicts": [
+        "NOT_TESTED"
+      ]
+    },
+    {
+      "capability": "PAUSE",
+      "support": "UNKNOWN",
+      "verdicts": [
+        "NOT_TESTED"
+      ]
+    },
+    {
+      "capability": "CLAWBACK",
+      "support": "UNKNOWN",
+      "verdicts": [
+        "NOT_TESTED"
+      ]
+    },
+    {
+      "capability": "AUTHORITY_CHANGE",
+      "support": "UNKNOWN",
+      "verdicts": [
+        "NOT_TESTED"
+      ]
+    },
+    {
+      "capability": "UPGRADEABILITY",
+      "support": "UNKNOWN",
+      "verdicts": [
+        "NOT_TESTED"
+      ]
+    },
+    {
+      "capability": "TRANSFER_FEE",
+      "support": "UNKNOWN",
+      "verdicts": [
+        "NOT_TESTED"
+      ]
+    },
+    {
+      "capability": "DECIMAL_HANDLING",
+      "support": "UNKNOWN",
+      "verdicts": [
+        "NOT_TESTED"
+      ]
+    },
+    {
+      "capability": "EVENT_TRACKING",
+      "support": "UNKNOWN",
+      "verdicts": [
+        "NOT_TESTED"
+      ]
+    },
+    {
+      "capability": "SUPPLY_TRACKING",
+      "support": "UNKNOWN",
+      "verdicts": [
+        "NOT_TESTED"
+      ]
+    },
+    {
+      "capability": "ACCOUNT_INITIALIZATION",
+      "support": "UNKNOWN",
+      "verdicts": [
+        "NOT_TESTED"
+      ]
+    },
+    {
+      "capability": "FINALITY",
+      "support": "UNKNOWN",
+      "verdicts": [
+        "NOT_TESTED"
+      ]
+    },
+    {
+      "capability": "RESOURCE_CONSUMPTION",
+      "support": "UNKNOWN",
+      "verdicts": [
+        "NOT_TESTED"
+      ]
+    },
+    {
+      "capability": "SWEEP_COMPATIBILITY",
+      "support": "UNKNOWN",
+      "verdicts": [
+        "NOT_TESTED"
+      ]
+    }
+  ],
+  "startedAt": "2026-01-01T00:00:00Z",
+  "completedAt": "2026-01-01T00:00:00Z",
+  "limitations": [
+    "Synthetic compatibility specimen only."
+  ]
+}

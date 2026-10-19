@@ -1,0 +1,19 @@
+{
+  "mode": "shadow",
+  "automatic_execution": false,
+  "decision": {
+    "repository": "vllm-sr/d3-lite",
+    "revision": "03560c26f5199c3c04129a2ccb38960c913635e0",
+    "manifest_sha256": "31f0ff94ff26619c0a063ccac803edcfe34c56c92e5c9c50b703b62893f125dd",
+    "confidence_threshold": 0.8
+  },
+  "tiers": {
+    "economy": {"model": "gpt-6-luna", "effort": "low"},
+    "standard": {"model": "gpt-6.1-sol", "effort": "medium"},
+    "advanced": {"model": "gpt-6-astra", "effort": "high"}
+  },
+  "fallback_tier": "advanced",
+  "max_agents": 1,
+  "max_request_chars": 4000,
+  "max_context_chars": 8000
+}

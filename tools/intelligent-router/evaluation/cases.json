@@ -1,0 +1,10 @@
+[
+  {"id":"docs-ko","request":"docs/ARCHITECTURE.md의 경로 오타 한 개만 고쳐 줘. 실행 코드는 수정하지 마.","changed_files":1,"module_count":1},
+  {"id":"explore-ko","request":"src/domain/model.ts에서 Verdict 타입의 정의를 찾아서 가능한 값을 설명해 줘. 읽기 전용 작업이다.","context":"src/domain/model.ts:22: export type Verdict = 'PASS' | 'FAIL' | 'INCONCLUSIVE' | 'UNSUPPORTED' | 'NOT_TESTED' | 'NOT_APPLICABLE';","changed_files":0,"module_count":1},
+  {"id":"feature-en","request":"Add a --quiet CLI option to suppress progress messages while retaining the JSON output. Update the CLI test.","changed_files":2,"module_count":1},
+  {"id":"finance-ko","request":"ERC-20 잔액 차이와 전송 수수료 계산 버그를 고쳐 줘. bigint 소수점 처리와 영수증 이벤트를 함께 검토해야 한다.","sensitive_change":true,"changed_files":3,"module_count":2},
+  {"id":"concurrency-ko","request":"여러 테스트가 동시에 snapshot/revert를 호출해 상태가 섞인다. 경쟁 조건의 원인을 분석하고 격리 방식을 설계해 줘.","sensitive_change":true,"module_count":2},
+  {"id":"retry-ko","request":"간단한 옵션 파싱 버그 수정이 두 번 실패했다. 원인을 다시 확인해 줘.","previous_failure":true},
+  {"id":"tests-only","request":"Run the existing npm run check command once. No investigation, code edits, or new tests are requested.","changed_files":0,"module_count":1},
+  {"id":"unclear-ko","request":"동작이 이상해. 알아서 고쳐 줘.","context_incomplete":true}
+]

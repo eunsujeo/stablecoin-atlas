@@ -1,0 +1,104 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:multi-chain-asset-compatibility:lab-report:1.0",
+  "title": "Local lab report 1.0",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "mode",
+    "profile",
+    "build",
+    "environment",
+    "assessments"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "mode": {
+      "const": "SIMULATION"
+    },
+    "profile": {
+      "enum": [
+        "baseline",
+        "exact-receipt"
+      ]
+    },
+    "build": {
+      "type": "object",
+      "required": [
+        "compiler",
+        "sourceHash",
+        "settings"
+      ],
+      "properties": {
+        "compiler": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sourceHash": {
+          "type": "string",
+          "pattern": "^0x[0-9a-fA-F]{64}$"
+        },
+        "settings": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": true
+    },
+    "environment": {
+      "type": "object",
+      "required": [
+        "node",
+        "client",
+        "chainId",
+        "hardfork",
+        "amountBaseUnits"
+      ],
+      "properties": {
+        "node": {
+          "type": "string",
+          "minLength": 1
+        },
+        "client": {
+          "type": "string",
+          "minLength": 1
+        },
+        "chainId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hardfork": {
+          "type": "string",
+          "minLength": 1
+        },
+        "amountBaseUnits": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        }
+      },
+      "additionalProperties": true
+    },
+    "assessments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "fixture",
+          "report"
+        ],
+        "properties": {
+          "fixture": {
+            "type": "string",
+            "minLength": 1
+          },
+          "report": {
+            "$ref": "urn:multi-chain-asset-compatibility:assessment-report:1.0"
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

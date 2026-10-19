@@ -1,0 +1,586 @@
+{
+  "status": "shadow_poc",
+  "decision_repository": "vllm-sr/d3-lite",
+  "revision": "03560c26f5199c3c04129a2ccb38960c913635e0",
+  "device": "mps",
+  "manifest_sha256": "31f0ff94ff26619c0a063ccac803edcfe34c56c92e5c9c50b703b62893f125dd",
+  "torch_version": "2.14.1",
+  "load_seconds": 3.115190917160362,
+  "rss_scope": "process high-water RSS on macOS; not GPU/unified-memory total",
+  "records": [
+    {
+      "id": "docs-ko",
+      "raw": {
+        "model": "d3-lite",
+        "answers": {
+          "task_type": {
+            "type": "choice",
+            "choice": "documentation",
+            "probabilities": {
+              "documentation": 0.9435565468144819,
+              "exploration": 0.0015205837344121989,
+              "bug_fix": 0.05268329712787481,
+              "implementation": 8.053060224526873e-05,
+              "debugging": 0.0004726402118056843,
+              "architecture": 0.00029430840033583665,
+              "test_execution": 0.0013920931088443876
+            },
+            "confidence": 0.8788822861774859
+          },
+          "complexity": {
+            "type": "choice",
+            "choice": "low",
+            "probabilities": {
+              "low": 0.930007356553941,
+              "medium": 0.048572169308118404,
+              "high": 0.021420474137940668
+            },
+            "confidence": 0.7299065284089978
+          },
+          "risk": {
+            "type": "choice",
+            "choice": "low",
+            "probabilities": {
+              "low": 0.6187968480286898,
+              "medium": 0.37979848581095277,
+              "high": 0.0014046661603573213
+            },
+            "confidence": 0.3865686453307653
+          }
+        },
+        "usage": {
+          "input_tokens": 655,
+          "output_tokens": 0
+        }
+      },
+      "decision": {
+        "task_type": "documentation",
+        "complexity": "low",
+        "risk": "low",
+        "recommended_tier": "advanced",
+        "reasoning_effort": "high",
+        "confidence": 0.3865686453307653,
+        "requires_review": true,
+        "selected_model": "gpt-6-astra",
+        "confidence_source": "minimum_native_answer_confidence",
+        "fallback_reasons": [
+          "uncertain_decision"
+        ],
+        "tool_only": false,
+        "mode": "shadow",
+        "execution_performed": false
+      },
+      "error": null,
+      "wall_seconds": 0.6735272910445929,
+      "cpu_seconds": 0.14822800000000003,
+      "cpu_percent_one_core": 22.00771995001256,
+      "max_rss_bytes": 2262728704,
+      "codex_tokens": null,
+      "task_success": null,
+      "test_pass": null
+    },
+    {
+      "id": "explore-ko",
+      "raw": {
+        "model": "d3-lite",
+        "answers": {
+          "task_type": {
+            "type": "choice",
+            "choice": "exploration",
+            "probabilities": {
+              "documentation": 0.3134578851542136,
+              "exploration": 0.6679051665066291,
+              "bug_fix": 0.0022880440435268153,
+              "implementation": 0.005120190447258055,
+              "debugging": 0.003353302839886276,
+              "architecture": 0.006191588987277537,
+              "test_execution": 0.0016838220212085722
+            },
+            "confidence": 0.6220420047039158
+          },
+          "complexity": {
+            "type": "choice",
+            "choice": "low",
+            "probabilities": {
+              "low": 0.945725693201892,
+              "medium": 0.03861998952157846,
+              "high": 0.015654317276529505
+            },
+            "confidence": 0.7783402995628873
+          },
+          "risk": {
+            "type": "choice",
+            "choice": "low",
+            "probabilities": {
+              "low": 0.6281641533055399,
+              "medium": 0.3695943542575297,
+              "high": 0.0022414924369304153
+            },
+            "confidence": 0.3868471903984917
+          }
+        },
+        "usage": {
+          "input_tokens": 778,
+          "output_tokens": 0
+        }
+      },
+      "decision": {
+        "task_type": "exploration",
+        "complexity": "low",
+        "risk": "low",
+        "recommended_tier": "advanced",
+        "reasoning_effort": "high",
+        "confidence": 0.3868471903984917,
+        "requires_review": true,
+        "selected_model": "gpt-6-astra",
+        "confidence_source": "minimum_native_answer_confidence",
+        "fallback_reasons": [
+          "uncertain_decision"
+        ],
+        "tool_only": false,
+        "mode": "shadow",
+        "execution_performed": false
+      },
+      "error": null,
+      "wall_seconds": 0.7331099580042064,
+      "cpu_seconds": 0.09765399999999991,
+      "cpu_percent_one_core": 13.32051200966494,
+      "max_rss_bytes": 2262728704,
+      "codex_tokens": null,
+      "task_success": null,
+      "test_pass": null
+    },
+    {
+      "id": "feature-en",
+      "raw": {
+        "model": "d3-lite",
+        "answers": {
+          "task_type": {
+            "type": "choice",
+            "choice": "implementation",
+            "probabilities": {
+              "documentation": 0.1658719031458051,
+              "exploration": 0.007957159534136617,
+              "bug_fix": 0.1024895607470632,
+              "implementation": 0.678452014291238,
+              "debugging": 0.0031793508649064686,
+              "architecture": 0.02208087032467046,
+              "test_execution": 0.019969141092180145
+            },
+            "confidence": 0.4790310603806225
+          },
+          "complexity": {
+            "type": "choice",
+            "choice": "medium",
+            "probabilities": {
+              "low": 0.18547307783989955,
+              "medium": 0.6774169509448238,
+              "high": 0.13710997121527663
+            },
+            "confidence": 0.227425721966789
+          },
+          "risk": {
+            "type": "choice",
+            "choice": "medium",
+            "probabilities": {
+              "low": 0.44320371767655187,
+              "medium": 0.5504771473586919,
+              "high": 0.006319134964756265
+            },
+            "confidence": 0.34347564447168977
+          }
+        },
+        "usage": {
+          "input_tokens": 631,
+          "output_tokens": 0
+        }
+      },
+      "decision": {
+        "task_type": "implementation",
+        "complexity": "medium",
+        "risk": "medium",
+        "recommended_tier": "advanced",
+        "reasoning_effort": "high",
+        "confidence": 0.227425721966789,
+        "requires_review": true,
+        "selected_model": "gpt-6-astra",
+        "confidence_source": "minimum_native_answer_confidence",
+        "fallback_reasons": [
+          "uncertain_decision"
+        ],
+        "tool_only": false,
+        "mode": "shadow",
+        "execution_performed": false
+      },
+      "error": null,
+      "wall_seconds": 0.5981700839474797,
+      "cpu_seconds": 0.09404199999999996,
+      "cpu_percent_one_core": 15.72161539396828,
+      "max_rss_bytes": 2262728704,
+      "codex_tokens": null,
+      "task_success": null,
+      "test_pass": null
+    },
+    {
+      "id": "finance-ko",
+      "raw": {
+        "model": "d3-lite",
+        "answers": {
+          "task_type": {
+            "type": "choice",
+            "choice": "bug_fix",
+            "probabilities": {
+              "documentation": 0.002626439430809087,
+              "exploration": 0.00227446520388936,
+              "bug_fix": 0.9447476170355709,
+              "implementation": 0.0019071907461409982,
+              "debugging": 0.04709259150362765,
+              "architecture": 0.0005779478608579529,
+              "test_execution": 0.0007737482191040428
+            },
+            "confidence": 0.8721216957549041
+          },
+          "complexity": {
+            "type": "choice",
+            "choice": "high",
+            "probabilities": {
+              "low": 0.1323382427146769,
+              "medium": 0.18963918372451044,
+              "high": 0.6780225735608126
+            },
+            "confidence": 0.22957106711204145
+          },
+          "risk": {
+            "type": "choice",
+            "choice": "high",
+            "probabilities": {
+              "low": 0.14676771401907293,
+              "medium": 0.22285788255075145,
+              "high": 0.6303744034301756
+            },
+            "confidence": 0.17434664798235766
+          }
+        },
+        "usage": {
+          "input_tokens": 673,
+          "output_tokens": 0
+        }
+      },
+      "decision": {
+        "task_type": "bug_fix",
+        "complexity": "high",
+        "risk": "high",
+        "recommended_tier": "advanced",
+        "reasoning_effort": "high",
+        "confidence": 0.17434664798235766,
+        "requires_review": true,
+        "selected_model": "gpt-6-astra",
+        "confidence_source": "minimum_native_answer_confidence",
+        "fallback_reasons": [
+          "uncertain_decision",
+          "explicit_security_financial_or_concurrency_change",
+          "cross_module_change"
+        ],
+        "tool_only": false,
+        "mode": "shadow",
+        "execution_performed": false
+      },
+      "error": null,
+      "wall_seconds": 0.5975317920092493,
+      "cpu_seconds": 0.090808,
+      "cpu_percent_one_core": 15.197183014254472,
+      "max_rss_bytes": 2262728704,
+      "codex_tokens": null,
+      "task_success": null,
+      "test_pass": null
+    },
+    {
+      "id": "concurrency-ko",
+      "raw": {
+        "model": "d3-lite",
+        "answers": {
+          "task_type": {
+            "type": "choice",
+            "choice": "debugging",
+            "probabilities": {
+              "documentation": 0.010987386086979162,
+              "exploration": 0.10124883781885945,
+              "bug_fix": 0.01935709264249151,
+              "implementation": 0.03801626705002735,
+              "debugging": 0.5958143461573602,
+              "architecture": 0.2218579794804417,
+              "test_execution": 0.012718090763840655
+            },
+            "confidence": 0.39349838519742075
+          },
+          "complexity": {
+            "type": "choice",
+            "choice": "high",
+            "probabilities": {
+              "low": 0.021181325798823966,
+              "medium": 0.03200431737330271,
+              "high": 0.9468143568278733
+            },
+            "confidence": 0.7783139912685493
+          },
+          "risk": {
+            "type": "choice",
+            "choice": "low",
+            "probabilities": {
+              "low": 0.5631925035474451,
+              "medium": 0.19886950251071162,
+              "high": 0.23793799394184334
+            },
+            "confidence": 0.10235704406082669
+          }
+        },
+        "usage": {
+          "input_tokens": 661,
+          "output_tokens": 0
+        }
+      },
+      "decision": {
+        "task_type": "debugging",
+        "complexity": "high",
+        "risk": "high",
+        "recommended_tier": "advanced",
+        "reasoning_effort": "high",
+        "confidence": 0.10235704406082669,
+        "requires_review": true,
+        "selected_model": "gpt-6-astra",
+        "confidence_source": "minimum_native_answer_confidence",
+        "fallback_reasons": [
+          "uncertain_decision",
+          "explicit_security_financial_or_concurrency_change",
+          "cross_module_change"
+        ],
+        "tool_only": false,
+        "mode": "shadow",
+        "execution_performed": false
+      },
+      "error": null,
+      "wall_seconds": 0.5992008750326931,
+      "cpu_seconds": 0.09551099999999968,
+      "cpu_percent_one_core": 15.939729726661108,
+      "max_rss_bytes": 2262728704,
+      "codex_tokens": null,
+      "task_success": null,
+      "test_pass": null
+    },
+    {
+      "id": "retry-ko",
+      "raw": {
+        "model": "d3-lite",
+        "answers": {
+          "task_type": {
+            "type": "choice",
+            "choice": "debugging",
+            "probabilities": {
+              "documentation": 0.005784991056571969,
+              "exploration": 0.01365335455487291,
+              "bug_fix": 0.3010330965333233,
+              "implementation": 0.0011060541185633178,
+              "debugging": 0.6760518930613807,
+              "architecture": 0.0009136375669425035,
+              "test_execution": 0.0014569731083453545
+            },
+            "confidence": 0.6207762419546061
+          },
+          "complexity": {
+            "type": "choice",
+            "choice": "high",
+            "probabilities": {
+              "low": 0.20743119153817854,
+              "medium": 0.054722341361150506,
+              "high": 0.7378464671006709
+            },
+            "confidence": 0.3540991379246222
+          },
+          "risk": {
+            "type": "choice",
+            "choice": "low",
+            "probabilities": {
+              "low": 0.6927738995432404,
+              "medium": 0.3031034263324564,
+              "high": 0.004122674124303189
+            },
+            "confidence": 0.4186017406702023
+          }
+        },
+        "usage": {
+          "input_tokens": 643,
+          "output_tokens": 0
+        }
+      },
+      "decision": {
+        "task_type": "debugging",
+        "complexity": "high",
+        "risk": "low",
+        "recommended_tier": "advanced",
+        "reasoning_effort": "high",
+        "confidence": 0.3540991379246222,
+        "requires_review": true,
+        "selected_model": "gpt-6-astra",
+        "confidence_source": "minimum_native_answer_confidence",
+        "fallback_reasons": [
+          "uncertain_decision",
+          "previous_failure"
+        ],
+        "tool_only": false,
+        "mode": "shadow",
+        "execution_performed": false
+      },
+      "error": null,
+      "wall_seconds": 0.596060749841854,
+      "cpu_seconds": 0.09099599999999963,
+      "cpu_percent_one_core": 15.266229159383935,
+      "max_rss_bytes": 2262728704,
+      "codex_tokens": null,
+      "task_success": null,
+      "test_pass": null
+    },
+    {
+      "id": "tests-only",
+      "raw": {
+        "model": "d3-lite",
+        "answers": {
+          "task_type": {
+            "type": "choice",
+            "choice": "test_execution",
+            "probabilities": {
+              "documentation": 9.368671794549868e-05,
+              "exploration": 0.0005336958927593059,
+              "bug_fix": 3.350109043821114e-05,
+              "implementation": 5.781991910825548e-05,
+              "debugging": 0.0001611646372908927,
+              "architecture": 6.425093768921802e-05,
+              "test_execution": 0.9990558808047686
+            },
+            "confidence": 0.9954923388057909
+          },
+          "complexity": {
+            "type": "choice",
+            "choice": "low",
+            "probabilities": {
+              "low": 0.6492470502853394,
+              "medium": 0.26647689938545227,
+              "high": 0.08427605032920837
+            },
+            "confidence": 0.23420277924990363
+          },
+          "risk": {
+            "type": "choice",
+            "choice": "low",
+            "probabilities": {
+              "low": 0.5749688065498914,
+              "medium": 0.42014142264407867,
+              "high": 0.004889770806029954
+            },
+            "confidence": 0.35504227580515224
+          }
+        },
+        "usage": {
+          "input_tokens": 631,
+          "output_tokens": 0
+        }
+      },
+      "decision": {
+        "task_type": "test_execution",
+        "complexity": "low",
+        "risk": "low",
+        "recommended_tier": "advanced",
+        "reasoning_effort": "high",
+        "confidence": 0.23420277924990363,
+        "requires_review": true,
+        "selected_model": "gpt-6-astra",
+        "confidence_source": "minimum_native_answer_confidence",
+        "fallback_reasons": [
+          "uncertain_decision"
+        ],
+        "tool_only": false,
+        "mode": "shadow",
+        "execution_performed": false
+      },
+      "error": null,
+      "wall_seconds": 0.5676413748878986,
+      "cpu_seconds": 0.07606100000000016,
+      "cpu_percent_one_core": 13.399481321286908,
+      "max_rss_bytes": 2262728704,
+      "codex_tokens": null,
+      "task_success": null,
+      "test_pass": null
+    },
+    {
+      "id": "unclear-ko",
+      "raw": {
+        "model": "d3-lite",
+        "answers": {
+          "task_type": {
+            "type": "choice",
+            "choice": "bug_fix",
+            "probabilities": {
+              "documentation": 0.09174498493166006,
+              "exploration": 0.009584388101297105,
+              "bug_fix": 0.5363186190333477,
+              "implementation": 0.006982343051194633,
+              "debugging": 0.3416560412361431,
+              "architecture": 0.003251119398260263,
+              "test_execution": 0.010462504248097106
+            },
+            "confidence": 0.4523083253326293
+          },
+          "complexity": {
+            "type": "choice",
+            "choice": "low",
+            "probabilities": {
+              "low": 0.6106603950961429,
+              "medium": 0.047902972197716956,
+              "high": 0.34143663270614016
+            },
+            "confidence": 0.25938493317888434
+          },
+          "risk": {
+            "type": "choice",
+            "choice": "low",
+            "probabilities": {
+              "low": 0.6757218367554589,
+              "medium": 0.3113056479265103,
+              "high": 0.012972515318030777
+            },
+            "confidence": 0.376925509327508
+          }
+        },
+        "usage": {
+          "input_tokens": 607,
+          "output_tokens": 0
+        }
+      },
+      "decision": {
+        "task_type": "bug_fix",
+        "complexity": "low",
+        "risk": "low",
+        "recommended_tier": "advanced",
+        "reasoning_effort": "high",
+        "confidence": 0.25938493317888434,
+        "requires_review": true,
+        "selected_model": "gpt-6-astra",
+        "confidence_source": "minimum_native_answer_confidence",
+        "fallback_reasons": [
+          "uncertain_decision",
+          "incomplete_context"
+        ],
+        "tool_only": false,
+        "mode": "shadow",
+        "execution_performed": false
+      },
+      "error": null,
+      "wall_seconds": 0.5908030001446605,
+      "cpu_seconds": 0.08820300000000003,
+      "cpu_percent_one_core": 14.929341925887845,
+      "max_rss_bytes": 2262728704,
+      "codex_tokens": null,
+      "task_success": null,
+      "test_pass": null
+    }
+  ]
+}
