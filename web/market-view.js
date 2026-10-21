@@ -68,5 +68,5 @@ async function load(){if(state.loading)return;state.loading=true;$('#live-reload
   }catch{$('#live-error').hidden=false;$('#live-error').textContent=state.data?'저장 자료를 다시 읽지 못했습니다. 이전 자료와 원본 시각을 유지합니다.':'저장된 시장 자료가 없습니다. 로컬에서 시장 자료 묶음을 생성해야 합니다.';}finally{state.loading=false;$('#live-reload').disabled=false;}}
 $('#live-reload').addEventListener('click',load);$('#live-mode').addEventListener('change',render);$('#live-coin').addEventListener('change',render);$('#live-theme').addEventListener('click',()=>$('#theme-toggle').click());
 const theme=()=>{$('#live-theme').textContent=document.documentElement.dataset.theme==='light'?'☾ 다크':'☀ 라이트';};new MutationObserver(theme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});theme();
-function activate(){document.body.classList.toggle('is-market',location.hash==='#live');if(location.hash==='#live'&&!state.data)load();}window.addEventListener('hashchange',activate);activate();
+function activate(){if(location.hash==='#live'&&!state.data)load();}window.addEventListener('hashchange',activate);activate();
 setInterval(()=>{if(location.hash==='#live'&&!document.hidden)load();},60000);
