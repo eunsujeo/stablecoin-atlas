@@ -55,3 +55,44 @@ main{margin-left:232px;padding:29px 40px 18px;max-width:2000px;min-height:100vh}
 .overview-scope{display:flex;justify-content:space-between;align-items:end;margin:20px 0}.overview-scope .text-link{margin:0}.overview-metrics{grid-template-columns:1.3fr 1.1fr 1fr 1fr}.overview-metrics .metric-value strong{font-size:36px}.overview-results{margin-bottom:28px}.overview-verdicts{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px}.overview-verdict{display:grid;gap:5px;text-align:left;border:1px solid var(--line);background:var(--control);color:var(--ink);padding:15px;border-radius:9px}.overview-verdict span{font-size:11px;color:var(--muted)}.overview-verdict strong{font-size:26px;font-variant-numeric:tabular-nums}.overview-verdict small{font:9px ui-monospace,Menlo,monospace;color:var(--muted)}.overview-verdict.verdict-pass strong{color:var(--teal)}.overview-verdict.verdict-fail strong{color:var(--pink)}.overview-market-heading{align-items:center}.overview-rankings{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin-bottom:24px}.overview-ranking{padding:0;margin:0;list-style:none}.overview-rank-row{display:grid;grid-template-columns:18px 1fr auto;gap:8px 10px;align-items:center;padding:18px 0;border-bottom:1px solid var(--line)}.overview-rank-row:hover{background:var(--control)}.overview-rank-row>strong{font-size:13px}.overview-rank-value{font-size:19px;font-weight:650;font-variant-numeric:tabular-nums;letter-spacing:-.4px}.overview-rank-row small{grid-column:2/-1;font-size:9px}.overview-volume{min-height:220px;display:flex;justify-content:center;flex-direction:column;gap:12px}.overview-volume>strong{font-size:17px}.overview-volume p{font-size:12px;line-height:1.85}.overview-empty{color:var(--muted);padding:35px 0}.overview-methods{font-size:11px;color:var(--muted);line-height:1.9;margin-bottom:20px}.overview-methods summary{cursor:pointer;font-size:12px;color:var(--ink)}.overview-methods p{margin-top:15px;max-width:1000px}
 @media(max-width:1250px){.overview-rankings{grid-template-columns:1fr}.overview-volume{min-height:120px}.overview-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.overview-verdicts{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:700px){.overview-metrics .metric-value strong{font-size:27px}.overview-verdicts{gap:8px;grid-template-columns:repeat(2,minmax(0,1fr))}.overview-verdict{padding:12px}.overview-rankings{gap:18px}.overview-scope{align-items:start;gap:12px;flex-direction:column}.overview-scope select{max-width:100%}.overview-rank-value{font-size:18px}}
+
+/* Stored market observations: overview sparklines and interactive detail chart. */
+.trend-up{color:var(--teal)}.trend-down{color:var(--pink)}.trend-flat{color:var(--purple)}
+#live-screen .market-trend-panel{margin-bottom:24px;padding:26px 28px}
+#live-screen .market-trend-panel .panel-heading{align-items:flex-start;margin-bottom:24px}
+#live-trend-scope{font-size:11px;color:var(--muted);margin-top:7px}
+.trend-controls{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:flex-end}
+.trend-controls .chart-filters{display:flex;padding:4px;background:var(--control);border-radius:10px;gap:3px}
+.trend-controls .chart-filters button{font-size:11px;padding:8px 13px;border-radius:7px;background:transparent;color:var(--muted)}
+.trend-controls .chart-filters button[aria-pressed=true]{background:var(--panel);color:var(--ink);box-shadow:0 1px 5px #0002}
+.trend-summary{display:flex;align-items:baseline;gap:12px 20px;flex-wrap:wrap;margin-bottom:12px}
+.trend-value{font-size:34px;letter-spacing:-1px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;max-width:100%}
+.trend-change{font-size:12px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.trend-summary small{margin-left:auto;color:var(--muted);font-size:10px}
+.market-price-chart{display:block;width:100%;height:auto;max-height:420px;touch-action:pan-y;border-radius:8px}
+.market-price-chart:focus-visible{outline:2px solid var(--teal);outline-offset:4px}
+.market-price-chart .trend-axis{fill:var(--muted);font:11px ui-monospace,Menlo,monospace}
+.market-price-chart .grid-line{stroke:var(--line);stroke-width:1}
+.trend-crosshair{stroke:currentColor;stroke-width:1;stroke-dasharray:4 5;opacity:.55}
+.trend-readout{display:flex;align-items:baseline;flex-wrap:wrap;gap:8px 18px;min-height:35px;padding:14px 0;margin-bottom:8px;border-top:1px solid var(--line)}
+.trend-readout strong{font-size:15px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;max-width:100%}
+.trend-readout span,.trend-readout small{font-size:10px;color:var(--muted)}
+#live-trend .chart-note{max-width:880px}
+.market-spark{display:grid;gap:3px;min-width:0;text-align:right;justify-items:end}
+.market-spark svg{width:110px;height:36px;overflow:visible}.market-spark small{font-size:8px;color:var(--muted);white-space:nowrap}
+#live-ranking .market-rank-row,.market-rank-head{grid-template-columns:18px minmax(75px,1fr) minmax(100px,1fr) 80px 110px;gap:10px}
+#live-screen .live-grid{grid-template-columns:minmax(0,1.5fr) minmax(260px,1fr)}
+.overview-rank-row .market-spark{grid-column:2/-1;grid-row:3;display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%}
+.overview-rank-row .market-spark svg{width:100px;height:30px}
+@media(max-width:1200px){#live-screen .live-grid{grid-template-columns:1fr}}
+@media(max-width:700px){
+  #live-screen .market-trend-panel{padding:20px 16px}
+  #live-screen .market-trend-panel .panel-heading{flex-direction:column;align-items:stretch;gap:18px}
+  .trend-controls{justify-content:space-between;gap:8px}.trend-controls .chart-filters button{padding:7px 9px;font-size:10px}
+  .trend-value{font-size:27px}.trend-summary{gap:9px}.trend-summary small{margin-left:0;width:100%;font-size:9px}
+  .market-price-chart{min-height:220px}.trend-readout strong{font-size:13px}
+  #live-ranking .market-rank-row,.market-rank-head{grid-template-columns:14px minmax(55px,1fr) minmax(80px,1.1fr) 70px;gap:7px}
+  #live-ranking .market-spark{grid-column:2/-1;display:flex;flex-direction:row-reverse;align-items:center;justify-content:space-between;width:100%}
+  #live-ranking .market-spark svg{width:105px;height:28px}.market-rank-head>span:last-child{display:none}
+  .market-price-chart .trend-axis{font-size:15px}
+}

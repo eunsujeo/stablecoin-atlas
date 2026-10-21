@@ -1,3 +1,4 @@
+import {sparkline} from './market-chart.js';
 import { validateIndex, VERDICTS, reportLinks } from './evidence-model.js';
 import { validateMarket, displayAmount, latest } from './market-model.js';
 import { overviewSummary, overviewRanking } from './overview-model.js';
@@ -35,6 +36,7 @@ function renderMarket(){
     for(const [index,row]of rows.entries()){
       const coin=state.market.registry.coins.find(c=>c.id===row.coinId),item=node('li'),link=node('a',undefined,'overview-rank-row');link.href='#live';
       link.append(node('span',index+1,'rank-number'),node('strong',coin.symbol),node('span',displayAmount(row.amount),'overview-rank-value'),node('small',when(row.observedAt),'muted'));
+      link.append(sparkline(state.market,row));
       link.title=`${coin.name} · ${row.amount} tokens · ${row.provider} ${row.endpoint} · ${row.selector}`;item.append(link);host.append(item);
     }
     if(!rows.length)host.append(node('li','저장된 자료 없음','overview-empty'));

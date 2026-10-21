@@ -62,7 +62,7 @@ npm run with-env -- research:solana-mints --out reports/solana-mints.json
 npm run with-env -- research:xrpl-issuers --out reports/xrpl-issuers.json
 ```
 
-위 명령은 사용자가 실행할 때 외부 읽기 조회를 한다. 원래 `assess`/연구 명령은 기존처럼 shell 환경변수를 읽으며, `.env.local`을 자동으로 source하지 않는다. wrapper는 정해진 세 읽기 CLI만 지원한다. Arkham 자동 수집기는 아직 없으며 키 입력만으로 주기 호출이 시작되지 않는다.
+위 명령은 사용자가 실행할 때 외부 읽기 조회를 한다. 원래 `assess`/연구 명령은 기존처럼 shell 환경변수를 읽으며, `.env.local`을 자동으로 source하지 않는다. wrapper는 정해진 세 읽기 CLI만 지원한다. Arkham은 아래의 수동 단발 `market:collect`로 수집하며 키 입력만으로 주기 호출이 시작되지 않는다.
 
 ## 4. 개발 검사
 

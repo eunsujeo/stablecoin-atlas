@@ -9,6 +9,7 @@
 - Solana mint/명시 Token Account, XRPL issuer/명시 holder trust-line의 공통 읽기. 공개망 거래·서명·실제 관리자 권한 행사는 없다.
 - 로컬 저장 근거의 항목별 현황, 자산 프로필·비교, 보고서 문서. 소스 확인과 실제 실행 판정을 구분한다.
 - 실제 저장 시장 자료 화면 `#live`: 코인 전체 유통량 순위, 같은 코인의 체인별 총공급량, 관측 이력·원본 수량·출처, 공급자 네트워크 상태. UI는 다크/라이트·모바일을 지원하며 순위 행 선택으로 비교 대상을 바꾼다.
+- 시장 그래프: 가격·유통량·코인 전체 총공급량의 영역형 차트, 순위별 작은 추세선, 기간 선택·포인터/키보드 관측 선택·원본 출처 연결. 의미와 저장 이력 제한은 [그래프 안내](MARKET_CHARTS.md)를 따른다.
 - 등록 모델: coin/network/deployment ID, 계약·mint·issuer+currency 식별. 현재3코인/4네트워크/8발행 자산. 등록은 Adapter 지원 인증과 별도다.
 - Arkham 체인별 `totalSupply`와 전체 `circulatingSupply`를 분리한다. XRPL `gateway_balances.obligations`는 별도 범주이며 순위·합계에 섞지 않는다.
 - 서버 수동 단발 Arkham 수집(`npm run market:collect`): 최대7회 읽기·실패 중단·공통 writer 잠금·원자적 발행·별도 수집 상태. 웹 요청은 외부 호출을 실행하지 않는다. [ADR0037](adr/0037-manual-market-collector.md).
@@ -30,6 +31,8 @@
 새 PC는 `npm ci` → `npm run setup` → `npm run doctor`로 준비한다. 과거 근거는 별도 이동 파일을 가져와 두 publisher로 복원한다. 시장 자료만 새로 받으려면 `.env.local`의 ARKM_API_KEY를 설정하고 `npm run market:collect`를 명시적으로1회 실행한다. 새 collected 이력은 기존14원본 이동 파일에 포함되지 않는다.
 
 주기 수집 전 계정 한도·기간·요청별 크레딧을 확인해야 한다. usage1회는 HTTP200 및 totalLimit10000이었으나 잔여량/기간/단가 계약은 미확인이다. 이번 실행은 usage1건과 자료7건이었다. 사용자 화면 수는 외부 요청 수를 늘리지 않는다.
+
+2026-10-22 공식 문서 재확인에서도 거래량 기간·단위와 계정 한도 정의를 확보하지 못했다. 상세4문서는 Cloudflare HTTP403이었다. 거래량 순위·주기 수집은 기존 보류를 유지하며, 새 인증 API 호출은 하지 않았다. 조회별 결과와 재개 조건은 [조사 기록](research/arkham-volume-and-budget-review.md)을 따른다. 현재 PC의 doctor는 통과했으며 물리적으로 다른 PC 검증은 미실행이다.
 
 수집 실패 시 마지막 정상값·원본 관측 시각·실패 상태를 보존한다. 누락·명시적0·메서드 오류·미지원은 다르다. XRPL과 Arkham의 다른 지표를 단순 fallback으로 서로 대체하지 않는다. 새 체인/토큰은 먼저 registry와 공급자 식별자 출처를 연결하고 미확보 범위를 표시한다.
 

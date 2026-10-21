@@ -14,6 +14,7 @@ const assets = new Map([
   ['/overview.js', ['../web/overview.js', 'text/javascript; charset=utf-8']],
   ['/overview-model.js', ['../web/overview-model.js', 'text/javascript; charset=utf-8']],
   ['/market-view.js', ['../web/market-view.js', 'text/javascript; charset=utf-8']],
+  ['/market-chart.js', ['../web/market-chart.js', 'text/javascript; charset=utf-8']],
   ['/market-model.js', ['../web/market-model.js', 'text/javascript; charset=utf-8']],
   ['/model.js', ['../web/model.js', 'text/javascript; charset=utf-8']],
   ['/mock-data.json', ['../docs/ui/mock-dashboard-data.json', 'application/json; charset=utf-8']],

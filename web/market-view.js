@@ -1,5 +1,6 @@
+import {sparkline,renderMarketChart} from './market-chart.js';
 import {validateMarket,rank,latest,series,units,ratio,displayAmount,exactDecimal,METRICS} from './market-model.js';
-const $ = s=>document.querySelector(s), state={data:null,loading:false,trigger:null};
+const $ = s=>document.querySelector(s), state={data:null,loading:false,trigger:null,period:'all'};
 const node=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
 const svg=(tag,attrs)=>{const n=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const[k,v]of Object.entries(attrs))n.setAttribute(k,String(v));return n;};
 const when=value=>value?new Date(value).toLocaleString('ko-KR',{hour12:false}):'UNKNOWN · 자료 시각 미제공';
@@ -30,6 +31,14 @@ function chart(){const host=$('#live-history');host.replaceChildren();const sele
   const title=svg('text',{x:30,y:20,class:'axis-text'});title.textContent=`상단 기준 ${displayAmount(topObservation.amount)} tokens · 선형 비율`;
   figure.append(title);host.append(figure,legends,node('p',`${when(new Date(minTime).toISOString())}${maxTime!==minTime?' → '+when(new Date(maxTime).toISOString()):' · 단일 관측 시점'}`,'chart-note'));
 }
+function trend(){if(!state.data)return;const selected=$('#live-coin').value,metric=$('#live-trend-metric').value;
+  const observation=latest(state.data,{coinId:selected,metric})[0];
+  $('#live-trend-title').textContent=coin(selected).symbol+' · '+({PRICE:'가격',CIRCULATING:'유통량',COIN_TOTAL:'총공급량'}[metric]);
+  $('#live-trend-scope').textContent='코인 전체 · '+(metric==='PRICE'?'USD':'tokens')+' · 저장된 공급자 관측';
+  renderMarketChart($('#live-trend'),state.data,observation,{period:state.period,onDetail:detail});
+}
+$('#live-trend-metric').addEventListener('change',trend);
+$('#live-trend-period').addEventListener('click',event=>{const button=event.target.closest('button[data-period]');if(!button)return;state.period=button.dataset.period;for(const b of $('#live-trend-period').querySelectorAll('button'))b.setAttribute('aria-pressed',String(b===button));trend();});
 function render(){if(!state.data)return;const data=state.data,selected=$('#live-coin').value,c=coin(selected),mode=$('#live-mode').value;
   const global=latest(data,{coinId:selected,metric:'CIRCULATING'})[0],price=latest(data,{coinId:selected,metric:'PRICE'})[0],chainRows=rank(data,selected),deployments=data.registry.deployments.filter(d=>d.coinId===selected);
   const metrics=$('#live-metrics');metrics.replaceChildren();
@@ -46,6 +55,7 @@ function render(){if(!state.data)return;const data=state.data,selected=$('#live-
     const name=node('span',undefined,'market-asset-name');name.append(node('strong',mode==='coins'?coin(o.coinId).symbol:network(o.networkId).name),node('small',mode==='coins'?coin(o.coinId).name:c.symbol));
     const amount=node('span',undefined,'market-quantity');amount.append(node('strong',displayAmount(o.amount)));const track=node('span',undefined,'track'),fill=node('span',undefined,'track-fill');fill.style.width=ratio(o.amount,rows[0].amount)+'%';track.append(fill);amount.append(track);
     const p=latest(data,{coinId:o.coinId,metric:'PRICE'})[0];b.append(node('span',String(i+1),'rank-number'),name,amount,node('span',mode==='coins'?(p?'$'+p.amount:'미확보'):new Date(o.observedAt).toLocaleTimeString('ko-KR',{hour12:false}),'market-row-secondary'));
+    b.append(sparkline(data,o));
     b.addEventListener('click',()=>{if(mode==='coins'){$('#live-coin').value=o.coinId;render();$('#live-ranking').querySelector(`[data-coin="${o.coinId}"]`)?.focus();}else detail(o,b);});host.append(b);
   });if(!rows.length)host.append(node('p','비교할 공급량이 없습니다.','empty-state'));
   const bars=$('#live-bars');bars.replaceChildren();for(const d of deployments){const o=chainRows.find(o=>o.deploymentId===d.id),row=node('div',undefined,'market-network-row'),head=node('div',undefined,'market-network-row-head');head.append(node('strong',network(d.networkId).name));
@@ -54,7 +64,7 @@ function render(){if(!state.data)return;const data=state.data,selected=$('#live-
     bars.append(row);
   }
   const table=$('#live-rows');table.replaceChildren();for(const d of deployments){const o=latest(data,{coinId:selected,deploymentId:d.id,metric:d.networkId==='xrpl'?'OBLIGATIONS':'CHAIN_TOTAL'})[0];const row=node('tr');row.append(node('td',`${c.symbol} · ${network(d.networkId).name}`),node('td',o?METRICS[o.metric].label:'해당 공급량 미확보'),node('td',o?exactDecimal(o.amount):'미확보','exact'),node('td',o?when(o.observedAt):'—'));const action=node('td');if(o){const b=node('button','상세 ↗','quiet-button');b.addEventListener('click',()=>detail(o,b));action.append(b);}row.append(action);table.append(row);}
-  chart();const networks=$('#live-networks');networks.replaceChildren();for(const n of data.registry.networks){const observation=data.networks.find(x=>x.networkId===n.id),card=node('article',undefined,'market-network-status');card.append(node('h3',n.name),node('span',observation?(observation.active?'활성 보고':'비활성 보고'):'미확보',observation?.active?'network-report-active':'muted'),node('small',observation?'블록 / 슬롯 '+observation.tip:'별도 관측 필요','muted'),node('small',observation?'기준 '+when(observation.sourceAt):'자료 없음','muted'));card.title=observation?'수집 관측 '+when(observation.observedAt):'공급자 자료가 없습니다.';networks.append(card);}
+  trend();chart();const networks=$('#live-networks');networks.replaceChildren();for(const n of data.registry.networks){const observation=data.networks.find(x=>x.networkId===n.id),card=node('article',undefined,'market-network-status');card.append(node('h3',n.name),node('span',observation?(observation.active?'활성 보고':'비활성 보고'):'미확보',observation?.active?'network-report-active':'muted'),node('small',observation?'블록 / 슬롯 '+observation.tip:'별도 관측 필요','muted'),node('small',observation?'기준 '+when(observation.sourceAt):'자료 없음','muted'));card.title=observation?'수집 관측 '+when(observation.observedAt):'공급자 자료가 없습니다.';networks.append(card);}
 }
 async function load(){if(state.loading)return;state.loading=true;$('#live-reload').disabled=true;try{const res=await fetch('/market-data.json',{cache:'no-store',signal:AbortSignal.timeout(10000)});if(!res.ok)throw new Error();let size=0;const chunks=[];for await(const chunk of res.body){size+=chunk.length;if(size>2*1024*1024)throw new Error();chunks.push(chunk);}const bytes=new Uint8Array(size);let offset=0;for(const c of chunks){bytes.set(c,offset);offset+=c.length;}const data=validateMarket(JSON.parse(new TextDecoder().decode(bytes)));state.data=data;
     const select=$('#live-coin'),old=select.value;select.replaceChildren();for(const c of data.registry.coins){const option=node('option',c.symbol);option.value=c.id;select.append(option);}if(data.registry.coins.some(c=>c.id===old))select.value=old;
@@ -70,3 +80,5 @@ $('#live-reload').addEventListener('click',load);$('#live-mode').addEventListene
 const theme=()=>{$('#live-theme').textContent=document.documentElement.dataset.theme==='light'?'☾ 다크':'☀ 라이트';};new MutationObserver(theme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});theme();
 function activate(){if(location.hash==='#live'&&!state.data)load();}window.addEventListener('hashchange',activate);activate();
 setInterval(()=>{if(location.hash==='#live'&&!document.hidden)load();},60000);
+
+let trendWidth=0;new ResizeObserver(entries=>{const width=Math.round(entries[0].contentRect.width);if(width>0&&width!==trendWidth){trendWidth=width;trend();}}).observe($('#live-trend'));
