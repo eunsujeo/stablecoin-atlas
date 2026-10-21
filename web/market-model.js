@@ -51,7 +51,7 @@ export function validateRegistry(registry) {
   return registry;
 }
 export function validateMarket(data) {
-  keys(data,['schemaVersion','kind','publishedAt','registry','observations','networks','omittedSupplyEntries','lastBuildState']);
+  keys(data,['schemaVersion','kind','publishedAt','registry','observations','networks','omittedSupplyEntries','lastBuildState','collectionState']);
   ensure(data?.schemaVersion === 1 && data.kind === 'STORED_PROVIDER_OBSERVATIONS_NOT_ASSESSMENT' && time(data.publishedAt));
   validateRegistry(data.registry); ensure(Array.isArray(data.observations) && data.observations.length <= 5000);
   const seen = new Set();
@@ -70,13 +70,22 @@ export function validateMarket(data) {
   for (const n of data.networks) { keys(n,['networkId','active','tip','observedAt','sourceAt','sourceHash']); ensure(data.registry.networks.some(x=>x.id===n.networkId) && typeof n.active === 'boolean' && /^\d{1,30}$/.test(n.tip) && time(n.observedAt) && (n.sourceAt === null || time(n.sourceAt)) && hash(n.sourceHash)); }
   ensure(Number.isInteger(data.omittedSupplyEntries) && data.omittedSupplyEntries >= 0 && data.omittedSupplyEntries <= 10000);
   ensure(data.lastBuildState === undefined || ['SUCCESS','FAILED','UNKNOWN'].includes(data.lastBuildState));
+  if(data.collectionState!==undefined) validateCollectionState(data.collectionState);
   return data;
+}
+export function validateCollectionState(row) {
+  keys(row,['state','attemptedAt','requests','completedRequests','published','httpStatus','retryAfterSeconds']);
+  ensure(['RUNNING','SUCCESS','FAILED'].includes(row.state)&&time(row.attemptedAt)&&Number.isInteger(row.requests)&&row.requests>=0&&row.requests<=7);
+  ensure(Number.isInteger(row.completedRequests)&&row.completedRequests>=0&&row.completedRequests<=row.requests&&typeof row.published==='boolean');
+  ensure(row.httpStatus===null||(Number.isInteger(row.httpStatus)&&row.httpStatus>=100&&row.httpStatus<=599));
+  ensure(row.retryAfterSeconds===null||(typeof row.retryAfterSeconds==='string'&&/^\d{1,8}$/.test(row.retryAfterSeconds)));
+  return row;
 }
 export function latest(data, {coinId, metric, deploymentId} = {}) {
   const groups = new Map();
   for (const o of data.observations) {
     if ((coinId && coinId !== o.coinId) || (metric && metric !== o.metric) || (deploymentId && deploymentId !== o.deploymentId)) continue;
-    const key = [o.coinId,o.deploymentId,o.metric,o.provider,o.endpoint,o.selector].join(':');
+    const key = [o.coinId,o.deploymentId,o.metric,o.provider,o.endpoint].join(':');
     const previous = groups.get(key);
     if (!previous || o.observedAt > previous.observedAt || (o.observedAt === previous.observedAt && o.id > previous.id)) groups.set(key, o);
   }

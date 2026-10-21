@@ -26,6 +26,7 @@
     "ui": "node tools/ui-preview.mjs",
     "evidence:build": "node --import tsx tools/evidence-build.mjs",
     "market:build": "node tools/market-build.mjs",
+    "market:collect": "node --use-env-proxy tools/market-collect.mjs",
     "setup": "node tools/workspace-setup.mjs",
     "doctor": "node tools/workspace-doctor.mjs",
     "doctor:full": "node tools/workspace-doctor.mjs full",

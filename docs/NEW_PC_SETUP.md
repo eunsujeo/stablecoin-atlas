@@ -80,3 +80,7 @@ TRON 컴파일 검사는 별도로 고정한0.8.26 compiler가 필요하다. `co
 개발용 Router/Lead는 선택 도구다. Python/로컬 모델/Herdr는 제품·UI 실행 조건이 아니며 모델 가중치·설정·인증은 Git으로 이동하지 않는다. 프로젝트 hook 신뢰를 자동 승인하거나 시스템 모델 설정을 바꾸지 않는다. 해당 도구를 사용하는 개발자는 루트와 Router의 AGENTS.md를 따른다.
 
 작업 전 `git pull --ff-only`, 작업 후 검사와 커밋·push를 수행한다. 서로 다른 PC에서 같은 미커밋 변경을 덮어쓰지 않는다. 현재 구조는 단일 writer 기준이며 병렬 데이터 import/build를 지원하지 않는다.
+
+## 시장 자료의 수동 갱신
+
+과거 연구 파일 없이도 `.env.local`의 `ARKM_API_KEY`를 설정하고 `npm run market:collect`를 실행하면3코인의 시장 자료를 한 번 수집할 수 있다. 최대7회 읽기이며 반복 수집은 시작하지 않는다. 완료 후 `npm run ui`로 `#live`를 확인한다. 기존14원본 이동 파일에는 새 `market-store/collected` 이력이 포함되지 않는다. 수집 중 다른 `market:collect`/`market:build`는 즉시 거부된다. 비정상 종료로 `.writer-lock`이 남으면 모든 writer가 종료되었는지 확인한 뒤 그 잠금만 수동 복구한다. 잠금을 시간만으로 지우지 않는다. [ADR0037](adr/0037-manual-market-collector.md).

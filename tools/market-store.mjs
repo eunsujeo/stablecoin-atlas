@@ -1,9 +1,9 @@
 import { constants } from 'node:fs';
-import { open, mkdir, rename, unlink } from 'node:fs/promises';
+import { open, mkdir, rename, unlink, rmdir } from 'node:fs/promises';
 import { createHash, randomUUID } from 'node:crypto';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { validateMarket, validateRegistry, METRICS } from '../web/market-model.js';
+import { validateMarket, validateRegistry, validateCollectionState, METRICS } from '../web/market-model.js';
 export const defaultMarketDirectory = new URL('../reports/market-store/', import.meta.url);
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');
 export async function boundedJson(path, limit = 2 * 1024 * 1024) {
@@ -16,7 +16,7 @@ export async function boundedJson(path, limit = 2 * 1024 * 1024) {
     const raw = bytes.subarray(0,size); return { value: JSON.parse(raw.toString('utf8')), hash: digest(raw) };
   } finally { await handle.close(); }
 }
-async function atomic(path, value) {
+export async function atomic(path, value) {
   const tmp = `${path}.${randomUUID()}.tmp`;
   try { const f = await open(tmp,'wx',0o600); try { await f.writeFile(JSON.stringify(value)+'\n'); } finally { await f.close(); } await rename(tmp,path); }
   finally { await unlink(tmp).catch(()=>{}); }
@@ -30,7 +30,9 @@ export async function publishedMarket(directory = defaultMarketDirectory) {
   const data = validateMarket(snapshot.value);
   let lastBuildState = 'UNKNOWN';
   try { const build = (await boundedJson(join(root,'last-build.json'),1024)).value; if (['SUCCESS','FAILED'].includes(build.state)) lastBuildState = build.state; } catch {}
-  return {...data,lastBuildState};
+  let collectionState;
+  try { collectionState = validateCollectionState((await boundedJson(join(root,'last-collection.json'),1024)).value); } catch {}
+  return {...data,lastBuildState,...(collectionState?{collectionState}:{})};
 }
 export function normalizeSources(registry, sources, previous = null) {
   validateRegistry(registry); const observations = [];
@@ -85,7 +87,28 @@ export function normalizeSources(registry, sources, previous = null) {
   const networkMap = new Map(); for (const row of [...(previous?.networks??[]),...networks]) if (!networkMap.has(row.networkId) || row.observedAt >= networkMap.get(row.networkId).observedAt) networkMap.set(row.networkId,row);
   return validateMarket({schemaVersion:1,kind:'STORED_PROVIDER_OBSERVATIONS_NOT_ASSESSMENT',publishedAt:new Date().toISOString(),registry,observations:[...merged.values()].sort((a,b)=>a.id.localeCompare(b.id)),networks:[...networkMap.values()],omittedSupplyEntries});
 }
-export async function buildMarket({registryPath, sourcePaths, directory = defaultMarketDirectory}) {
+// One owner spans collection and publication. Never steal a possibly active lock.
+export async function withMarketWriter(directory = defaultMarketDirectory, operation) {
+  const root = directory instanceof URL ? fileURLToPath(directory) : String(directory);
+  await mkdir(root,{recursive:true,mode:0o700});
+  const lock = join(root,'.writer-lock');
+  try { await mkdir(lock,{mode:0o700}); } catch(error) {
+    if(error.code==='EEXIST') throw new Error('MARKET_WRITER_BUSY');
+    throw error;
+  }
+  const owner = randomUUID(), ownerPath = join(lock,'owner.json');
+  const handle = await open(ownerPath,'wx',0o600);
+  try { await handle.writeFile(JSON.stringify({owner})); } finally { await handle.close(); }
+  try { return await operation(options=>publishMarket({...options,directory:root}),root); }
+  finally {
+    // A manually replaced lock is never removed by its former owner.
+    if((await boundedJson(ownerPath,1024)).value.owner===owner){await unlink(ownerPath);await rmdir(lock);}
+  }
+}
+export async function buildMarket(options) {
+  return withMarketWriter(options.directory, publish=>publish(options));
+}
+async function publishMarket({registryPath, sourcePaths, directory = defaultMarketDirectory}) {
   const root = directory instanceof URL ? fileURLToPath(directory) : String(directory);
   await mkdir(root,{recursive:true,mode:0o700});
   try {
