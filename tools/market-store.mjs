@@ -57,6 +57,8 @@ export function normalizeSources(registry, sources, previous = null) {
       for (const coin of registry.coins) {
         if (request.endpoint === `/token/market/${coin.pricingId}`) {
           add(coin,null,'CIRCULATING',request.data?.circulatingSupply,request.endpoint,prefix+'.data.circulatingSupply',request);
+          add(coin,null,'COIN_TOTAL',request.data?.totalSupply,request.endpoint,prefix+'.data.totalSupply',request);
+          add(coin,null,'REPORTED_VOLUME',request.data?.totalVolume,request.endpoint,prefix+'.data.totalVolume',request);
           add(coin,null,'PRICE',request.data?.price,request.endpoint,prefix+'.data.price',request);
         }
         if (request.endpoint === `/token/holders/${coin.pricingId}`) {

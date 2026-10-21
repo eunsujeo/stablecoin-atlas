@@ -3,6 +3,8 @@ export const METRICS = {
   CIRCULATING: { label: '코인 전체 · 공급자 유통량', unit: 'token', scope: 'COIN' },
   CHAIN_TOTAL: { label: '체인별 · 공급자 총공급량', unit: 'token', scope: 'DEPLOYMENT' },
   OBLIGATIONS: { label: 'XRPL obligations · 범위 제한', unit: 'token', scope: 'DEPLOYMENT' },
+  COIN_TOTAL: { label: '코인 전체 · 공급자 총공급량', unit: 'token', scope: 'COIN' },
+  REPORTED_VOLUME: { label: '공급자 거래량 · 기간/단위 미확인', unit: 'UNKNOWN', scope: 'COIN' },
   PRICE: { label: '공급자 가격', unit: 'USD', scope: 'COIN' },
 };
 const id = x => typeof x === 'string' && /^[a-z][a-z0-9_-]{0,63}$/.test(x);

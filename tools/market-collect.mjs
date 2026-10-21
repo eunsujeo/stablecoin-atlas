@@ -15,7 +15,7 @@ const requireValue = condition=>{if(!condition)throw new Error('INVALID_RESPONSE
 function amount(value) { requireValue(decimal(value)); return value; }
 export function projectResponse(endpoint, raw, registry) {
   requireValue(raw && typeof raw==='object' && !Array.isArray(raw));
-  if(endpoint.startsWith('/token/market/')) return {circulatingSupply:amount(raw.circulatingSupply),price:amount(raw.price)};
+  if(endpoint.startsWith('/token/market/')) return {circulatingSupply:amount(raw.circulatingSupply),price:amount(raw.price),...(raw.totalSupply==null?{}:{totalSupply:amount(raw.totalSupply)}),...(raw.totalVolume==null?{}:{totalVolume:amount(raw.totalVolume)})};
   if(endpoint.startsWith('/token/holders/')) {
     requireValue(raw.totalSupply && typeof raw.totalSupply==='object' && !Array.isArray(raw.totalSupply));
     const entries=Object.entries(raw.totalSupply);requireValue(entries.length>0&&entries.length<=256);
