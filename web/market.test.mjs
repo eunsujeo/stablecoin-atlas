@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFile,writeFile,mkdtemp,rm,symlink} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
+import {pathToFileURL} from 'node:url';
 import {createHash} from 'node:crypto';
 import {request} from 'node:http';
 import {validateRegistry,validateMarket,units,rank,series,latest} from './market-model.js';
@@ -11,6 +12,13 @@ import {startPreviewServer} from '../tools/ui-preview.mjs';
 const registry=JSON.parse(await readFile(new URL('../data/asset-registry.json',import.meta.url),'utf8'));
 const hash=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
 const at='2026-10-21T01:00:00.000Z';
+test('market storage supports file URLs in checkout paths containing spaces',async()=>{
+  const root=await mkdtemp(join(tmpdir(),'atlas market '));try{
+    const registryPath=join(root,'registry.json'),input=join(root,'source.json'),directory=pathToFileURL(join(root,'market store')+'/');
+    await writeFile(registryPath,JSON.stringify(registry));await writeFile(input,JSON.stringify(source().value));
+    await buildMarket({registryPath,sourcePaths:[input],directory});const data=await publishedMarket(directory);assert.equal(data.lastBuildState,'SUCCESS');assert.equal(data.observations.length,4);assert.ok(JSON.parse(await readFile(new URL('index.json',directory),'utf8')).hash);
+  }finally{await rm(root,{recursive:true,force:true});}
+});
 function source(amount='100000000000000000000.123456789012345678901234567890123456',time=at){const value={observedAt:time,requests:[{state:'SUCCESS',httpStatus:200,endpoint:'/token/holders/usd-coin',data:{totalSupply:{ethereum:amount,solana:'0',unregistered:'999999'}}},{state:'SUCCESS',httpStatus:200,endpoint:'/token/market/usd-coin',data:{circulatingSupply:'900',price:'1',API_KEY:'do-not-publish'}}]};return{value,hash:hash(value)};}
 test('registry expansion preserves network identities and rejects duplicate/mismatched identifiers',()=>{
   const r=structuredClone(registry);r.coins.push({id:'newcoin',symbol:'NEW',name:'New coin',pricingId:'newcoin'});r.deployments.push({...r.deployments[0],id:'new-ethereum',coinId:'newcoin',identity:{kind:'CONTRACT',address:'0x'+'1'.repeat(40)}});assert.equal(validateRegistry(r).coins.length,4);

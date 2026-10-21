@@ -1,10 +1,21 @@
-# Multi-Chain Asset Compatibility Lab
+# Stablecoin Atlas
 
-**현재 마일스톤 완료:** [완료 범위와 공개망 조회 결과](docs/STABLECOIN_MILESTONE_COMPLETION.md). 구현 검사212개 통과, 새 공개 계정 보고서4개·읽기 RPC14회. 남는 제한을 기록하고 현재 단계는 마감했다.
+다른 PC에서 시작하려면 [새 PC 설정](docs/NEW_PC_SETUP.md), 작업을 이어갈 때는 [현재 개발 상태](docs/DEVELOPMENT_STATUS.md)를 먼저 읽는다.
+
+```sh
+npm ci
+npm run setup
+npm run doctor
+npm run ui
+```
+
+Node.js24.5 이상이면 UI를 열 수 있다. Anvil·JDK는 전체 검사에 필요하며 `npm run doctor:full`로 별도 확인한다. 데이터가 없는 새 PC에서는 기존 PC가 내보낸 로컬 이동 파일을 가져와야 현재 근거와 실제 시장 자료가 나타난다. 키나 보고서를 Git에 올려 해결하지 않는다.
+
+**현재 마일스톤 완료:** [완료 범위와 공개망 조회 결과](docs/STABLECOIN_MILESTONE_COMPLETION.md). 당시 구현 검사212개 통과, 새 공개 계정 보고서4개·읽기 RPC14회. 남는 제한을 기록하고 현재 단계는 마감했다.
 
 후속 [XRPL 실제 보유 trust-line 조사](docs/XRPL_HELD_TRUSTLINE_OBSERVATION.md)도 완료했다. USDC·RLUSD AMM 표본의 양수 잔액·양측 설정을 직접 RippleState 연구 조회로 확인했으며, 공통 Adapter의 페이지 제한은 별도로 보존한다.
 
-현재는 스테이블코인을 우선 대상으로 삼아 체인·구현별 기술 호환성을 실행 증거와 소스 검토로 확인하는 CLI다. EVM/ERC-20·TRON/TRC-20 읽기와 사설 Fixture 검사, Solana mint·XRPL issuer 설정의 공통 읽기를 제공한다. 외부 자산은 읽기 전용으로 조회하고, 상태 변경은 새로 생성한 사설 EVM/TVM Fixture에서만 검증한다. 제품 내부 LLM·별도 웹 서버·DB는 사용하지 않는다.
+현재는 스테이블코인을 우선 대상으로 삼아 체인·구현별 기술 호환성을 실행 증거와 소스 검토로 확인하는 CLI다. EVM/ERC-20·TRON/TRC-20 읽기와 사설 Fixture 검사, Solana mint·XRPL issuer 설정의 공통 읽기를 제공한다. 외부 자산은 읽기 전용으로 조회하고, 상태 변경은 새로 생성한 사설 EVM/TVM Fixture에서만 검증한다. 제품 내부 LLM과 DB는 사용하지 않으며, 저장된 자료를 읽는 로컬 대시보드를 제공한다.
 
 체인·네트워크, 실행 환경(EVM/TVM), 토큰 표준(ERC-20/TRC-20), 개별 토큰 컨트랙트와 검증 시나리오를 구분한다. Ethereum과 TRON은 체인, ERC-20과 TRC-20은 컨트랙트가 구현하는 토큰 인터페이스 표준이다.
 

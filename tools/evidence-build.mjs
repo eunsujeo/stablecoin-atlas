@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { pathToFileURL } from 'node:url';
 import { validateAssessmentReportText } from '../src/report-contract.ts';
 import { boundedRead, digest, evidenceRoot, publishedIndex } from './evidence-store.mjs';
-const sources = [
+export const sources = [
   ['dashboard-local-validation.json', 'LOCAL_FIXTURE', 'EVM', '31337', null, null],
   ['usdc-readonly.json', 'STORED_READ_ONLY', 'EVM', '1', 'USDC', '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'],
   ['usdt-readonly.json', 'STORED_READ_ONLY', 'EVM', '1', 'USDT', '0xdAC17F958D2ee523a2206206994597C13D831ec7'],

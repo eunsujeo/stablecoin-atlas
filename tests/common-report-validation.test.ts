@@ -45,9 +45,12 @@ test('offline wire validator accepts legitimate FAIL, additive/reordered data, a
   for(const[expected,mutate]of cases){const r=sample();mutate(r);const result=validate(wire(r));assert.equal(result.valid,false,expected);assert(result.issues.some(e=>e.code===expected),wire(result));assert(!wire(result).includes(secret));}
 });
 test('Solana supplyRaw uses optional canonical decimal strings in schema, production validation and offline CLI',async()=>{
-  // Mutated copies are synthetic contract specimens, never new on-chain observations.
-  const path=new URL('../reports/solana-usdc-assessment-readonly.json',import.meta.url);
-  const original=readFileSync(path,'utf8'),report=JSON.parse(original) as AssessmentReport;
+  // Build a synthetic specimen, independent of ignored local mainnet reports.
+  const report=sample();report.assetIdentity.chainFamily='SOLANA';report.assetIdentity.networkId='synthetic-solana';
+  report.assetIdentity.contractAddress={status:'NOT_APPLICABLE',reason:'Synthetic mint account'};
+  report.assetIdentity.mintAddress={status:'KNOWN',value:'11111111111111111111111111111111'};
+  report.results[0]!.scenarioId='SOLANA-003';report.results[0]!.capability='SUPPLY_TRACKING';
+  report.results[0]!.assetIdentity=structuredClone(report.assetIdentity);report.results[0]!.observations={};report.capabilitySummary=summarize(report);
   const supply=report.results.find(r=>r.scenarioId==='SOLANA-003')!.observations;
   for(const value of ['0','123','9007199254740993','18446744073709551615','18446744073709551616']){
     supply.supplyRaw=value;assert.equal(validateReportShape(report),true);assert.equal(validate(wire(report)).valid,true);
@@ -69,7 +72,6 @@ test('Solana supplyRaw uses optional canonical decimal strings in schema, produc
       assert.equal(JSON.parse(result.stdout).valid,result.code===0);assert.equal(await readFile(file,'utf8'),text);
     }
   }finally{await rm(dir,{recursive:true,force:true});}
-  assert.equal(readFileSync(path,'utf8'),original);
 });
 test('JSON lexical boundary preserves strings/escapes, rejects duplicate decoded keys and enforces exact byte/depth limits',()=>{
   const r=sample();Object.assign(r,{future:{escaped:'"\\"'+secret+'['.repeat(500),array:[{id:'x'},{id:'y'}]}});

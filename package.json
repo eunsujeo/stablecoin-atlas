@@ -25,7 +25,15 @@
     "tvm:allowance-negative": "node --use-env-proxy --import tsx src/tron/lab/allowance-cli.ts",
     "ui": "node tools/ui-preview.mjs",
     "evidence:build": "node --import tsx tools/evidence-build.mjs",
-    "market:build": "node tools/market-build.mjs"
+    "market:build": "node tools/market-build.mjs",
+    "setup": "node tools/workspace-setup.mjs",
+    "doctor": "node tools/workspace-doctor.mjs",
+    "doctor:full": "node tools/workspace-doctor.mjs full",
+    "with-env": "node tools/workspace-env.mjs",
+    "workspace:export": "node --import tsx tools/workspace-transfer.mjs export",
+    "workspace:import": "node --import tsx tools/workspace-transfer.mjs import",
+    "check:ui": "node --use-env-proxy --import tsx --test --test-concurrency=2 web/*.test.mjs",
+    "compiler:prepare": "node --use-env-proxy --import tsx tools/prepare-tron-compiler.ts"
   },
   "dependencies": {
     "solc": "0.8.37",

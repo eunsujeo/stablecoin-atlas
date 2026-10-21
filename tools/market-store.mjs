@@ -2,6 +2,7 @@ import { constants } from 'node:fs';
 import { open, mkdir, rename, unlink } from 'node:fs/promises';
 import { createHash, randomUUID } from 'node:crypto';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { validateMarket, validateRegistry, METRICS } from '../web/market-model.js';
 export const defaultMarketDirectory = new URL('../reports/market-store/', import.meta.url);
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');
@@ -21,7 +22,7 @@ async function atomic(path, value) {
   finally { await unlink(tmp).catch(()=>{}); }
 }
 export async function publishedMarket(directory = defaultMarketDirectory) {
-  const root = String(directory instanceof URL ? directory.pathname : directory);
+  const root = directory instanceof URL ? fileURLToPath(directory) : String(directory);
   const {value:index} = await boundedJson(join(root,'index.json'),1024);
   if (index.schemaVersion !== 1 || !/^[a-f0-9]{64}$/.test(index.hash)) throw new Error('INVALID_INDEX');
   const snapshot = await boundedJson(join(root,`${index.hash}.json`));
@@ -85,7 +86,7 @@ export function normalizeSources(registry, sources, previous = null) {
   return validateMarket({schemaVersion:1,kind:'STORED_PROVIDER_OBSERVATIONS_NOT_ASSESSMENT',publishedAt:new Date().toISOString(),registry,observations:[...merged.values()].sort((a,b)=>a.id.localeCompare(b.id)),networks:[...networkMap.values()],omittedSupplyEntries});
 }
 export async function buildMarket({registryPath, sourcePaths, directory = defaultMarketDirectory}) {
-  const root = String(directory instanceof URL ? directory.pathname : directory);
+  const root = directory instanceof URL ? fileURLToPath(directory) : String(directory);
   await mkdir(root,{recursive:true,mode:0o700});
   try {
     // An absent index means a first build. A corrupt existing index is never silently reset.

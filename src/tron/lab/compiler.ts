@@ -1,13 +1,11 @@
 import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import solc from 'solc';
-export const compilerPin = {
-  version: '0.8.26+commit.733b4d28', file: 'soljson-v0.8.26+commit.733b4d28.js',
-  sha256: '31fe546b9e6ad74e816d6406dcdb59f3af180f9c1145fd994bd5205d9c8465c1',
-  manifestCommit: '32695fe4b8d85704da9ec4cedce107a905e412ac',
-};
+export const compilerPin: { version:string;file:string;sha256:string;manifestCommit:string } =
+  JSON.parse(readFileSync(new URL('../../../data/tron-compiler-pin.json',import.meta.url),'utf8'));
 export const sha256 = (value: Uint8Array | string) => createHash('sha256').update(value).digest('hex');
 export const tronFixtures = {
   standard: { sourceFile: 'TronStandardToken.sol', contractName: 'TronStandardToken' },
