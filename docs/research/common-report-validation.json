@@ -1,0 +1,145 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "OFFLINE_REPORT_CONTRACT_VALIDATION_NOT_ASSET_ASSESSMENT",
+  "scope": "SCHEMA_AND_INTERNAL_CONSISTENCY_ONLY",
+  "records": [
+    {
+      "profileId": "ethereum-usdc",
+      "report": "../../reports/usdc-readonly.json",
+      "sha256": "611b00ab17332a475d6ca32b8b9c072b8995a2b4df96183830b2fbb5fcccbcdf",
+      "inputBytes": 106847,
+      "inputPreserved": true,
+      "validatorExitCode": 0,
+      "validation": {
+        "kind": "ASSESSMENT_REPORT_VALIDATION",
+        "scope": "SCHEMA_AND_INTERNAL_CONSISTENCY_ONLY",
+        "valid": true,
+        "issues": [],
+        "issueLimitReached": false
+      }
+    },
+    {
+      "profileId": "ethereum-usdt",
+      "report": "../../reports/usdt-readonly.json",
+      "sha256": "af78a1cf4d8d0ac3f8cb50f785044d21670932e7cf7b8c5c1473be4ad8991709",
+      "inputBytes": 76843,
+      "inputPreserved": true,
+      "validatorExitCode": 0,
+      "validation": {
+        "kind": "ASSESSMENT_REPORT_VALIDATION",
+        "scope": "SCHEMA_AND_INTERNAL_CONSISTENCY_ONLY",
+        "valid": true,
+        "issues": [],
+        "issueLimitReached": false
+      }
+    },
+    {
+      "profileId": "ethereum-rlusd",
+      "report": "../../reports/rlusd-readonly.json",
+      "sha256": "b164f5a99ff8ba3c6248e08e616f45cec113052c0ae8cc0f1c25aa449b6575ba",
+      "inputBytes": 81167,
+      "inputPreserved": true,
+      "validatorExitCode": 0,
+      "validation": {
+        "kind": "ASSESSMENT_REPORT_VALIDATION",
+        "scope": "SCHEMA_AND_INTERNAL_CONSISTENCY_ONLY",
+        "valid": true,
+        "issues": [],
+        "issueLimitReached": false
+      }
+    },
+    {
+      "profileId": "tron-usdt",
+      "report": "../../reports/tron-usdt-allowance-readonly.json",
+      "sha256": "7b1cb51b4bbed387ceb1a80161ac81ebe8258bbf2d79a5786ecf822398b92b6f",
+      "inputBytes": 125410,
+      "inputPreserved": true,
+      "validatorExitCode": 0,
+      "validation": {
+        "kind": "ASSESSMENT_REPORT_VALIDATION",
+        "scope": "SCHEMA_AND_INTERNAL_CONSISTENCY_ONLY",
+        "valid": true,
+        "issues": [],
+        "issueLimitReached": false
+      }
+    },
+    {
+      "profileId": "solana-usdc",
+      "report": "../../reports/solana-usdc-assessment-readonly.json",
+      "sha256": "d49afc2ceb4b0e3785627d35db45302497b759b6d1cca1210309f0d1e1a6bfca",
+      "inputBytes": 49967,
+      "inputPreserved": true,
+      "validatorExitCode": 0,
+      "validation": {
+        "kind": "ASSESSMENT_REPORT_VALIDATION",
+        "scope": "SCHEMA_AND_INTERNAL_CONSISTENCY_ONLY",
+        "valid": true,
+        "issues": [],
+        "issueLimitReached": false
+      }
+    },
+    {
+      "profileId": "solana-usdt",
+      "report": "../../reports/solana-usdt-assessment-readonly.json",
+      "sha256": "ae277c63629853d5140ddb68220951d8475f7e681482cacdcfc153a8aa2abb25",
+      "inputBytes": 49963,
+      "inputPreserved": true,
+      "validatorExitCode": 0,
+      "validation": {
+        "kind": "ASSESSMENT_REPORT_VALIDATION",
+        "scope": "SCHEMA_AND_INTERNAL_CONSISTENCY_ONLY",
+        "valid": true,
+        "issues": [],
+        "issueLimitReached": false
+      }
+    },
+    {
+      "profileId": "xrpl-usdc",
+      "report": "../../reports/xrpl-usdc-assessment-readonly.json",
+      "sha256": "dab91aab0c5dc24dfd677356597e60d65f12e7f2a292f6c03a58c8f561bd2bdf",
+      "inputBytes": 54302,
+      "inputPreserved": true,
+      "validatorExitCode": 0,
+      "validation": {
+        "kind": "ASSESSMENT_REPORT_VALIDATION",
+        "scope": "SCHEMA_AND_INTERNAL_CONSISTENCY_ONLY",
+        "valid": true,
+        "issues": [],
+        "issueLimitReached": false
+      }
+    },
+    {
+      "profileId": "xrpl-rlusd",
+      "report": "../../reports/xrpl-rlusd-assessment-readonly.json",
+      "sha256": "39108c2dcfa1eb868e886adfb717d12c95ecc71b4b24f5c31e095a8f19dfedac",
+      "inputBytes": 54305,
+      "inputPreserved": true,
+      "validatorExitCode": 0,
+      "validation": {
+        "kind": "ASSESSMENT_REPORT_VALIDATION",
+        "scope": "SCHEMA_AND_INTERNAL_CONSISTENCY_ONLY",
+        "valid": true,
+        "issues": [],
+        "issueLimitReached": false
+      }
+    }
+  ],
+  "networkRequests": 0,
+  "inputModification": false,
+  "sourceAuthentication": "NOT_PROVIDED",
+  "validatorSourceSha256": "0e9ecd5fe1f1aa6e62d0b57bb271e2984a28744c9c29a39f9fcc0b3e3290c3ae",
+  "assessmentSchemaSha256": "08c754c40d3723c2764e1db350dfa52e0d3479ad0368eeb79cc22c031010c4ec",
+  "repositoryCheck": {
+    "passed": 206,
+    "failed": 0,
+    "skipped": 0
+  },
+  "formatCorrection": {
+    "field": "results[].observations.supplyRaw",
+    "rule": "OPTIONAL_CANONICAL_UNSIGNED_DECIMAL_STRING",
+    "rangeValidation": "NOT_PROVIDED",
+    "rawEvidenceConsistency": "NOT_PROVIDED",
+    "malformedPreviouslyAcceptedDocuments": "NOW_REJECTED",
+    "regressionSpecimens": "SYNTHETIC_MUTATIONS_OF_REPORT_COPIES"
+  }
+}

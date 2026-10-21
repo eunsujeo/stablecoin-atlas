@@ -1,0 +1,178 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Bounded historical administration observations (not AssessmentReport)",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "kind": {
+      "const": "QUALIFIED_ADMIN_HISTORY_NOT_ASSESSMENT"
+    },
+    "selection": {
+      "const": "FIRST_THREE_SORTED_BY_BLOCK_TRANSACTION_LOG_INDEX"
+    },
+    "verdict": {
+      "const": "INCONCLUSIVE"
+    },
+    "currentAuthority": {
+      "const": "UNKNOWN"
+    },
+    "support": {
+      "const": "UNKNOWN"
+    },
+    "sourceBinding": {
+      "const": "UNKNOWN"
+    },
+    "newTransactionExecution": {
+      "const": "NOT_TESTED"
+    },
+    "reference": {
+      "type": "object"
+    },
+    "stage": {
+      "enum": [
+        "ERROR",
+        "OBSERVED",
+        "PARTIAL",
+        "CONSISTENCY_ERROR",
+        "NO_MATCH_IN_WINDOW"
+      ]
+    },
+    "reason": {
+      "type": "string"
+    },
+    "returnedLogs": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 100
+    },
+    "sampledLogs": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 3
+    },
+    "unverifiedLogs": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 100
+    },
+    "samples": {
+      "type": "array",
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "required": [
+          "transactionHash",
+          "evidenceReferences"
+        ],
+        "properties": {
+          "transactionHash": {
+            "type": "string",
+            "pattern": "^0x[0-9a-fA-F]{64}$"
+          },
+          "evidenceReferences": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "pattern": "^e[1-9][0-9]*$"
+            },
+            "uniqueItems": true
+          }
+        }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "provenance",
+          "kind",
+          "observedAt",
+          "observedBlockOrSlot",
+          "data"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "provenance": {
+            "const": "OBSERVED"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "observedAt": {
+            "type": "string"
+          },
+          "observedBlockOrSlot": {
+            "type": "string"
+          },
+          "data": {}
+        },
+        "additionalProperties": false
+      }
+    },
+    "startedAt": {
+      "type": "string"
+    },
+    "completedAt": {
+      "type": "string"
+    },
+    "limitations": {
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "type": "string"
+      }
+    },
+    "sourceEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reference",
+        "sha256"
+      ],
+      "properties": {
+        "reference": {
+          "const": "../docs/research/usdc-master-minter-history-reference.json"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "kind",
+    "selection",
+    "verdict",
+    "currentAuthority",
+    "support",
+    "sourceBinding",
+    "newTransactionExecution",
+    "reference",
+    "stage",
+    "reason",
+    "returnedLogs",
+    "sampledLogs",
+    "unverifiedLogs",
+    "samples",
+    "evidence",
+    "startedAt",
+    "completedAt",
+    "limitations"
+  ]
+}

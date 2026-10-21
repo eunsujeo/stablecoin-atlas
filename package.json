@@ -8,23 +8,40 @@
   },
   "scripts": {
     "build": "tsc --noEmit",
-    "test": "node --use-env-proxy --import tsx --test tests/*.test.ts",
+    "test": "node --use-env-proxy --import tsx --test --test-concurrency=2 tests/*.test.ts web/*.test.mjs",
     "test:unit": "node --use-env-proxy --import tsx --test tests/domain.test.ts",
     "lab": "node --use-env-proxy --import tsx src/cli.ts lab",
     "assess": "node --use-env-proxy --import tsx src/cli.ts assess",
-    "check": "npm run build && npm test"
+    "validate": "node --use-env-proxy --import tsx src/cli.ts validate",
+    "check": "npm run build && npm test",
+    "research:solana-mints": "node --use-env-proxy --import tsx src/research/solana-mint-cli.ts",
+    "research:xrpl-issuers": "node --use-env-proxy --import tsx src/research/xrpl-issuer-cli.ts",
+    "tvm:smoke": "node --use-env-proxy --import tsx src/tron/lab/smoke.ts",
+    "tvm:deploy": "node --use-env-proxy --import tsx src/tron/lab/deploy-cli.ts",
+    "tvm:exercise": "node --use-env-proxy --import tsx src/tron/lab/deploy-cli.ts --exercise",
+    "tvm:boundary": "node --use-env-proxy --import tsx src/tron/lab/deploy-cli.ts --boundary",
+    "tvm:negative": "node --use-env-proxy --import tsx src/tron/lab/negative-cli.ts",
+    "tvm:validate": "node --use-env-proxy --import tsx src/tron/lab/report-cli.ts",
+    "tvm:allowance-negative": "node --use-env-proxy --import tsx src/tron/lab/allowance-cli.ts",
+    "ui": "node tools/ui-preview.mjs",
+    "evidence:build": "node --import tsx tools/evidence-build.mjs",
+    "market:build": "node tools/market-build.mjs"
   },
   "dependencies": {
     "solc": "0.8.37",
-    "viem": "2.57.7"
+    "tronweb": "6.5.1",
+    "viem": "2.57.7",
+    "ajv": "8.20.0"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
-    "ajv": "8.20.0",
     "tsx": "4.23.15",
     "typescript": "7.0.2"
   },
   "overrides": {
-    "tmp": "0.2.7"
+    "tmp": "0.2.7",
+    "tronweb": {
+      "axios": "1.20.0"
+    }
   }
 }

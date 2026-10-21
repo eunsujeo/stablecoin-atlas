@@ -1,0 +1,132 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "SOLANA_MINT_OBSERVATION_SUPPLEMENT_NOT_ASSESSMENT",
+  "report": "../../reports/solana-stablecoin-mints-readonly.json",
+  "reportSha256": "9e952234b743e3c908623d03018b4b91bb59d2a5fe2506a6c320fecac3b6b4b0",
+  "observation": {
+    "schemaVersion": "1.0",
+    "kind": "SOLANA_MINT_RESEARCH_NOT_ASSESSMENT",
+    "observedAt": "2026-10-21T00:53:41.893Z",
+    "requestedCommitment": "finalized",
+    "genesisBinding": "MATCHED_RPC_REPORTED_GENESIS",
+    "responseContextSlot": "459436079",
+    "snapshotMeaning": "RPC_CONTEXT_SLOT_NOT_ACCOUNT_LAST_MODIFICATION_SLOT_OR_BLOCK_HASH",
+    "status": "OBSERVED",
+    "requestCount": 2,
+    "productAdapter": "NOT_IMPLEMENTED",
+    "actualAuthorityExercise": "NOT_TESTED",
+    "transferAndDelegateExecution": "NOT_TESTED",
+    "issuerAuthentication": "UNKNOWN",
+    "expectedGenesisHash": "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d",
+    "observations": [
+      {
+        "profileId": "solana-usdc",
+        "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        "status": "OBSERVED",
+        "programOwner": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        "dataSha256": "ba6e5367c963635438a7cdd5c1f31f9e5881118882f4773163bedaa6aa91ab08",
+        "dataBase64": "AQAAAJj+huiNm+Lqi8HMpIeLKYjCQPUrhCS/tA7Rot3LXhmbPmL1WJWmGgAGAQEAAABicKqKWcWUBbRShshncubNEm6bil06OFNtN/e0FOi2Zw==",
+        "mintState": {
+          "initialized": true,
+          "supplyRaw": "7501509767291454",
+          "decimals": 6,
+          "mintAuthority": {
+            "state": "PRESENT",
+            "address": "BJE5MMbqXjVwjAF7oxwPYXnTXDyspzZyt4vwenNw5ruG"
+          },
+          "freezeAuthority": {
+            "state": "PRESENT",
+            "address": "7dGbd2QZcCKcTndnHcTL8q7SMVXAkp688NTQYwrRCrar"
+          }
+        }
+      },
+      {
+        "profileId": "solana-usdt",
+        "mint": "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+        "status": "OBSERVED",
+        "programOwner": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        "dataSha256": "a55f99c4c743476e13dcf1b392825508fead117bcfd71ac644078bd9529d772f",
+        "dataBase64": "AQAAAAXqnPFs5BGY8aSZN8iMNwqU1K//ibW6y470XmMku3j3657HI1+kDQAGAQEAAAAF6pzxbOQRmPGkmTfIjDcKlNSv/4m1usuO9F5jJLt49w==",
+        "mintState": {
+          "initialized": true,
+          "supplyRaw": "3839903226371819",
+          "decimals": 6,
+          "mintAuthority": {
+            "state": "PRESENT",
+            "address": "Q6XprfkF8RQQKoQVG33xT88H7wi8Uk1B1CC7YAs69Gi"
+          },
+          "freezeAuthority": {
+            "state": "PRESENT",
+            "address": "Q6XprfkF8RQQKoQVG33xT88H7wi8Uk1B1CC7YAs69Gi"
+          }
+        }
+      }
+    ],
+    "requests": [
+      {
+        "method": "getGenesisHash",
+        "status": "OBSERVED"
+      },
+      {
+        "method": "getMultipleAccounts",
+        "status": "OBSERVED"
+      }
+    ]
+  },
+  "programLayoutReference": {
+    "repository": "https://github.com/solana-program/token",
+    "commit": "31646dce3df0a03d468a14913f01b9fd3c3adad0",
+    "files": [
+      {
+        "file": "state.rs",
+        "sha256": "7b0b7bacf9610e0cb7b6182b70b9aa4b036a227c916d7a166e93ae666b5b8cf5",
+        "bytes": 17520,
+        "url": "https://raw.githubusercontent.com/solana-program/token/31646dce3df0a03d468a14913f01b9fd3c3adad0/interface/src/state.rs",
+        "snapshot": "../../.state/solana-token-source/31646dce3df0a03d468a14913f01b9fd3c3adad0/state.rs"
+      },
+      {
+        "file": "lib.rs",
+        "sha256": "897b5652c8261da299a7b512fd39744916da84a9fc937650ac6c1853aa482ee4",
+        "bytes": 676,
+        "url": "https://raw.githubusercontent.com/solana-program/token/31646dce3df0a03d468a14913f01b9fd3c3adad0/interface/src/lib.rs",
+        "snapshot": "../../.state/solana-token-source/31646dce3df0a03d468a14913f01b9fd3c3adad0/lib.rs"
+      }
+    ],
+    "deploymentBinaryBinding": "UNKNOWN"
+  },
+  "officialSourcesCheckedAt": "2026-10-21",
+  "officialSources": [
+    {
+      "purpose": "USDC mint",
+      "url": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
+      "section": "Mainnet / Solana"
+    },
+    {
+      "purpose": "USDT mint",
+      "url": "https://tether.to/en/supported-protocols/",
+      "section": "Solana Token via Solana Blockchain"
+    },
+    {
+      "purpose": "RPC batch/context",
+      "url": "https://solana.com/docs/rpc/http/getmultipleaccounts"
+    },
+    {
+      "purpose": "RPC genesis",
+      "url": "https://solana.com/docs/rpc/http/getgenesishash"
+    },
+    {
+      "purpose": "Full mainnet genesis",
+      "url": "https://solana.com/docs/payments/agentic-payments/x402"
+    },
+    {
+      "purpose": "Program ID",
+      "url": "https://github.com/solana-program/token/blob/31646dce3df0a03d468a14913f01b9fd3c3adad0/interface/src/lib.rs"
+    }
+  ],
+  "limitations": [
+    "RPC-reported genesis match and finalized context are provider observations, not independent chain authentication.",
+    "Mint authority presence is not key-control or exercised-authority evidence.",
+    "No holder, delegate, transfer, SDK or product Adapter implemented.",
+    "Existing catalog snapshot and historical reports unchanged."
+  ]
+}

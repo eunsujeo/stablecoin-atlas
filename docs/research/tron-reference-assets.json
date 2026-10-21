@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "1.0",
+  "retrievedOn": "2026-10-19",
+  "assets": [
+    {
+      "chainFamily": "TRON",
+      "networkId": "728126428",
+      "label": "Tether USD (USDT)",
+      "contractAddress": "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+      "provenance": "DOCUMENTED",
+      "source": "https://tether.to/en/supported-protocols/",
+      "sourceLinkTarget": "https://tronscan.org/#/token20/TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+      "limitations": [
+        "Documented contract reference only; not an on-chain execution observation or issuer verification.",
+        "Live read-only observations are stored separately and do not verify transfers, authority, finality or asset safety."
+      ]
+    }
+  ]
+}

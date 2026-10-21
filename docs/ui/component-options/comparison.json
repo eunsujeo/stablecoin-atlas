@@ -1,0 +1,120 @@
+{
+  "status": "COLORED_STATIC_COMPONENT_WIREFRAMES_WITH_FICTIONAL_DATA",
+  "version": "0.4",
+  "scope": "Wireframe only; no application, dependency installation, APIs, score computation or polling",
+  "sameContent": [
+    "코인 전체 / 선택 8개 프로필",
+    "가상 공급량·정렬·점유율·6시점 추이",
+    "비활성 60초 갱신 상태 예시",
+    "수작업 예시 점수·등급",
+    "가상 데이터 명시"
+  ],
+  "candidates": [
+    {
+      "title": "ANT DESIGN",
+      "subtitle": "컴포넌트 중심 · 조밀한 표와 필터",
+      "radius": 6,
+      "nav": "Layout.Sider + Menu",
+      "top": "Breadcrumb / Badge / Button",
+      "toggle": "Segmented",
+      "card": "Card + Statistic",
+      "tag": "Tag / Progress",
+      "table": "Table + Input.Search + Select",
+      "detail": "Drawer + Descriptions",
+      "chart": "Ant Design Charts · Bar / Line",
+      "id": "ant",
+      "frames": [
+        "ant-overview-wireframe.png",
+        "ant-chain-wireframe.png"
+      ]
+    },
+    {
+      "title": "MATERIAL 3",
+      "subtitle": "디자인 규칙 중심 · 둥근 표면과 명확한 선택 상태",
+      "radius": 24,
+      "nav": "Navigation drawer [디자인 패턴]",
+      "top": "Top app bar [패턴] / Icon button",
+      "toggle": "Tabs · md-tabs",
+      "card": "Outlined card [직접 구성]",
+      "tag": "Assist chip [상태 표시는 별도 구성]",
+      "table": "Data table [직접 구성] + md-outlined-text-field",
+      "detail": "Side sheet [디자인 패턴]",
+      "chart": "외부 차트 필요 · Material 토큰 적용",
+      "id": "material3",
+      "frames": [
+        "material3-overview-wireframe.png",
+        "material3-chain-wireframe.png"
+      ]
+    },
+    {
+      "title": "MUI",
+      "subtitle": "React 컴포넌트 중심 · 표와 차트 연결 후보",
+      "radius": 10,
+      "nav": "Drawer + List / ListItemButton",
+      "top": "AppBar + Toolbar + Button",
+      "toggle": "ToggleButtonGroup",
+      "card": "Card + Typography",
+      "tag": "Chip / LinearProgress",
+      "table": "Table + TableSortLabel + TextField",
+      "detail": "Drawer + Stack + Tabs",
+      "chart": "MUI X Charts · BarChart / LineChart",
+      "id": "mui",
+      "frames": [
+        "mui-overview-wireframe.png",
+        "mui-chain-wireframe.png"
+      ]
+    }
+  ],
+  "terminal": {
+    "review": "../terminal-mode-review.json",
+    "frames": [
+      "terminal-coins-wireframe.png",
+      "terminal-chain-wireframe.png"
+    ],
+    "text": [
+      "terminal-coins-wireframe.txt",
+      "terminal-chain-wireframe.txt"
+    ],
+    "layoutRevision": "BORDERED_PANELS_AND_EXPLICIT_FOCUS",
+    "status": "HISTORICAL_SHELL_TUI_INTERPRETATION_SUPERSEDED",
+    "currentDirection": "브라우저에서 동작하는 터미널 스타일 웹; 실제 셸 제약 적용 안 함"
+  },
+  "references": [
+    "https://ant.design/components/overview/",
+    "https://mui.com/material-ui/all-components/",
+    "https://mui.com/x/introduction/",
+    "https://m3.material.io/develop/web",
+    "https://github.com/material-components/material-web",
+    "https://github.com/vadimdemedes/ink"
+  ],
+  "mockData": "../mock-dashboard-data.json",
+  "palettes": {
+    "ant": {
+      "name": "ANT DESIGN",
+      "primary": "#1677FF",
+      "ink": "#142238",
+      "bg": "#F3F6FB",
+      "pale": "#E6F4FF",
+      "nav": "#10243D",
+      "r": 6
+    },
+    "material3": {
+      "name": "MATERIAL 3",
+      "primary": "#6750A4",
+      "ink": "#272234",
+      "bg": "#F8F5FC",
+      "pale": "#EADDFF",
+      "nav": "#F0EAF7",
+      "r": 24
+    },
+    "mui": {
+      "name": "MUI",
+      "primary": "#1565C0",
+      "ink": "#172B43",
+      "bg": "#F2F6FA",
+      "pale": "#E3F2FD",
+      "nav": "#FFFFFF",
+      "r": 10
+    }
+  }
+}

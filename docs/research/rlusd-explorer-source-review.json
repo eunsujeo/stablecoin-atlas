@@ -1,0 +1,565 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "RLUSD_USER_EXPLORER_SOURCE_SUPPLEMENT_NOT_ASSESSMENT",
+  "provenance": "USER_PROVIDED_EXPLORER_HTML",
+  "inputHtmlSha256": "f6aa69226a632f355aff9ee59dc2053316e501c860817b50015215439d44c65c",
+  "inputBytes": 1133216,
+  "extractedAt": "2026-10-21T00:18:22.816604+00:00",
+  "extractionDirectory": "../../source-intake/rlusd/extracted-f6aa69226a63",
+  "manifest": "../../source-intake/rlusd/extracted-f6aa69226a63/manifest.json",
+  "decodedSourceBundleSha256": "26350bed03d0342bf24e297f7c19acd901a89337db2b77938df6050430e16d4e",
+  "sourceReviewStatus": "SOURCE_REVIEWED",
+  "reviewScope": "SELECTED_DIRECT_AND_INHERITED_PATHS_IN_SUPPLIED_EXPLORER_SNAPSHOT",
+  "claimedImplementation": "0x9747a0d261c2d56eb93f542068e5d1e23170fa9e",
+  "claimAuthentication": "NOT_ESTABLISHED",
+  "claimedCompiler": "v0.8.29+commit.ab55807c",
+  "compilerSettings": {
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "evmVersion": "cancun",
+    "viaIR": true
+  },
+  "solidityFileCount": 35,
+  "settingsFileCount": 1,
+  "importClosure": {
+    "importCount": 55,
+    "resolvedLocally": 55,
+    "missingCount": 0,
+    "method": "STATIC_IMPORT_SOURCE_UNIT_AND_REMAPPING_RESOLUTION_NO_FETCH"
+  },
+  "sources": [
+    {
+      "sourceUnit": "src/main/contracts/eth/StablecoinUpgradeableV2.sol",
+      "snapshot": "../../source-intake/rlusd/extracted-f6aa69226a63/sources/src/main/contracts/eth/StablecoinUpgradeableV2.sol",
+      "bytes": 5484,
+      "sha256": "a4abb052dc1193e3ebfc65274c559104d08256b396939059360d809dc9b2f42b",
+      "lineCount": 134,
+      "versionComments": []
+    },
+    {
+      "sourceUnit": "src/main/contracts/eth/StablecoinUpgradeable.sol",
+      "snapshot": "../../source-intake/rlusd/extracted-f6aa69226a63/sources/src/main/contracts/eth/StablecoinUpgradeable.sol",
+      "bytes": 8192,
+      "sha256": "31d051fde36df4d1d30f640fa9be924b5171723aaeabdef1ffb74c2ecdd1a627",
+      "lineCount": 195,
+      "versionComments": []
+    },
+    {
+      "sourceUnit": "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC20/extensions/ERC20PermitUpgradeable.sol",
+      "snapshot": "../../source-intake/rlusd/extracted-f6aa69226a63/sources/lib/openzeppelin-contracts-upgradeable/contracts/token/ERC20/extensions/ERC20PermitUpgradeable.sol",
+      "bytes": 3200,
+      "sha256": "c538cb63958c81d3d796fae44104d42f2d0fa877a15ae8f5477593869c6e2a30",
+      "lineCount": 88,
+      "versionComments": [
+        "OpenZeppelin Contracts (last updated v5.1.0) (token/ERC20/extensions/ERC20Permit.sol)"
+      ]
+    },
+    {
+      "sourceUnit": "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC20/extensions/ERC20PausableUpgradeable.sol",
+      "snapshot": "../../source-intake/rlusd/extracted-f6aa69226a63/sources/lib/openzeppelin-contracts-upgradeable/contracts/token/ERC20/extensions/ERC20PausableUpgradeable.sol",
+      "bytes": 1574,
+      "sha256": "e802da2c7f567dc99019cdc6e146491a1a2c80924300a37097ad5322da1661f8",
+      "lineCount": 39,
+      "versionComments": [
+        "OpenZeppelin Contracts (last updated v5.1.0) (token/ERC20/extensions/ERC20Pausable.sol)"
+      ]
+    },
+    {
+      "sourceUnit": "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC20/ERC20Upgradeable.sol",
+      "snapshot": "../../source-intake/rlusd/extracted-f6aa69226a63/sources/lib/openzeppelin-contracts-upgradeable/contracts/token/ERC20/ERC20Upgradeable.sol",
+      "bytes": 12205,
+      "sha256": "88081920a6d72c9b610054d4765b3a048e61faca8d19591ac0f3aa8cc7f056d4",
+      "lineCount": 336,
+      "versionComments": [
+        "OpenZeppelin Contracts (last updated v5.3.0) (token/ERC20/ERC20.sol)"
+      ]
+    },
+    {
+      "sourceUnit": "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol",
+      "snapshot": "../../source-intake/rlusd/extracted-f6aa69226a63/sources/lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol",
+      "bytes": 9279,
+      "sha256": "f527a063813c2bf60c153fb08e38539578935402894fcc36fac42324ca325d3b",
+      "lineCount": 238,
+      "versionComments": [
+        "OpenZeppelin Contracts (last updated v5.3.0) (proxy/utils/Initializable.sol)"
+      ]
+    },
+    {
+      "sourceUnit": "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
+      "snapshot": "../../source-intake/rlusd/extracted-f6aa69226a63/sources/lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
+      "bytes": 6573,
+      "sha256": "2d07bcf9728190a5c807cf68defc3f3c52aa098d04770d44af37f30abade38d5",
+      "lineCount": 152,
+      "versionComments": [
+        "OpenZeppelin Contracts (last updated v5.3.0) (proxy/utils/UUPSUpgradeable.sol)"
+      ]
+    },
+    {
+      "sourceUnit": "lib/openzeppelin-contracts-upgradeable/contracts/access/AccessControlUpgradeable.sol",
+      "snapshot": "../../source-intake/rlusd/extracted-f6aa69226a63/sources/lib/openzeppelin-contracts-upgradeable/contracts/access/AccessControlUpgradeable.sol",
+      "bytes": 8285,
+      "sha256": "f50748ad56bbe7f2d6ced717731ee684118a7e1a0dfd6458bc2efce0d28b0980",
+      "lineCount": 233,
+      "versionComments": [
+        "OpenZeppelin Contracts (last updated v5.3.0) (access/AccessControl.sol)"
+      ]
+    },
+    {
+      "sourceUnit": "src/main/contracts/eth/AccountPausableUpgradeable.sol",
+      "snapshot": "../../source-intake/rlusd/extracted-f6aa69226a63/sources/src/main/contracts/eth/AccountPausableUpgradeable.sol",
+      "bytes": 4042,
+      "sha256": "72099e204f56ed157c7cdd60be4268650007fbff46cedd1677543734a9194ace",
+      "lineCount": 114,
+      "versionComments": []
+    },
+    {
+      "sourceUnit": "lib/openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Permit.sol",
+      "snapshot": "../../source-intake/rlusd/extracted-f6aa69226a63/sources/lib/openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Permit.sol",
+      "bytes": 3805,
+      "sha256": "026aca1c8ee4574eb9719dca7dfc33e3e57a618715ae702a675e8a8c9ea1e82d",
+      "lineCount": 90,
+      "versionComments": [
+        "OpenZeppelin Contracts (last updated v5.1.0) (token/ERC20/extensions/IERC20Permit.sol)"
+      ]
+    },
+    {
+      "sourceUnit": "lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol",
+      "snapshot": "../../source-intake/rlusd/extracted-f6aa69226a63/sources/lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol",
+      "bytes": 7815,
+      "sha256": "0964ddd02f4a7a8cf9ba130e3aeead588ca3d425d5bc13cc4221358c69108ed0",
+      "lineCount": 180,
+      "versionComments": [
+        "OpenZeppelin Contracts (last updated v5.1.0) (utils/cryptography/ECDSA.sol)"
+      ]
+    },
+    {
+      "sourceUnit": "lib/openzeppelin-contracts-upgradeable/contracts/utils/cryptography/EIP712Upgradeable.sol",
+      "snapshot": "../../source-intake/rlusd/extracted-f6aa69226a63/sources/lib/openzeppelin-contracts-upgradeable/contracts/utils/cryptography/EIP712Upgradeable.sol",
+      "bytes": 8691,
+      "sha256": "b8d8b87f429191f2514cfd641e8e17f57060ca036b5e656d6e764e0e0852d240",
+      "lineCount": 210,
+      "versionComments": [
+        "OpenZeppelin Contracts (last updated v5.3.0) (utils/cryptography/EIP712.sol)"
+      ]
+    },
+    {
+      "sourceUnit": "lib/openzeppelin-contracts-upgradeable/contracts/utils/NoncesUpgradeable.sol",
+      "snapshot": "../../source-intake/rlusd/extracted-f6aa69226a63/sources/lib/openzeppelin-contracts-upgradeable/contracts/utils/NoncesUpgradeable.sol",
+      "bytes": 2325,
+      "sha256": "d63abfbf20ca119bf162ec5bb343df4b189208d1d0a73657555f688536498cd8",
+      "lineCount": 66,
+      "versionComments": [
+        "OpenZeppelin Contracts (last updated v5.0.0) (utils/Nonces.sol)"
+      ]
+    },
+    {
+      "sourceUnit": "lib/openzeppelin-contracts-upgradeable/contracts/utils/PausableUpgradeable.sol",
+      "snapshot": "../../source-intake/rlusd/extracted-f6aa69226a63/sources/lib/openzeppelin-contracts-upgradeable/contracts/utils/PausableUpgradeable.sol",
+      "bytes": 3659,
+      "sha256": "78df1c8d83d858b123485f7cc2e15e40e28d787a21f949374ee34aa45c1ad69c",
+      "lineCount": 133,
+      "versionComments": [
+        "OpenZeppelin Contracts (last updated v5.3.0) (utils/Pausable.sol)"
+      ]
+    },
+    {
+      "sourceUnit": "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+      "snapshot": "../../source-intake/rlusd/extracted-f6aa69226a63/sources/lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+      "bytes": 2780,
+      "sha256": "30edf7394bab78d48b7db3a059248e1ea7c2c77d2ec0e37a13bb91415aafbe5a",
+      "lineCount": 79,
+      "versionComments": [
+        "OpenZeppelin Contracts (last updated v5.1.0) (token/ERC20/IERC20.sol)"
+      ]
+    },
+    {
+      "sourceUnit": "lib/openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Metadata.sol",
+      "snapshot": "../../source-intake/rlusd/extracted-f6aa69226a63/sources/lib/openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Metadata.sol",
+      "bytes": 684,
+      "sha256": "9e7c70ec72d2f7d592e23ea84f3852b04f91f6f644ce57e0263493046b36afb9",
+      "lineCount": 26,
+      "versionComments": [
+        "OpenZeppelin Contracts (last updated v5.1.0) (token/ERC20/extensions/IERC20Metadata.sol)"
+      ]
+    },
+    {
+      "sourceUnit": "lib/openzeppelin-contracts-upgradeable/contracts/utils/ContextUpgradeable.sol",
+      "snapshot": "../../source-intake/rlusd/extracted-f6aa69226a63/sources/lib/openzeppelin-contracts-upgradeable/contracts/utils/ContextUpgradeable.sol",
+      "bytes": 1194,
+      "sha256": "a08e16324da33a9d666dc07a22ae58031c242a3869f6808e55b4b82fc70cb209",
+      "lineCount": 34,
+      "versionComments": [
+        "OpenZeppelin Contracts (last updated v5.0.1) (utils/Context.sol)"
+      ]
+    },
+    {
+      "sourceUnit": "lib/openzeppelin-contracts/contracts/interfaces/draft-IERC6093.sol",
+      "snapshot": "../../source-intake/rlusd/extracted-f6aa69226a63/sources/lib/openzeppelin-contracts/contracts/interfaces/draft-IERC6093.sol",
+      "bytes": 6538,
+      "sha256": "56380323009ef4a119d44550b910fde1bff9cedde8f7f4c690152c7629bc3338",
+      "lineCount": 161,
+      "versionComments": [
+        "OpenZeppelin Contracts (last updated v5.1.0) (interfaces/draft-IERC6093.sol)"
+      ]
+    },
+    {
+      "sourceUnit": "lib/openzeppelin-contracts/contracts/interfaces/draft-IERC1822.sol",
+      "snapshot": "../../source-intake/rlusd/extracted-f6aa69226a63/sources/lib/openzeppelin-contracts/contracts/interfaces/draft-IERC1822.sol",
+      "bytes": 881,
+      "sha256": "71190a8ee26dab908d3dad703ccfff09ebfc5850f2f405463e21df21a8643bbc",
+      "lineCount": 20,
+      "versionComments": [
+        "OpenZeppelin Contracts (last updated v5.1.0) (interfaces/draft-IERC1822.sol)"
+      ]
+    },
+    {
+      "sourceUnit": "lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Utils.sol",
+      "snapshot": "../../source-intake/rlusd/extracted-f6aa69226a63/sources/lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Utils.sol",
+      "bytes": 6238,
+      "sha256": "454cf052a9513cdfd7cf2e3227f3ef1a2e3a2cfd9ea4706814f602dbe4f19d8f",
+      "lineCount": 177,
+      "versionComments": [
+        "OpenZeppelin Contracts (last updated v5.2.0) (proxy/ERC1967/ERC1967Utils.sol)"
+      ]
+    },
+    {
+      "sourceUnit": "lib/openzeppelin-contracts/contracts/access/IAccessControl.sol",
+      "snapshot": "../../source-intake/rlusd/extracted-f6aa69226a63/sources/lib/openzeppelin-contracts/contracts/access/IAccessControl.sol",
+      "bytes": 3343,
+      "sha256": "e3c0885d437bb495ca88d12a04cadaa89db7288f4f0400f728a7634025a24536",
+      "lineCount": 98,
+      "versionComments": [
+        "OpenZeppelin Contracts (last updated v5.3.0) (access/IAccessControl.sol)"
+      ]
+    },
+    {
+      "sourceUnit": "lib/openzeppelin-contracts-upgradeable/contracts/utils/introspection/ERC165Upgradeable.sol",
+      "snapshot": "../../source-intake/rlusd/extracted-f6aa69226a63/sources/lib/openzeppelin-contracts-upgradeable/contracts/utils/introspection/ERC165Upgradeable.sol",
+      "bytes": 1184,
+      "sha256": "586f77f25f65f2b957d5579c346d39cc883848962a375857c151c5bb15c0eb93",
+      "lineCount": 33,
+      "versionComments": [
+        "OpenZeppelin Contracts (last updated v5.1.0) (utils/introspection/ERC165.sol)"
+      ]
+    },
+    {
+      "sourceUnit": "lib/openzeppelin-contracts/contracts/utils/cryptography/MessageHashUtils.sol",
+      "snapshot": "../../source-intake/rlusd/extracted-f6aa69226a63/sources/lib/openzeppelin-contracts/contracts/utils/cryptography/MessageHashUtils.sol",
+      "bytes": 4251,
+      "sha256": "936a89f512d5da84b0896b66d2398f2bea9eefdf2afa788af5265fcd74302693",
+      "lineCount": 99,
+      "versionComments": [
+        "OpenZeppelin Contracts (last updated v5.3.0) (utils/cryptography/MessageHashUtils.sol)"
+      ]
+    },
+    {
+      "sourceUnit": "lib/openzeppelin-contracts/contracts/interfaces/IERC5267.sol",
+      "snapshot": "../../source-intake/rlusd/extracted-f6aa69226a63/sources/lib/openzeppelin-contracts/contracts/interfaces/IERC5267.sol",
+      "bytes": 739,
+      "sha256": "efd1ebd1e04b6ef9c3b8781a097588f83da954323f438d54a71dc06508e6c7b8",
+      "lineCount": 28,
+      "versionComments": [
+        "OpenZeppelin Contracts (last updated v5.0.0) (interfaces/IERC5267.sol)"
+      ]
+    },
+    {
+      "sourceUnit": "lib/openzeppelin-contracts/contracts/proxy/beacon/IBeacon.sol",
+      "snapshot": "../../source-intake/rlusd/extracted-f6aa69226a63/sources/lib/openzeppelin-contracts/contracts/proxy/beacon/IBeacon.sol",
+      "bytes": 472,
+      "sha256": "422eabc0e645e24c3a52898f6255b349323b013544a3ebdc4b2d3f7fc5bb7e9e",
+      "lineCount": 16,
+      "versionComments": [
+        "OpenZeppelin Contracts (last updated v5.0.0) (proxy/beacon/IBeacon.sol)"
+      ]
+    },
+    {
+      "sourceUnit": "lib/openzeppelin-contracts/contracts/interfaces/IERC1967.sol",
+      "snapshot": "../../source-intake/rlusd/extracted-f6aa69226a63/sources/lib/openzeppelin-contracts/contracts/interfaces/IERC1967.sol",
+      "bytes": 636,
+      "sha256": "886b093d8f7c41f73af42b8e183314b3654531a9d5e11f07c41a5a7f11d3e006",
+      "lineCount": 24,
+      "versionComments": [
+        "OpenZeppelin Contracts (last updated v5.0.0) (interfaces/IERC1967.sol)"
+      ]
+    },
+    {
+      "sourceUnit": "lib/openzeppelin-contracts/contracts/utils/Address.sol",
+      "snapshot": "../../source-intake/rlusd/extracted-f6aa69226a63/sources/lib/openzeppelin-contracts/contracts/utils/Address.sol",
+      "bytes": 6049,
+      "sha256": "2395099726e6c215641a5857a74f663987f37a3ad8a2932a9f3d8ee27fb11dd4",
+      "lineCount": 150,
+      "versionComments": [
+        "OpenZeppelin Contracts (last updated v5.2.0) (utils/Address.sol)"
+      ]
+    },
+    {
+      "sourceUnit": "lib/openzeppelin-contracts/contracts/utils/StorageSlot.sol",
+      "snapshot": "../../source-intake/rlusd/extracted-f6aa69226a63/sources/lib/openzeppelin-contracts/contracts/utils/StorageSlot.sol",
+      "bytes": 4182,
+      "sha256": "75704538dcb223239280c6726d9a31cf769a7816718517c997fc7d63bdb70778",
+      "lineCount": 143,
+      "versionComments": [
+        "OpenZeppelin Contracts (last updated v5.1.0) (utils/StorageSlot.sol)"
+      ]
+    },
+    {
+      "sourceUnit": "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol",
+      "snapshot": "../../source-intake/rlusd/extracted-f6aa69226a63/sources/lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol",
+      "bytes": 870,
+      "sha256": "7c5c3f98ab876991e7dd34b84d41137e836306eb9f36f6386a631f5be3f5d6d4",
+      "lineCount": 25,
+      "versionComments": [
+        "OpenZeppelin Contracts (last updated v5.1.0) (utils/introspection/IERC165.sol)"
+      ]
+    },
+    {
+      "sourceUnit": "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
+      "snapshot": "../../source-intake/rlusd/extracted-f6aa69226a63/sources/lib/openzeppelin-contracts/contracts/utils/Strings.sol",
+      "bytes": 19278,
+      "sha256": "d99cb2df33b265a5533b0e9fa6f5da0bc60e98a8855c3392e8ffdc712149f0dd",
+      "lineCount": 490,
+      "versionComments": [
+        "OpenZeppelin Contracts (last updated v5.3.0) (utils/Strings.sol)"
+      ]
+    },
+    {
+      "sourceUnit": "lib/openzeppelin-contracts/contracts/utils/Errors.sol",
+      "snapshot": "../../source-intake/rlusd/extracted-f6aa69226a63/sources/lib/openzeppelin-contracts/contracts/utils/Errors.sol",
+      "bytes": 896,
+      "sha256": "0704b9d6c032cca8512a3bc3f30f49f86f1f03102d2896a3d23e794b82efea66",
+      "lineCount": 34,
+      "versionComments": [
+        "OpenZeppelin Contracts (last updated v5.1.0) (utils/Errors.sol)"
+      ]
+    },
+    {
+      "sourceUnit": "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
+      "snapshot": "../../source-intake/rlusd/extracted-f6aa69226a63/sources/lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
+      "bytes": 32145,
+      "sha256": "92fee281fd46a1b058b190cf21d6b1a528f0433a907850ae1c9bcf36c5c0cd98",
+      "lineCount": 749,
+      "versionComments": [
+        "OpenZeppelin Contracts (last updated v5.3.0) (utils/math/Math.sol)"
+      ]
+    },
+    {
+      "sourceUnit": "lib/openzeppelin-contracts/contracts/utils/math/SafeCast.sol",
+      "snapshot": "../../source-intake/rlusd/extracted-f6aa69226a63/sources/lib/openzeppelin-contracts/contracts/utils/math/SafeCast.sol",
+      "bytes": 34943,
+      "sha256": "9769274bf53f26a7c7896c526ea1980dc9bea5bf5c2a5fd04870008c4afc1de9",
+      "lineCount": 1162,
+      "versionComments": [
+        "OpenZeppelin Contracts (last updated v5.1.0) (utils/math/SafeCast.sol)"
+      ]
+    },
+    {
+      "sourceUnit": "lib/openzeppelin-contracts/contracts/utils/math/SignedMath.sol",
+      "snapshot": "../../source-intake/rlusd/extracted-f6aa69226a63/sources/lib/openzeppelin-contracts/contracts/utils/math/SignedMath.sol",
+      "bytes": 2613,
+      "sha256": "1ed50b1056af886752f0fb48a0165d381e69bb4a4b18b893b066dc144a7e08d7",
+      "lineCount": 68,
+      "versionComments": [
+        "OpenZeppelin Contracts (last updated v5.1.0) (utils/math/SignedMath.sol)"
+      ]
+    },
+    {
+      "sourceUnit": "lib/openzeppelin-contracts/contracts/utils/Panic.sol",
+      "snapshot": "../../source-intake/rlusd/extracted-f6aa69226a63/sources/lib/openzeppelin-contracts/contracts/utils/Panic.sol",
+      "bytes": 1973,
+      "sha256": "270fc8401c1a13fae6a7a4a2dd6e381b95d658896701e51f0d3e2688acab3dec",
+      "lineCount": 57,
+      "versionComments": [
+        "OpenZeppelin Contracts (last updated v5.1.0) (utils/Panic.sol)"
+      ]
+    },
+    {
+      "sourceUnit": "settings.json",
+      "snapshot": "../../source-intake/rlusd/extracted-f6aa69226a63/sources/settings.json",
+      "bytes": 1466,
+      "sha256": "bc294305342fa45db45526268e69b6fb10d26bb781559c1cb260f5150efdecc3",
+      "lineCount": 1,
+      "versionComments": []
+    }
+  ],
+  "dependencyPackageVersion": "UNKNOWN_FILE_VERSION_COMMENTS_ARE_NOT_A_PACKAGE_LOCK",
+  "comparisonToPriorArchive": [
+    {
+      "file": "StablecoinUpgradeable.sol",
+      "previousSha256": "31d051fde36df4d1d30f640fa9be924b5171723aaeabdef1ffb74c2ecdd1a627",
+      "newSha256": "31d051fde36df4d1d30f640fa9be924b5171723aaeabdef1ffb74c2ecdd1a627",
+      "comparison": "BYTE_IDENTICAL"
+    },
+    {
+      "file": "AccountPausableUpgradeable.sol",
+      "previousSha256": "72099e204f56ed157c7cdd60be4268650007fbff46cedd1677543734a9194ace",
+      "newSha256": "72099e204f56ed157c7cdd60be4268650007fbff46cedd1677543734a9194ace",
+      "comparison": "BYTE_IDENTICAL"
+    },
+    {
+      "file": "StablecoinUpgradeableV2.sol",
+      "previousSha256": "e68627eae643d584fabf885b92850686839cc1dcaab84115f85ee3257b2073df",
+      "newSha256": "a4abb052dc1193e3ebfc65274c559104d08256b396939059360d809dc9b2f42b",
+      "comparison": "DIFFERENT_SOURCE_SNAPSHOT"
+    }
+  ],
+  "abi": {
+    "snapshot": "../../source-intake/rlusd/extracted-f6aa69226a63/abi.json",
+    "sha256": "94d9fc603570c0fa7fac262656f3349957deeaf454717e27fd82140ab6641f9f",
+    "entryCount": 79,
+    "functionCount": 40,
+    "comparisonToPriorSuppliedAbi": "EXACT_PARSED_STRUCTURE_MATCH",
+    "initializerNames": [
+      "initialize",
+      "initializeV2",
+      "reinitializeV2"
+    ],
+    "sourceInitializerNamesMatchNewSnapshot": true,
+    "compiledSourceAbiComparison": "NOT_TESTED"
+  },
+  "findings": [
+    {
+      "id": "rlusd-html-transfer",
+      "signatures": [
+        "transfer(address,uint256)",
+        "transferFrom(address,address,uint256)"
+      ],
+      "sourceBehaviorAndConditions": "transfer uses caller as owner. transferFrom first spends caller allowance then _transfer. Both return true; _transfer invokes RLUSD overriding _update.",
+      "references": [
+        {
+          "sourceUnit": "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC20/ERC20Upgradeable.sol",
+          "startLine": 125,
+          "endLine": 176,
+          "excerptSha256": "2b9a93593ce982c4c0e559e58177d9764c82b2dd00e269acba82ce77adda214c"
+        }
+      ]
+    },
+    {
+      "id": "rlusd-html-state-events",
+      "signatures": [
+        "_transfer(address,address,uint256)",
+        "_update(address,address,uint256)",
+        "_mint(address,uint256)",
+        "_burn(address,uint256)"
+      ],
+      "sourceBehaviorAndConditions": "Nonzero transfer endpoints; sufficient balance. Core _update changes supply/balances and emits Transfer with full transferred value. Selected path contains no fee deduction; RLUSD account/global restrictions still apply.",
+      "references": [
+        {
+          "sourceUnit": "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC20/ERC20Upgradeable.sol",
+          "startLine": 181,
+          "endLine": 267,
+          "excerptSha256": "cb050f0b7cf51573933b04a7fb8ad1a56fd7f2379cbc023b5f810cafb9436f68"
+        }
+      ]
+    },
+    {
+      "id": "rlusd-html-approve-allowance",
+      "signatures": [
+        "_approve(address,address,uint256,bool)",
+        "_spendAllowance(address,address,uint256)"
+      ],
+      "sourceBehaviorAndConditions": "Nonzero owner/spender; allowance overwritten without zero-reset precondition. Direct approval emits Approval. Finite spend checks sufficiency and subtracts with emitEvent=false; maximum uint256 allowance unchanged. RLUSD outer approve pause checks remain.",
+      "references": [
+        {
+          "sourceUnit": "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC20/ERC20Upgradeable.sol",
+          "startLine": 281,
+          "endLine": 336,
+          "excerptSha256": "863b8228db1938d80837103e0ecc0bf9188d1d9a5e12bcf271bec54476953ae2"
+        }
+      ]
+    },
+    {
+      "id": "rlusd-html-permit",
+      "signatures": [
+        "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)",
+        "nonces(address)"
+      ],
+      "sourceBehaviorAndConditions": "Reject expired deadline; include owner nonce in typed-data hash, recover signer and require owner equality; call _approve. RLUSD outer account/global pause checks precede inherited body. No signature/execution supplied.",
+      "references": [
+        {
+          "sourceUnit": "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC20/extensions/ERC20PermitUpgradeable.sol",
+          "startLine": 49,
+          "endLine": 79,
+          "excerptSha256": "fb90ade1992944a681b4110b9a4f16de52c6a3501ceccc75b035ad0092f8f9f3"
+        }
+      ]
+    },
+    {
+      "id": "rlusd-html-role-admin",
+      "signatures": [
+        "hasRole(bytes32,address)",
+        "getRoleAdmin(bytes32)",
+        "grantRole(bytes32,address)",
+        "revokeRole(bytes32,address)",
+        "renounceRole(bytes32,address)"
+      ],
+      "sourceBehaviorAndConditions": "onlyRole checks membership; grant/revoke require admin role of the target role; renounce requires confirmation==caller. Current role holders/settings remain unobserved.",
+      "references": [
+        {
+          "sourceUnit": "lib/openzeppelin-contracts-upgradeable/contracts/access/AccessControlUpgradeable.sol",
+          "startLine": 95,
+          "endLine": 186,
+          "excerptSha256": "3f6e940f7ef692191ce052247942c96f7d96f6eeaa847c9691eacf015cf23f43"
+        }
+      ]
+    },
+    {
+      "id": "rlusd-html-uups",
+      "signatures": [
+        "upgradeToAndCall(address,bytes)",
+        "_checkProxy()"
+      ],
+      "sourceBehaviorAndConditions": "onlyProxy checks delegatecall and active ERC1967 implementation pointing to self, then calls token authorization hook (UPGRADER_ROLE) before UUPS upgrade routine. No upgrade is performed.",
+      "references": [
+        {
+          "sourceUnit": "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
+          "startLine": 92,
+          "endLine": 111,
+          "excerptSha256": "4d3400f86ae16217dc5b3f8ca8cc742ca722edc08338e52319292a35058774ea"
+        }
+      ]
+    },
+    {
+      "id": "rlusd-html-global-pause",
+      "signatures": [
+        "_update(address,address,uint256)"
+      ],
+      "sourceBehaviorAndConditions": "whenNotPaused before super._update. RLUSD V2 frozen-from clawback exception does not bypass global pause.",
+      "references": [
+        {
+          "sourceUnit": "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC20/extensions/ERC20PausableUpgradeable.sol",
+          "startLine": 36,
+          "endLine": 38,
+          "excerptSha256": "1cd20b78e4b1f2eaa12d53fc3245592f2f4fae8b477ccae07301ddb3520d24a4"
+        }
+      ]
+    },
+    {
+      "id": "rlusd-html-initializer-version",
+      "signatures": [
+        "reinitializeV2()",
+        "initializeV2(string,string,address,address,address,address,address)"
+      ],
+      "sourceBehaviorAndConditions": "reinitializeV2 uses reinitializer(2). initializeV2 uses initializer and grants listed roles. Names match prior supplied ABI, unlike older archive (reinitialize/override initialize). Separate snapshot, not assumed identical source version.",
+      "references": [
+        {
+          "sourceUnit": "src/main/contracts/eth/StablecoinUpgradeableV2.sol",
+          "startLine": 29,
+          "endLine": 64,
+          "excerptSha256": "9d386ad4ba5d119ed6c5ef9d1011af5242e93450522fce3a5d6d24ae2c5be579"
+        }
+      ]
+    }
+  ],
+  "networkRequests": "0",
+  "compilerExecution": "NOT_TESTED",
+  "actualAuthorityExercise": "NOT_TESTED",
+  "deploymentSourceBinding": "UNKNOWN",
+  "limitations": [
+    "Saved HTML address/compiler/verification claims are user-provided, not independent chain/source authentication.",
+    "35 Solidity units and55 imports are present; static closure is not compilation or exhaustive formal review.",
+    "Prior archive findings remain historical; new V2 snapshot differs.",
+    "OpenZeppelin last-updated version comments vary per file; do not guess a package tag."
+  ]
+}

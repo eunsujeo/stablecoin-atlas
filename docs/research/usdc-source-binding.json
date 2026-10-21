@@ -1,0 +1,845 @@
+{
+  "schemaVersion": "1.0",
+  "purpose": "SOURCE_BINDING_RESEARCH_NOT_ASSESSMENT",
+  "reviewedAt": "2026-10-20T00:55:43.182Z",
+  "profileId": "ethereum-usdc",
+  "observation": {
+    "report": "../../reports/usdc-readonly.json",
+    "sha256": "611b00ab17332a475d6ca32b8b9c072b8995a2b4df96183830b2fbb5fcccbcdf",
+    "networkId": "1",
+    "proxyAddress": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+    "observedAt": "2026-10-19T00:36:50.049Z",
+    "blockNumber": "26223078",
+    "blockHash": "0x0817d3ed41da6444b6280b2cf3ea53d5aa1bd771da0ea74eac5aaaef19f834f3",
+    "implementationAddress": "0x43506849D7C04F9138D1A2050bbF3A0c054402dd",
+    "codeEvidenceId": "e15",
+    "runtimeBytes": 23464,
+    "runtimeSha256": "21a831a7cff1a353b295490f43a66e48e55d1c76c60cd89b24138efd8e8b7c8a",
+    "runtimeKeccak256": "0xcdfb7d322961af3acae7a8f7ee8b69c205b36f576cc5b077f170c7eb8ecbe3ea",
+    "metadata": {
+      "cborBytes": 51,
+      "rawHex": "0xa264697066735822122005677c3919f4b149e065a5983baa9e2fb099cab5463ccd06429f70b32d8d9bdf64736f6c634300060c",
+      "compilerVersionTag": "0.6.12",
+      "ipfsMultihashHex": "122005677c3919f4b149e065a5983baa9e2fb099cab5463ccd06429f70b32d8d9bdf",
+      "scope": "DECODED_TAG_NOT_BUILD_REPRODUCTION"
+    }
+  },
+  "source": {
+    "repository": "https://github.com/circlefin/stablecoin-evm",
+    "commit": "fc85788bc7c23cefe3df1a757133048bfddadeaa",
+    "files": [
+      {
+        "path": "contracts/v1/Ownable.sol",
+        "gitBlobSha1": "3e90f61d2640cf6dca657c1a5d06c256e67c9234",
+        "sha256": "75f378c6a232f5cc85f2a46b5b2296c14bcbdf864114c3fee3996102e93aa946",
+        "url": "https://github.com/circlefin/stablecoin-evm/blob/fc85788bc7c23cefe3df1a757133048bfddadeaa/contracts/v1/Ownable.sol"
+      },
+      {
+        "path": "contracts/v1/Pausable.sol",
+        "gitBlobSha1": "51c120349cf34558a9d6a8b628b95c524ee3518f",
+        "sha256": "3aac2a3b16249fdfe82357649fb5ad2bd5887cb521b59f0833851457a8e845b8",
+        "url": "https://github.com/circlefin/stablecoin-evm/blob/fc85788bc7c23cefe3df1a757133048bfddadeaa/contracts/v1/Pausable.sol"
+      },
+      {
+        "path": "contracts/v1/Blacklistable.sol",
+        "gitBlobSha1": "f289aa64fcbb3414d2910878ca0331d6c6647457",
+        "sha256": "c788c40515a7255735bae06bebe0025af70a3713097bcc10293bd263f098ba90",
+        "url": "https://github.com/circlefin/stablecoin-evm/blob/fc85788bc7c23cefe3df1a757133048bfddadeaa/contracts/v1/Blacklistable.sol"
+      },
+      {
+        "path": "contracts/v1/FiatTokenV1.sol",
+        "gitBlobSha1": "00c77d3bac4189896808ad35358da2e873177691",
+        "sha256": "423a0c805f7bfff28c89432f671a38d19717fb4b6c3e5591fa46d5d4b04f2c21",
+        "url": "https://github.com/circlefin/stablecoin-evm/blob/fc85788bc7c23cefe3df1a757133048bfddadeaa/contracts/v1/FiatTokenV1.sol"
+      },
+      {
+        "path": "contracts/v2/FiatTokenV2_2.sol",
+        "gitBlobSha1": "bfedba254d4bc29b89d5abfabb9b5a97bb9265ff",
+        "sha256": "d1f045f392042e4e8ac04d4c53a8e6d2f599085025a6ff979252bc9783b3fc3a",
+        "url": "https://github.com/circlefin/stablecoin-evm/blob/fc85788bc7c23cefe3df1a757133048bfddadeaa/contracts/v2/FiatTokenV2_2.sol"
+      },
+      {
+        "path": "foundry.toml",
+        "gitBlobSha1": "196128c45061cc54347bb4f82774c2403b6daec5",
+        "sha256": "3d50a5abbf341d6a490fa0d481c44d29e0f44f2a47f82bc14ef0acdf01550de7",
+        "url": "https://github.com/circlefin/stablecoin-evm/blob/fc85788bc7c23cefe3df1a757133048bfddadeaa/foundry.toml"
+      },
+      {
+        "path": "hardhat.config.ts",
+        "gitBlobSha1": "bc6a48f3d4e9b04c3bf175deb10df48dfac52add",
+        "sha256": "3e55769e9524566de53b01cf54b84f0acbe7f589fbba2502fffcff98803d2a8c",
+        "url": "https://github.com/circlefin/stablecoin-evm/blob/fc85788bc7c23cefe3df1a757133048bfddadeaa/hardhat.config.ts"
+      }
+    ],
+    "scope": "PINNED_SOURCE_CANDIDATE_NOT_DEPLOYMENT_BINDING",
+    "compilerConfiguration": {
+      "sourceFile": "hardhat.config.ts",
+      "version": "0.6.12",
+      "optimizerRunsDefault": "10000000",
+      "scope": "REPOSITORY_DEFAULT_NOT_OBSERVED_DEPLOYMENT_SETTINGS"
+    }
+  },
+  "getterCandidates": [
+    {
+      "signature": "owner()",
+      "selector": "0x8da5cb5b",
+      "output": "address",
+      "stateMutability": "view",
+      "sourceFile": "contracts/v1/Ownable.sol",
+      "provenance": "DOCUMENTED_SOURCE_CANDIDATE",
+      "deploymentBinding": "UNKNOWN",
+      "execution": "NOT_TESTED"
+    },
+    {
+      "signature": "pauser()",
+      "selector": "0x9fd0506d",
+      "output": "address",
+      "stateMutability": "view",
+      "sourceFile": "contracts/v1/Pausable.sol",
+      "provenance": "DOCUMENTED_SOURCE_CANDIDATE",
+      "deploymentBinding": "UNKNOWN",
+      "execution": "NOT_TESTED"
+    },
+    {
+      "signature": "paused()",
+      "selector": "0x5c975abb",
+      "output": "bool",
+      "stateMutability": "view",
+      "sourceFile": "contracts/v1/Pausable.sol",
+      "provenance": "DOCUMENTED_SOURCE_CANDIDATE",
+      "deploymentBinding": "UNKNOWN",
+      "execution": "NOT_TESTED"
+    },
+    {
+      "signature": "blacklister()",
+      "selector": "0xbd102430",
+      "output": "address",
+      "stateMutability": "view",
+      "sourceFile": "contracts/v1/Blacklistable.sol",
+      "provenance": "DOCUMENTED_SOURCE_CANDIDATE",
+      "deploymentBinding": "UNKNOWN",
+      "execution": "NOT_TESTED"
+    },
+    {
+      "signature": "isBlacklisted(address)",
+      "selector": "0xfe575a87",
+      "output": "bool",
+      "stateMutability": "view",
+      "sourceFile": "contracts/v1/Blacklistable.sol",
+      "provenance": "DOCUMENTED_SOURCE_CANDIDATE",
+      "deploymentBinding": "UNKNOWN",
+      "execution": "NOT_TESTED"
+    },
+    {
+      "signature": "masterMinter()",
+      "selector": "0x35d99f35",
+      "output": "address",
+      "stateMutability": "view",
+      "sourceFile": "contracts/v1/FiatTokenV1.sol",
+      "provenance": "DOCUMENTED_SOURCE_CANDIDATE",
+      "deploymentBinding": "UNKNOWN",
+      "execution": "NOT_TESTED"
+    }
+  ],
+  "artifactSearch": {
+    "repositoryRuntimeArtifact": "NOT_ESTABLISHED",
+    "excludedFiles": [
+      "cached_artifacts/opMainnetFiatTokenProxyContractCreationBytecode.bin",
+      "cached_artifacts/opMainnetFiatTokenProxyRuntimeBytecode.bin"
+    ],
+    "reason": "These are Optimism proxy artifacts, not the observed Ethereum token implementation runtime.",
+    "sourcify": [
+      {
+        "url": "https://repo.sourcify.dev/contracts/full_match/1/0x43506849D7C04F9138D1A2050bbF3A0c054402dd/metadata.json",
+        "httpStatus": 404,
+        "scope": "URL_RESPONSE_NOT_PROOF_OF_NO_VERIFIED_SOURCE"
+      },
+      {
+        "url": "https://repo.sourcify.dev/contracts/partial_match/1/0x43506849D7C04F9138D1A2050bbF3A0c054402dd/metadata.json",
+        "httpStatus": 404,
+        "scope": "URL_RESPONSE_NOT_PROOF_OF_NO_VERIFIED_SOURCE"
+      }
+    ],
+    "ipfsMetadata": {
+      "cid": "QmNhkGfa5zEkiTbpnDmyvm2DjSGTFDazKhc5xbZq3Sgs58",
+      "url": "https://ipfs.io/ipfs/QmNhkGfa5zEkiTbpnDmyvm2DjSGTFDazKhc5xbZq3Sgs58",
+      "result": "UNAVAILABLE",
+      "error": "Tunnel connection failed: 503 Service Unavailable",
+      "stage": "PROXY_CONNECT",
+      "xSquidError": "UNKNOWN",
+      "policyBlock": "NOT_ESTABLISHED",
+      "alternateGatewayAttempted": false
+    }
+  },
+  "binding": {
+    "status": "UNKNOWN",
+    "exactRuntimeComparison": "MISMATCH",
+    "reproducibleBuild": "INCONCLUSIVE",
+    "fullArtifactAbi": "CANDIDATE_AND_SERVICE_RECOMPILED_ABI_AVAILABLE_NOT_VERIFIED_DEPLOYMENT_ABI",
+    "sourceToDeployment": "UNKNOWN",
+    "reason": "Both fixed official-source and service-input local recompilations match the observed body but differ in metadata. Service onchain bytes match e15; service reports match after CBOR replacement. Exact source-to-runtime binding remains UNKNOWN."
+  },
+  "limitations": [
+    "No new RPC observations; historical declared slot target only.",
+    "Compiler candidate built locally; full runtime mismatch and unavailable deployment metadata prevent exact source binding.",
+    "Metadata-excluded body match is limited evidence; no dispatch, library identity or authorization proof.",
+    "Issuer, native origin, authority and support remain UNKNOWN; controls NOT_TESTED."
+  ],
+  "candidateBuild": {
+    "scope": "FIXED_SOURCE_CANDIDATE_NOT_RECOVERED_DEPLOYMENT_INPUT",
+    "status": "COMPLETED",
+    "contractTarget": {
+      "sourceUnit": "contracts/v2/FiatTokenV2_2.sol",
+      "contract": "FiatTokenV2_2"
+    },
+    "compiler": {
+      "package": "solc",
+      "version": "0.6.12",
+      "registryUrl": "https://registry.npmjs.org/solc/0.6.12",
+      "tarballUrl": "https://registry.npmjs.org/solc/-/solc-0.6.12.tgz",
+      "integrity": "sha512-Lm0Ql2G9Qc7yPP2Ba+WNmzw2jwsrd3u4PobHYlSOxaut3TtUbj9+5ZrT6f4DUpNPEoBaFUOEg9Op9C0mk7ge9g==",
+      "tarballSha256": "7e441d31bf22b10762cf554bc1e6bc2e22d3917e80e69b92a3ab82902fb26d97",
+      "files": {
+        "soljson.js": "3e1956c550ca48e289044c7c0bd892403081b4b5e17e77ce707c815ce6c4228f"
+      },
+      "fullVersion": "0.6.12+commit.27d51765.Emscripten.clang",
+      "independentCompilerAttestation": "NOT_TESTED"
+    },
+    "dependency": {
+      "package": "@openzeppelin/contracts",
+      "version": "3.4.2",
+      "registryUrl": "https://registry.npmjs.org/@openzeppelin/contracts/3.4.2",
+      "tarballUrl": "https://registry.npmjs.org/@openzeppelin/contracts/-/contracts-3.4.2.tgz",
+      "integrity": "sha512-z0zMCjyhhp4y7XKAcDAi3Vgms4T2PstwBdahiO0+9NaGICQKjynK3wduSRplTgk4LXmoO1yfDGO5RbjKYxtuxA==",
+      "tarballSha256": "72f4176e8d4db8825a6161a7663061f3c3d3f2f6e14c7d5357bec6bd1dd9c7bd"
+    },
+    "sourceClosure": [
+      {
+        "sourceUnit": "contracts/v2/FiatTokenV2_2.sol",
+        "sha256": "d1f045f392042e4e8ac04d4c53a8e6d2f599085025a6ff979252bc9783b3fc3a",
+        "origin": "fc85788bc7c23cefe3df1a757133048bfddadeaa"
+      },
+      {
+        "sourceUnit": "contracts/v2/EIP712Domain.sol",
+        "sha256": "15a9941af7b307e0755ce3f37bbb7c4f0b204b9496005fd45ec9705f44c1b9c1",
+        "origin": "fc85788bc7c23cefe3df1a757133048bfddadeaa"
+      },
+      {
+        "sourceUnit": "contracts/v1/Blacklistable.sol",
+        "sha256": "c788c40515a7255735bae06bebe0025af70a3713097bcc10293bd263f098ba90",
+        "origin": "fc85788bc7c23cefe3df1a757133048bfddadeaa"
+      },
+      {
+        "sourceUnit": "contracts/v1/Ownable.sol",
+        "sha256": "75f378c6a232f5cc85f2a46b5b2296c14bcbdf864114c3fee3996102e93aa946",
+        "origin": "fc85788bc7c23cefe3df1a757133048bfddadeaa"
+      },
+      {
+        "sourceUnit": "contracts/v1/FiatTokenV1.sol",
+        "sha256": "423a0c805f7bfff28c89432f671a38d19717fb4b6c3e5591fa46d5d4b04f2c21",
+        "origin": "fc85788bc7c23cefe3df1a757133048bfddadeaa"
+      },
+      {
+        "sourceUnit": "@openzeppelin/contracts/math/SafeMath.sol",
+        "sha256": "4a04d0a20a19e3ef1dcabae9cad9ba006430a4e7eec4d9b519db87999722c98a",
+        "origin": "openzeppelin@3.4.2"
+      },
+      {
+        "sourceUnit": "contracts/v1/AbstractFiatTokenV1.sol",
+        "sha256": "b24c578f4d3994cf734986b43e973c825ca553ceb084adf957bb86c4b9767dbc",
+        "origin": "fc85788bc7c23cefe3df1a757133048bfddadeaa"
+      },
+      {
+        "sourceUnit": "@openzeppelin/contracts/token/ERC20/IERC20.sol",
+        "sha256": "0573c2961569aa4906845d0cd428b5b7394956170054ceeaa8f8af96cd44875c",
+        "origin": "openzeppelin@3.4.2"
+      },
+      {
+        "sourceUnit": "contracts/v1/Pausable.sol",
+        "sha256": "3aac2a3b16249fdfe82357649fb5ad2bd5887cb521b59f0833851457a8e845b8",
+        "origin": "fc85788bc7c23cefe3df1a757133048bfddadeaa"
+      },
+      {
+        "sourceUnit": "contracts/v2/FiatTokenV2.sol",
+        "sha256": "e50ea04584155d83d326b4dcdfe9668fc29d4d351f0f9ba87bd49897bede8af8",
+        "origin": "fc85788bc7c23cefe3df1a757133048bfddadeaa"
+      },
+      {
+        "sourceUnit": "contracts/v1.1/FiatTokenV1_1.sol",
+        "sha256": "f69c5a0b774b213eaead9641a2d5a40d6bb459207a3b2b8cf580bc2622a50ffc",
+        "origin": "fc85788bc7c23cefe3df1a757133048bfddadeaa"
+      },
+      {
+        "sourceUnit": "contracts/v1.1/Rescuable.sol",
+        "sha256": "dcbfd372225bef5d8b4e76cea28bf172260a0eb85eeda666b0447e37123e100c",
+        "origin": "fc85788bc7c23cefe3df1a757133048bfddadeaa"
+      },
+      {
+        "sourceUnit": "@openzeppelin/contracts/token/ERC20/SafeERC20.sol",
+        "sha256": "eea796f96939e7dd6119de00941717ce5772d8a942b184f5e48d2b962d0ab655",
+        "origin": "openzeppelin@3.4.2"
+      },
+      {
+        "sourceUnit": "@openzeppelin/contracts/utils/Address.sol",
+        "sha256": "11ad5e3e21434e00c4ceba1f5a977b7a68bdd7d16b849276ce4ff4495129eec7",
+        "origin": "openzeppelin@3.4.2"
+      },
+      {
+        "sourceUnit": "contracts/util/EIP712.sol",
+        "sha256": "1fb1f03d1631f442e2ba005fe5289f00b93be7cc49022078069969273dfc4def",
+        "origin": "fc85788bc7c23cefe3df1a757133048bfddadeaa"
+      },
+      {
+        "sourceUnit": "contracts/v2/EIP3009.sol",
+        "sha256": "2da3daad1073a9fd5984522fa635c7a175e6acf07631f4ab0fb787c54595ce55",
+        "origin": "fc85788bc7c23cefe3df1a757133048bfddadeaa"
+      },
+      {
+        "sourceUnit": "contracts/v2/AbstractFiatTokenV2.sol",
+        "sha256": "c59e30154c8747ffc496707ca8b81ec8d0c1b3496ea9155d9baa9243ed48c6c0",
+        "origin": "fc85788bc7c23cefe3df1a757133048bfddadeaa"
+      },
+      {
+        "sourceUnit": "contracts/util/SignatureChecker.sol",
+        "sha256": "908c403abbf2ddeaad3005e8a80f75d96abfa546a59f53ee97c18b80fe336afe",
+        "origin": "fc85788bc7c23cefe3df1a757133048bfddadeaa"
+      },
+      {
+        "sourceUnit": "contracts/util/ECRecover.sol",
+        "sha256": "7757042c1411869fef5d590a624afb29fbe205dfe2f56dcc22c8db4dd7f635dc",
+        "origin": "fc85788bc7c23cefe3df1a757133048bfddadeaa"
+      },
+      {
+        "sourceUnit": "contracts/interface/IERC1271.sol",
+        "sha256": "90706e1c5c0164828819bc991154da862569b6040d1a4836538b0fff44dc1c3e",
+        "origin": "fc85788bc7c23cefe3df1a757133048bfddadeaa"
+      },
+      {
+        "sourceUnit": "contracts/util/MessageHashUtils.sol",
+        "sha256": "c515584f13890da8fd49c4a8d364f11c7dd82c3321df1563064d947ad8374b2b",
+        "origin": "fc85788bc7c23cefe3df1a757133048bfddadeaa"
+      },
+      {
+        "sourceUnit": "contracts/v2/EIP2612.sol",
+        "sha256": "eb2460cf7b348afc3e922757b31c85a92cca03871579cabbf62941cd6e4b8304",
+        "origin": "fc85788bc7c23cefe3df1a757133048bfddadeaa"
+      },
+      {
+        "sourceUnit": "contracts/v2/FiatTokenV2_1.sol",
+        "sha256": "ec3a38d994c9880e318cfa5543f0b7847f77e197d67e7164c9a0313006e8b1eb",
+        "origin": "fc85788bc7c23cefe3df1a757133048bfddadeaa"
+      }
+    ],
+    "settings": {
+      "optimizer": {
+        "enabled": true,
+        "runs": 10000000
+      },
+      "evmVersion": "istanbul",
+      "metadata": {
+        "bytecodeHash": "ipfs",
+        "useLiteralContent": false
+      },
+      "libraries": {
+        "contracts/util/SignatureChecker.sol": {
+          "SignatureChecker": "0x800c32eaa2a6c93cf4cb51794450ed77fbfbb172"
+        }
+      },
+      "remappings": [],
+      "outputSelection": {
+        "*": {
+          "*": [
+            "abi",
+            "metadata",
+            "evm.deployedBytecode",
+            "evm.bytecode"
+          ]
+        }
+      }
+    },
+    "settingsScope": "REPOSITORY_DEFAULT_AND_EXPLICIT_CANDIDATE_CHOICES_NOT_DEPLOYMENT_METADATA",
+    "input": {
+      "reference": "../../.state/usdc-source/linked-input.json",
+      "sha256": "1dee888058b60999e34cbbf357110fd464046c5fcaf05f65a2d95c598f5a5151"
+    },
+    "output": {
+      "reference": "../../.state/usdc-source/linked-output.json",
+      "sha256": "1493d3081e09e04761c358b92cf079c3405f026e0636d3e7372e767d77ee0830"
+    },
+    "unlinkedInput": {
+      "reference": "../../.state/usdc-source/candidate-input.json",
+      "sha256": "293dfa028f3cbc53b7e602711693abff872a5c53f2a761034e239b0676af19bd",
+      "result": "UNRESOLVED_LIBRARY_REFERENCES_NOT_COMPARABLE"
+    },
+    "libraryInference": [
+      {
+        "sourceUnit": "contracts/util/SignatureChecker.sol",
+        "library": "SignatureChecker",
+        "references": [
+          {
+            "length": 20,
+            "start": 18391
+          },
+          {
+            "length": 20,
+            "start": 20106
+          }
+        ],
+        "observedValues": [
+          "0x800c32eaa2a6c93cf4cb51794450ed77fbfbb172"
+        ],
+        "scope": "INFERRED_LINK_INPUT_NOT_VERIFIED_LIBRARY_IDENTITY"
+      }
+    ],
+    "runtime": {
+      "bytes": 23464,
+      "sha256": "e6778833382be22bceccaa1c9be9f9017a9c082e26d7d671d03e34ea76139b61",
+      "keccak256": "0xd209359cdb1a8a48712662451d9d5194a7f51fd48882397f69a22e453427ab09",
+      "linkReferences": {},
+      "immutableReferences": {}
+    },
+    "generatedAbi": {
+      "entries": 72,
+      "hashAlgorithm": "SHA256_OF_UTF8_JSON_STRINGIFY_COMPILER_ABI",
+      "sha256": "089c58f40d0249b89ba8215a75ad0aba7e4d507512a04e059d98a6f9b1078cfa",
+      "scope": "COMPILED_CANDIDATE_ABI_NOT_VERIFIED_DEPLOYMENT_ABI"
+    },
+    "comparison": {
+      "exactRuntime": "MISMATCH",
+      "metadataExcluded": "MATCH",
+      "observedBytes": 23464,
+      "candidateBytes": 23464,
+      "observedBodyBytes": 23411,
+      "candidateBodyBytes": 23411
+    },
+    "attempts": 2,
+    "attemptScope": "ONE_FIXED_SOURCE_AND_OPTIMIZER_CONFIGURATION; UNLINKED_THEN_OBSERVED_ADDRESS_LINK_INPUT",
+    "limitations": [
+      "SRI checked against registry metadata; no independent compiler release attestation.",
+      "Library address inferred at two compiler reference offsets in observed bytes; library identity/code and actual delegation not verified.",
+      "Metadata was parsed separately per runtime; only bytes before valid supported CBOR suffixes matched.",
+      "No optimizer/version/source search until matching; metadata mismatch left unresolved."
+    ]
+  },
+  "verificationServiceStudy": {
+    "url": "https://sourcify.dev/server/v2/contract/1/0x43506849D7C04F9138D1A2050bbF3A0c054402dd?fields=all",
+    "apiDocumentation": "https://docs.sourcify.dev/docs/api/",
+    "storedAt": "2026-10-20T00:52:56.663Z",
+    "response": {
+      "reference": "../../.state/usdc-source/sourcify-v2.json",
+      "sha256": "900444fdb2087cddbfa22537f775131ac7eedca6b305bcfe5d169fe668a4632d",
+      "bytes": 712760
+    },
+    "matchId": "2343264",
+    "serviceVerifiedAt": "2024-08-08T15:09:21Z",
+    "serviceClaim": {
+      "match": "match",
+      "runtimeMatch": "match",
+      "creationMatch": "match",
+      "provenance": "THIRD_PARTY_REPORTED_NOT_OUR_VERDICT"
+    },
+    "networkId": "1",
+    "address": "0x43506849D7C04F9138D1A2050bbF3A0c054402dd",
+    "componentHashes": {
+      "stdJsonInput": {
+        "algorithm": "SHA256_OF_UTF8_JSON_STRINGIFY_PARSED_COMPONENT",
+        "sha256": "f99ac3f326e600f9b2d6d3d26ac04654850adaef8bfe2d7f931d643f5a4133f4"
+      },
+      "stdJsonOutput": {
+        "algorithm": "SHA256_OF_UTF8_JSON_STRINGIFY_PARSED_COMPONENT",
+        "sha256": "12d90296f98a4dc4faaf77cac933996343992b99cb994e184f941ed9a03cf63b"
+      },
+      "metadata": {
+        "algorithm": "SHA256_OF_UTF8_JSON_STRINGIFY_PARSED_COMPONENT",
+        "sha256": "ac41dd2bd1dadf576153e1fcc47ba0bfbb6fe89310cf488e6dda062c3f544615"
+      },
+      "abi": {
+        "algorithm": "SHA256_OF_UTF8_JSON_STRINGIFY_PARSED_COMPONENT",
+        "sha256": "1a07e28961a030a8fe80e9975b338f19a0f9af66fcbc54d55d58a6a312320dec"
+      }
+    },
+    "sourceFiles": [
+      {
+        "sourceUnitPathSha256": "10d774d76cd59ef24ea7df8136fee2afbd0164c9962f4a01c9dea48748b7c90c",
+        "sourceUnitSuffix": "@openzeppelin/contracts/math/SafeMath.sol",
+        "sha256": "4a04d0a20a19e3ef1dcabae9cad9ba006430a4e7eec4d9b519db87999722c98a",
+        "keccak256": "0xcc78a17dd88fa5a2edc60c8489e2f405c0913b377216a5b26b35656b2d0dab52",
+        "metadataContentHashMatches": true,
+        "comparisonTarget": "OPENZEPPELIN_3_4_2",
+        "contentComparison": "EXACT_MATCH"
+      },
+      {
+        "sourceUnitPathSha256": "13603a3604fe217925679f6b86a73b84875845aed2fe9f3ab05a57b66d5b67d1",
+        "sourceUnitSuffix": "@openzeppelin/contracts/utils/Address.sol",
+        "sha256": "11ad5e3e21434e00c4ceba1f5a977b7a68bdd7d16b849276ce4ff4495129eec7",
+        "keccak256": "0x28911e614500ae7c607a432a709d35da25f3bc5ddc8bd12b278b66358070c0ea",
+        "metadataContentHashMatches": true,
+        "comparisonTarget": "OPENZEPPELIN_3_4_2",
+        "contentComparison": "EXACT_MATCH"
+      },
+      {
+        "sourceUnitPathSha256": "1725e7905fa8fae755c4ccbd5228387833c8af4e1c76620b545245385a2bfff3",
+        "sourceUnitSuffix": "@openzeppelin/contracts/token/ERC20/IERC20.sol",
+        "sha256": "0573c2961569aa4906845d0cd428b5b7394956170054ceeaa8f8af96cd44875c",
+        "keccak256": "0x5f02220344881ce43204ae4a6281145a67bc52c2bb1290a791857df3d19d78f5",
+        "metadataContentHashMatches": true,
+        "comparisonTarget": "OPENZEPPELIN_3_4_2",
+        "contentComparison": "EXACT_MATCH"
+      },
+      {
+        "sourceUnitPathSha256": "62e7a5fc2f40b834794b7cdb219bf6b42cbba5cb4debf261c04169825d478588",
+        "sourceUnitSuffix": "@openzeppelin/contracts/token/ERC20/SafeERC20.sol",
+        "sha256": "eea796f96939e7dd6119de00941717ce5772d8a942b184f5e48d2b962d0ab655",
+        "keccak256": "0xf12dfbe97e6276980b83d2830bb0eb75e0cf4f3e626c2471137f82158ae6a0fc",
+        "metadataContentHashMatches": true,
+        "comparisonTarget": "OPENZEPPELIN_3_4_2",
+        "contentComparison": "EXACT_MATCH"
+      },
+      {
+        "sourceUnitPathSha256": "b4dcd30ae787969263e2071f8470e2bd4d5b9d88f44da5530796b9c40e97e556",
+        "sourceUnitSuffix": "contracts/v1/Ownable.sol",
+        "sha256": "75f378c6a232f5cc85f2a46b5b2296c14bcbdf864114c3fee3996102e93aa946",
+        "keccak256": "0xdd51a06c4d6c38ef806c50463ade63123980334bf173c3301794e242228fc9e5",
+        "metadataContentHashMatches": true,
+        "comparisonTarget": "CIRCLE_COMMIT_fc85788bc7c23cefe3df1a757133048bfddadeaa",
+        "contentComparison": "EXACT_MATCH"
+      },
+      {
+        "sourceUnitPathSha256": "f76daedde7bc46ed6dd3e3853d4d93584f02705909ea37697362f04a8c934e08",
+        "sourceUnitSuffix": "contracts/v2/EIP2612.sol",
+        "sha256": "a238b788183f3a3283743a6fecd05ecc2017b74d73b1f8e9aa51420766f67141",
+        "keccak256": "0x5d537ee5eb802d5a9e87fe8c84432468ede6dac587dcb5fe496c3c6688ded081",
+        "metadataContentHashMatches": true,
+        "comparisonTarget": "CIRCLE_COMMIT_fc85788bc7c23cefe3df1a757133048bfddadeaa",
+        "contentComparison": "DIFFERENT_BYTES"
+      },
+      {
+        "sourceUnitPathSha256": "a13d8e9c7ebccaf5f33808ae7b49e3ec81da85209b14be61507549ad0ac10abc",
+        "sourceUnitSuffix": "contracts/v2/EIP3009.sol",
+        "sha256": "aef8f9243a424b1238dd804cf028bb84cb9a67aac0cab8403424966013ca0f36",
+        "keccak256": "0x5a3016cdefa4829a94cda31bdb4ac0657c7cee0237609f601859d4710efff611",
+        "metadataContentHashMatches": true,
+        "comparisonTarget": "CIRCLE_COMMIT_fc85788bc7c23cefe3df1a757133048bfddadeaa",
+        "contentComparison": "DIFFERENT_BYTES"
+      },
+      {
+        "sourceUnitPathSha256": "5917d3511b7e4486b6ea34f4ec68c1b21d818e6809b96b69e2c840eea7f70bb7",
+        "sourceUnitSuffix": "contracts/util/EIP712.sol",
+        "sha256": "2d4f1680a369de666100e24d0fb32536e523bc20adbf59ccaaf925b5b5069f3d",
+        "keccak256": "0xe37a5f63301df416c581522dafd043fc5e5a2959de5912472913f51b8f732fe1",
+        "metadataContentHashMatches": true,
+        "comparisonTarget": "CIRCLE_COMMIT_fc85788bc7c23cefe3df1a757133048bfddadeaa",
+        "contentComparison": "DIFFERENT_BYTES"
+      },
+      {
+        "sourceUnitPathSha256": "0dd71d4c37e3c9e7a2a561c523aab4eaab6a8837e2010207e69b7c8f8ee2aac8",
+        "sourceUnitSuffix": "contracts/v1/Pausable.sol",
+        "sha256": "3aac2a3b16249fdfe82357649fb5ad2bd5887cb521b59f0833851457a8e845b8",
+        "keccak256": "0xa1112323b001871746d971f9dd2c61d094ea856146071537dc9d92e18e8cc829",
+        "metadataContentHashMatches": true,
+        "comparisonTarget": "CIRCLE_COMMIT_fc85788bc7c23cefe3df1a757133048bfddadeaa",
+        "contentComparison": "EXACT_MATCH"
+      },
+      {
+        "sourceUnitPathSha256": "cc0cfbfd8569e7bd7ee5dc9191d3f939724201b62f4a7e03357e4f0ef58bf059",
+        "sourceUnitSuffix": "contracts/util/ECRecover.sol",
+        "sha256": "e1ef89a8ee61d8e34246b7c9ef407b3934e427fd6e9379b1b1aebaef146b3139",
+        "keccak256": "0x67e87f3329b45c5ccaaea2aee30c62fc5199ae61084a98ae7b00fb5866ef38bb",
+        "metadataContentHashMatches": true,
+        "comparisonTarget": "CIRCLE_COMMIT_fc85788bc7c23cefe3df1a757133048bfddadeaa",
+        "contentComparison": "DIFFERENT_BYTES"
+      },
+      {
+        "sourceUnitPathSha256": "f46cfb859649ab2e09272b5f22be49bae9f2011ed28a109795318eb5e630cf7f",
+        "sourceUnitSuffix": "contracts/v1.1/Rescuable.sol",
+        "sha256": "b6598160acf080c793b7c69a92d906f7ef72033c9bac4a24b746362ab2f377ce",
+        "keccak256": "0x18cd3973ae9807647d8fe9f622c9e680b488051023338062d919783565eb074a",
+        "metadataContentHashMatches": true,
+        "comparisonTarget": "CIRCLE_COMMIT_fc85788bc7c23cefe3df1a757133048bfddadeaa",
+        "contentComparison": "DIFFERENT_BYTES"
+      },
+      {
+        "sourceUnitPathSha256": "59c909e62bdfd09111c1b24261894c5f76167f941ed2d398c1eedb4404a8e419",
+        "sourceUnitSuffix": "contracts/v1/FiatTokenV1.sol",
+        "sha256": "60cf9152586da7464f9f2a9aec2e67151edce2ec0eafad9061111c7ddecbd253",
+        "keccak256": "0xd7d4cb362789154d93f826ada42dc65f0a1a1efa4864c0376c416452b4c4f434",
+        "metadataContentHashMatches": true,
+        "comparisonTarget": "CIRCLE_COMMIT_fc85788bc7c23cefe3df1a757133048bfddadeaa",
+        "contentComparison": "DIFFERENT_BYTES"
+      },
+      {
+        "sourceUnitPathSha256": "855ff1718b6db6b38ef472b0356659a84495344d92326c336c0895227348cc7f",
+        "sourceUnitSuffix": "contracts/v2/FiatTokenV2.sol",
+        "sha256": "a965693a4fb4825190478ba8e75680c17dd0101f09ee582a535e27b283a51cd7",
+        "keccak256": "0x4a17f2abc9d792b97ccd25ce3656be52cc9912ca080931a2af91620c085d2710",
+        "metadataContentHashMatches": true,
+        "comparisonTarget": "CIRCLE_COMMIT_fc85788bc7c23cefe3df1a757133048bfddadeaa",
+        "contentComparison": "DIFFERENT_BYTES"
+      },
+      {
+        "sourceUnitPathSha256": "25ef60008b7a0832f19657b338914c65b731f9ef984596772de71de238943728",
+        "sourceUnitSuffix": "contracts/v2/EIP712Domain.sol",
+        "sha256": "0177b3f22c53b24a0fb7fdd01b5639cfb3333c8f00b88a17e214c82ad651cd09",
+        "keccak256": "0xac8612431dcd0ce278ea4cdc41955408b9465125a57316076581fc41eca16cdb",
+        "metadataContentHashMatches": true,
+        "comparisonTarget": "CIRCLE_COMMIT_fc85788bc7c23cefe3df1a757133048bfddadeaa",
+        "contentComparison": "DIFFERENT_BYTES"
+      },
+      {
+        "sourceUnitPathSha256": "b49ef54dc158f8ab07b926d0c125b707d03e043b9086f35a4c2535fccdd0f7a9",
+        "sourceUnitSuffix": "contracts/v1/Blacklistable.sol",
+        "sha256": "378945896f094e44f8c38d6d51221fcf0e0a5c0e411bdbe5c2a1e74b30d62d18",
+        "keccak256": "0x5222ed7885c2765f59841b92d912acd4b2fdec3b064a033c67b706b1b873a7a2",
+        "metadataContentHashMatches": true,
+        "comparisonTarget": "CIRCLE_COMMIT_fc85788bc7c23cefe3df1a757133048bfddadeaa",
+        "contentComparison": "DIFFERENT_BYTES"
+      },
+      {
+        "sourceUnitPathSha256": "0a5986503acebb6f61f6546cdd6d81fc3fcae05241675dcc4644c0372e254ca3",
+        "sourceUnitSuffix": "contracts/v2/FiatTokenV2_1.sol",
+        "sha256": "3c28cd848d97aa66b5f20f2b235ef85e1096909f6fb15b50fcb25aa14b4c29b3",
+        "keccak256": "0x98ad86a34c485a54eb89e1ad52bd18b5bedf80cef350761102c542c4efa5e899",
+        "metadataContentHashMatches": true,
+        "comparisonTarget": "CIRCLE_COMMIT_fc85788bc7c23cefe3df1a757133048bfddadeaa",
+        "contentComparison": "DIFFERENT_BYTES"
+      },
+      {
+        "sourceUnitPathSha256": "11fcb7265316b15d1435c8028988aef18f8ec0bca891268350db6449efbb9573",
+        "sourceUnitSuffix": "contracts/v2/FiatTokenV2_2.sol",
+        "sha256": "bc19b34f30539a71fdcab25fd2909444abc8f525da6c2c263f52be0ab6365318",
+        "keccak256": "0xd277ba6a963efe6b837050efa4dd9da2c6e3736ac494d2098d099dd8411ffd27",
+        "metadataContentHashMatches": true,
+        "comparisonTarget": "CIRCLE_COMMIT_fc85788bc7c23cefe3df1a757133048bfddadeaa",
+        "contentComparison": "DIFFERENT_BYTES"
+      },
+      {
+        "sourceUnitPathSha256": "f3ce137a7b431ada3f46ea4d8baa69746295f218177e4303201b022b27103629",
+        "sourceUnitSuffix": "contracts/interface/IERC1271.sol",
+        "sha256": "4bea173f51efb59469b5c27bd01f41e47bf590234326f4ac129077758c6e8700",
+        "keccak256": "0xb456c2a7864a871487d0b20922170de00f0fd68cfcbffe9f1b202fe55bd34b7b",
+        "metadataContentHashMatches": true,
+        "comparisonTarget": "CIRCLE_COMMIT_fc85788bc7c23cefe3df1a757133048bfddadeaa",
+        "contentComparison": "DIFFERENT_BYTES"
+      },
+      {
+        "sourceUnitPathSha256": "836e1619b161d48cd1c59e3ed1c72399810e55ca6a046a76e18f5e7797f1147b",
+        "sourceUnitSuffix": "contracts/v1.1/FiatTokenV1_1.sol",
+        "sha256": "e35fd245d8bf21a2539a29d1e18f6d3f05a728819db03324e52d122a367d7a63",
+        "keccak256": "0xf7fb808b12e8463014ccf9c2ef4bb9b190beda510549cb5475c30f3d04853375",
+        "metadataContentHashMatches": true,
+        "comparisonTarget": "CIRCLE_COMMIT_fc85788bc7c23cefe3df1a757133048bfddadeaa",
+        "contentComparison": "DIFFERENT_BYTES"
+      },
+      {
+        "sourceUnitPathSha256": "df3790208d1acb7a956f9aee489fe39d3e586e2b51e5b6aece36de7ac564c515",
+        "sourceUnitSuffix": "contracts/util/MessageHashUtils.sol",
+        "sha256": "9f8bb1b606b7fdbdd4fc3677d2c26476077ae75a1b37c922673e2fff9b861e0c",
+        "keccak256": "0x29a830440a0cad1c957be220140820273f895180ab05181e8f3483913791bade",
+        "metadataContentHashMatches": true,
+        "comparisonTarget": "CIRCLE_COMMIT_fc85788bc7c23cefe3df1a757133048bfddadeaa",
+        "contentComparison": "DIFFERENT_BYTES"
+      },
+      {
+        "sourceUnitPathSha256": "75dfdc30f882d94fb1b04a416fa798335b2eb4dc64d2c22c04e512863beb890b",
+        "sourceUnitSuffix": "contracts/util/SignatureChecker.sol",
+        "sha256": "7ac65af189f475acdcd17ffe9c639bfe20ff505984ca142ec60ed6c0e91924d2",
+        "keccak256": "0xd83cfc98baf19b92607c020a6b4095b8911f0ebd9a23f9005d06066fa93d7528",
+        "metadataContentHashMatches": true,
+        "comparisonTarget": "CIRCLE_COMMIT_fc85788bc7c23cefe3df1a757133048bfddadeaa",
+        "contentComparison": "DIFFERENT_BYTES"
+      },
+      {
+        "sourceUnitPathSha256": "f888f8050a76554c1b96d4a40366cc83a5c7eaa9a10ec9065effd623fae4b84c",
+        "sourceUnitSuffix": "contracts/v1/AbstractFiatTokenV1.sol",
+        "sha256": "17ead8fb9180b90aefc0e998e1e264080ec8f740755a01688a785a3459438e10",
+        "keccak256": "0x71fb175b396fe43da0d05d9c51bee3b5be36e3beae202a609b39967de1ffccb3",
+        "metadataContentHashMatches": true,
+        "comparisonTarget": "CIRCLE_COMMIT_fc85788bc7c23cefe3df1a757133048bfddadeaa",
+        "contentComparison": "DIFFERENT_BYTES"
+      },
+      {
+        "sourceUnitPathSha256": "93d355185fb89b71e517de827561533431242f5bbf0642a2ac5481f492b0e11b",
+        "sourceUnitSuffix": "contracts/v2/AbstractFiatTokenV2.sol",
+        "sha256": "0df59e928752105b4a69a4011c1928de24c7c842067185de7ee30afa65bbb08c",
+        "keccak256": "0x3b29dd64caae65ba89374034f03753232aa20fbdfe28f209c904cd575e3a1e90",
+        "metadataContentHashMatches": true,
+        "comparisonTarget": "CIRCLE_COMMIT_fc85788bc7c23cefe3df1a757133048bfddadeaa",
+        "contentComparison": "DIFFERENT_BYTES"
+      }
+    ],
+    "sourceSummary": {
+      "circleExact": 2,
+      "circleDifferent": 17,
+      "dependencyExact": 4,
+      "dependencyDifferent": 0
+    },
+    "target": {
+      "sourceUnitSuffix": "contracts/v2/FiatTokenV2_2.sol",
+      "sourceUnitPathSha256": "11fcb7265316b15d1435c8028988aef18f8ec0bca891268350db6449efbb9573",
+      "contract": "FiatTokenV2_2"
+    },
+    "settingsComparison": {
+      "optimizerAndEvmVersion": "SAME_AS_PRIOR_CANDIDATE",
+      "sourceUnitNames": "SERVICE_INPUT_USES_ABSOLUTE_LOGICAL_KEYS_PRIOR_CANDIDATE_RELATIVE_KEYS",
+      "libraryNamespace": "SERVICE_EMPTY_NAMESPACE_PRIOR_CANDIDATE_SOURCE_UNIT_NAMESPACE",
+      "sourceContents": "SEE_PER_FILE_COMPARISON_NOT_ASSUMED_IDENTICAL",
+      "causeOfOnchainMetadataMismatch": "UNKNOWN"
+    },
+    "transformations": {
+      "reported": [
+        {
+          "id": "1",
+          "type": "replace",
+          "offset": 23411,
+          "reason": "cborAuxdata"
+        }
+      ],
+      "values": {
+        "cborAuxdata": {
+          "1": "0xa264697066735822122005677c3919f4b149e065a5983baa9e2fb099cab5463ccd06429f70b32d8d9bdf64736f6c634300060c0033"
+        }
+      },
+      "appliedLocally": false
+    },
+    "metadata": {
+      "source": "SERVICE_RECOMPILED_METADATA_NOT_AUTHENTICATED_ONCHAIN_CID_CONTENT",
+      "serviceCbor": {
+        "1": {
+          "value": "0xa26469706673582212203d7582ee46e006b5927cc15670794ae2f26c9c8a560d5b28d48765e8648e7df364736f6c634300060c0033",
+          "offset": 23411
+        }
+      },
+      "observedCbor": "0xa264697066735822122005677c3919f4b149e065a5983baa9e2fb099cab5463ccd06429f70b32d8d9bdf64736f6c634300060c",
+      "fullRuntimeReproduction": "MISMATCH"
+    },
+    "localRecompilation": {
+      "status": "COMPLETED",
+      "compilerVersion": "0.6.12+commit.27d51765.Emscripten.clang",
+      "compilerManifest": "SAME_SRI_CHECKED_COMPILER_AS_PRIOR_CANDIDATE",
+      "input": {
+        "reference": "../../.state/usdc-source/sourcify-local-input.json",
+        "sha256": "82f2e6315c6044722790c9e4ef1b06707bb72fe350dfd2b80556ad10c2818fdf"
+      },
+      "output": {
+        "reference": "../../.state/usdc-source/sourcify-local-output.json",
+        "sha256": "dc876b64ae7b547a4702dc3c83efbcf6b2aa6c2f1cfe8c2448b265d6f9da5e8d"
+      },
+      "inputChanges": "OUTPUT_SELECTION_ONLY; SOURCE_UNIT_KEYS_CONTENTS_AND_SEMANTIC_SETTINGS_UNCHANGED",
+      "imports": "PREPARED_STANDARD_JSON_CONTENT_ONLY_NO_CALLBACK",
+      "limits": {
+        "subprocessTimeoutSeconds": 30,
+        "nodeMaxOldSpaceSizeMiB": 512,
+        "maxSourceBytesPerUnit": 2000000,
+        "maxSourceUnits": 100,
+        "maxOutputBytes": 10000000
+      },
+      "comparison": {
+        "verification": {
+          "serviceClaim": "match",
+          "serviceOnchain": {
+            "exactRuntime": "EXACT_MATCH",
+            "metadataExcluded": "MATCH",
+            "observedBytes": 23464,
+            "candidateBytes": 23464,
+            "observedBodyBytes": 23411,
+            "candidateBodyBytes": 23411
+          },
+          "serviceRecompiled": {
+            "exactRuntime": "MISMATCH",
+            "metadataExcluded": "MATCH",
+            "observedBytes": 23464,
+            "candidateBytes": 23464,
+            "observedBodyBytes": 23411,
+            "candidateBodyBytes": 23411
+          },
+          "serviceReportsMetadataReplacement": true,
+          "scope": "THIRD_PARTY_CLAIM_AND_UNTRANSFORMED_BYTE_COMPARISONS"
+        },
+        "localRecompiledVsObserved": {
+          "exactRuntime": "MISMATCH",
+          "metadataExcluded": "MATCH",
+          "observedBytes": 23464,
+          "candidateBytes": 23464,
+          "observedBodyBytes": 23411,
+          "candidateBodyBytes": 23411
+        },
+        "localVsApiRecompiled": {
+          "exactRuntime": "EXACT_MATCH",
+          "metadataExcluded": "MATCH",
+          "observedBytes": 23464,
+          "candidateBytes": 23464,
+          "observedBodyBytes": 23411,
+          "candidateBodyBytes": 23411
+        }
+      },
+      "abi": {
+        "entries": 72,
+        "sha256": "089c58f40d0249b89ba8215a75ad0aba7e4d507512a04e059d98a6f9b1078cfa",
+        "exactJsonMatchWithServiceAbi": false,
+        "structuralMatchWithServiceAbi": true
+      },
+      "getterCandidates": [
+        {
+          "signature": "owner()",
+          "selector": "0x8da5cb5b",
+          "outputs": [
+            "address"
+          ],
+          "stateMutability": "view",
+          "scope": "REGENERATED_SERVICE_INPUT_ABI_NOT_CONFIRMED_PROXY_EXECUTION"
+        },
+        {
+          "signature": "pauser()",
+          "selector": "0x9fd0506d",
+          "outputs": [
+            "address"
+          ],
+          "stateMutability": "view",
+          "scope": "REGENERATED_SERVICE_INPUT_ABI_NOT_CONFIRMED_PROXY_EXECUTION"
+        },
+        {
+          "signature": "paused()",
+          "selector": "0x5c975abb",
+          "outputs": [
+            "bool"
+          ],
+          "stateMutability": "view",
+          "scope": "REGENERATED_SERVICE_INPUT_ABI_NOT_CONFIRMED_PROXY_EXECUTION"
+        },
+        {
+          "signature": "blacklister()",
+          "selector": "0xbd102430",
+          "outputs": [
+            "address"
+          ],
+          "stateMutability": "view",
+          "scope": "REGENERATED_SERVICE_INPUT_ABI_NOT_CONFIRMED_PROXY_EXECUTION"
+        },
+        {
+          "signature": "isBlacklisted(address)",
+          "selector": "0xfe575a87",
+          "outputs": [
+            "bool"
+          ],
+          "stateMutability": "view",
+          "scope": "REGENERATED_SERVICE_INPUT_ABI_NOT_CONFIRMED_PROXY_EXECUTION"
+        },
+        {
+          "signature": "masterMinter()",
+          "selector": "0x35d99f35",
+          "outputs": [
+            "address"
+          ],
+          "stateMutability": "view",
+          "scope": "REGENERATED_SERVICE_INPUT_ABI_NOT_CONFIRMED_PROXY_EXECUTION"
+        }
+      ]
+    },
+    "limitations": [
+      "Service verifiedAt is not a new chain observation or current proxy/implementation verification.",
+      "Service reported match includes CBOR replacement; transformations were not applied to manufacture a full match.",
+      "No creation-bytecode/deployment transaction independent verification.",
+      "Only saved historical runtime is bound by direct bytes comparison; exact source-to-runtime binding remains UNKNOWN."
+    ]
+  }
+}

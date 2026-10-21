@@ -1,14 +1,26 @@
 # Multi-Chain Asset Compatibility Lab
 
-금융 서비스의 디지털 자산 취급 전 기술·운영 호환성을 실제 실행 증거로 확인하는 CLI다. 첫 PoC는 ERC-20만 지원한다. LLM/API 키/웹 서버/DB가 필요하지 않다.
+**현재 마일스톤 완료:** [완료 범위와 공개망 조회 결과](docs/STABLECOIN_MILESTONE_COMPLETION.md). 구현 검사212개 통과, 새 공개 계정 보고서4개·읽기 RPC14회. 남는 제한을 기록하고 현재 단계는 마감했다.
+
+후속 [XRPL 실제 보유 trust-line 조사](docs/XRPL_HELD_TRUSTLINE_OBSERVATION.md)도 완료했다. USDC·RLUSD AMM 표본의 양수 잔액·양측 설정을 직접 RippleState 연구 조회로 확인했으며, 공통 Adapter의 페이지 제한은 별도로 보존한다.
+
+현재는 스테이블코인을 우선 대상으로 삼아 체인·구현별 기술 호환성을 실행 증거와 소스 검토로 확인하는 CLI다. EVM/ERC-20·TRON/TRC-20 읽기와 사설 Fixture 검사, Solana mint·XRPL issuer 설정의 공통 읽기를 제공한다. 외부 자산은 읽기 전용으로 조회하고, 상태 변경은 새로 생성한 사설 EVM/TVM Fixture에서만 검증한다. 제품 내부 LLM·별도 웹 서버·DB는 사용하지 않는다.
+
+체인·네트워크, 실행 환경(EVM/TVM), 토큰 표준(ERC-20/TRC-20), 개별 토큰 컨트랙트와 검증 시나리오를 구분한다. Ethereum과 TRON은 체인, ERC-20과 TRC-20은 컨트랙트가 구현하는 토큰 인터페이스 표준이다.
+
+현재 [스테이블코인 프로필](docs/STABLECOIN_PROFILES.md)은 Ethereum USDC·USDT·RLUSD, TRON USDT, Solana USDC·USDT, XRP Ledger USDC·RLUSD의 8개 조합을 조사한다. Solana는 공식 식별자 조사와 [mint 읽기 연구](docs/SOLANA_MINT_READONLY.md), XRPL은 공식 식별자·계정 모델 조사와 [발행자 설정 읽기 연구](docs/XRPL_ISSUER_READONLY.md)를 수행했다. Solana는 [mint-only 공통 읽기 Adapter](docs/SOLANA_ADAPTER.md)를 연결했고 XRPL도 [issuer 설정 공통 Adapter](docs/XRPL_ADAPTER.md)를 연결했다. [계정 단위 읽기](docs/ACCOUNT_STATE_READONLY.md)로 Solana의 명시 Token Account 잔액·동결·delegate 설정과 XRPL holder trust-line의 잔액·인가·동결 설정도 관측한다. 실제 전송·권한 행사는 추가하지 않았다. 컨트랙트·mint·currency/issuer를 구분해 입출금·승인/위임·발행사 제어의 검증 공백을 연결한다. 기존 주소 기록은 새 조사 시 공식 출처로 재확인한다. [스테이블코인 중심 우선순위](docs/ROADMAP.md)를 따른다.
 
 현재 Phase 1의 구현·로컬 검증 범위와 남은 제약: [완료 점검표](docs/PHASE1_COMPLETION.md).
 
+사설 TVM 실행 보고서는 [별도 v1 계약](docs/adr/0019-private-tvm-report-contract.md)에 따라 공개 전에 검증한다. 승인 결함 대조는 `npm run tvm:allowance-negative -- --out reports/tron-tvm-allowance-suite.json`과 [별도 allowance 보고서](docs/TRON_ALLOWANCE_PROBE_EXECUTION.md)를 사용한다. 과거 버전 없는 파일은 `npm run tvm:validate -- --file <파일> --legacy`로 변경 없이 검사한다.
+
 로컬 버전 기준과 재현·전달 범위: [Phase 1 Git 기준](docs/PHASE1_BASELINE.md).
+
+현재 결과와 완료 기준은 [8개 프로필 통합 비교표](docs/STABLECOIN_COMPATIBILITY_MATRIX.md)와 [근거/hash 요약 JSON](docs/research/stablecoin-compatibility-summary.json)이다. 권한은 소스 확인으로 검토하며 서비스 운영·수탁 내부 장부·실제 권한 행사는 범위 밖이다.
 
 ## 빠른 실행
 
-필수 환경: Node.js **24.5 이상**, npm, `anvil` 실행 파일([Foundry 공식 설치 안내](https://getfoundry.sh/introduction/installation/)). 검증한 환경은 Node 25.2.1, Anvil 1.7.1이다. Docker는 필요하지 않다.
+필수 환경: Node.js **24.5 이상**, npm, `anvil` 실행 파일([Foundry 공식 설치 안내](https://getfoundry.sh/introduction/installation/)). 검증한 환경은 Node 25.2.1, Anvil 1.7.1이다. EVM 기본 경로에는 Docker가 필요하지 않다. 전체 검사에는 Java HTTP probe 테스트용 JDK 17/21도 필요하다. 선택적 [사설 TVM 기동·정상 Fixture 배포/전송/승인 검사](docs/TRON_TVM_RUNTIME.md)는 ARM64 Docker Desktop과 JDK 17/21을 사용한다.
 
 ```sh
 npm ci
@@ -29,6 +41,8 @@ npm run lab -- --profile exact-receipt --out reports/exact-receipt.json
 이때 FeeToken의 양수 Transfer/TransferFrom/Transfer Fee 시나리오도 FAIL이 되어 PASS 61 / FAIL 8 / INCONCLUSIVE 22이 된다. 수수료의 존재 자체를 모든 프로필에서 실패로 판정하지 않는다.
 
 ## 외부 토큰 읽기 전용 조회
+
+아래 기본 경로는 EVM이다. TRON은 `--chain tron`과 별도의 `TRON_RPC_URL`을 사용한다. [TRON 실행·실제 USDT 관측·INCONCLUSIVE 해석](docs/TRON_READONLY.md)을 참고한다. TRON은 --holder와 --spender를 함께 주면 allowance 승인량도 읽는다. 실제 approve/transferFrom은 실행하지 않는다. TRON의 latest 조회는 정확한 상태 블록을 확정하지 않아 조회 성공도 INCONCLUSIVE로 기록한다.
 
 RPC_URL을 환경변수로 제공한다. 실제 인증 정보는 파일·명령행 인자·보고서에 넣지 않는다. 아래 주소는 호출 형식을 보여주는 예시이며 해당 자산을 검증하거나 공식 자산으로 인증했다는 뜻이 아니다.
 
@@ -96,3 +110,18 @@ Proxy 보강 기록: [ADR 0002](docs/adr/0002-proxy-observation.md), [실행 결
 0 전송 보강 기록: [0 transfer 결과](docs/ZERO_TRANSFER_RESULTS.md), [0 transferFrom 결과](docs/ZERO_TRANSFER_FROM_RESULTS.md). 최신 CLI 집계: [승인 철회 결과](docs/ALLOWANCE_REVOCATION_RESULTS.md).
 
 개발용 LLM Router의 실제 관측과 한계: [효과 평가](docs/ai/ROUTER_EFFECTIVENESS.md). 제품 내부 LLM과는 별도다.
+
+USDC의 제어 getter 응답을 별도로 관측하는 [연구용 읽기 probe](docs/USDC_CONTROL_READ_PROBE.md)가 있다. source/authority/support 검증과 제품 AssessmentReport 판정은 구분한다.
+
+저장된 공통 보고서는 `npm run validate -- --file <report.json>`으로 오프라인 재검증한다. [보고서 검증 사용법](docs/REPORT_VALIDATION.md)은 정상 FAIL 보고서와 잘못된 보고서·옵션 오류의 종료 코드를 구분한다.
+
+
+## 로컬 대시보드 · 저장 시장 자료
+
+`npm run ui`로 `http://127.0.0.1:4173/#live`를 연다. 검증 항목·자산 프로필·비교는 기존 저장 보고서를 사용하고, Market은 공급자 실제 관측, Market preview는 가상 데이터를 표시한다. 외부 키는 웹에 제공하지 않는다.
+
+`npm run market:build`는 현재 로컬 연구 보고서 다섯 개(`arkham-api-smoke`, `arkham-market-additional`, `arkham-chain-supply-research`, `arkham-additional-data-research`, `xrpl-gateway-obligations-readonly`의 reports JSON)를 오프라인으로 읽어 시장 자료 묶음을 만든다. 이 연구 보고서들은 저장소에서 제외되며, 없는 경우 명령은 실패하고 이전 정상본을 유지한다. [ADR0035](docs/adr/0035-stored-market-observations.md)에 지표·보존·실패 경계를 기록했다.
+
+코인·네트워크·체인별 자산은 [등록 JSON](data/asset-registry.json)에 추가한다. 고유 ID를 재사용해 주소나 네트워크를 바꾸지 않는다. 등록만으로 새 조회 Adapter나 시장 데이터가 생기지는 않으며, 데이터 매핑이 없으면 미확보로 표시한다. 현재 공급자 체인 집계와의 매핑은 coin/network당 한 deployment이며 네이티브·브리지 형태를 구분할 때는 별도 매핑 설계가 필요하다.
+
+시장 화면은60초마다 로컬 저장본만 다시 읽는다. 브라우저 수와 상관없이 Arkham 요청을 자동 생성하지 않는다. 자동 외부 수집·DB·계정 호출/크레딧 예산·429 처리 수집기는 아직 구현하지 않았다.

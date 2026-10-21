@@ -1,6 +1,6 @@
 # 보고서와 읽기 전용 Adapter 계약
 
-현재 지원은 Phase 1 EVM/ERC-20이다. 공통 타입의 다른 chainFamily 값은 해당 체인의 구현을 뜻하지 않는다.
+현재 지원은 EVM/ERC-20과 TRON/TRC-20 읽기 전용이다. SOLANA 타입 값은 해당 체인 구현을 뜻하지 않는다.
 
 ## JSON 형식
 
@@ -38,6 +38,8 @@ JSON Schema 외의 계약 검증은 `tests/helpers/report-contract.ts`가 담당
 
 ## Adapter 경계
 
+`src/tron/adapter.ts`도 같은 ReadOnlyAdapter와 Report 1.0을 사용한다. TRON latest 상태 응답의 정확한 블록은 UNKNOWN이므로 조회/디코딩 성공을 observations에 보존하고 전체 판정은 INCONCLUSIVE다. head 전후 관측으로 PASS/FAIL의 블록 조건을 대체하거나 EVM 계약을 완화하지 않는다. holder 미지정 잔액과 owner/spender 미지정 승인량 및 거래·승인 실행·권한·자원 검사는 NOT_TESTED다([ADR 0011](adr/0011-tron-readonly-adapter.md)).
+
 `src/domain/adapter.ts`의 ReadOnlyAdapter는 chainFamily와 `assessReadOnly({ networkId, assetAddress, accountAddress? })`만 정의한다. 전송·승인·서명이나 ERC-20 메서드를 공통 인터페이스에 넣지 않는다. 네트워크와 주소의 해석은 체인 Adapter가 맡는다.
 
 `src/evm/adapter.ts`는 요청마다 독립된 RPC/증거 공간을 만든다. 기존 `src/assessment.ts`의 `assessReadOnly({ rpcUrl, networkId, token, holder? })`와 `assessFixture` 입력은 유지한다. EVM 시나리오 실행은 `src/evm/assessment.ts`에 둔다. Fixture 실행은 계속 프로그램이 만든 사설 Anvil의 신규 계약에 한정한다.
@@ -53,3 +55,37 @@ CLI의 `--out`은 JSON 전체 직렬화 후 같은 상위 디렉터리의 비공
 동시 writer는 완성 파일 단위로 마지막 rename이 남으며 잠금·충돌 감지는 없다. 파일 sync만으로 전원 손실 후 디렉터리 항목의 영속성을 보장하지 않는다. 강제 종료·정리 실패 시 비공개 임시 경로가 남을 수 있으며, 적대적인 부모 교체를 방어하는 파일시스템 sandbox는 아니다. 상세 범위는 [ADR 0006](adr/0006-atomic-report-output.md)을 따른다. JSON schema와 시나리오 의미는 바꾸지 않는다.
 
 `npm run check`는 타입 검사와 전체 테스트를 실행한다. 기존 로컬 baseline/exact-receipt 및 Proxy 정상·실패 경로 보고서를 직렬화한 후 계약을 검증한다. 별도 스키마 테스트는 필드 추가·순서 변경·시나리오 버전 호환성과 잘못된 금액·태그·증거 참조·집계의 거부를 확인한다. `tests/fixtures/report-v1.json`은 명시적인 합성 소비자 표본이며 실제 자산 평가 증거가 아니다.
+
+## 별도 사설 TVM 실행 보고서
+
+TRON TVM의 runtime/deploy/normal/boundary/transfer-probe/negative-suite는 이 AssessmentReport 계약을 재사용하지 않는다. [별도 v1 계약](adr/0019-private-tvm-report-contract.md)과 [스키마](../schemas/private-tvm-report.v1.schema.json)에서 구조·정리·관측 요약 일관성을 검사한다. 기존 판정·지원·UNKNOWN 블록 의미와 이 문서의 Assessment 스키마는 유지한다.
+
+## 한정 제어 응답 연구 보고서
+
+[control-read-probe.v1.schema.json](../schemas/control-read-probe.v1.schema.json)은 qualified 연구 probe의 별도 계약이다. AssessmentReport와 합치지 않으며 OK는 응답 디코딩이다. 전체 verdict INCONCLUSIVE·support/authority UNKNOWN 및 행위 NOT_TESTED를 유지한다. 참조·값·호출 문맥도 별도 검증한다([ADR 0020](adr/0020-qualified-control-read-probes.md)).
+
+선택적 `roleCodeReadings`는 같은 실행 getter로 확인한 4개 주소의 코드 관측을 담는다. 필드가 없는 기존 보고서도 유효하다. 새 필드가 있으면 역할 순서·주소/getter 증거·코드 byte/hash·후행 참조·최종 header/stage의 의미 검증을 함께 적용한다. 코드 유무는 계정 제어 주체나 권한 판정이 아니다.
+
+[minter-management-probe.v1.schema.json](../schemas/minter-management-probe.v1.schema.json)은 두 관리 getter의 별도 연구 계약이다. 내부 fresh baseProbe도 control-read 계약으로 검증하고, management의 읽기·gate·후행 증거를 별도로 검사한다. evidence ID는 각 배열에 국한한다. owner namespace와 pointer 관측을 실제 권한 행사·Assessment PASS로 승격하지 않는다.
+
+[admin-history-probe.v1.schema.json](../schemas/admin-history-probe.v1.schema.json)은 고정 범위의 과거 관리 이벤트/거래 조사 계약이다. 배포 anchor·검색 범위·표본 선택·receipt/transaction/header/log 교차 검증을 적용한다. 정상 빈 window와 조회 ERROR를 구분하며 현재 권한·지원은 UNKNOWN, 전체 판정은 INCONCLUSIVE다([현재 조회 결과](USDC_ADMIN_HISTORY.md)).
+
+RLUSD 제어 응답 연구는 [별도 v1 schema](../schemas/rlusd-control-probe.v1.schema.json)의 QUALIFIED_RLUSD_CONTROL_PROBE_NOT_ASSESSMENT다. bool/bytes32 word, 7개 고정 호출 문맥, 증거 namespace와 pre/post 참조, source-study hash, 생략 이유 및 전후 선언 코드/슬롯/마지막 헤더를 검증한다. OK/OBSERVED는 응답 관측이며 AssessmentReport의 PASS나 권한/지원 인증으로 변환하지 않는다. 역할 ID zero와 literal MATCH도 보유자/권한의 증명이 아니다.
+
+RLUSD 역할 관리 관계 연구는 [별도 schema](../schemas/rlusd-role-admin-probe.v1.schema.json)의 QUALIFIED_RLUSD_ROLE_ADMIN_PROBE_NOT_ASSESSMENT다. baseProbe를 기본 계약으로 재검증하고 JSON.stringify(baseProbe) UTF-8 SHA-256을 확인한다. baseProbe/roleAdmin namespace 참조, 6개 raw role ID→calldata→adminRole ID·반환 ID 관계·후행 역할/프레임을 검증한다. ID zero/self 관계와 전체 INCONCLUSIVE·membership NOT_TESTED를 유지하며 root owner/실제 권한으로 변환하지 않는다.
+
+RLUSD 공개 계정 후보 연구는 [별도 schema](../schemas/rlusd-account-candidates.v1.schema.json)의 QUALIFIED_RLUSD_ACCOUNT_CANDIDATES_NOT_ASSESSMENT다. 제3자 배포 참조·ABI hash, 성공한 직접 생성 receipt/tx/header 포함, RoleGranted indexed account·sender 분리와 최초3고유 nonzero 계정 선정 및 후행 헤더를 검증한다. ERROR/null을 NO_MATCH로 바꾸지 않으며 namespace deployment의 영수증 참조를 보존한다. source/현재 membership/freeze/실제 authority는 UNKNOWN, 계정 호출/행위는 NOT_TESTED다.
+
+USDT 제어 응답은 [별도 v1 schema](../schemas/usdt-control-probe.v1.schema.json)의 QUALIFIED_USDT_CONTROL_PROBE_NOT_ASSESSMENT다. 고정 chain/address/fullcode·source/ABI hash,7개 raw/decoded 응답·owner 비교·증거 분할·마지막 header를 의미 검증한다. uint256 fee는 unsigned 십진 문자열만 허용하며 fee 설정0을 전송 수수료 실행 검증으로 바꾸지 않는다. 전체 INCONCLUSIVE/권한·지원 UNKNOWN을 유지한다.
+
+USDT owner 표본은 [별도 schema](../schemas/usdt-owner-sample-probe.v1.schema.json)의 QUALIFIED_USDT_OWNER_SAMPLE_PROBE_NOT_ASSESSMENT다. fresh base의 계약·snapshot hash·동일 nonzero owner gate, baseProbe/ownerSample namespace, 고정 표본 calldata·code byte/hash·두 bool 비교·owner/code/마지막 header 후행 검사를 연결한다. base의 blacklist NOT_TESTED와 표본 readings를 구분한다. 코드 유무·false 응답은 실제 권한이나 전송 허용을 입증하지 않으며 전체 INCONCLUSIVE/행위 NOT_TESTED를 유지한다.
+
+USDC owner 표본은 [별도 schema](../schemas/usdc-owner-sample-probe.v1.schema.json)의 QUALIFIED_USDC_OWNER_SAMPLE_PROBE_NOT_ASSESSMENT다. fresh 기본 base의 hash·canonical nonzero owner 선정과 baseProbe/ownerSample namespace를 연결한다. 고정 표본 호출·순서·bool raw/value·프록시 코드/5slot/owner/chain/마지막 header 프레임에서 단계를 재도출한다. base32+sample24=56요청 한도와 실제 요청 수를 구분하며 기본 blacklist NOT_TESTED는 보존한다. 응답 false는 전송 허용·운영자·실제 권한의 증거가 아니다.
+
+서비스 계정 문맥은 [입력 schema](../schemas/service-account-context-input.v1.schema.json)와 [별도 출력 schema](../schemas/service-account-context-report.v1.schema.json)의 로컬 검증 계약이다. 원시 input bytes와 기록된 검증 시각으로 tuple·주소·역할/목적·각 출처 hash·전체 input hash·고정 상태를 재도출한다. LOCAL_INPUT_VALIDATED_NOT_ACCOUNT_VERIFIED는 출처 인증이 아니며 RPC admission NOT_GRANTED/query NOT_TESTED/authority·ownership UNKNOWN을 유지한다. [ADR0021](adr/0021-local-service-account-context.md)을 따른다.
+
+서비스 계정 읽기 연결은 [별도 envelope schema](../schemas/service-account-readonly.v1.schema.json)를 사용한다. context/Assessment snapshot의 JSON.stringify UTF-8 hash, 원본 입력 bytehash, 독립 namespace·정확한 query 시나리오/call/값·query tag/header를 연결한다. EVM allowance 미구현/0요청과 query 실패를 구분하며 root INCONCLUSIVE/UNKNOWN과 nested 원래 판정을 보존한다([ADR0022](adr/0022-service-account-readonly-runner.md)).
+
+EVM allowance opt-in은 optional evmAllowanceRead:true와 ERC20-011 v1.0.0의 exact32byte uint256/owner-spender/tag 증거를 연결한다. 기존 필드 없는 보고서와 기본 NOT_IMPLEMENTED는 유지하며 approve/transferFrom/철회 검증으로 승격하지 않는다([ADR0023](adr/0023-evm-allowance-readonly.md)).
+
+승인 결함 사설 실행은 [별도 allowance v1 schema](../schemas/private-tvm-allowance.v1.schema.json)와 [의미 검증기](../src/tron/lab/allowance-report.ts)를 사용한다. 기존 TVM v1의 transfer enum을 늘리지 않는다. setup/target의 원시 proof·전후 상태와 runtime 소유/격리·정리·횟수를 보존하고, 저장 시 proof를 재검증한다. [실행 범위](TRON_ALLOWANCE_PROBE_EXECUTION.md)와 같이 실제 스테이블코인 실행·AssessmentReport와 구분한다.

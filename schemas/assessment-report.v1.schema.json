@@ -351,7 +351,8 @@
           "enum": [
             "EVM",
             "TRON",
-            "SOLANA"
+            "SOLANA",
+            "XRPL"
           ]
         },
         "networkId": {
@@ -400,9 +401,82 @@
         },
         "observedAt": {
           "$ref": "#/definitions/timestamp"
+        },
+        "issuedCurrency": {
+          "$ref": "#/definitions/knowledgeString"
         }
       },
-      "additionalProperties": true
+      "additionalProperties": true,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "chainFamily": {
+                "const": "XRPL"
+              }
+            },
+            "required": [
+              "chainFamily"
+            ]
+          },
+          "then": {
+            "required": [
+              "issuedCurrency"
+            ],
+            "properties": {
+              "decimals": {
+                "properties": {
+                  "status": {
+                    "const": "NOT_APPLICABLE"
+                  }
+                },
+                "type": "object"
+              },
+              "contractAddress": {
+                "properties": {
+                  "status": {
+                    "const": "NOT_APPLICABLE"
+                  }
+                },
+                "type": "object"
+              },
+              "mintAddress": {
+                "properties": {
+                  "status": {
+                    "const": "NOT_APPLICABLE"
+                  }
+                },
+                "type": "object"
+              },
+              "tokenProgramId": {
+                "properties": {
+                  "status": {
+                    "const": "NOT_APPLICABLE"
+                  }
+                },
+                "type": "object"
+              },
+              "implementationAddress": {
+                "properties": {
+                  "status": {
+                    "const": "NOT_APPLICABLE"
+                  }
+                },
+                "type": "object"
+              },
+              "issuedCurrency": {
+                "properties": {
+                  "value": {
+                    "type": "string",
+                    "pattern": "^[0-9A-F]{40}$"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        }
+      ]
     },
     "evidence": {
       "type": "object",
@@ -472,6 +546,9 @@
         "received": {
           "$ref": "#/definitions/signedAmount"
         },
+        "allowance": {
+          "$ref": "#/definitions/decimalAmount"
+        },
         "initialAllowance": {
           "$ref": "#/definitions/decimalAmount"
         },
@@ -494,6 +571,9 @@
           "$ref": "#/definitions/signedAmount"
         },
         "supplyBefore": {
+          "$ref": "#/definitions/decimalAmount"
+        },
+        "supplyRaw": {
           "$ref": "#/definitions/decimalAmount"
         },
         "supplyAfter": {
@@ -731,6 +811,12 @@
             }
           },
           "additionalProperties": true
+        },
+        "delegatedAmountRaw": {
+          "$ref": "#/definitions/decimalAmount"
+        },
+        "trustLine": {
+          "$ref": "#/definitions/xrplTrustLine"
         }
       },
       "additionalProperties": true
@@ -925,6 +1011,262 @@
           }
         }
       ]
+    },
+    "xrplLineAmount": {
+      "type": "string",
+      "maxLength": 100,
+      "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?([eE][+-]?[0-9]{1,2})?$"
+    },
+    "xrplTrustLine": {
+      "type": "object",
+      "required": [
+        "holder",
+        "issuer",
+        "currency",
+        "status",
+        "lineState",
+        "pagesRead",
+        "complete"
+      ],
+      "properties": {
+        "holder": {
+          "type": "string",
+          "minLength": 25,
+          "maxLength": 35
+        },
+        "issuer": {
+          "type": "string",
+          "minLength": 25,
+          "maxLength": 35
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-F0-9]{40}$"
+        },
+        "status": {
+          "enum": [
+            "OBSERVED",
+            "INCONCLUSIVE"
+          ]
+        },
+        "lineState": {
+          "enum": [
+            "PRESENT",
+            "NOT_PRESENT",
+            "UNKNOWN"
+          ]
+        },
+        "pagesRead": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "complete": {
+          "type": "boolean"
+        },
+        "line": {
+          "type": "object",
+          "required": [
+            "balanceValue",
+            "holderLimitValue",
+            "issuerLimitValue",
+            "flags"
+          ],
+          "properties": {
+            "balanceValue": {
+              "$ref": "#/definitions/xrplLineAmount"
+            },
+            "holderLimitValue": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/xrplLineAmount"
+                },
+                {
+                  "not": {
+                    "pattern": "^-"
+                  }
+                }
+              ],
+              "type": "string"
+            },
+            "issuerLimitValue": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/xrplLineAmount"
+                },
+                {
+                  "not": {
+                    "pattern": "^-"
+                  }
+                }
+              ],
+              "type": "string"
+            },
+            "flags": {
+              "type": "object",
+              "required": [
+                "authorized",
+                "peer_authorized",
+                "freeze",
+                "freeze_peer",
+                "no_ripple",
+                "no_ripple_peer",
+                "deep_freeze",
+                "deep_freeze_peer"
+              ],
+              "properties": {
+                "authorized": {
+                  "$ref": "#/definitions/observedBoolean"
+                },
+                "peer_authorized": {
+                  "$ref": "#/definitions/observedBoolean"
+                },
+                "freeze": {
+                  "$ref": "#/definitions/observedBoolean"
+                },
+                "freeze_peer": {
+                  "$ref": "#/definitions/observedBoolean"
+                },
+                "no_ripple": {
+                  "$ref": "#/definitions/observedBoolean"
+                },
+                "no_ripple_peer": {
+                  "$ref": "#/definitions/observedBoolean"
+                },
+                "deep_freeze": {
+                  "$ref": "#/definitions/observedBoolean"
+                },
+                "deep_freeze_peer": {
+                  "$ref": "#/definitions/observedBoolean"
+                }
+              },
+              "additionalProperties": true
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "lineState": {
+                "const": "PRESENT"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "line"
+            ],
+            "properties": {
+              "complete": {
+                "const": true
+              },
+              "status": {
+                "const": "OBSERVED"
+              },
+              "line": {}
+            }
+          },
+          "else": {
+            "not": {
+              "required": [
+                "line"
+              ],
+              "properties": {
+                "line": {}
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "lineState": {
+                "const": "NOT_PRESENT"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "complete": {
+                "const": true
+              },
+              "status": {
+                "const": "OBSERVED"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "lineState": {
+                "const": "UNKNOWN"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "complete": {
+                "const": false
+              },
+              "status": {
+                "const": "INCONCLUSIVE"
+              }
+            }
+          }
+        }
+      ],
+      "additionalProperties": true
+    },
+    "observedBoolean": {
+      "type": "object",
+      "required": [
+        "state"
+      ],
+      "properties": {
+        "state": {
+          "enum": [
+            "PRESENT",
+            "NOT_PRESENT"
+          ]
+        },
+        "value": {
+          "type": "boolean"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "PRESENT"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "value"
+            ],
+            "properties": {
+              "value": {}
+            }
+          },
+          "else": {
+            "not": {
+              "required": [
+                "value"
+              ],
+              "properties": {
+                "value": {}
+              }
+            }
+          }
+        }
+      ],
+      "additionalProperties": true
     }
   }
 }

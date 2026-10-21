@@ -1,0 +1,544 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "TRON_USER_EXPORTED_SOURCE_REVIEW_NOT_ASSESSMENT",
+  "provenance": "USER_PROVIDED_BROWSER_MONACO_JSON",
+  "reviewedAt": "2026-10-21T00:41:30.446474+00:00",
+  "inputSha256": "b4c0163910110198f41452e6f8f5d1322df70e4871b2fd35f09968b002480b49",
+  "inputBytes": 32081,
+  "claimedContract": "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+  "claimAuthentication": "NOT_ESTABLISHED",
+  "sourceReviewStatus": "SOURCE_REVIEWED",
+  "reviewScope": "SELECTED_PATHS_IN_SUPPLIED_SOURCE_AND_COMPLETE_LOCAL_TOKEN_IMPORT_CLOSURE",
+  "extractionDirectory": "../../source-intake/tron-usdt/extracted-b4c016391011",
+  "manifest": "../../source-intake/tron-usdt/extracted-b4c016391011/manifest.json",
+  "filenameAssociation": "INFERRED_NOT_AUTHENTICATED",
+  "solidityFileCount": 10,
+  "importClosure": {
+    "importCount": 9,
+    "resolvedLocally": 9,
+    "missingCount": 0,
+    "tokenSourceUnits": 8,
+    "auxiliaryOutsideTokenClosure": [
+      "Migrations.sol",
+      "MultiSigWallet.sol"
+    ],
+    "method": "STATIC_DECLARATION_AND_LOCAL_IMPORT_INSPECTION_NO_COMPILER"
+  },
+  "sources": [
+    {
+      "sourceUnit": "BasicToken.sol",
+      "modelIndex": 0,
+      "exportedFileNameClaim": null,
+      "association": "INFERRED_FROM_UNIQUE_DECLARATION_AND_IMPORT_CLOSURE_NOT_ORIGINAL_FILENAME_AUTHENTICATION",
+      "declarations": [
+        "ERC20Basic",
+        "BasicToken"
+      ],
+      "imports": [
+        "./SafeMath.sol"
+      ],
+      "bytes": 1515,
+      "sha256": "b5290f987c5e1584629c9324179b576f449254b1c87ee5d6cf70768adcc508e3",
+      "lineCount": 52,
+      "inTokenImportClosure": true,
+      "snapshot": "../../source-intake/tron-usdt/extracted-b4c016391011/sources/BasicToken.sol"
+    },
+    {
+      "sourceUnit": "BlackList.sol",
+      "modelIndex": 1,
+      "exportedFileNameClaim": null,
+      "association": "INFERRED_FROM_UNIQUE_DECLARATION_AND_IMPORT_CLOSURE_NOT_ORIGINAL_FILENAME_AUTHENTICATION",
+      "declarations": [
+        "BlackList"
+      ],
+      "imports": [
+        "./Ownable.sol"
+      ],
+      "bytes": 798,
+      "sha256": "63eb662a9a199a40b2d5851235fbb402eb86cb2e422ee728880d632cd1daec05",
+      "lineCount": 28,
+      "inTokenImportClosure": true,
+      "snapshot": "../../source-intake/tron-usdt/extracted-b4c016391011/sources/BlackList.sol"
+    },
+    {
+      "sourceUnit": "Migrations.sol",
+      "modelIndex": 2,
+      "exportedFileNameClaim": null,
+      "association": "INFERRED_FROM_UNIQUE_DECLARATION_AND_IMPORT_CLOSURE_NOT_ORIGINAL_FILENAME_AUTHENTICATION",
+      "declarations": [
+        "Migrations"
+      ],
+      "imports": [],
+      "bytes": 594,
+      "sha256": "3273d4a5b3cad119faafb80212e4f63b115a94885b546c1d65050cd1e6348bb5",
+      "lineCount": 25,
+      "inTokenImportClosure": false,
+      "snapshot": "../../source-intake/tron-usdt/extracted-b4c016391011/sources/Migrations.sol"
+    },
+    {
+      "sourceUnit": "MultiSigWallet.sol",
+      "modelIndex": 3,
+      "exportedFileNameClaim": null,
+      "association": "INFERRED_FROM_UNIQUE_DECLARATION_AND_IMPORT_CLOSURE_NOT_ORIGINAL_FILENAME_AUTHENTICATION",
+      "declarations": [
+        "MultiSigWallet"
+      ],
+      "imports": [],
+      "bytes": 11436,
+      "sha256": "9c11d634b6460cba73381781bff42e1252c23677ebbf6359c43ecaf919adde17",
+      "lineCount": 365,
+      "inTokenImportClosure": false,
+      "snapshot": "../../source-intake/tron-usdt/extracted-b4c016391011/sources/MultiSigWallet.sol"
+    },
+    {
+      "sourceUnit": "Ownable.sol",
+      "modelIndex": 4,
+      "exportedFileNameClaim": null,
+      "association": "INFERRED_FROM_UNIQUE_DECLARATION_AND_IMPORT_CLOSURE_NOT_ORIGINAL_FILENAME_AUTHENTICATION",
+      "declarations": [
+        "Ownable"
+      ],
+      "imports": [],
+      "bytes": 1007,
+      "sha256": "fd49860e2f11bc70dc265e0d001048eeed921900ad2e4c9599fb4e9a8e3cae5c",
+      "lineCount": 44,
+      "inTokenImportClosure": true,
+      "snapshot": "../../source-intake/tron-usdt/extracted-b4c016391011/sources/Ownable.sol"
+    },
+    {
+      "sourceUnit": "Pausable.sol",
+      "modelIndex": 5,
+      "exportedFileNameClaim": null,
+      "association": "INFERRED_FROM_UNIQUE_DECLARATION_AND_IMPORT_CLOSURE_NOT_ORIGINAL_FILENAME_AUTHENTICATION",
+      "declarations": [
+        "Pausable"
+      ],
+      "imports": [
+        "./Ownable.sol"
+      ],
+      "bytes": 912,
+      "sha256": "a8bc9cedc26336047f5daffebd531c2ba88bbcc4e06bd4e032a1a37b996c364c",
+      "lineCount": 49,
+      "inTokenImportClosure": true,
+      "snapshot": "../../source-intake/tron-usdt/extracted-b4c016391011/sources/Pausable.sol"
+    },
+    {
+      "sourceUnit": "SafeMath.sol",
+      "modelIndex": 6,
+      "exportedFileNameClaim": null,
+      "association": "INFERRED_FROM_UNIQUE_DECLARATION_AND_IMPORT_CLOSURE_NOT_ORIGINAL_FILENAME_AUTHENTICATION",
+      "declarations": [
+        "SafeMath"
+      ],
+      "imports": [],
+      "bytes": 830,
+      "sha256": "596bb5e82ff5009c31049f0cc9e5b8b95172fc7b38da5335bbdd09585c692f9c",
+      "lineCount": 35,
+      "inTokenImportClosure": true,
+      "snapshot": "../../source-intake/tron-usdt/extracted-b4c016391011/sources/SafeMath.sol"
+    },
+    {
+      "sourceUnit": "StandardToken.sol",
+      "modelIndex": 7,
+      "exportedFileNameClaim": null,
+      "association": "INFERRED_FROM_UNIQUE_DECLARATION_AND_IMPORT_CLOSURE_NOT_ORIGINAL_FILENAME_AUTHENTICATION",
+      "declarations": [
+        "ERC20",
+        "StandardToken"
+      ],
+      "imports": [
+        "./BasicToken.sol"
+      ],
+      "bytes": 3758,
+      "sha256": "73ab6797872ab3e0942cd34d36ccd401578496b97917df06435947eda16732c2",
+      "lineCount": 97,
+      "inTokenImportClosure": true,
+      "snapshot": "../../source-intake/tron-usdt/extracted-b4c016391011/sources/StandardToken.sol"
+    },
+    {
+      "sourceUnit": "StandardTokenWithFees.sol",
+      "modelIndex": 8,
+      "exportedFileNameClaim": null,
+      "association": "INFERRED_FROM_UNIQUE_DECLARATION_AND_IMPORT_CLOSURE_NOT_ORIGINAL_FILENAME_AUTHENTICATION",
+      "declarations": [
+        "StandardTokenWithFees"
+      ],
+      "imports": [
+        "./StandardToken.sol",
+        "./Ownable.sol"
+      ],
+      "bytes": 2163,
+      "sha256": "0513a34ca1949c8d6c8377c2d35280a01c1d960c749fac7b8d4564da633e708e",
+      "lineCount": 74,
+      "inTokenImportClosure": true,
+      "snapshot": "../../source-intake/tron-usdt/extracted-b4c016391011/sources/StandardTokenWithFees.sol"
+    },
+    {
+      "sourceUnit": "TetherToken.sol",
+      "modelIndex": 9,
+      "exportedFileNameClaim": null,
+      "association": "INFERRED_FROM_UNIQUE_DECLARATION_AND_IMPORT_CLOSURE_NOT_ORIGINAL_FILENAME_AUTHENTICATION",
+      "declarations": [
+        "UpgradedStandardToken",
+        "TetherToken"
+      ],
+      "imports": [
+        "./StandardTokenWithFees.sol",
+        "./Pausable.sol",
+        "./BlackList.sol"
+      ],
+      "bytes": 6474,
+      "sha256": "5c47a7a127a97b5bc2f15c435963651e13bb5decf708bd527cadb3d84a74b2cf",
+      "lineCount": 169,
+      "inTokenImportClosure": true,
+      "snapshot": "../../source-intake/tron-usdt/extracted-b4c016391011/sources/TetherToken.sol"
+    }
+  ],
+  "findings": [
+    {
+      "id": "tron-local-transfer-return-caveat",
+      "signatures": [
+        "transfer(address,uint256)"
+      ],
+      "conditionsInSource": [
+        "TetherToken whenNotPaused; sender not blacklisted; local branch requires deprecated=false.",
+        "BasicToken requires nonzero recipient and sufficient sender balance for each transfer leg; SafeMath guards arithmetic."
+      ],
+      "sourceBehavior": "TetherToken returns super.transfer. StandardTokenWithFees computes capped fee, sends net value and optionally owner fee via BasicToken; BasicToken returns true, but StandardTokenWithFees discards both results and has no explicit return despite declaring bool. Do not label this path true-returning from ABI alone. Runtime value and actual deployed behavior NOT_TESTED.",
+      "references": [
+        {
+          "sourceUnit": "TetherToken.sol",
+          "startLine": 19,
+          "endLine": 48,
+          "excerptSha256": "58307decf0cd14ac0e263ad24fcb9eaa51f85754df3ad3ab43d442e0d7568b46"
+        },
+        {
+          "sourceUnit": "StandardTokenWithFees.sol",
+          "startLine": 21,
+          "endLine": 37,
+          "excerptSha256": "7dc16c16d42b5da21a6c45edae464fa2e1e1840886503028f2e3f4155b00b292"
+        },
+        {
+          "sourceUnit": "BasicToken.sol",
+          "startLine": 32,
+          "endLine": 41,
+          "excerptSha256": "2efc11b12c385bee294da794f63ecdb5e24278173b85a11ae7e0c65f178fb043"
+        },
+        {
+          "sourceUnit": "SafeMath.sol",
+          "startLine": 9,
+          "endLine": 35,
+          "excerptSha256": "300f1fbc3cc70f85c4a0cc1db49480e976b44b3b1b33d098975bc8787fa294be"
+        }
+      ]
+    },
+    {
+      "id": "tron-local-transferfrom",
+      "signatures": [
+        "transferFrom(address,address,uint256)"
+      ],
+      "conditionsInSource": [
+        "whenNotPaused; from not blacklisted; local branch deprecated=false.",
+        "Nonzero to; value <= from balance and caller allowance; no additional caller/to blacklist requirement in selected path."
+      ],
+      "sourceBehavior": "Subtracts full value from from; credits net value to to and positive fee to owner. Finite allowance subtracts full value; MAX_UINT allowance remains unchanged. Emits net Transfer and optional owner fee Transfer, no Approval in this path, explicitly returns true.",
+      "references": [
+        {
+          "sourceUnit": "TetherToken.sol",
+          "startLine": 50,
+          "endLine": 58,
+          "excerptSha256": "2d7607f983a89321db1a237618e9867799383e249fd95efdfeface11a5b83d74"
+        },
+        {
+          "sourceUnit": "StandardTokenWithFees.sol",
+          "startLine": 19,
+          "endLine": 19,
+          "excerptSha256": "a619cba90b0e95d9fafa19454936e5c579499af748667f03a26dbd8e14661f1c"
+        },
+        {
+          "sourceUnit": "StandardTokenWithFees.sol",
+          "startLine": 39,
+          "endLine": 58,
+          "excerptSha256": "2858f83dc2a7464f2564a7fa13989f956ca8593334cac30f774155cd6b8d91ff"
+        }
+      ]
+    },
+    {
+      "id": "tron-local-approve",
+      "signatures": [
+        "approve(address,uint256)",
+        "allowance(address,address)"
+      ],
+      "conditionsInSource": [
+        "approve whenNotPaused; local branch deprecated=false.",
+        "Selected approve body has no zero-reset enforcement, nonzero spender guard or blacklist modifier. Comment recommendations are not executable preconditions."
+      ],
+      "sourceBehavior": "Overwrites caller/spender allowance, emits Approval and returns true. Local allowance getter returns stored value. Ethereum USDT zero-reset requirement must not be substituted.",
+      "references": [
+        {
+          "sourceUnit": "TetherToken.sol",
+          "startLine": 76,
+          "endLine": 83,
+          "excerptSha256": "7d80cad3ffe0dc8dd8359d49f9755ffe276758a98328cf7b1ffae569761f549b"
+        },
+        {
+          "sourceUnit": "TetherToken.sol",
+          "startLine": 101,
+          "endLine": 108,
+          "excerptSha256": "3b30c1181ce02d91f88463f6afe810ecb94c092816729e51927d63b2407ecda1"
+        },
+        {
+          "sourceUnit": "StandardToken.sol",
+          "startLine": 48,
+          "endLine": 72,
+          "excerptSha256": "39d3e8f9626548ccd6cb05cb33090f44ddb3f23d70bddb196dcd100639a940b7"
+        }
+      ]
+    },
+    {
+      "id": "tron-local-adjust-approval",
+      "signatures": [
+        "increaseApproval(address,uint256)",
+        "decreaseApproval(address,uint256)"
+      ],
+      "conditionsInSource": [
+        "whenNotPaused; local branch deprecated=false; SafeMath on increments/subtraction."
+      ],
+      "sourceBehavior": "Increase adds; decrease clamps to zero if subtraction exceeds old allowance, otherwise subtracts. Each emits Approval with new allowance and explicitly returns true. No extra local blacklist or nonzero spender guard.",
+      "references": [
+        {
+          "sourceUnit": "TetherToken.sol",
+          "startLine": 85,
+          "endLine": 99,
+          "excerptSha256": "227511c1f555951d0543840785efbd327701febc6e59bd5175669a388e5575fc"
+        },
+        {
+          "sourceUnit": "StandardToken.sol",
+          "startLine": 74,
+          "endLine": 95,
+          "excerptSha256": "9f6e3cc86ac3a292889f35aa1d8b73cd933832940dca2fbc72d917f496352066"
+        }
+      ]
+    },
+    {
+      "id": "tron-pause-blacklist",
+      "signatures": [
+        "pause()",
+        "unpause()",
+        "addBlackList(address)",
+        "removeBlackList(address)"
+      ],
+      "conditionsInSource": [
+        "onlyOwner resolves to require(msg.sender == owner). Pause requires not paused; unpause requires paused."
+      ],
+      "sourceBehavior": "Owner changes global pause and blacklist with events. Token transfer/transferFrom and approve/increase/decrease wrappers are pause guarded. Blacklist checks in those transfer wrappers apply to sender/from respectively; do not generalize them to recipient/spender/caller. Admin operations do not all inherit a global pause guard.",
+      "references": [
+        {
+          "sourceUnit": "Ownable.sol",
+          "startLine": 18,
+          "endLine": 44,
+          "excerptSha256": "e274426d517533546c56587f12fdb3df51233337e295164d03fd16dc4b3f8d7f"
+        },
+        {
+          "sourceUnit": "Pausable.sol",
+          "startLine": 13,
+          "endLine": 49,
+          "excerptSha256": "0e2caed4ba4713fdd1133db6e9c7310e6fe27c1ec008568ee44825e84e10f0a8"
+        },
+        {
+          "sourceUnit": "BlackList.sol",
+          "startLine": 5,
+          "endLine": 28,
+          "excerptSha256": "f409e042b87b0e799f2598270e88b97060855cdff4f90df08cfd143e8be2c5b1"
+        },
+        {
+          "sourceUnit": "TetherToken.sol",
+          "startLine": 40,
+          "endLine": 58,
+          "excerptSha256": "0a59100a3bb7317c9f6d97f93ec16ad0eb0643c01b25a8c1a13d04a4663a623e"
+        },
+        {
+          "sourceUnit": "TetherToken.sol",
+          "startLine": 76,
+          "endLine": 99,
+          "excerptSha256": "747a3881ee30fd3b79da1303ba24421a9e95f99ccd047344921bb08d63b6bd59"
+        }
+      ]
+    },
+    {
+      "id": "tron-owner-issue-redeem",
+      "signatures": [
+        "issue(uint256)",
+        "redeem(uint256)"
+      ],
+      "conditionsInSource": [
+        "onlyOwner; no whenNotPaused/deprecated guard in selected admin bodies; SafeMath supply/balance checks."
+      ],
+      "sourceBehavior": "issue credits owner balance/supply, emits Issue and zero-to-owner Transfer; redeem subtracts supply and owner balance, emits Redeem and owner-to-zero Transfer. redeem is not arbitrary third-party balance burning.",
+      "references": [
+        {
+          "sourceUnit": "Ownable.sol",
+          "startLine": 24,
+          "endLine": 29,
+          "excerptSha256": "81a64441098c7833f6b54ddd086e3c0262e24c7c97488bec45428066d86fff64"
+        },
+        {
+          "sourceUnit": "TetherToken.sol",
+          "startLine": 127,
+          "endLine": 148,
+          "excerptSha256": "93b8213a90389dddc9486f2bd28f177d3c3144201599bb6b77b858adb072293c"
+        },
+        {
+          "sourceUnit": "SafeMath.sol",
+          "startLine": 24,
+          "endLine": 35,
+          "excerptSha256": "3556a0b600aa948c1810e5540db33670c9b59d9c7cda04d3fdc9de430bbecd7d"
+        }
+      ]
+    },
+    {
+      "id": "tron-destroy-black-funds",
+      "signatures": [
+        "destroyBlackFunds(address)"
+      ],
+      "conditionsInSource": [
+        "onlyOwner; requires target blacklisted; no pause/deprecated guard in this function."
+      ],
+      "sourceBehavior": "Reads dirtyFunds via balanceOf, clears LOCAL target balance, subtracts LOCAL supply and emits DestroyedBlackFunds, with no Transfer in this body. balanceOf can forward when deprecated, so this cannot be generalized as equivalent destruction of forwarded target state.",
+      "references": [
+        {
+          "sourceUnit": "TetherToken.sol",
+          "startLine": 60,
+          "endLine": 67,
+          "excerptSha256": "6597e60a1efa115643c6f5cff3fe529e1a4bdedc350c99ccc3eb197b16296814"
+        },
+        {
+          "sourceUnit": "TetherToken.sol",
+          "startLine": 150,
+          "endLine": 158,
+          "excerptSha256": "004238e3dbda297823f2db009a7c37534f4408348814c9dc2116664e90d4df10"
+        },
+        {
+          "sourceUnit": "Ownable.sol",
+          "startLine": 24,
+          "endLine": 29,
+          "excerptSha256": "81a64441098c7833f6b54ddd086e3c0262e24c7c97488bec45428066d86fff64"
+        }
+      ]
+    },
+    {
+      "id": "tron-fee-controls",
+      "signatures": [
+        "calcFee(uint256)",
+        "setParams(uint256,uint256)"
+      ],
+      "conditionsInSource": [
+        "setParams onlyOwner; basis points strictly < 20 and unscaled max fee strictly < 50; no pause/deprecated guard in this body."
+      ],
+      "sourceBehavior": "Initial basisPointsRate and maximumFee are zero in declarations. calcFee is min(value*basisPointsRate/10000,maximumFee), with integer division; setParams scales maximumFee by 10**decimals and emits Params. Actual current settings UNKNOWN; existence of fees is not FAIL.",
+      "references": [
+        {
+          "sourceUnit": "StandardTokenWithFees.sol",
+          "startLine": 8,
+          "endLine": 27,
+          "excerptSha256": "9c371ab51380e12abd274d91499ffa6207e4a63d5c8e3b4e5b075e99cd944436"
+        },
+        {
+          "sourceUnit": "StandardTokenWithFees.sol",
+          "startLine": 60,
+          "endLine": 72,
+          "excerptSha256": "0ec8679036afd84f380c7a009833b9fd391ebaa8eb9d2390c49ba71c5334d336"
+        }
+      ]
+    },
+    {
+      "id": "tron-deprecation-forwarding",
+      "signatures": [
+        "deprecate(address)",
+        "transfer(address,uint256)",
+        "transferFrom(address,address,uint256)",
+        "approve(address,uint256)",
+        "increaseApproval(address,uint256)",
+        "decreaseApproval(address,uint256)",
+        "balanceOf(address)",
+        "allowance(address,address)",
+        "totalSupply()"
+      ],
+      "conditionsInSource": [
+        "deprecate onlyOwner and nonzero target; no code/interface validation or pause guard in this body.",
+        "Transfer/pause/blacklist wrappers still precede forwarded call where present."
+      ],
+      "sourceBehavior": "Sets deprecated=true and target, emits Deprecate. Transfers, approvals, adjustment methods and getters select supplied target calls when deprecated. Interface comments request legacy-sender checks but target implementation is absent, so target return/state/permissions remain unreviewed. This is forwarding, not proof of EIP-1967/UUPS upgrade behavior.",
+      "references": [
+        {
+          "sourceUnit": "TetherToken.sol",
+          "startLine": 7,
+          "endLine": 16,
+          "excerptSha256": "436aa58efb967083c6b695bbf02c0d90449eeb6e0ebad0f5076c67c3e4732ed7"
+        },
+        {
+          "sourceUnit": "TetherToken.sol",
+          "startLine": 40,
+          "endLine": 67,
+          "excerptSha256": "f4707562272a9a0306a513cb145bef215b866c2900eb2d97fa7802a357f4a22c"
+        },
+        {
+          "sourceUnit": "TetherToken.sol",
+          "startLine": 76,
+          "endLine": 125,
+          "excerptSha256": "3cc6bd75f5c91055268c1de2b761ac3f4ea8df50bac66f77ab9963ca0c33baf8"
+        }
+      ]
+    },
+    {
+      "id": "tron-owner-metadata-oldbalance",
+      "signatures": [
+        "transferOwnership(address)",
+        "TetherToken(uint256,string,string,uint8)",
+        "oldBalanceOf(address)"
+      ],
+      "conditionsInSource": [
+        "Ownership transfer onlyOwner, nonzero new owner; initial Ownable owner=msg.sender."
+      ],
+      "sourceBehavior": "Constructor assigns supplied supply/name/symbol/uint8 decimals and owner balance with deprecated=false; does not establish current mainnet metadata. oldBalanceOf returns local balance only when deprecated; otherwise it has no explicit return. Auxiliary wallet source does not authenticate deployed owner/key control.",
+      "references": [
+        {
+          "sourceUnit": "Ownable.sol",
+          "startLine": 18,
+          "endLine": 44,
+          "excerptSha256": "e274426d517533546c56587f12fdb3df51233337e295164d03fd16dc4b3f8d7f"
+        },
+        {
+          "sourceUnit": "TetherToken.sol",
+          "startLine": 31,
+          "endLine": 38,
+          "excerptSha256": "6bb1386ed648b087160fea265501b97452c9b1d05fb2074b7918de33937d9057"
+        },
+        {
+          "sourceUnit": "TetherToken.sol",
+          "startLine": 69,
+          "endLine": 74,
+          "excerptSha256": "d937c21749b8c05902b567365173399fc11fcdfadb45d1156b62e5082bcf679b"
+        }
+      ]
+    }
+  ],
+  "networkRequests": 0,
+  "compilerExecution": "NOT_TESTED",
+  "actualAuthorityExercise": "NOT_TESTED",
+  "deploymentSourceBinding": "UNKNOWN",
+  "abiComparison": {
+    "basis": "SELECTED_SIGNATURES_FROM_USER_CHAT_ABI_ONLY",
+    "result": "BOOL_TRANSFER_TRANSFERFROM_APPROVE_AND_UINT8_DECIMALS_DECLARATIONS_ALIGN",
+    "fullAbiStructuralComparison": "NOT_TESTED",
+    "runtimeReturnValues": "NOT_TESTED"
+  },
+  "limitations": [
+    "Source bodies are complete local units with resolved imports; compilation and deployed bytecode equivalence have not been established.",
+    "All exported filename claims were null. Names are inferred from unique contract/library declarations and consistent imports, not authenticated original filenames.",
+    "Contract address and capture time are user-export claims, not independent chain binding or official publisher authentication.",
+    "Forward target implementations are not supplied; their return values, state and access checks cannot be inferred from interface comments.",
+    "Migrations and MultiSigWallet are outside the token import closure; their inclusion does not establish actual owner multisig control.",
+    "Source conditions do not establish current fee/pause/blacklist/deprecation settings, actual authority or transaction success."
+  ]
+}

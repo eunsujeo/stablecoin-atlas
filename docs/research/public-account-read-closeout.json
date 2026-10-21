@@ -1,0 +1,306 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "PUBLIC_ACCOUNT_READ_MILESTONE_EVIDENCE_NOT_ASSET_APPROVAL",
+  "completedAt": "2026-10-21T03:40:19.543154+00:00",
+  "status": "COMPLETE_WITH_RECORDED_LIMITATIONS",
+  "records": [
+    {
+      "profileId": "solana-usdc",
+      "chain": "SOLANA",
+      "request": {
+        "networkId": "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d",
+        "assetAddress": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        "accountAddress": "6uUn2okWk5v4x9Gc4n2LLGHtWoa9tmizHq1363dW7t9W"
+      },
+      "candidateSource": "https://github.com/orca-so/typescript-sdk/blob/main/src/constants/pools.ts",
+      "sourceContext": "Archived protocol usdcUsdtPool token account constants; candidate only, current mint/program/state verified by RPC, no operating-entity claim.",
+      "sourceObservedAt": "2026-10-21T03:39:09.143Z",
+      "startedAt": "2026-10-21T03:39:09.162Z",
+      "completedAt": "2026-10-21T03:39:09.753Z",
+      "executionStatus": "COMPLETED_REPORT",
+      "assetObservation": {
+        "tokenAccountAddress": "6uUn2okWk5v4x9Gc4n2LLGHtWoa9tmizHq1363dW7t9W",
+        "readStatus": "OBSERVED",
+        "balance": "21728679176",
+        "ownerAuthority": "3cGHDS8uWhdxQj14vTmFtYHX3NMouPpE4o9MjQ43Bbf4",
+        "accountState": "INITIALIZED",
+        "delegate": {
+          "state": "NONE_IN_ACCOUNT"
+        },
+        "delegatedAmountRaw": "0",
+        "closeAuthority": {
+          "state": "NONE_IN_ACCOUNT"
+        },
+        "actualAuthorityExercise": "NOT_TESTED"
+      },
+      "verdict": "INCONCLUSIVE",
+      "balanceReadExecutionStatus": "COMPLETED",
+      "observedBlockOrSlot": "459482034",
+      "rpcRequestCount": 2,
+      "requests": [
+        {
+          "method": "getGenesisHash",
+          "status": "OBSERVED"
+        },
+        {
+          "method": "getMultipleAccounts",
+          "status": "OBSERVED"
+        }
+      ],
+      "failures": [],
+      "reportSha256": "43f49f6e73d304db4157871f1bc96baed287743ed1b3d7af36b742152865c2d2",
+      "reportBytes": 52948,
+      "mode": "0600",
+      "offlineValidation": {
+        "kind": "ASSESSMENT_REPORT_VALIDATION",
+        "scope": "SCHEMA_AND_INTERNAL_CONSISTENCY_ONLY",
+        "valid": true,
+        "issues": [],
+        "issueLimitReached": false
+      },
+      "report": "../../reports/solana-usdc-account-public-readonly.json"
+    },
+    {
+      "profileId": "solana-usdt",
+      "chain": "SOLANA",
+      "request": {
+        "networkId": "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d",
+        "assetAddress": "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+        "accountAddress": "AiwmnLy7xPT28dqZpkRm6i1ZGwELUCzCsuN92v4JkSeU"
+      },
+      "candidateSource": "https://github.com/orca-so/typescript-sdk/blob/main/src/constants/pools.ts",
+      "sourceContext": "Archived protocol usdcUsdtPool token account constants; candidate only, current mint/program/state verified by RPC, no operating-entity claim.",
+      "sourceObservedAt": "2026-10-21T03:39:09.143Z",
+      "startedAt": "2026-10-21T03:39:09.787Z",
+      "completedAt": "2026-10-21T03:39:10.125Z",
+      "executionStatus": "COMPLETED_REPORT",
+      "assetObservation": {
+        "tokenAccountAddress": "AiwmnLy7xPT28dqZpkRm6i1ZGwELUCzCsuN92v4JkSeU",
+        "readStatus": "OBSERVED",
+        "balance": "23278820987",
+        "ownerAuthority": "3cGHDS8uWhdxQj14vTmFtYHX3NMouPpE4o9MjQ43Bbf4",
+        "accountState": "INITIALIZED",
+        "delegate": {
+          "state": "NONE_IN_ACCOUNT"
+        },
+        "delegatedAmountRaw": "0",
+        "closeAuthority": {
+          "state": "NONE_IN_ACCOUNT"
+        },
+        "actualAuthorityExercise": "NOT_TESTED"
+      },
+      "verdict": "INCONCLUSIVE",
+      "balanceReadExecutionStatus": "COMPLETED",
+      "observedBlockOrSlot": "459482035",
+      "rpcRequestCount": 2,
+      "requests": [
+        {
+          "method": "getGenesisHash",
+          "status": "OBSERVED"
+        },
+        {
+          "method": "getMultipleAccounts",
+          "status": "OBSERVED"
+        }
+      ],
+      "failures": [],
+      "reportSha256": "202c841cc5e12a274a5044a24d7bdb137a44b69af9e628bdc6e991047d7e9a88",
+      "reportBytes": 52944,
+      "mode": "0600",
+      "offlineValidation": {
+        "kind": "ASSESSMENT_REPORT_VALIDATION",
+        "scope": "SCHEMA_AND_INTERNAL_CONSISTENCY_ONLY",
+        "valid": true,
+        "issues": [],
+        "issueLimitReached": false
+      },
+      "report": "../../reports/solana-usdt-account-public-readonly.json"
+    },
+    {
+      "profileId": "xrpl-usdc",
+      "chain": "XRPL",
+      "request": {
+        "networkId": "0",
+        "assetAddress": "rGm7WCVp9gb4jZHWTEtGUr4dd74z2XuWhE",
+        "currencyCode": "5553444300000000000000000000000000000000",
+        "accountAddress": "r9cZA1mLK5R5Am25ArfXFmqgNwjZgnfk59"
+      },
+      "candidateSource": "https://xrpl.org/docs/references/http-websocket-apis/public-api-methods/account-methods/account_lines",
+      "sourceContext": "Official API example perspective account, not asserted to hold USDC/RLUSD; absent line remains a valid possible result.",
+      "sourceObservedAt": "2026-10-21T03:39:09.143Z",
+      "startedAt": "2026-10-21T03:39:10.137Z",
+      "completedAt": "2026-10-21T03:39:13.102Z",
+      "executionStatus": "COMPLETED_REPORT",
+      "assetObservation": {
+        "trustLine": {
+          "holder": "r9cZA1mLK5R5Am25ArfXFmqgNwjZgnfk59",
+          "issuer": "rGm7WCVp9gb4jZHWTEtGUr4dd74z2XuWhE",
+          "currency": "5553444300000000000000000000000000000000",
+          "status": "OBSERVED",
+          "lineState": "NOT_PRESENT",
+          "pagesRead": 2,
+          "complete": true
+        }
+      },
+      "verdict": "INCONCLUSIVE",
+      "balanceReadExecutionStatus": "COMPLETED",
+      "observedBlockOrSlot": "107797376",
+      "rpcRequestCount": 5,
+      "requests": [
+        {
+          "method": "server_info",
+          "status": "OBSERVED"
+        },
+        {
+          "method": "ledger",
+          "status": "OBSERVED"
+        },
+        {
+          "method": "account_info",
+          "status": "OBSERVED"
+        },
+        {
+          "method": "account_lines",
+          "status": "OBSERVED"
+        },
+        {
+          "method": "account_lines",
+          "status": "OBSERVED"
+        }
+      ],
+      "failures": [],
+      "reportSha256": "a9fcccf2e787764d8d04c3ff14430d3201ad933aa553e9b1cf8548cb987d9176",
+      "reportBytes": 58907,
+      "mode": "0600",
+      "offlineValidation": {
+        "kind": "ASSESSMENT_REPORT_VALIDATION",
+        "scope": "SCHEMA_AND_INTERNAL_CONSISTENCY_ONLY",
+        "valid": true,
+        "issues": [],
+        "issueLimitReached": false
+      },
+      "report": "../../reports/xrpl-usdc-account-public-readonly.json",
+      "validatedLedgerHash": "B191D631BB65F86A1BF672CC5733BACA1FE55B5E32FBB7531D043965BF32341E"
+    },
+    {
+      "profileId": "xrpl-rlusd",
+      "chain": "XRPL",
+      "request": {
+        "networkId": "0",
+        "assetAddress": "rMxCKbEDwqr76QuheSUMdEGf4B9xJ8m5De",
+        "currencyCode": "524C555344000000000000000000000000000000",
+        "accountAddress": "r9cZA1mLK5R5Am25ArfXFmqgNwjZgnfk59"
+      },
+      "candidateSource": "https://xrpl.org/docs/references/http-websocket-apis/public-api-methods/account-methods/account_lines",
+      "sourceContext": "Official API example perspective account, not asserted to hold USDC/RLUSD; absent line remains a valid possible result.",
+      "sourceObservedAt": "2026-10-21T03:39:09.143Z",
+      "startedAt": "2026-10-21T03:39:13.123Z",
+      "completedAt": "2026-10-21T03:39:15.684Z",
+      "executionStatus": "COMPLETED_REPORT",
+      "assetObservation": {
+        "trustLine": {
+          "holder": "r9cZA1mLK5R5Am25ArfXFmqgNwjZgnfk59",
+          "issuer": "rMxCKbEDwqr76QuheSUMdEGf4B9xJ8m5De",
+          "currency": "524C555344000000000000000000000000000000",
+          "status": "OBSERVED",
+          "lineState": "NOT_PRESENT",
+          "pagesRead": 2,
+          "complete": true
+        }
+      },
+      "verdict": "INCONCLUSIVE",
+      "balanceReadExecutionStatus": "COMPLETED",
+      "observedBlockOrSlot": "107797376",
+      "rpcRequestCount": 5,
+      "requests": [
+        {
+          "method": "server_info",
+          "status": "OBSERVED"
+        },
+        {
+          "method": "ledger",
+          "status": "OBSERVED"
+        },
+        {
+          "method": "account_info",
+          "status": "OBSERVED"
+        },
+        {
+          "method": "account_lines",
+          "status": "OBSERVED"
+        },
+        {
+          "method": "account_lines",
+          "status": "OBSERVED"
+        }
+      ],
+      "failures": [],
+      "reportSha256": "3f61662042a3fa4cd3a006922cc51a744c80929a16c4736db1f835db9da444af",
+      "reportBytes": 58910,
+      "mode": "0600",
+      "offlineValidation": {
+        "kind": "ASSESSMENT_REPORT_VALIDATION",
+        "scope": "SCHEMA_AND_INTERNAL_CONSISTENCY_ONLY",
+        "valid": true,
+        "issues": [],
+        "issueLimitReached": false
+      },
+      "report": "../../reports/xrpl-rlusd-account-public-readonly.json",
+      "validatedLedgerHash": "B191D631BB65F86A1BF672CC5733BACA1FE55B5E32FBB7531D043965BF32341E"
+    }
+  ],
+  "rpcRequestCount": 14,
+  "publicTransactions": 0,
+  "endpointSwitches": 0,
+  "retries": 0,
+  "walletEnumeration": false,
+  "keysOrSignatures": false,
+  "actualAuthorityExercise": "NOT_TESTED",
+  "allReportVerdictsPreserved": true,
+  "existingEightReportsPreserved": true,
+  "implementationSourcePins": [
+    {
+      "path": "../../src/solana/adapter.ts",
+      "sha256": "31d6c46da8e13977d44cec9648c49d6b44acab61543559a6c397c99a285e7008"
+    },
+    {
+      "path": "../../src/solana/token-account.ts",
+      "sha256": "b82b571eca6ce1f43ccbf14504c9522b1cfa96da4d8316214573373f78030026"
+    },
+    {
+      "path": "../../src/research/solana-mint-readonly.ts",
+      "sha256": "21bf6634d5e62aa2459fdccb415174e8fc42fe8f44a701e1d73f4bb67ae26b05"
+    },
+    {
+      "path": "../../src/xrpl/adapter.ts",
+      "sha256": "5ec014062b50444e85b47b431603371fea37419f2a8f1987bcde204836c08d66"
+    },
+    {
+      "path": "../../src/xrpl/trust-lines.ts",
+      "sha256": "ea3a6ba7dc62d7ddc8375b3655316872bc0af9880aacc901d95d1b432c3e6d51"
+    },
+    {
+      "path": "../../src/research/xrpl-issuer-readonly.ts",
+      "sha256": "b551ecc4c884764929d24957ecff6d5d2c82d94ff21aa21b8bc8a0fead60a705"
+    },
+    {
+      "path": "../../schemas/assessment-report.v1.schema.json",
+      "sha256": "ce6e4726e4155c73bf1c5b6bae09263cdf4aa73592af4530940e72d23361d078"
+    }
+  ],
+  "repositoryCheckHistory": {
+    "reference": "account-state-read-integration.json",
+    "passed": 212,
+    "failed": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "meaning": "Prior unchanged implementation check; no new full test run or product code change in this public observation step."
+  },
+  "limitations": [
+    "Public protocol/example account samples are not user wallets or service/custody authentication.",
+    "Solana token accounts are only two explicit samples, not whole-wallet balances; separate slots are not one shared snapshot.",
+    "XRPL selected trust lines were NOT_PRESENT after complete enumeration; no positive holder balance, authorization/freeze or Payment behavior was observed for those currencies.",
+    "Settings/absence observations remain INCONCLUSIVE assessment verdicts with UNKNOWN support.",
+    "No actual transfer, delegation, authority exercise, source-to-deployment binding, reserve/redemption or financial approval certified."
+  ]
+}

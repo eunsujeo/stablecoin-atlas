@@ -1,0 +1,164 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "ACCOUNT_STATE_READ_IMPLEMENTATION_EVIDENCE_NOT_ASSET_ASSESSMENT",
+  "scope": "EXPLICIT_SOLANA_TOKEN_ACCOUNT_AND_XRPL_HOLDER_TRUST_LINE_READ_ONLY",
+  "profiles": [
+    "solana-usdc",
+    "solana-usdt",
+    "xrpl-usdc",
+    "xrpl-rlusd"
+  ],
+  "validationData": "LOCAL_SYNTHETIC_RPC_AND_BINARY_SPECIMENS",
+  "publicAccountStateObservation": "NOT_TESTED",
+  "externalChainRpcRequests": 0,
+  "publicTransactions": 0,
+  "actualAuthorityExercise": "NOT_TESTED",
+  "sourceAuthentication": "NOT_PROVIDED",
+  "readBudgets": {
+    "solana": {
+      "maxRpcRequests": 2,
+      "sameResponseContext": true
+    },
+    "xrpl": {
+      "maxRpcRequests": 6,
+      "maxTrustLinePages": 3,
+      "pageLimit": 20,
+      "sameValidatedLedgerHash": true
+    }
+  },
+  "sources": [
+    {
+      "path": "../../src/solana/adapter.ts",
+      "sha256": "31d6c46da8e13977d44cec9648c49d6b44acab61543559a6c397c99a285e7008"
+    },
+    {
+      "path": "../../src/solana/token-account.ts",
+      "sha256": "b82b571eca6ce1f43ccbf14504c9522b1cfa96da4d8316214573373f78030026"
+    },
+    {
+      "path": "../../src/solana/public-key.ts",
+      "sha256": "f26f08fbeb2dd0f4f0b7c1b41c8f1e68eff55b8bdb09480df633958bce3178cb"
+    },
+    {
+      "path": "../../src/xrpl/adapter.ts",
+      "sha256": "5ec014062b50444e85b47b431603371fea37419f2a8f1987bcde204836c08d66"
+    },
+    {
+      "path": "../../src/xrpl/trust-lines.ts",
+      "sha256": "ea3a6ba7dc62d7ddc8375b3655316872bc0af9880aacc901d95d1b432c3e6d51"
+    },
+    {
+      "path": "../../src/research/solana-mint-readonly.ts",
+      "sha256": "21bf6634d5e62aa2459fdccb415174e8fc42fe8f44a701e1d73f4bb67ae26b05"
+    },
+    {
+      "path": "../../src/research/xrpl-issuer-readonly.ts",
+      "sha256": "b551ecc4c884764929d24957ecff6d5d2c82d94ff21aa21b8bc8a0fead60a705"
+    },
+    {
+      "path": "../../src/cli.ts",
+      "sha256": "e09375498e9de482a5c7b442387e47377f42e0f99e764ec85d04dadd853aeeaa"
+    },
+    {
+      "path": "../../src/domain/adapter.ts",
+      "sha256": "fae870738b67ee6acc1cf9b68068bac39ce887dd48ec75442df4d515486f491e"
+    },
+    {
+      "path": "../../schemas/assessment-report.v1.schema.json",
+      "sha256": "ce6e4726e4155c73bf1c5b6bae09263cdf4aa73592af4530940e72d23361d078"
+    },
+    {
+      "path": "../../tests/account-state-readonly.test.ts",
+      "sha256": "a838f8ff4a1492b67c6fdeb401a01ea565631bff6ad91a06797f06c38a74061f"
+    },
+    {
+      "path": "../../package.json",
+      "sha256": "604e9236cad710f2ee7f16c5acf666ae298062089c62e1cc2ec503616cdea890"
+    }
+  ],
+  "preservedReports": [
+    {
+      "profileId": "ethereum-usdc",
+      "report": "../../reports/usdc-readonly.json",
+      "sha256": "611b00ab17332a475d6ca32b8b9c072b8995a2b4df96183830b2fbb5fcccbcdf",
+      "validatorExitCode": 0,
+      "inputPreserved": true
+    },
+    {
+      "profileId": "ethereum-usdt",
+      "report": "../../reports/usdt-readonly.json",
+      "sha256": "af78a1cf4d8d0ac3f8cb50f785044d21670932e7cf7b8c5c1473be4ad8991709",
+      "validatorExitCode": 0,
+      "inputPreserved": true
+    },
+    {
+      "profileId": "ethereum-rlusd",
+      "report": "../../reports/rlusd-readonly.json",
+      "sha256": "b164f5a99ff8ba3c6248e08e616f45cec113052c0ae8cc0f1c25aa449b6575ba",
+      "validatorExitCode": 0,
+      "inputPreserved": true
+    },
+    {
+      "profileId": "tron-usdt",
+      "report": "../../reports/tron-usdt-allowance-readonly.json",
+      "sha256": "7b1cb51b4bbed387ceb1a80161ac81ebe8258bbf2d79a5786ecf822398b92b6f",
+      "validatorExitCode": 0,
+      "inputPreserved": true
+    },
+    {
+      "profileId": "solana-usdc",
+      "report": "../../reports/solana-usdc-assessment-readonly.json",
+      "sha256": "d49afc2ceb4b0e3785627d35db45302497b759b6d1cca1210309f0d1e1a6bfca",
+      "validatorExitCode": 0,
+      "inputPreserved": true
+    },
+    {
+      "profileId": "solana-usdt",
+      "report": "../../reports/solana-usdt-assessment-readonly.json",
+      "sha256": "ae277c63629853d5140ddb68220951d8475f7e681482cacdcfc153a8aa2abb25",
+      "validatorExitCode": 0,
+      "inputPreserved": true
+    },
+    {
+      "profileId": "xrpl-usdc",
+      "report": "../../reports/xrpl-usdc-assessment-readonly.json",
+      "sha256": "dab91aab0c5dc24dfd677356597e60d65f12e7f2a292f6c03a58c8f561bd2bdf",
+      "validatorExitCode": 0,
+      "inputPreserved": true
+    },
+    {
+      "profileId": "xrpl-rlusd",
+      "report": "../../reports/xrpl-rlusd-assessment-readonly.json",
+      "sha256": "39108c2dcfa1eb868e886adfb717d12c95ecc71b4b24f5c31e095a8f19dfedac",
+      "validatorExitCode": 0,
+      "inputPreserved": true
+    }
+  ],
+  "limitations": [
+    "No whole-wallet aggregation, ATA derivation, Token-2022 or multisig/signature verification.",
+    "XRPL authorization is not DELEGATION; flags are not transfer availability.",
+    "XRPL decimal/exponent strings are preserved without Number arithmetic; grammar bounds do not certify full STAmount semantics.",
+    "Raw absent flags remain distinct from explicit false.",
+    "Incomplete pagination or read errors never become absent trust lines or balance zero.",
+    "Prior public mint/issuer observations are not public account-state validation."
+  ],
+  "priorUnboundedRepositoryCheck": {
+    "passed": 209,
+    "failed": 0,
+    "cancelled": 3,
+    "reason": "Existing EVM adapter, local lab CLI and proxy tests exceeded their unchanged60000ms timeouts."
+  },
+  "repositoryCheck": {
+    "passed": 212,
+    "failed": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "testFileConcurrency": 2
+  },
+  "mockedAccountProfiles": [
+    "solana-usdc",
+    "xrpl-usdc"
+  ],
+  "profileCoverageNote": "Existing no-account adapter tests cover both allowlisted assets on each chain; new account-state fault/boundary mocks use one representative asset per chain.",
+  "validatedAt": "2026-10-21T03:28:59.168264+00:00"
+}

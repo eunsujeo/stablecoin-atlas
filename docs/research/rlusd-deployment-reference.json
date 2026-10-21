@@ -1,0 +1,78 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "THIRD_PARTY_DEPLOYMENT_CANDIDATE_REFERENCE",
+  "reviewedAt": "2026-10-20T03:54:28.086944+00:00",
+  "networkId": "1",
+  "proxy": "0x8292Bb45bf1Ee4d140127049757C2E0fF06317eD",
+  "deployment": {
+    "transactionHash": "0x811c963004b19c2e3724850cda6bffd7cab7ff8f34d5670f86b51a9e1390327d",
+    "blockNumber": "20492031",
+    "transactionIndex": "276",
+    "deployer": "0x3BAf6263aD9C9D0854405B4Cfe4310c556a3e6ab"
+  },
+  "source": {
+    "url": "https://sourcify.dev/server/v2/contract/1/0x8292Bb45bf1Ee4d140127049757C2E0fF06317eD?fields=all",
+    "documentation": "https://docs.sourcify.dev/docs/api/",
+    "localSnapshot": "../../.state/rlusd-controls/proxy-sourcify.json",
+    "sha256": "7953034adc5b9ee4f0ac32e8de5d58b4a9d4c27c8bff51aa7fd47f0907b41245",
+    "provenance": "THIRD_PARTY_SERVICE_CLAIM_NOT_CHAIN_PROOF",
+    "retrievedAt": "2026-10-20T03:53:07.070312+00:00"
+  },
+  "abiStudy": {
+    "reference": "rlusd-control-abi-study.json",
+    "sha256": "b4673375590e26ad013f7b27802b3c95ac38c9460aafce1416ebe2ebf368f6fe"
+  },
+  "roleGrantedEvent": {
+    "signature": "RoleGranted(bytes32,address,address)",
+    "anonymous": false,
+    "inputs": [
+      {
+        "type": "bytes32",
+        "indexed": true
+      },
+      {
+        "type": "address",
+        "indexed": true
+      },
+      {
+        "type": "address",
+        "indexed": true
+      }
+    ]
+  },
+  "maxCandidates": 3,
+  "limitations": [
+    "Service creation/runtime match labels are not source-to-runtime proof here.",
+    "Deployment event candidates do not establish current role membership, issuer identity, service-wallet ownership, account freeze or exercised authority."
+  ],
+  "abi": {
+    "reference": "../../.state/rlusd-controls/rlusd-implementation-abi.json",
+    "sha256": "1c6162c1c6c910396f782747b2efef57b6ae97fb3d93e13f86be4246f9c6630d",
+    "provenance": "USER_PROVIDED_CANDIDATE_NOT_DEPLOYMENT_VERIFIED",
+    "event": {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        }
+      ],
+      "name": "RoleGranted",
+      "type": "event"
+    }
+  }
+}

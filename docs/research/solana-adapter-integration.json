@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "SOLANA_READONLY_ADAPTER_INTEGRATION_EVIDENCE_NOT_ASSET_APPROVAL",
+  "scope": "ALLOWLISTED_MAINNET_USDC_USDT_MINT_SETTINGS_ONLY",
+  "productReadAdapter": "MINT_ONLY_IMPLEMENTED",
+  "commonReportSchema": "1.0",
+  "liveReports": [
+    {
+      "profileId": "solana-usdc",
+      "reference": "../../reports/solana-usdc-assessment-readonly.json",
+      "sha256": "d49afc2ceb4b0e3785627d35db45302497b759b6d1cca1210309f0d1e1a6bfca",
+      "schemaVersion": "1.0",
+      "observedAt": "2026-10-21T01:43:45.876Z",
+      "observedBlockOrSlot": "459449963",
+      "scenarioVerdictCounts": {
+        "INCONCLUSIVE": 4,
+        "NOT_TESTED": 12,
+        "NOT_APPLICABLE": 1
+      }
+    },
+    {
+      "profileId": "solana-usdt",
+      "reference": "../../reports/solana-usdt-assessment-readonly.json",
+      "sha256": "ae277c63629853d5140ddb68220951d8475f7e681482cacdcfc153a8aa2abb25",
+      "schemaVersion": "1.0",
+      "observedAt": "2026-10-21T01:43:46.859Z",
+      "observedBlockOrSlot": "459449966",
+      "scenarioVerdictCounts": {
+        "INCONCLUSIVE": 4,
+        "NOT_TESTED": 12,
+        "NOT_APPLICABLE": 1
+      }
+    }
+  ],
+  "actualAuthorityExercise": "NOT_TESTED",
+  "holderDelegateAndTransactionExecution": "NOT_TESTED",
+  "newLiveRpcRequests": 4,
+  "sharedSnapshotAcrossReports": false,
+  "previousResearchObservation": "solana-mint-observation.json",
+  "researchReportHistory": "PRESERVED",
+  "xrplProductAdapter": "NOT_IMPLEMENTED",
+  "repositoryCheck": {
+    "passed": 196,
+    "failed": 0,
+    "skipped": 0
+  }
+}

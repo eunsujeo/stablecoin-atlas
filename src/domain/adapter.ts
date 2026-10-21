@@ -4,6 +4,9 @@ import type { AssessmentReport, AssetIdentity } from './model.js';
 export interface ReadOnlyAssessmentRequest {
   networkId: string;
   assetAddress: string;
+  // XRPL only: assetAddress is issuer; the pair selects the issued currency.
+  currencyCode?: string;
+  // Solana: explicit Token Account, XRPL: classic holder; each adapter validates its meaning.
   accountAddress?: string;
 }
 export interface ReadOnlyAdapter {

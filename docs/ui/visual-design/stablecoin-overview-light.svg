@@ -1,0 +1,221 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1080" viewBox="0 0 1600 1080" role="img" aria-labelledby="title desc"><title id="title">Stablecoin Atlas — 라이트 모드 비주얼 디자인 시안</title><desc id="desc">밝은 배경과 흰 카드, 보라·청록 강조색의 정적 웹 대시보드. 다크 모드와 같은 배치와 가상 목데이터를 사용합니다. 실제 조회와 조작은 구현하지 않았습니다.</desc><defs>
+<linearGradient id="purple" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#A351E4" /><stop offset="1" stop-color="#6959D9" /></linearGradient>
+<linearGradient id="teal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#087F97" /><stop offset="1" stop-color="#3443AA" /></linearGradient>
+<linearGradient id="active"><stop stop-color="#9D62E8" stop-opacity=".12" /><stop offset="1" stop-color="#9D62E8" stop-opacity=".04" /></linearGradient>
+<linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#007C79" stop-opacity=".16" /><stop offset="1" stop-color="#007C79" stop-opacity="0" /></linearGradient>
+<linearGradient id="rank"><stop stop-color="#39D7D5" /><stop offset="1" stop-color="#6D68E7" /></linearGradient>
+<radialGradient id="halo"><stop stop-color="#955CE1" stop-opacity=".035" /><stop offset="1" stop-color="#955CE1" stop-opacity="0" /></radialGradient>
+<clipPath id="lead-card"><rect x="272" y="144" width="386" height="140" rx="15" /></clipPath><clipPath id="delta-card"><rect x="678" y="144" width="342" height="140" rx="15" /></clipPath></defs><style>text{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;letter-spacing:-.25px}.num{font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-1.3px}.mono{font-family:ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums;letter-spacing:0}</style>
+<rect x="0" y="0" width="1600" height="1080" rx="0" fill="#F4F6FB" />
+<ellipse cx="1230" cy="0" rx="650" ry="440" fill="url(#halo)" />
+<rect x="0" y="0" width="232" height="1080" rx="0" fill="#FFFFFF" />
+<path d="M232 0L232 1080" fill="none" stroke="#E4E8F0" />
+<rect x="25" y="29" width="30" height="30" rx="9" fill="url(#purple)" />
+<path d="M32 48L39 37L47 48M35 44H44" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" />
+<text xml:space="preserve" x="67" y="42" fill="#18243B" font-size="13" font-weight="650">STABLECOIN</text>
+<text xml:space="preserve" x="67" y="59" fill="#586780" font-size="10" font-weight="400" class="mono">ATLAS / LAB</text>
+<text xml:space="preserve" x="27" y="116" fill="#67748B" font-size="10" font-weight="650" class="mono">WORKSPACE</text>
+<rect x="14" y="134" width="204" height="54" rx="9" fill="url(#active)" />
+<rect x="14" y="145" width="3" height="30" rx="1" fill="#7547BC" />
+<text xml:space="preserve" x="31" y="159" fill="#7547BC" font-size="20" font-weight="400">◈</text>
+<text xml:space="preserve" x="65" y="153" fill="#18243B" font-size="13" font-weight="650">Overview</text>
+<text xml:space="preserve" x="65" y="172" fill="#67748B" font-size="11" font-weight="400">전체 현황</text>
+<text xml:space="preserve" x="31" y="226" fill="#67748B" font-size="20" font-weight="400">▤</text>
+<text xml:space="preserve" x="65" y="220" fill="#55637B" font-size="13" font-weight="400">Asset profiles</text>
+<text xml:space="preserve" x="65" y="239" fill="#67748B" font-size="11" font-weight="400">자산 프로필</text>
+<text xml:space="preserve" x="31" y="293" fill="#67748B" font-size="20" font-weight="400">⇄</text>
+<text xml:space="preserve" x="65" y="287" fill="#55637B" font-size="13" font-weight="400">Compare</text>
+<text xml:space="preserve" x="65" y="306" fill="#67748B" font-size="11" font-weight="400">자산 비교</text>
+<text xml:space="preserve" x="31" y="360" fill="#67748B" font-size="20" font-weight="400">▧</text>
+<text xml:space="preserve" x="65" y="354" fill="#55637B" font-size="13" font-weight="400">Evidence</text>
+<text xml:space="preserve" x="65" y="373" fill="#67748B" font-size="11" font-weight="400">근거 · 보고서</text>
+<path d="M25 431L207 431" fill="none" stroke="#E0E6F0" />
+<text xml:space="preserve" x="27" y="469" fill="#67748B" font-size="10" font-weight="650" class="mono">TRACKED ASSETS</text>
+<circle cx="41" cy="505" r="17" fill="#007C7920" />
+<text xml:space="preserve" x="36" y="510" fill="#007C79" font-size="16" font-weight="650">₮</text>
+<text xml:space="preserve" x="68" y="510" fill="#26344D" font-size="13" font-weight="650">USDT</text>
+<circle cx="41" cy="554" r="17" fill="#2962CF18" />
+<text xml:space="preserve" x="36" y="559" fill="#2962CF" font-size="16" font-weight="650">$</text>
+<text xml:space="preserve" x="68" y="559" fill="#26344D" font-size="13" font-weight="650">USDC</text>
+<circle cx="41" cy="603" r="17" fill="#7547BC18" />
+<text xml:space="preserve" x="36" y="608" fill="#7547BC" font-size="16" font-weight="650">R</text>
+<text xml:space="preserve" x="68" y="608" fill="#26344D" font-size="13" font-weight="650">RLUSD</text>
+<rect x="22" y="820" width="188" height="98" rx="11" fill="#EBEFF8" />
+<text xml:space="preserve" x="38" y="845" fill="#7547BC" font-size="10" font-weight="650" class="mono">DESIGN PREVIEW</text>
+<text xml:space="preserve" x="38" y="872" fill="#18243B" font-size="13" font-weight="650">저장 데이터 기반 웹</text>
+<text xml:space="preserve" x="38" y="895" fill="#586780" font-size="11" font-weight="400">DB 연결 · 조회 구현 예정</text>
+<rect x="22" y="942" width="188" height="40" rx="8" fill="url(#purple)" />
+<text xml:space="preserve" x="48" y="967" fill="#fff" font-size="12" font-weight="650">근거 · 보고서 보기  ↗</text>
+<text xml:space="preserve" x="26" y="1017" fill="#586780" font-size="11" font-weight="400">모든 조작부는 정적 시안</text>
+<text xml:space="preserve" x="26" y="1040" fill="#67748B" font-size="9" font-weight="400" class="mono">ATLAS / LIGHT CONCEPT</text>
+<text xml:space="preserve" x="272" y="48" fill="#586780" font-size="10" font-weight="400" class="mono">WORKSPACE   /   OVERVIEW</text>
+<text xml:space="preserve" x="272" y="87" fill="#18243B" font-size="29" font-weight="650">스테이블코인, 한눈에.</text>
+<text xml:space="preserve" x="272" y="112" fill="#586780" font-size="13" font-weight="400">전체 규모와 체인별 분포, 기술 검토 근거를 연결합니다.</text>
+<rect x="1190" y="31" width="102" height="26" rx="7" fill="#FFF0CF" />
+<text xml:space="preserve" x="1201" y="49" fill="#795000" font-size="11" font-weight="650">MOCK DATA</text>
+<text xml:space="preserve" x="1311" y="49" fill="#586780" font-size="12" font-weight="400">가상 시각 12:00:00</text>
+<rect x="1490" y="24" width="70" height="36" rx="8" fill="#E9EDF5" />
+<text xml:space="preserve" x="1500" y="47" fill="#18243B" font-size="12" font-weight="400">라이트</text>
+<rect x="1132" y="79" width="428" height="35" rx="8" fill="#F9F2E5" />
+<circle cx="1150" cy="96" r="3" fill="#795000" />
+<text xml:space="preserve" x="1164" y="101" fill="#71542C" font-size="11" font-weight="400">실제 자료 아님 · 수량 / 추이 / 점수 모두 가상</text>
+<rect x="272" y="144" width="386" height="140" rx="15" fill="url(#purple)" />
+<g clip-path="url(#lead-card)">
+<circle cx="627" cy="150" r="96" fill="#FFFFFF08" />
+<circle cx="286" cy="290" r="95" fill="#FFFFFF06" />
+</g>
+<text xml:space="preserve" x="296" y="174" fill="#F0E4FF" font-size="10" font-weight="650" class="mono">TOTAL CIRCULATION</text>
+<text xml:space="preserve" x="296" y="225" fill="#fff" font-size="43" font-weight="650" class="num">2,200억</text>
+<text xml:space="preserve" x="465" y="225" fill="#EFE5FF" font-size="14" font-weight="400">tokens</text>
+<text xml:space="preserve" x="296" y="259" fill="#F3E8FF" font-size="12" font-weight="400">선택 3개 코인 · 전체 체인 합계 예시</text>
+<rect x="678" y="144" width="342" height="140" rx="15" fill="url(#teal)" />
+<g clip-path="url(#delta-card)">
+<circle cx="991" cy="154" r="78" fill="#FFFFFF05" />
+</g>
+<text xml:space="preserve" x="702" y="174" fill="#DCF9FF" font-size="12" font-weight="400">6개 시점의 유통량 변화</text>
+<text xml:space="preserve" x="702" y="223" fill="#fff" font-size="38" font-weight="650" class="num">+500억</text>
+<rect x="862" y="201" width="94" height="26" rx="7" fill="#164B68" />
+<text xml:space="preserve" x="873" y="219" fill="#C0FFEC" font-size="11" font-weight="650">+29.4%</text>
+<text xml:space="preserve" x="702" y="259" fill="#D7F0FF" font-size="12" font-weight="400">D-5 대비 D0 · 목데이터 구간</text>
+<rect x="1040" y="144" width="246" height="140" rx="15" fill="#FFFFFF" stroke="#E1E6EF" />
+<text xml:space="preserve" x="1063" y="174" fill="#586780" font-size="12" font-weight="400">검토 대상 프로필</text>
+<text xml:space="preserve" x="1063" y="224" fill="#18243B" font-size="39" font-weight="650" class="num">8</text>
+<text xml:space="preserve" x="1095" y="222" fill="#586780" font-size="14" font-weight="400">profiles</text>
+<text xml:space="preserve" x="1063" y="259" fill="#586780" font-size="11" font-weight="400">4개 체인 · 전체 공급 범위와 별도</text>
+<rect x="1306" y="144" width="254" height="140" rx="15" fill="#FFFFFF" stroke="#E1E6EF" />
+<text xml:space="preserve" x="1329" y="174" fill="#586780" font-size="12" font-weight="400">USDT 근거 충족률 · 예시</text>
+<text xml:space="preserve" x="1329" y="224" fill="#18243B" font-size="39" font-weight="650" class="num">84</text>
+<text xml:space="preserve" x="1386" y="221" fill="#586780" font-size="15" font-weight="400">/100</text>
+<rect x="1487" y="194" width="43" height="26" rx="7" fill="#F0E8FB" />
+<text xml:space="preserve" x="1498" y="212" fill="#7547BC" font-size="11" font-weight="650">B</text>
+<text xml:space="preserve" x="1329" y="259" fill="#586780" font-size="11" font-weight="400">수작업 점수·등급 · 산식 미확정</text>
+<rect x="272" y="310" width="858" height="380" rx="14" fill="#FFFFFF" stroke="#E1E6EF" />
+<text xml:space="preserve" x="296" y="344" fill="#18243B" font-size="16" font-weight="650">전체 유통량 추이</text>
+<text xml:space="preserve" x="296" y="367" fill="#586780" font-size="12" font-weight="400">선택 3개 코인 합계 · 단위: 억 토큰 · 가상 데이터</text>
+<rect x="856" y="328" width="250" height="30" rx="7" fill="#EDF0F7" />
+<rect x="859" y="331" width="57" height="24" rx="5" fill="#FFFFFF" stroke="#E1E6EF" />
+<text xml:space="preserve" x="874" y="347" fill="#18243B" font-size="10" font-weight="650">전체</text>
+<text xml:space="preserve" x="933" y="347" fill="#586780" font-size="10" font-weight="400">USDT</text>
+<text xml:space="preserve" x="992" y="347" fill="#586780" font-size="10" font-weight="400">USDC</text>
+<text xml:space="preserve" x="1051" y="347" fill="#586780" font-size="10" font-weight="400">RLUSD</text>
+<path d="M334 625L1092 625" fill="none" stroke="#E3E8F1" />
+<text xml:space="preserve" x="296" y="629" fill="#60718A" font-size="10" font-weight="400" class="mono">1,600</text>
+<path d="M334 561L1092 561" fill="none" stroke="#E3E8F1" />
+<text xml:space="preserve" x="296" y="565" fill="#60718A" font-size="10" font-weight="400" class="mono">1,800</text>
+<path d="M334 496L1092 496" fill="none" stroke="#E3E8F1" />
+<text xml:space="preserve" x="296" y="500" fill="#60718A" font-size="10" font-weight="400" class="mono">2,000</text>
+<path d="M334 432L1092 432" fill="none" stroke="#E3E8F1" />
+<text xml:space="preserve" x="296" y="436" fill="#60718A" font-size="10" font-weight="400" class="mono">2,200</text>
+<path d="M334.0 592.7 C409.8 592.7 409.8 563.6 485.6 563.6 C561.4 563.6 561.4 521.6 637.2 521.6 C713.0 521.6 713.0 508.7 788.8 508.7 C864.6 508.7 864.6 463.5 940.4 463.5 C1016.2 463.5 1016.2 431.2 1092.0 431.2 L1092 625 L334 625Z" fill="url(#area)" />
+<path d="M334.0 592.7 C409.8 592.7 409.8 563.6 485.6 563.6 C561.4 563.6 561.4 521.6 637.2 521.6 C713.0 521.6 713.0 508.7 788.8 508.7 C864.6 508.7 864.6 463.5 940.4 463.5 C1016.2 463.5 1016.2 431.2 1092.0 431.2" fill="none" stroke="#007C79" stroke-width="3" />
+<circle cx="334.0" cy="592.6923076923077" r="3" fill="#FFFFFF" stroke="#007C79" stroke-width="2" />
+<text xml:space="preserve" x="324.0" y="651" fill="#586780" font-size="10" font-weight="400" class="mono">D-5</text>
+<circle cx="485.6" cy="563.6153846153846" r="3" fill="#FFFFFF" stroke="#007C79" stroke-width="2" />
+<text xml:space="preserve" x="475.6" y="651" fill="#586780" font-size="10" font-weight="400" class="mono">D-4</text>
+<circle cx="637.2" cy="521.6153846153846" r="3" fill="#FFFFFF" stroke="#007C79" stroke-width="2" />
+<text xml:space="preserve" x="627.2" y="651" fill="#586780" font-size="10" font-weight="400" class="mono">D-3</text>
+<circle cx="788.8" cy="508.6923076923077" r="3" fill="#FFFFFF" stroke="#007C79" stroke-width="2" />
+<text xml:space="preserve" x="778.8" y="651" fill="#586780" font-size="10" font-weight="400" class="mono">D-2</text>
+<circle cx="940.4" cy="463.46153846153845" r="3" fill="#FFFFFF" stroke="#007C79" stroke-width="2" />
+<text xml:space="preserve" x="930.4" y="651" fill="#586780" font-size="10" font-weight="400" class="mono">D-1</text>
+<circle cx="1092.0" cy="431.1538461538462" r="3" fill="#FFFFFF" stroke="#007C79" stroke-width="2" />
+<text xml:space="preserve" x="1082.0" y="651" fill="#586780" font-size="10" font-weight="400" class="mono">D0</text>
+<path d="M940.4 398L940.4 625" fill="none" stroke="#54677F" stroke-dasharray="4 5" />
+<circle cx="940.4" cy="463.46153846153845" r="12" fill="#007C7921" />
+<circle cx="940.4" cy="463.46153846153845" r="5" fill="#007C79" />
+<rect x="842.4" y="394.46153846153845" width="170" height="49" rx="8" fill="#FFFFFF" stroke="#E1E6EF" />
+<text xml:space="preserve" x="856.4" y="414.46153846153845" fill="#64728B" font-size="10" font-weight="400">D-1 · 합계</text>
+<text xml:space="preserve" x="856.4" y="434.46153846153845" fill="#18243B" font-size="17" font-weight="650" class="num">2,100억 tokens</text>
+<text xml:space="preserve" x="296" y="675" fill="#586780" font-size="10" font-weight="400">구간 끝점만 가상 관측값 · 곡선은 시각 보간</text>
+<rect x="1154" y="310" width="406" height="380" rx="14" fill="#FFFFFF" stroke="#E1E6EF" />
+<text xml:space="preserve" x="1178" y="344" fill="#18243B" font-size="16" font-weight="650">유통량 순위</text>
+<text xml:space="preserve" x="1178" y="367" fill="#586780" font-size="12" font-weight="400">선택 3개 코인 · 전체 체인 합계 예시</text>
+<circle cx="1193" cy="399" r="17" fill="#007C7920" />
+<text xml:space="preserve" x="1188" y="404" fill="#007C79" font-size="16" font-weight="650">₮</text>
+<text xml:space="preserve" x="1220" y="397" fill="#18243B" font-size="14" font-weight="650">USDT</text>
+<text xml:space="preserve" x="1220" y="417" fill="#586780" font-size="10" font-weight="400">54.5% of selected</text>
+<text xml:space="preserve" x="1448" y="398" fill="#18243B" font-size="19" font-weight="650" class="num">1,200억</text>
+<rect x="1178" y="436" width="358" height="5" rx="3" fill="#E8EDF5" />
+<rect x="1178" y="436" width="358" height="5" rx="3" fill="#007C79" />
+<polyline points="1374.0,424.0 1387.6,420.8 1401.2,416.0 1414.8,417.6 1428.4,411.2 1442.0,408.0" fill="none" stroke="#007C79" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="1193" cy="488" r="17" fill="#2962CF18" />
+<text xml:space="preserve" x="1188" y="493" fill="#2962CF" font-size="16" font-weight="650">$</text>
+<text xml:space="preserve" x="1220" y="486" fill="#18243B" font-size="14" font-weight="650">USDC</text>
+<text xml:space="preserve" x="1220" y="506" fill="#586780" font-size="10" font-weight="400">36.4% of selected</text>
+<text xml:space="preserve" x="1448" y="487" fill="#18243B" font-size="19" font-weight="650" class="num">800억</text>
+<rect x="1178" y="525" width="358" height="5" rx="3" fill="#E8EDF5" />
+<rect x="1178" y="525" width="238" height="5" rx="3" fill="#2962CF" />
+<polyline points="1374.0,513.0 1387.6,510.6 1401.2,506.6 1414.8,503.4 1428.4,500.2 1442.0,497.0" fill="none" stroke="#2962CF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="1193" cy="577" r="17" fill="#7547BC18" />
+<text xml:space="preserve" x="1188" y="582" fill="#7547BC" font-size="16" font-weight="650">R</text>
+<text xml:space="preserve" x="1220" y="575" fill="#18243B" font-size="14" font-weight="650">RLUSD</text>
+<text xml:space="preserve" x="1220" y="595" fill="#586780" font-size="10" font-weight="400">9.1% of selected</text>
+<text xml:space="preserve" x="1448" y="576" fill="#18243B" font-size="19" font-weight="650" class="num">200억</text>
+<rect x="1178" y="614" width="358" height="5" rx="3" fill="#E8EDF5" />
+<rect x="1178" y="614" width="59" height="5" rx="3" fill="#7547BC" />
+<polyline points="1374.0,602.0 1387.6,598.8 1401.2,595.6 1414.8,592.4 1428.4,589.2 1442.0,586.0" fill="none" stroke="#7547BC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+<text xml:space="preserve" x="1178" y="674" fill="#7547BC" font-size="11" font-weight="650">전체 순위 보기  ↗</text>
+<rect x="272" y="714" width="420" height="300" rx="14" fill="#FFFFFF" stroke="#E1E6EF" />
+<text xml:space="preserve" x="296" y="748" fill="#18243B" font-size="16" font-weight="650">코인별 구성</text>
+<text xml:space="preserve" x="296" y="771" fill="#586780" font-size="12" font-weight="400">선택 3개 코인 합계 기준</text>
+<circle cx="391" cy="890" r="73" fill="none" stroke="#E8EDF5" stroke-width="21" />
+<circle cx="391" cy="890" r="73" fill="none" stroke="#007C79" stroke-width="21" stroke-dasharray="246.185 212.488" stroke-dashoffset="0.000" transform="rotate(-90 391 890)" />
+<circle cx="391" cy="890" r="73" fill="none" stroke="#2962CF" stroke-width="21" stroke-dasharray="162.790 295.883" stroke-dashoffset="-250.185" transform="rotate(-90 391 890)" />
+<circle cx="391" cy="890" r="73" fill="none" stroke="#7547BC" stroke-width="21" stroke-dasharray="37.698 420.975" stroke-dashoffset="-416.975" transform="rotate(-90 391 890)" />
+<text xml:space="preserve" x="356" y="883" fill="#586780" font-size="11" font-weight="650" class="mono">3 COINS</text>
+<text xml:space="preserve" x="347" y="912" fill="#18243B" font-size="25" font-weight="650" class="num">2,200억</text>
+<circle cx="508" cy="845" r="4" fill="#007C79" />
+<text xml:space="preserve" x="520" y="849" fill="#18243B" font-size="12" font-weight="650">USDT</text>
+<text xml:space="preserve" x="599" y="849" fill="#586780" font-size="12" font-weight="400">54.5%</text>
+<circle cx="508" cy="892" r="4" fill="#2962CF" />
+<text xml:space="preserve" x="520" y="896" fill="#18243B" font-size="12" font-weight="650">USDC</text>
+<text xml:space="preserve" x="599" y="896" fill="#586780" font-size="12" font-weight="400">36.4%</text>
+<circle cx="508" cy="939" r="4" fill="#7547BC" />
+<text xml:space="preserve" x="520" y="943" fill="#18243B" font-size="12" font-weight="650">RLUSD</text>
+<text xml:space="preserve" x="599" y="943" fill="#586780" font-size="12" font-weight="400">9.1%</text>
+<text xml:space="preserve" x="296" y="990" fill="#586780" font-size="10" font-weight="400">비율은 가상 유통량의 단순 수량 기준</text>
+<rect x="716" y="714" width="414" height="300" rx="14" fill="#FFFFFF" stroke="#E1E6EF" />
+<text xml:space="preserve" x="740" y="748" fill="#18243B" font-size="16" font-weight="650">검토 범위 내 체인 분포</text>
+<text xml:space="preserve" x="740" y="771" fill="#586780" font-size="12" font-weight="400">8개 프로필 합계 1,000억 · 전체 공급량과 별도</text>
+<text xml:space="preserve" x="740" y="817" fill="#2D3A52" font-size="12" font-weight="400">Ethereum</text>
+<text xml:space="preserve" x="1053" y="817" fill="#586780" font-size="12" font-weight="400">54%</text>
+<rect x="840" y="806" width="190" height="8" rx="4" fill="#E8EDF5" />
+<rect x="840" y="806" width="190" height="8" rx="4" fill="#7547BC" />
+<text xml:space="preserve" x="740" y="860" fill="#2D3A52" font-size="12" font-weight="400">TRON</text>
+<text xml:space="preserve" x="1053" y="860" fill="#586780" font-size="12" font-weight="400">22%</text>
+<rect x="840" y="849" width="190" height="8" rx="4" fill="#E8EDF5" />
+<rect x="840" y="849" width="77" height="8" rx="4" fill="#007C79" />
+<text xml:space="preserve" x="740" y="903" fill="#2D3A52" font-size="12" font-weight="400">Solana</text>
+<text xml:space="preserve" x="1053" y="903" fill="#586780" font-size="12" font-weight="400">18%</text>
+<rect x="840" y="892" width="190" height="8" rx="4" fill="#E8EDF5" />
+<rect x="840" y="892" width="63" height="8" rx="4" fill="#2962CF" />
+<text xml:space="preserve" x="740" y="946" fill="#2D3A52" font-size="12" font-weight="400">XRPL</text>
+<text xml:space="preserve" x="1053" y="946" fill="#586780" font-size="12" font-weight="400">6%</text>
+<rect x="840" y="935" width="190" height="8" rx="4" fill="#E8EDF5" />
+<rect x="840" y="935" width="21" height="8" rx="4" fill="#AD3C9E" />
+<text xml:space="preserve" x="740" y="990" fill="#586780" font-size="10" font-weight="400">검토 8개 표본이 모든 체인을 대표하지 않음</text>
+<rect x="1154" y="714" width="406" height="300" rx="14" fill="#FFFFFF" stroke="#E1E6EF" />
+<text xml:space="preserve" x="1178" y="748" fill="#18243B" font-size="16" font-weight="650">근거 충족률</text>
+<text xml:space="preserve" x="1178" y="771" fill="#586780" font-size="12" font-weight="400">선택 코인별 수작업 점수 · 예시</text>
+<text xml:space="preserve" x="1178" y="815" fill="#18243B" font-size="12" font-weight="650">USDT</text>
+<text xml:space="preserve" x="1468" y="815" fill="#586780" font-size="12" font-weight="400">84/100</text>
+<rect x="1398" y="797" width="42" height="26" rx="7" fill="#F0E8FB" />
+<text xml:space="preserve" x="1409" y="815" fill="#7547BC" font-size="11" font-weight="650">B</text>
+<rect x="1178" y="829" width="358" height="4" rx="2" fill="#E8EDF5" />
+<rect x="1178" y="829" width="300" height="4" rx="2" fill="#7547BC" />
+<text xml:space="preserve" x="1178" y="872" fill="#18243B" font-size="12" font-weight="650">USDC</text>
+<text xml:space="preserve" x="1468" y="872" fill="#586780" font-size="12" font-weight="400">92/100</text>
+<rect x="1398" y="854" width="42" height="26" rx="7" fill="#F0E8FB" />
+<text xml:space="preserve" x="1409" y="872" fill="#7547BC" font-size="11" font-weight="650">A</text>
+<rect x="1178" y="886" width="358" height="4" rx="2" fill="#E8EDF5" />
+<rect x="1178" y="886" width="329" height="4" rx="2" fill="#2962CF" />
+<text xml:space="preserve" x="1178" y="929" fill="#18243B" font-size="12" font-weight="650">RLUSD</text>
+<text xml:space="preserve" x="1468" y="929" fill="#586780" font-size="12" font-weight="400">72/100</text>
+<rect x="1398" y="911" width="42" height="26" rx="7" fill="#F0E8FB" />
+<text xml:space="preserve" x="1409" y="929" fill="#7547BC" font-size="11" font-weight="650">C</text>
+<rect x="1178" y="943" width="358" height="4" rx="2" fill="#E8EDF5" />
+<rect x="1178" y="943" width="257" height="4" rx="2" fill="#AD3C9E" />
+<text xml:space="preserve" x="1178" y="990" fill="#7547BC" font-size="11" font-weight="650">등급 기준 보기  ↗</text>
+<text xml:space="preserve" x="272" y="1046" fill="#5E6B82" font-size="11" font-weight="400">MOCK / 모든 수치·시점·순위·등급은 디자인용 가상 데이터입니다.</text>
+<text xml:space="preserve" x="1050" y="1046" fill="#586780" font-size="11" font-weight="400">저장 데이터 조회 60초 · 연결 전 · 정적 시안</text>
+</svg>

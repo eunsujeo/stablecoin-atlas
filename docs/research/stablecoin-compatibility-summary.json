@@ -1,0 +1,708 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "STATIC_COMPATIBILITY_SUMMARY_NOT_ASSESSMENT",
+  "consolidatedAt": "2026-10-21T01:34:22.766969+00:00",
+  "scope": "SELECTED_SOURCE_COMPATIBILITY_PLUS_REFERENCED_READ_OBSERVATIONS",
+  "policy": {
+    "authoritySourceReview": "SUFFICIENT_FOR_AGREED_SCOPE",
+    "serviceCustodyLedgerOperations": "OUT_OF_SCOPE",
+    "supportOrSafetyApproval": "NOT_PROVIDED",
+    "newPublicTransactions": 0,
+    "historicalEvidence": "UNCHANGED",
+    "integrationEvidenceCollectedSeparately": true,
+    "networkRequestsDuringSummaryGeneration": 0
+  },
+  "evidenceReferences": {
+    "catalog": {
+      "reference": "stablecoin-profiles.json",
+      "sha256": "02ab835ab86702714d40daa43783ceb8cc599edfd6b188cb7deb891b91ee263c"
+    },
+    "historical-evidence": {
+      "reference": "stablecoin-account-evidence.json",
+      "sha256": "7185371e5fd9762a4fdece68ce0c5e519431f9b18aefdf7ee5567c13645087f4"
+    },
+    "source-review": {
+      "reference": "stablecoin-source-compatibility.json",
+      "sha256": "3e601acaf7cbcddb6aa75a19f6d4116609b7c2b40bdbe9e39b4d9b8dfdc67e6e"
+    },
+    "rlusd-inherited": {
+      "reference": "rlusd-explorer-source-review.json",
+      "sha256": "d7e6ce68e32fed229b5e6c1c6aa74641ae59ec67b69535678b4b9b11a46ada3f"
+    },
+    "tron-source": {
+      "reference": "tron-export-source-review.json",
+      "sha256": "0a1832aeb9f68ca2565a72acadfbbbcd21ce909f4aadb914e1918cbbfdd69b39"
+    },
+    "solana-mints": {
+      "reference": "solana-mint-observation.json",
+      "sha256": "d14a92944a33ea6070b91b193038f7b32840d0791329d71588c3174b58da2b19"
+    },
+    "xrpl-issuers": {
+      "reference": "xrpl-issuer-observation.json",
+      "sha256": "818fc92aeefa0c8043a3579146d1700049e092643bd48a1a0054e5e0d0eb4bf8"
+    },
+    "solana-adapter": {
+      "reference": "solana-adapter-integration.json",
+      "sha256": "ce87755af428f379a93ec498b63483c83dded06de7d453e6b20732457b502bde"
+    },
+    "xrpl-adapter": {
+      "reference": "xrpl-adapter-integration.json",
+      "sha256": "fcbff7b8ad0de371fe9751ce1bfc4b027d163f7193deeb152a74467d6a4867b9"
+    },
+    "report-validation": {
+      "reference": "common-report-validation.json",
+      "sha256": "895c7c72079e7f7dbc35929503b8086ae3ea82d9d8cab83dd00dd59e7d64f118"
+    },
+    "account-state-read": {
+      "reference": "account-state-read-integration.json",
+      "sha256": "a2ae57169ab0ed8498a75a7ef968fc8e9f21555e911d5b9bb45878191b141fac"
+    },
+    "public-account-closeout": {
+      "reference": "public-account-read-closeout.json",
+      "sha256": "fc96f788ae01a046c1066f1435d601b2177f00679d24d9b4956c0d8d5480c176"
+    },
+    "xrpl-held-lines": {
+      "reference": "xrpl-held-trustline-observation.json",
+      "sha256": "26c243fba0de1d81164a4e7b41fe721c97b849f46e3634b0750523cb8571f04a"
+    }
+  },
+  "profiles": [
+    {
+      "profileId": "ethereum-usdc",
+      "assetSymbol": "USDC",
+      "chainFamily": "EVM",
+      "identifier": {
+        "contractAddress": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+      },
+      "sourceReviewStatus": "SOURCE_REVIEWED",
+      "productReadAdapter": "IMPLEMENTED",
+      "publicTokenBehaviorExecution": "NOT_TESTED",
+      "actualAuthorityExercise": "NOT_TESTED",
+      "existingAssessmentVerdicts": "UNCHANGED",
+      "conditions": [
+        "Selected V1 transfer/transferFrom explicitly return true; V1 spender allowance is reduced even at MAX.",
+        "Approve V1 blacklist guards differ from V2.2 override pause-only outer guard; underlying nonzero owner/spender still checked.",
+        "Selected approve overwrites allowance with Approval and no zero-reset enforcement; selected source is not deployed version authentication."
+      ],
+      "remainingGaps": [
+        "Deployed source version/full bytecode binding",
+        "Actual authority and public token transactions"
+      ],
+      "sourceEvidence": [
+        {
+          "referenceId": "source-review",
+          "profileId": "ethereum-usdc",
+          "findingIds": [
+            "usdc-transfer",
+            "usdc-approve-version-difference",
+            "usdc-mint",
+            "usdc-minter-management",
+            "usdc-burn",
+            "usdc-role-updates",
+            "usdc-pause",
+            "usdc-blacklist",
+            "usdc-rescue"
+          ]
+        }
+      ],
+      "historicalReadReports": [
+        {
+          "reference": "../../reports/usdc-readonly.json",
+          "sha256": "611b00ab17332a475d6ca32b8b9c072b8995a2b4df96183830b2fbb5fcccbcdf",
+          "observedAt": "2026-10-19T00:36:50.049Z"
+        },
+        {
+          "reference": "../../reports/usdc-controls-readonly.json",
+          "sha256": "c545f70fe19943d41e8afc62b5d5be861c1140b2211d78d3e40b06440e2fc14c",
+          "observedAt": "2026-10-20T01:04:04.423Z"
+        },
+        {
+          "reference": "../../reports/usdc-role-code-readonly.json",
+          "sha256": "77b950c896ca2d94d9345af51ab1d44f8ed1eefe427e493c602fe497ae58f60e",
+          "observedAt": "2026-10-20T01:11:05.609Z"
+        },
+        {
+          "reference": "../../reports/usdc-minter-management-readonly.json",
+          "sha256": "390b3aebc38fa98fd8f6fe6cf2e39c3dad0b995da380122c41cb563de2fe46bf",
+          "observedAt": "2026-10-20T01:24:29.115Z"
+        },
+        {
+          "reference": "../../reports/usdc-owner-sample-readonly.json",
+          "sha256": "95602ebaa8ff898f7de003643e97f0f52721076f8a4131f2410fc6aca6e640c1",
+          "observedAt": "2026-10-20T05:34:26.335Z"
+        },
+        {
+          "reference": "../../reports/usdc-master-minter-history-readonly.json",
+          "sha256": "d54b5088c4b1d27649f359d51a04022516fd279401e8ff8fcf92c1924b3f35df",
+          "observedAt": "2026-10-20T01:34:51.863Z"
+        }
+      ],
+      "deploymentSourceBinding": "UNKNOWN",
+      "offlineReportValidation": {
+        "referenceId": "report-validation",
+        "profileId": "ethereum-usdc"
+      }
+    },
+    {
+      "profileId": "ethereum-usdt",
+      "assetSymbol": "USDT",
+      "chainFamily": "EVM",
+      "identifier": {
+        "contractAddress": "0xdac17f958d2ee523a2206206994597c13d831ec7"
+      },
+      "sourceReviewStatus": "SOURCE_REVIEWED",
+      "productReadAdapter": "IMPLEMENTED",
+      "publicTokenBehaviorExecution": "NOT_TESTED",
+      "actualAuthorityExercise": "NOT_TESTED",
+      "existingAssessmentVerdicts": "UNCHANGED",
+      "conditions": [
+        "Selected local transfer/transferFrom/approve declare no bool outputs; local approve enforces zero-reset for nonzero replacement.",
+        "Selected local approve has no transfer-style pause/blacklist modifier; transfer checks sender and transferFrom checks from.",
+        "Local capped fee and finite allowance deduction/MAX preservation; deprecated target implementation must be treated separately."
+      ],
+      "remainingGaps": [
+        "Issuer repository revision",
+        "Forward target internals",
+        "Full bytecode binding and public token transactions"
+      ],
+      "sourceEvidence": [
+        {
+          "referenceId": "source-review",
+          "profileId": "ethereum-usdt",
+          "findingIds": [
+            "usdt-local-transfer",
+            "usdt-local-delegated",
+            "usdt-local-approve",
+            "usdt-owner-controls",
+            "usdt-issuance-fees",
+            "usdt-legacy-forwarding"
+          ]
+        }
+      ],
+      "historicalReadReports": [
+        {
+          "reference": "../../reports/usdt-readonly.json",
+          "sha256": "af78a1cf4d8d0ac3f8cb50f785044d21670932e7cf7b8c5c1473be4ad8991709",
+          "observedAt": "2026-10-19T00:36:49.934Z"
+        },
+        {
+          "reference": "../../reports/usdt-controls-readonly.json",
+          "sha256": "79286af198858a1e883e443509cd5755d077a49e17e6099ffbcc1eb58af479e8",
+          "observedAt": "2026-10-20T04:55:28.646Z"
+        },
+        {
+          "reference": "../../reports/usdt-owner-sample-readonly.json",
+          "sha256": "2e6216eab0c24facde0d6db345f5eaba227206cb84b1850940f871e8313f788e",
+          "observedAt": "2026-10-20T05:13:28.091Z"
+        }
+      ],
+      "deploymentSourceBinding": "UNKNOWN",
+      "offlineReportValidation": {
+        "referenceId": "report-validation",
+        "profileId": "ethereum-usdt"
+      }
+    },
+    {
+      "profileId": "ethereum-rlusd",
+      "assetSymbol": "RLUSD",
+      "chainFamily": "EVM",
+      "identifier": {
+        "contractAddress": "0x8292bb45bf1ee4d140127049757c2e0ff06317ed"
+      },
+      "sourceReviewStatus": "SOURCE_REVIEWED",
+      "productReadAdapter": "IMPLEMENTED",
+      "publicTokenBehaviorExecution": "NOT_TESTED",
+      "actualAuthorityExercise": "NOT_TESTED",
+      "existingAssessmentVerdicts": "UNCHANGED",
+      "conditions": [
+        "New explorer inherited transfer/transferFrom return true; selected core update has no fee deduction and emits full-value Transfer.",
+        "Approve overwrites after account/global pause and nonzero endpoint checks, emits Approval, no zero-reset enforcement.",
+        "Finite allowance spends omit additional Approval; MAX preserved. Permit deadline/nonce/recovered signer and role-admin/UUPS paths reviewed.",
+        "V2 frozen-from exception does not bypass global pause or caller/to restrictions; new initializer snapshot differs from original ZIP."
+      ],
+      "remainingGaps": [
+        "Old ZIP versus new V2 snapshot binding",
+        "Full bytecode binding and actual roles/transactions"
+      ],
+      "sourceEvidence": [
+        {
+          "referenceId": "source-review",
+          "profileId": "ethereum-rlusd",
+          "findingIds": [
+            "rlusd-role-controls",
+            "rlusd-pause",
+            "rlusd-update-version-difference",
+            "rlusd-approve",
+            "rlusd-permit",
+            "rlusd-initialization"
+          ]
+        },
+        {
+          "referenceId": "rlusd-inherited",
+          "findingIds": [
+            "rlusd-html-transfer",
+            "rlusd-html-state-events",
+            "rlusd-html-approve-allowance",
+            "rlusd-html-permit",
+            "rlusd-html-role-admin",
+            "rlusd-html-uups",
+            "rlusd-html-global-pause",
+            "rlusd-html-initializer-version"
+          ]
+        }
+      ],
+      "historicalReadReports": [
+        {
+          "reference": "../../reports/rlusd-readonly.json",
+          "sha256": "b164f5a99ff8ba3c6248e08e616f45cec113052c0ae8cc0f1c25aa449b6575ba",
+          "observedAt": "2026-10-20T00:37:35.295Z"
+        },
+        {
+          "reference": "../../reports/rlusd-controls-readonly.json",
+          "sha256": "07792cfc7a300037d7dac593a9eb21b46f1ebb187be4302ebf564c2edb68a3f8",
+          "observedAt": "2026-10-20T03:17:42.820Z"
+        },
+        {
+          "reference": "../../reports/rlusd-role-admin-readonly.json",
+          "sha256": "103600baa283d8a42739f21bced6de80d97b31c89a7f2d3a9a0a288a887d3b73",
+          "observedAt": "2026-10-20T03:39:56.253Z"
+        },
+        {
+          "reference": "../../reports/rlusd-account-candidates-readonly.json",
+          "sha256": "3e7552b6392a1ed9595dd69a61cfd1bdbc35becf3142ac533b3c94ef7df01743",
+          "observedAt": "2026-10-20T03:58:04.559Z"
+        }
+      ],
+      "deploymentSourceBinding": "UNKNOWN",
+      "offlineReportValidation": {
+        "referenceId": "report-validation",
+        "profileId": "ethereum-rlusd"
+      }
+    },
+    {
+      "profileId": "tron-usdt",
+      "assetSymbol": "USDT",
+      "chainFamily": "TRON",
+      "identifier": {
+        "contractAddress": "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
+      },
+      "sourceReviewStatus": "SOURCE_REVIEWED",
+      "productReadAdapter": "IMPLEMENTED",
+      "publicTokenBehaviorExecution": "NOT_TESTED",
+      "actualAuthorityExercise": "NOT_TESTED",
+      "existingAssessmentVerdicts": "UNCHANGED",
+      "conditions": [
+        "TetherToken transfer returns super, but intermediate fee transfer declares bool without explicit return and discards BasicToken results; runtime return NOT_TESTED.",
+        "Local approve is pause-guarded, overwrites allowance with Approval/true and does not enforce zero-reset.",
+        "Local transferFrom explicitly returns true, deducts finite allowance and preserves MAX; capped fee and sequential alias-sensitive balance changes.",
+        "Source filenames inferred from declarations/imports. Forward target absent; auxiliary wallet source does not prove deployed owner multisig."
+      ],
+      "remainingGaps": [
+        "Actual runtime return of supplied transfer path",
+        "Forward target internals",
+        "Authenticated source filenames/deployment binding",
+        "Exact getter response block"
+      ],
+      "sourceEvidence": [
+        {
+          "referenceId": "source-review",
+          "profileId": "tron-usdt",
+          "findingIds": []
+        },
+        {
+          "referenceId": "tron-source",
+          "findingIds": [
+            "tron-local-transfer-return-caveat",
+            "tron-local-transferfrom",
+            "tron-local-approve",
+            "tron-local-adjust-approval",
+            "tron-pause-blacklist",
+            "tron-owner-issue-redeem",
+            "tron-destroy-black-funds",
+            "tron-fee-controls",
+            "tron-deprecation-forwarding",
+            "tron-owner-metadata-oldbalance"
+          ]
+        }
+      ],
+      "historicalReadReports": [
+        {
+          "reference": "../../reports/tron-usdt-allowance-readonly.json",
+          "sha256": "7b1cb51b4bbed387ceb1a80161ac81ebe8258bbf2d79a5786ecf822398b92b6f",
+          "observedAt": "2026-10-19T04:38:48.194Z"
+        },
+        {
+          "reference": "../../reports/tron-usdt-user-holder-readonly.json",
+          "sha256": "0c880d3437d6f6923e53905ee43c73736c53328585abb0c2337e13290c604628",
+          "observedAt": "2026-10-20T07:59:49.804Z"
+        }
+      ],
+      "deploymentSourceBinding": "UNKNOWN",
+      "offlineReportValidation": {
+        "referenceId": "report-validation",
+        "profileId": "tron-usdt"
+      }
+    },
+    {
+      "profileId": "solana-usdc",
+      "assetSymbol": "USDC",
+      "chainFamily": "SOLANA",
+      "identifier": {
+        "mintAddress": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+      },
+      "sourceReviewStatus": "PROTOCOL_DOCUMENTED_ONLY",
+      "productReadAdapter": "MINT_AND_TOKEN_ACCOUNT_IMPLEMENTED",
+      "publicTokenBehaviorExecution": "NOT_TESTED",
+      "actualAuthorityExercise": "NOT_TESTED",
+      "existingAssessmentVerdicts": "UNCHANGED",
+      "conditions": [
+        "Initialized 82-byte Original Token Program mint observed at shared finalized RPC context slot.",
+        "Mint and freeze authority fields PRESENT at different addresses; actual control/holder/delegate state not inferred."
+      ],
+      "remainingGaps": [
+        "Transfer/revoke execution",
+        "Authority key control"
+      ],
+      "sourceEvidence": [
+        {
+          "referenceId": "source-review",
+          "profileId": "solana-usdc",
+          "findingIds": []
+        }
+      ],
+      "historicalReadReports": [],
+      "latestResearchObservation": {
+        "referenceId": "solana-mints",
+        "status": "OBSERVED",
+        "observedAt": "2026-10-21T00:53:41.893Z",
+        "context": {
+          "commitment": "finalized",
+          "responseContextSlot": "459436079",
+          "meaning": "RPC_CONTEXT_SLOT_NOT_ACCOUNT_LAST_MODIFICATION_SLOT_OR_BLOCK_HASH"
+        },
+        "programOwner": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        "mintState": {
+          "initialized": true,
+          "supplyRaw": "7501509767291454",
+          "decimals": 6,
+          "mintAuthority": {
+            "state": "PRESENT",
+            "address": "BJE5MMbqXjVwjAF7oxwPYXnTXDyspzZyt4vwenNw5ruG"
+          },
+          "freezeAuthority": {
+            "state": "PRESENT",
+            "address": "7dGbd2QZcCKcTndnHcTL8q7SMVXAkp688NTQYwrRCrar"
+          }
+        }
+      },
+      "adapterIntegrationEvidence": {
+        "referenceId": "solana-adapter",
+        "profileId": "solana-usdc"
+      },
+      "offlineReportValidation": {
+        "referenceId": "report-validation",
+        "profileId": "solana-usdc"
+      },
+      "accountStateReadExtension": {
+        "referenceId": "account-state-read",
+        "implementation": "IMPLEMENTED",
+        "publicAccountObservation": "OBSERVED_TOKEN_ACCOUNT",
+        "validationData": "LOCAL_SYNTHETIC_RPC"
+      },
+      "latestPublicAccountObservation": {
+        "referenceId": "public-account-closeout",
+        "profileId": "solana-usdc",
+        "observedBlockOrSlot": "459482034",
+        "status": "OBSERVED_TOKEN_ACCOUNT",
+        "assessmentVerdict": "INCONCLUSIVE"
+      }
+    },
+    {
+      "profileId": "solana-usdt",
+      "assetSymbol": "USDT",
+      "chainFamily": "SOLANA",
+      "identifier": {
+        "mintAddress": "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"
+      },
+      "sourceReviewStatus": "PROTOCOL_DOCUMENTED_ONLY",
+      "productReadAdapter": "MINT_AND_TOKEN_ACCOUNT_IMPLEMENTED",
+      "publicTokenBehaviorExecution": "NOT_TESTED",
+      "actualAuthorityExercise": "NOT_TESTED",
+      "existingAssessmentVerdicts": "UNCHANGED",
+      "conditions": [
+        "Independent initialized 82-byte Original Token Program mint observed in same response context.",
+        "Mint and freeze authority fields PRESENT at same address; this does not authenticate control or copy USDC conditions."
+      ],
+      "remainingGaps": [
+        "Transfer/revoke execution",
+        "Authority key control"
+      ],
+      "sourceEvidence": [
+        {
+          "referenceId": "source-review",
+          "profileId": "solana-usdt",
+          "findingIds": []
+        }
+      ],
+      "historicalReadReports": [],
+      "latestResearchObservation": {
+        "referenceId": "solana-mints",
+        "status": "OBSERVED",
+        "observedAt": "2026-10-21T00:53:41.893Z",
+        "context": {
+          "commitment": "finalized",
+          "responseContextSlot": "459436079",
+          "meaning": "RPC_CONTEXT_SLOT_NOT_ACCOUNT_LAST_MODIFICATION_SLOT_OR_BLOCK_HASH"
+        },
+        "programOwner": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        "mintState": {
+          "initialized": true,
+          "supplyRaw": "3839903226371819",
+          "decimals": 6,
+          "mintAuthority": {
+            "state": "PRESENT",
+            "address": "Q6XprfkF8RQQKoQVG33xT88H7wi8Uk1B1CC7YAs69Gi"
+          },
+          "freezeAuthority": {
+            "state": "PRESENT",
+            "address": "Q6XprfkF8RQQKoQVG33xT88H7wi8Uk1B1CC7YAs69Gi"
+          }
+        }
+      },
+      "adapterIntegrationEvidence": {
+        "referenceId": "solana-adapter",
+        "profileId": "solana-usdt"
+      },
+      "offlineReportValidation": {
+        "referenceId": "report-validation",
+        "profileId": "solana-usdt"
+      },
+      "accountStateReadExtension": {
+        "referenceId": "account-state-read",
+        "implementation": "IMPLEMENTED",
+        "publicAccountObservation": "OBSERVED_TOKEN_ACCOUNT",
+        "validationData": "LOCAL_SYNTHETIC_RPC"
+      },
+      "latestPublicAccountObservation": {
+        "referenceId": "public-account-closeout",
+        "profileId": "solana-usdt",
+        "observedBlockOrSlot": "459482035",
+        "status": "OBSERVED_TOKEN_ACCOUNT",
+        "assessmentVerdict": "INCONCLUSIVE"
+      }
+    },
+    {
+      "profileId": "xrpl-usdc",
+      "assetSymbol": "USDC",
+      "chainFamily": "XRPL",
+      "identifier": {
+        "currency": "5553444300000000000000000000000000000000",
+        "issuerAddress": "rGm7WCVp9gb4jZHWTEtGUr4dd74z2XuWhE"
+      },
+      "sourceReviewStatus": "PROTOCOL_DOCUMENTED_ONLY",
+      "productReadAdapter": "ISSUER_AND_TRUST_LINE_IMPLEMENTED",
+      "publicTokenBehaviorExecution": "NOT_TESTED",
+      "actualAuthorityExercise": "NOT_TESTED",
+      "existingAssessmentVerdicts": "UNCHANGED",
+      "conditions": [
+        "Issuer AccountRoot observed at shared validated hash/index. AllowTrustLineClawback false; RequireAuth/NoFreeze/GlobalFreeze false.",
+        "DisableMaster/DefaultRipple true; absent TransferRate preserved. Individual trust-line state and amendment activation not observed."
+      ],
+      "remainingGaps": [
+        "Payment delivered amount",
+        "Amendment activation and actual authority",
+        "Common account_lines Adapter is INCONCLUSIVE at its3page limit for this AMM; exact RippleState observation is separate research, not product integration."
+      ],
+      "sourceEvidence": [
+        {
+          "referenceId": "source-review",
+          "profileId": "xrpl-usdc",
+          "findingIds": []
+        }
+      ],
+      "historicalReadReports": [],
+      "latestResearchObservation": {
+        "referenceId": "xrpl-issuers",
+        "status": "OBSERVED",
+        "observedAt": "2026-10-21T01:11:56.199Z",
+        "context": {
+          "ledgerHash": "06CDF41C72C0CE1C2634450ADA368892F6CAA9D48C7685FE411DFDA9232A4EA2",
+          "ledgerIndex": "107795106",
+          "validation": "RPC_REPORTED_VALIDATED"
+        },
+        "accountRoot": {
+          "Account": "rGm7WCVp9gb4jZHWTEtGUr4dd74z2XuWhE",
+          "LedgerEntryType": "AccountRoot",
+          "flags": {
+            "flagsRaw": "26804224",
+            "bits": {
+              "requireAuth": false,
+              "disableMaster": true,
+              "noFreeze": false,
+              "globalFreeze": false,
+              "defaultRipple": true,
+              "allowTrustLineClawback": false
+            },
+            "uninterpretedFlagBits": "17367040"
+          },
+          "transferRate": {
+            "state": "NOT_PRESENT"
+          }
+        }
+      },
+      "adapterIntegrationEvidence": {
+        "referenceId": "xrpl-adapter",
+        "profileId": "xrpl-usdc"
+      },
+      "offlineReportValidation": {
+        "referenceId": "report-validation",
+        "profileId": "xrpl-usdc"
+      },
+      "accountStateReadExtension": {
+        "referenceId": "account-state-read",
+        "implementation": "IMPLEMENTED",
+        "publicAccountObservation": "INCONCLUSIVE_PAGINATION_LIMIT",
+        "validationData": "LOCAL_SYNTHETIC_RPC"
+      },
+      "latestPublicAccountObservation": {
+        "referenceId": "xrpl-held-lines",
+        "profileId": "xrpl-usdc",
+        "observedBlockOrSlot": "107797509",
+        "status": "INCONCLUSIVE_PAGINATION_LIMIT",
+        "assessmentVerdict": "INCONCLUSIVE"
+      },
+      "latestExactTrustLineResearchObservation": {
+        "referenceId": "xrpl-held-lines",
+        "status": "OBSERVED_POSITIVE_AMM_LINE",
+        "ledgerHash": "A3D6696A4EBC62BADF174BF4D0762A56AC43E8F4FB3E781CD40230885C5E99EB",
+        "ledgerIndex": "107797509",
+        "balanceValue": "137002.6309953493",
+        "sampleType": "AMM_SPECIAL_ACCOUNT_NOT_REGULAR_WALLET"
+      }
+    },
+    {
+      "profileId": "xrpl-rlusd",
+      "assetSymbol": "RLUSD",
+      "chainFamily": "XRPL",
+      "identifier": {
+        "currency": "524C555344000000000000000000000000000000",
+        "issuerAddress": "rMxCKbEDwqr76QuheSUMdEGf4B9xJ8m5De"
+      },
+      "sourceReviewStatus": "PROTOCOL_DOCUMENTED_ONLY",
+      "productReadAdapter": "ISSUER_AND_TRUST_LINE_IMPLEMENTED",
+      "publicTokenBehaviorExecution": "NOT_TESTED",
+      "actualAuthorityExercise": "NOT_TESTED",
+      "existingAssessmentVerdicts": "UNCHANGED",
+      "conditions": [
+        "Independent issuer AccountRoot at same validated hash/index. AllowTrustLineClawback true; RequireAuth/NoFreeze/GlobalFreeze false.",
+        "DisableMaster/DefaultRipple true; absent TransferRate preserved. Ethereum RLUSD roles/code do not describe this account state."
+      ],
+      "remainingGaps": [
+        "Payment delivered amount",
+        "Amendment activation and actual authority",
+        "Common account_lines Adapter is INCONCLUSIVE at its3page limit for this AMM; exact RippleState observation is separate research, not product integration."
+      ],
+      "sourceEvidence": [
+        {
+          "referenceId": "source-review",
+          "profileId": "xrpl-rlusd",
+          "findingIds": []
+        }
+      ],
+      "historicalReadReports": [],
+      "latestResearchObservation": {
+        "referenceId": "xrpl-issuers",
+        "status": "OBSERVED",
+        "observedAt": "2026-10-21T01:11:56.199Z",
+        "context": {
+          "ledgerHash": "06CDF41C72C0CE1C2634450ADA368892F6CAA9D48C7685FE411DFDA9232A4EA2",
+          "ledgerIndex": "107795106",
+          "validation": "RPC_REPORTED_VALIDATED"
+        },
+        "accountRoot": {
+          "Account": "rMxCKbEDwqr76QuheSUMdEGf4B9xJ8m5De",
+          "LedgerEntryType": "AccountRoot",
+          "flags": {
+            "flagsRaw": "2174353408",
+            "bits": {
+              "requireAuth": false,
+              "disableMaster": true,
+              "noFreeze": false,
+              "globalFreeze": false,
+              "defaultRipple": true,
+              "allowTrustLineClawback": true
+            },
+            "uninterpretedFlagBits": "17432576"
+          },
+          "transferRate": {
+            "state": "NOT_PRESENT"
+          }
+        }
+      },
+      "adapterIntegrationEvidence": {
+        "referenceId": "xrpl-adapter",
+        "profileId": "xrpl-rlusd"
+      },
+      "offlineReportValidation": {
+        "referenceId": "report-validation",
+        "profileId": "xrpl-rlusd"
+      },
+      "accountStateReadExtension": {
+        "referenceId": "account-state-read",
+        "implementation": "IMPLEMENTED",
+        "publicAccountObservation": "INCONCLUSIVE_PAGINATION_LIMIT",
+        "validationData": "LOCAL_SYNTHETIC_RPC"
+      },
+      "latestPublicAccountObservation": {
+        "referenceId": "xrpl-held-lines",
+        "profileId": "xrpl-rlusd",
+        "observedBlockOrSlot": "107797510",
+        "status": "INCONCLUSIVE_PAGINATION_LIMIT",
+        "assessmentVerdict": "INCONCLUSIVE"
+      },
+      "latestExactTrustLineResearchObservation": {
+        "referenceId": "xrpl-held-lines",
+        "status": "OBSERVED_POSITIVE_AMM_LINE",
+        "ledgerHash": "A3D6696A4EBC62BADF174BF4D0762A56AC43E8F4FB3E781CD40230885C5E99EB",
+        "ledgerIndex": "107797509",
+        "balanceValue": "2436280.212624066",
+        "sampleType": "AMM_SPECIAL_ACCOUNT_NOT_REGULAR_WALLET"
+      }
+    }
+  ],
+  "completion": {
+    "agreedSourceAndReadResearch": "COMPLETE",
+    "productAdaptersImplemented": [
+      "EVM_READONLY",
+      "TRON_READONLY",
+      "SOLANA_MINT_READONLY",
+      "XRPL_ISSUER_READONLY"
+    ],
+    "researchReadersImplemented": [
+      "SOLANA_MINT_READONLY",
+      "XRPL_ISSUER_READONLY"
+    ],
+    "latestRepositoryCheck": {
+      "passed": 212,
+      "failed": 0,
+      "skipped": 0
+    },
+    "offlineReportValidator": "IMPLEMENTED",
+    "accountStateReadExtension": "IMPLEMENTED_WITH_PUBLIC_SAMPLE_OBSERVATION",
+    "milestone": {
+      "status": "COMPLETE_WITH_RECORDED_LIMITATIONS",
+      "referenceId": "public-account-closeout",
+      "newPublicAccountReports": 4,
+      "newPublicReadRpcRequests": 14,
+      "positiveTokenAccountSamples": 2,
+      "completeSelectedTrustLineAbsenceSamples": 2
+    },
+    "xrplPositiveLineResearch": {
+      "status": "COMPLETE_WITH_ADAPTER_PAGINATION_LIMITATION",
+      "referenceId": "xrpl-held-lines",
+      "positiveAmmSamples": 2,
+      "newRpcRequests": 18
+    }
+  },
+  "updatedAt": "2026-10-21T03:51:36.274Z"
+}

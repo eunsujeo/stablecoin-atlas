@@ -1,0 +1,516 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "LOCAL_SOURCE_ABI_STUDY_NOT_ASSESSMENT",
+  "reviewedAt": "2026-10-20T02:05:26.471226+00:00",
+  "networkId": "1",
+  "proxy": "0x8292bb45bf1ee4d140127049757c2e0ff06317ed",
+  "historicalDeclaredImplementation": "0x9747a0d261c2d56eb93f542068e5d1e23170fa9e",
+  "priorObservation": {
+    "report": "../../reports/rlusd-readonly.json",
+    "sha256": "b164f5a99ff8ba3c6248e08e616f45cec113052c0ae8cc0f1c25aa449b6575ba",
+    "block": "26230253",
+    "currentImplementation": "UNKNOWN"
+  },
+  "designProvenance": "rlusd-control-provenance.json",
+  "archive": {
+    "reference": "../../.state/rlusd-controls/RLUSD-Implementation-3632128f690aa8aaf1d23628adb54f4be60303f1.zip",
+    "sha256": "ca5ed51193f5a425cf3b9b2386a04e53e7232666478876736a05a405e6cf22b7",
+    "provenance": "USER_PROVIDED_GITHUB_COMMIT_ARCHIVE",
+    "commit": "3632128f690aa8aaf1d23628adb54f4be60303f1",
+    "computedRootTree": "4901f0b35e551f9315c31bae29662f34876c226d",
+    "expectedRootTree": "4901f0b35e551f9315c31bae29662f34876c226d",
+    "treeComparison": "EXACT_MATCH_ALL_15_FILE_BLOBS_AND_MODES",
+    "commitAnchorSha256": "af3802adbb197f88c3fba5573a906f1131af1d2638f778447b435e647ea2ce49",
+    "priorDesignAndReadme": "EXACT_MATCH",
+    "gitEntries": [
+      {
+        "path": ".idea/.gitignore",
+        "mode": "100644",
+        "gitBlobSha1": "30cf57ed7cba5157ad5f7c05ede08adde945ada6"
+      },
+      {
+        "path": ".idea/RLUSD-Implementation.iml",
+        "mode": "100644",
+        "gitBlobSha1": "d6ebd4805981b8400db3e3291c74a743fef9a824"
+      },
+      {
+        "path": ".idea/misc.xml",
+        "mode": "100644",
+        "gitBlobSha1": "529c55eaa1db181023d70b60d27517013e7daeb7"
+      },
+      {
+        "path": ".idea/modules.xml",
+        "mode": "100644",
+        "gitBlobSha1": "394e27a32027b77d7dbd024a00d1b720a06bfae5"
+      },
+      {
+        "path": ".idea/vcs.xml",
+        "mode": "100644",
+        "gitBlobSha1": "35eb1ddfbbc029bcab630581847471d7f238ec53"
+      },
+      {
+        "path": "LICENSE",
+        "mode": "100644",
+        "gitBlobSha1": "4947287f7b5ccb5d1e8b7b2d3aa5d89f322c160d"
+      },
+      {
+        "path": "README.md",
+        "mode": "100644",
+        "gitBlobSha1": "b58806d773b451b7b5becd0e359c1e1d41e8eaed"
+      },
+      {
+        "path": "contracts/AccountPausableUpgradeable.sol",
+        "mode": "100644",
+        "gitBlobSha1": "3fec31ade1a4a0bdf482da5e01794d2a8b193218"
+      },
+      {
+        "path": "contracts/MultiSign.sol",
+        "mode": "100644",
+        "gitBlobSha1": "6294c1a7aff35dedd738985805205d1060f1f1a3"
+      },
+      {
+        "path": "contracts/StablecoinProxy.sol",
+        "mode": "100644",
+        "gitBlobSha1": "ed634b79fb3ea8336879da191ea207880a09d7cf"
+      },
+      {
+        "path": "contracts/StablecoinUpgradeable.sol",
+        "mode": "100644",
+        "gitBlobSha1": "10e372280a0762caa1f890290546190f919e5f72"
+      },
+      {
+        "path": "contracts/StablecoinUpgradeableV2.sol",
+        "mode": "100644",
+        "gitBlobSha1": "0cad19c41b5226acc0f3410ba790cc22b8b8c121"
+      },
+      {
+        "path": "doc/Ripple Stablecoin Contracts Audit.pdf",
+        "mode": "100644",
+        "gitBlobSha1": "9d3bc6defd683cb97f3613fc4f029ee039f72119"
+      },
+      {
+        "path": "doc/rlusd-evm-compatible-design.md",
+        "mode": "100644",
+        "gitBlobSha1": "f590b36b0a204da4f6b2a1cce1e37e09e635f743"
+      },
+      {
+        "path": "doc/rlusd-xrpl-settings.md",
+        "mode": "100644",
+        "gitBlobSha1": "9397014b3dc319247e2bfbed221d6817dba44247"
+      }
+    ],
+    "archiveChecks": "PASS_PATH_TYPE_DUPLICATE_COUNT_SIZE_RATIO_DATA_ONLY",
+    "scope": "ALL_ARCHIVE_BLOBS_AND_GIT_MODES_MATCH_PREVIOUSLY_ACQUIRED_COMMIT_TREE_NOT_DEPLOYED_RUNTIME"
+  },
+  "abi": {
+    "reference": "../../.state/rlusd-controls/rlusd-implementation-abi.json",
+    "sha256": "1c6162c1c6c910396f782747b2efef57b6ae97fb3d93e13f86be4246f9c6630d",
+    "provenance": "USER_PROVIDED_AS_IMPLEMENTATION_ABI",
+    "claimedAddress": "0x9747a0d261c2d56eb93f542068e5d1e23170fa9e",
+    "independentExplorerRetrieval": "NOT_TESTED",
+    "entryCount": 79,
+    "functionCount": 40,
+    "viewFunctionCount": 22,
+    "addressBinding": "UNKNOWN"
+  },
+  "files": [
+    {
+      "path": "contracts/AccountPausableUpgradeable.sol",
+      "localSnapshot": "../../.state/rlusd-controls/archive/contracts/AccountPausableUpgradeable.sol",
+      "sha256": "72099e204f56ed157c7cdd60be4268650007fbff46cedd1677543734a9194ace",
+      "gitBlobSha1": "3fec31ade1a4a0bdf482da5e01794d2a8b193218",
+      "bytes": 4042,
+      "pragma": "0.8.29"
+    },
+    {
+      "path": "contracts/MultiSign.sol",
+      "localSnapshot": "../../.state/rlusd-controls/archive/contracts/MultiSign.sol",
+      "sha256": "fec4ef04f374a4ba2dd66a5ec5d6f3935a40e8667b746c438be34767bc81f9d4",
+      "gitBlobSha1": "6294c1a7aff35dedd738985805205d1060f1f1a3",
+      "bytes": 9553,
+      "pragma": "0.8.26"
+    },
+    {
+      "path": "contracts/StablecoinProxy.sol",
+      "localSnapshot": "../../.state/rlusd-controls/archive/contracts/StablecoinProxy.sol",
+      "sha256": "68a91a8c9bd6db0955257ca3fb76a063481df03eb89ed4d45adb9558ff8c055d",
+      "gitBlobSha1": "ed634b79fb3ea8336879da191ea207880a09d7cf",
+      "bytes": 625,
+      "pragma": "0.8.26"
+    },
+    {
+      "path": "contracts/StablecoinUpgradeable.sol",
+      "localSnapshot": "../../.state/rlusd-controls/archive/contracts/StablecoinUpgradeable.sol",
+      "sha256": "31d051fde36df4d1d30f640fa9be924b5171723aaeabdef1ffb74c2ecdd1a627",
+      "gitBlobSha1": "10e372280a0762caa1f890290546190f919e5f72",
+      "bytes": 8192,
+      "pragma": "0.8.29"
+    },
+    {
+      "path": "contracts/StablecoinUpgradeableV2.sol",
+      "localSnapshot": "../../.state/rlusd-controls/archive/contracts/StablecoinUpgradeableV2.sol",
+      "sha256": "e68627eae643d584fabf885b92850686839cc1dcaab84115f85ee3257b2073df",
+      "gitBlobSha1": "0cad19c41b5226acc0f3410ba790cc22b8b8c121",
+      "bytes": 6040,
+      "pragma": "0.8.29"
+    }
+  ],
+  "getterCandidates": [
+    {
+      "signature": "paused()",
+      "inputs": [],
+      "outputs": [
+        "bool"
+      ],
+      "stateMutability": "view",
+      "sourceStatus": "INHERITED_SOURCE_NOT_INCLUDED",
+      "source": "ERC20PausableUpgradeable/PausableUpgradeable",
+      "abiEntry": {
+        "inputs": [],
+        "name": "paused",
+        "outputs": [
+          {
+            "internalType": "bool",
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      "currentValue": "UNKNOWN",
+      "execution": "NOT_TESTED",
+      "callerRestriction": "UNKNOWN_UNTIL_DEPENDENCY_SOURCE_ACQUIRED",
+      "sampleRequirement": "NO_ARGUMENTS",
+      "selector": "0x5c975abb"
+    },
+    {
+      "signature": "accountPaused(address)",
+      "inputs": [
+        "address"
+      ],
+      "outputs": [
+        "bool"
+      ],
+      "stateMutability": "view",
+      "sourceStatus": "DIRECT_SOURCE_DECLARATION",
+      "source": "contracts/AccountPausableUpgradeable.sol",
+      "abiEntry": {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "account",
+            "type": "address"
+          }
+        ],
+        "name": "accountPaused",
+        "outputs": [
+          {
+            "internalType": "bool",
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      "currentValue": "UNKNOWN",
+      "execution": "NOT_TESTED",
+      "callerRestriction": "NO_CALLER_MODIFIER_IN_LOCAL_DECLARATION",
+      "sampleRequirement": "JUSTIFIED_PUBLIC_ACCOUNT_SAMPLE_REQUIRED",
+      "sourceLine": 75,
+      "selector": "0xbc8c4b4f"
+    },
+    {
+      "signature": "hasRole(bytes32,address)",
+      "inputs": [
+        "bytes32",
+        "address"
+      ],
+      "outputs": [
+        "bool"
+      ],
+      "stateMutability": "view",
+      "sourceStatus": "INHERITED_SOURCE_NOT_INCLUDED",
+      "source": "AccessControlUpgradeable",
+      "abiEntry": {
+        "inputs": [
+          {
+            "internalType": "bytes32",
+            "name": "role",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "address",
+            "name": "account",
+            "type": "address"
+          }
+        ],
+        "name": "hasRole",
+        "outputs": [
+          {
+            "internalType": "bool",
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      "currentValue": "UNKNOWN",
+      "execution": "NOT_TESTED",
+      "callerRestriction": "UNKNOWN_UNTIL_DEPENDENCY_SOURCE_ACQUIRED",
+      "sampleRequirement": "JUSTIFIED_PUBLIC_ACCOUNT_SAMPLE_REQUIRED",
+      "selector": "0x91d14854"
+    },
+    {
+      "signature": "getRoleAdmin(bytes32)",
+      "inputs": [
+        "bytes32"
+      ],
+      "outputs": [
+        "bytes32"
+      ],
+      "stateMutability": "view",
+      "sourceStatus": "INHERITED_SOURCE_NOT_INCLUDED",
+      "source": "AccessControlUpgradeable",
+      "abiEntry": {
+        "inputs": [
+          {
+            "internalType": "bytes32",
+            "name": "role",
+            "type": "bytes32"
+          }
+        ],
+        "name": "getRoleAdmin",
+        "outputs": [
+          {
+            "internalType": "bytes32",
+            "name": "",
+            "type": "bytes32"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      "currentValue": "UNKNOWN",
+      "execution": "NOT_TESTED",
+      "callerRestriction": "UNKNOWN_UNTIL_DEPENDENCY_SOURCE_ACQUIRED",
+      "sampleRequirement": "ROLE_ID_ARGUMENT_REQUIRED",
+      "selector": "0x248a9ca3"
+    },
+    {
+      "signature": "DEFAULT_ADMIN_ROLE()",
+      "inputs": [],
+      "outputs": [
+        "bytes32"
+      ],
+      "stateMutability": "view",
+      "sourceStatus": "INHERITED_SOURCE_NOT_INCLUDED",
+      "source": "AccessControlUpgradeable",
+      "abiEntry": {
+        "inputs": [],
+        "name": "DEFAULT_ADMIN_ROLE",
+        "outputs": [
+          {
+            "internalType": "bytes32",
+            "name": "",
+            "type": "bytes32"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      "currentValue": "UNKNOWN",
+      "execution": "NOT_TESTED",
+      "callerRestriction": "UNKNOWN_UNTIL_DEPENDENCY_SOURCE_ACQUIRED",
+      "sampleRequirement": "NO_ARGUMENTS",
+      "selector": "0xa217fddf"
+    },
+    {
+      "signature": "MINTER_ROLE()",
+      "inputs": [],
+      "outputs": [
+        "bytes32"
+      ],
+      "stateMutability": "view",
+      "sourceStatus": "PUBLIC_CONSTANT_SOURCE_DECLARATION",
+      "source": "contracts/StablecoinUpgradeable.sol",
+      "abiEntry": {
+        "inputs": [],
+        "name": "MINTER_ROLE",
+        "outputs": [
+          {
+            "internalType": "bytes32",
+            "name": "",
+            "type": "bytes32"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      "currentValue": "UNKNOWN",
+      "execution": "NOT_TESTED",
+      "callerRestriction": "NO_CALLER_MODIFIER_IN_LOCAL_DECLARATION",
+      "sampleRequirement": "NO_ARGUMENTS",
+      "sourceConstant": "0xf0887ba65ee2024ea881d91b74c2450ef19e1557f03bed3ea9f16b037cbe2dc9",
+      "roleIdOrigin": "LITERAL_SOURCE_VALUE_NOT_DERIVED_FROM_NAME",
+      "sourceLine": 23,
+      "selector": "0xd5391393"
+    },
+    {
+      "signature": "BURNER_ROLE()",
+      "inputs": [],
+      "outputs": [
+        "bytes32"
+      ],
+      "stateMutability": "view",
+      "sourceStatus": "PUBLIC_CONSTANT_SOURCE_DECLARATION",
+      "source": "contracts/StablecoinUpgradeable.sol",
+      "abiEntry": {
+        "inputs": [],
+        "name": "BURNER_ROLE",
+        "outputs": [
+          {
+            "internalType": "bytes32",
+            "name": "",
+            "type": "bytes32"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      "currentValue": "UNKNOWN",
+      "execution": "NOT_TESTED",
+      "callerRestriction": "NO_CALLER_MODIFIER_IN_LOCAL_DECLARATION",
+      "sampleRequirement": "NO_ARGUMENTS",
+      "sourceConstant": "0x9667e80708b6eeeb0053fa0cca44e028ff548e2a9f029edfeac87c118b08b7c8",
+      "roleIdOrigin": "LITERAL_SOURCE_VALUE_NOT_DERIVED_FROM_NAME",
+      "sourceLine": 29,
+      "selector": "0x282c51f3"
+    },
+    {
+      "signature": "PAUSER_ROLE()",
+      "inputs": [],
+      "outputs": [
+        "bytes32"
+      ],
+      "stateMutability": "view",
+      "sourceStatus": "PUBLIC_CONSTANT_SOURCE_DECLARATION",
+      "source": "contracts/StablecoinUpgradeable.sol",
+      "abiEntry": {
+        "inputs": [],
+        "name": "PAUSER_ROLE",
+        "outputs": [
+          {
+            "internalType": "bytes32",
+            "name": "",
+            "type": "bytes32"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      "currentValue": "UNKNOWN",
+      "execution": "NOT_TESTED",
+      "callerRestriction": "NO_CALLER_MODIFIER_IN_LOCAL_DECLARATION",
+      "sampleRequirement": "NO_ARGUMENTS",
+      "sourceConstant": "0x539440820030c4994db4e31b6b800deafd503688728f932addfe7a410515c14c",
+      "roleIdOrigin": "LITERAL_SOURCE_VALUE_NOT_DERIVED_FROM_NAME",
+      "sourceLine": 27,
+      "selector": "0xe63ab1e9"
+    },
+    {
+      "signature": "CLAWBACKER_ROLE()",
+      "inputs": [],
+      "outputs": [
+        "bytes32"
+      ],
+      "stateMutability": "view",
+      "sourceStatus": "PUBLIC_CONSTANT_SOURCE_DECLARATION",
+      "source": "contracts/StablecoinUpgradeable.sol",
+      "abiEntry": {
+        "inputs": [],
+        "name": "CLAWBACKER_ROLE",
+        "outputs": [
+          {
+            "internalType": "bytes32",
+            "name": "",
+            "type": "bytes32"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      "currentValue": "UNKNOWN",
+      "execution": "NOT_TESTED",
+      "callerRestriction": "NO_CALLER_MODIFIER_IN_LOCAL_DECLARATION",
+      "sampleRequirement": "NO_ARGUMENTS",
+      "sourceConstant": "0x715bacafb7a853b9b91b59ae724920a9eb0c006c5b318ac393fa1bc8974edd98",
+      "roleIdOrigin": "LITERAL_SOURCE_VALUE_NOT_DERIVED_FROM_NAME",
+      "sourceLine": 31,
+      "selector": "0x475ca324"
+    },
+    {
+      "signature": "UPGRADER_ROLE()",
+      "inputs": [],
+      "outputs": [
+        "bytes32"
+      ],
+      "stateMutability": "view",
+      "sourceStatus": "PUBLIC_CONSTANT_SOURCE_DECLARATION",
+      "source": "contracts/StablecoinUpgradeable.sol",
+      "abiEntry": {
+        "inputs": [],
+        "name": "UPGRADER_ROLE",
+        "outputs": [
+          {
+            "internalType": "bytes32",
+            "name": "",
+            "type": "bytes32"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      "currentValue": "UNKNOWN",
+      "execution": "NOT_TESTED",
+      "callerRestriction": "NO_CALLER_MODIFIER_IN_LOCAL_DECLARATION",
+      "sampleRequirement": "NO_ARGUMENTS",
+      "sourceConstant": "0xa615a8afb6fffcb8c6809ac0997b5c9c12b8cc97651150f14c8f6203168cff4c",
+      "roleIdOrigin": "LITERAL_SOURCE_VALUE_NOT_DERIVED_FROM_NAME",
+      "sourceLine": 25,
+      "selector": "0xf72c0d8b"
+    }
+  ],
+  "comparison": {
+    "scope": "SELECTED_READ_DECLARATIONS_NOT_FULL_COMPILED_ABI",
+    "sourceOnlyPublicMethod": "reinitialize()",
+    "abiOnlyMethodNames": [
+      "initializeV2",
+      "reinitializeV2"
+    ],
+    "status": "FULL_SOURCE_ABI_IDENTITY_NOT_ESTABLISHED",
+    "dependencySources": "OPENZEPPELIN_IMPORTS_NOT_INCLUDED",
+    "compilerBuild": "NOT_TESTED",
+    "note": "V2 source declares reinitialize; supplied ABI instead contains initializeV2 and reinitializeV2. Cause unknown."
+  },
+  "excludedOtherContractRead": {
+    "signature": "getImplementation()",
+    "source": "contracts/StablecoinProxy.sol",
+    "sourceLine": 19,
+    "scope": "PROXY_SOURCE_ONLY_NOT_IN_IMPLEMENTATION_ABI_NOT_CALLED",
+    "selector": "0xaaf10f42"
+  },
+  "deploymentSourceBinding": "UNKNOWN",
+  "authorityState": "UNKNOWN",
+  "support": "UNKNOWN",
+  "getterExecution": "NOT_TESTED",
+  "behaviorExecution": "NOT_TESTED",
+  "nextStep": "PLAN_FRESH_PINNED_QUALIFIED_READS_WITH_PER_SELECTOR_PROVENANCE_NO_SOURCE_IDENTITY_PROMOTION",
+  "excludedContexts": [
+    "MultiSign.sol reads are separate-contract source only; no target or ABI binding established.",
+    "getImplementation belongs to proxy source, not the supplied implementation ABI.",
+    "proxiableUUID is excluded from token-proxy getter plan; inherited caller context not reviewed."
+  ]
+}

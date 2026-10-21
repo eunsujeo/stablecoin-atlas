@@ -1,0 +1,317 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Qualified USDC owner control-address sample, not AssessmentReport",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "sourceEvidence": {
+      "type": "object"
+    },
+    "baseProbe": {
+      "type": "object"
+    },
+    "baseProbeSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "sample": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "address",
+            "classification",
+            "selectionReason",
+            "baseEvidenceReferences"
+          ],
+          "properties": {
+            "address": {
+              "type": "string",
+              "pattern": "^0x[0-9a-fA-F]{40}$"
+            },
+            "classification": {
+              "const": "CONTROL_ADDRESS_SAMPLE_NOT_SERVICE_OR_CUSTOMER_ACCOUNT"
+            },
+            "selectionReason": {
+              "const": "FRESH_NONZERO_OWNER_GETTER_RESPONSE"
+            },
+            "baseEvidenceReferences": {
+              "type": "array",
+              "maxItems": 16,
+              "uniqueItems": true,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "namespace",
+                  "id"
+                ],
+                "properties": {
+                  "namespace": {
+                    "enum": [
+                      "baseProbe",
+                      "ownerSample"
+                    ]
+                  },
+                  "id": {
+                    "type": "string",
+                    "pattern": "^e[1-9][0-9]*$"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "stage": {
+      "enum": [
+        "PRECONDITION_ERROR",
+        "OBSERVED",
+        "PARTIAL",
+        "CONSISTENCY_ERROR"
+      ]
+    },
+    "caller": {
+      "const": "0x0000000000000000000000000000000000000000"
+    },
+    "sourceBinding": {
+      "const": "UNKNOWN"
+    },
+    "authorityState": {
+      "const": "UNKNOWN"
+    },
+    "support": {
+      "const": "UNKNOWN"
+    },
+    "issuerVerificationStatus": {
+      "const": "UNKNOWN"
+    },
+    "nativeOrBridged": {
+      "const": "UNKNOWN"
+    },
+    "verdict": {
+      "const": "INCONCLUSIVE"
+    },
+    "behaviorExecution": {
+      "const": "NOT_TESTED"
+    },
+    "startedAt": {
+      "type": "string"
+    },
+    "completedAt": {
+      "type": "string"
+    },
+    "limitations": {
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "type": "string"
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "provenance",
+          "kind",
+          "observedAt",
+          "observedBlockOrSlot",
+          "data"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "provenance": {
+            "const": "OBSERVED"
+          },
+          "kind": {
+            "enum": [
+              "RPC",
+              "RPC_ERROR"
+            ]
+          },
+          "observedAt": {
+            "type": "string"
+          },
+          "observedBlockOrSlot": {
+            "type": "string"
+          },
+          "data": {}
+        },
+        "additionalProperties": false
+      },
+      "maxItems": 24
+    },
+    "precheckEvidenceReferences": {
+      "type": "array",
+      "maxItems": 16,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "namespace",
+          "id"
+        ],
+        "properties": {
+          "namespace": {
+            "enum": [
+              "baseProbe",
+              "ownerSample"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^e[1-9][0-9]*$"
+          }
+        }
+      }
+    },
+    "postcheckEvidenceReferences": {
+      "type": "array",
+      "maxItems": 16,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "namespace",
+          "id"
+        ],
+        "properties": {
+          "namespace": {
+            "enum": [
+              "baseProbe",
+              "ownerSample"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^e[1-9][0-9]*$"
+          }
+        }
+      }
+    },
+    "kind": {
+      "const": "QUALIFIED_USDC_OWNER_SAMPLE_PROBE_NOT_ASSESSMENT"
+    },
+    "readStatus": {
+      "enum": [
+        "NOT_TESTED",
+        "OK",
+        "READ_FAILED",
+        "INVALID_RESPONSE"
+      ]
+    },
+    "value": {
+      "type": "boolean"
+    },
+    "errorKind": {
+      "enum": [
+        "REVERT",
+        "RPC_ERROR",
+        "TRANSPORT_ERROR"
+      ]
+    },
+    "evidenceReferences": {
+      "type": "array",
+      "maxItems": 16,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "namespace",
+          "id"
+        ],
+        "properties": {
+          "namespace": {
+            "enum": [
+              "baseProbe",
+              "ownerSample"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^e[1-9][0-9]*$"
+          }
+        }
+      }
+    },
+    "baseRequestCount": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 32
+    },
+    "requestCount": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 24
+    },
+    "totalRequestCount": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 56
+    },
+    "requestLimits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "base",
+        "ownerSample",
+        "total"
+      ],
+      "properties": {
+        "base": {
+          "const": 32
+        },
+        "ownerSample": {
+          "const": 24
+        },
+        "total": {
+          "const": 56
+        }
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "sourceEvidence",
+    "baseProbe",
+    "baseProbeSha256",
+    "sample",
+    "stage",
+    "caller",
+    "sourceBinding",
+    "authorityState",
+    "support",
+    "issuerVerificationStatus",
+    "nativeOrBridged",
+    "verdict",
+    "behaviorExecution",
+    "startedAt",
+    "completedAt",
+    "limitations",
+    "evidence",
+    "precheckEvidenceReferences",
+    "postcheckEvidenceReferences",
+    "kind",
+    "readStatus",
+    "evidenceReferences",
+    "baseRequestCount",
+    "requestCount",
+    "totalRequestCount",
+    "requestLimits"
+  ]
+}

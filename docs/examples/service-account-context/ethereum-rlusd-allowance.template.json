@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "1.0",
+  "contextKind": "SERVICE_ACCOUNT_PURPOSE_CLAIM",
+  "profileId": "ethereum-rlusd",
+  "chainFamily": "EVM",
+  "network": "MAINNET",
+  "networkId": "1",
+  "assetAddress": "0x8292bb45bf1ee4d140127049757c2e0ff06317ed",
+  "query": {
+    "kind": "ALLOWANCE",
+    "owner": {
+      "address": "REPLACE_WITH_PUBLIC_OWNER_ADDRESS",
+      "purpose": "ALLOWANCE_REVIEW",
+      "provenance": {
+        "kind": "REPLACE_WITH_PROVENANCE_KIND",
+        "referenceId": "REPLACE_WITH_LOCAL_REFERENCE_ID",
+        "recordedAt": "REPLACE_WITH_UTC_TIMESTAMP",
+        "scope": "ACCOUNT_PURPOSE_ONLY"
+      }
+    },
+    "spender": {
+      "address": "REPLACE_WITH_PUBLIC_SPENDER_ADDRESS",
+      "purpose": "ALLOWANCE_REVIEW",
+      "provenance": {
+        "kind": "REPLACE_WITH_PROVENANCE_KIND",
+        "referenceId": "REPLACE_WITH_LOCAL_REFERENCE_ID",
+        "recordedAt": "REPLACE_WITH_UTC_TIMESTAMP",
+        "scope": "ACCOUNT_PURPOSE_ONLY"
+      }
+    }
+  }
+}

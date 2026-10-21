@@ -1,0 +1,120 @@
+{
+  "kind": "FICTIONAL_UI_MOCK_NOT_ASSESSMENT_OR_MARKET_DATA",
+  "version": "1",
+  "allValuesAreFictional": true,
+  "metric": "circulating_supply_example",
+  "unit": "token",
+  "timeLabel": "12:00:00 · 가상 시각",
+  "historyLabels": [
+    "D-5",
+    "D-4",
+    "D-3",
+    "D-2",
+    "D-1",
+    "D0"
+  ],
+  "coins": [
+    {
+      "asset": "USDT",
+      "supply": "120000000000",
+      "score": 84,
+      "grade": "B",
+      "history": [
+        "100000000000",
+        "104000000000",
+        "110000000000",
+        "108000000000",
+        "116000000000",
+        "120000000000"
+      ]
+    },
+    {
+      "asset": "USDC",
+      "supply": "80000000000",
+      "score": 92,
+      "grade": "A",
+      "history": [
+        "60000000000",
+        "63000000000",
+        "68000000000",
+        "72000000000",
+        "76000000000",
+        "80000000000"
+      ]
+    },
+    {
+      "asset": "RLUSD",
+      "supply": "20000000000",
+      "score": 72,
+      "grade": "C",
+      "history": [
+        "10000000000",
+        "12000000000",
+        "14000000000",
+        "16000000000",
+        "18000000000",
+        "20000000000"
+      ]
+    }
+  ],
+  "profiles": [
+    {
+      "asset": "USDT",
+      "chain": "Ethereum",
+      "supply": "30000000000",
+      "score": 84,
+      "grade": "B"
+    },
+    {
+      "asset": "USDT",
+      "chain": "TRON",
+      "supply": "22000000000",
+      "score": 78,
+      "grade": "B"
+    },
+    {
+      "asset": "USDC",
+      "chain": "Ethereum",
+      "supply": "18000000000",
+      "score": 92,
+      "grade": "A"
+    },
+    {
+      "asset": "USDC",
+      "chain": "Solana",
+      "supply": "10000000000",
+      "score": 88,
+      "grade": "B"
+    },
+    {
+      "asset": "USDT",
+      "chain": "Solana",
+      "supply": "8000000000",
+      "score": 80,
+      "grade": "B"
+    },
+    {
+      "asset": "RLUSD",
+      "chain": "Ethereum",
+      "supply": "6000000000",
+      "score": 72,
+      "grade": "C"
+    },
+    {
+      "asset": "RLUSD",
+      "chain": "XRPL",
+      "supply": "4000000000",
+      "score": 68,
+      "grade": "C"
+    },
+    {
+      "asset": "USDC",
+      "chain": "XRPL",
+      "supply": "2000000000",
+      "score": 76,
+      "grade": "B"
+    }
+  ],
+  "scoreAndGrade": "수작업 배치 예시; 실측·실제 산식·안전성·투자 등급 아님",
+  "scope": "코인 전체 가상2200억과 선택8프로필 가상1000억은 별도 범위; 8프로필로 전체 체인을 대표하지 않음"
+}

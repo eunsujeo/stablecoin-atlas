@@ -1,0 +1,107 @@
+{
+  "status": "COMPARISON_IN_PROGRESS_NO_LIBRARY_SELECTED",
+  "scope": "와이어프레임과 컴포넌트 선정만; API·백엔드·폴링·패키지 설치 없음",
+  "recommended": {
+    "library": "Ant Design",
+    "charts": "Ant Design Charts",
+    "reason": "표·필터·상태·상세 근거 중심의 검토 대시보드에 필요한 컴포넌트를 함께 구성하기 쉬움",
+    "version": "미고정; 구현 시 호환성 확인",
+    "status": "PREVIOUS_RECOMMENDATION_NOT_FINAL"
+  },
+  "alternative": {
+    "library": "shadcn/ui + TanStack Table + Recharts",
+    "tradeoff": "세부 시각 디자인을 직접 구성하기 좋지만 표의 동작과 스타일을 더 많이 조합해야 함"
+  },
+  "map": [
+    {
+      "region": "A 범위 전환",
+      "components": [
+        "Segmented"
+      ],
+      "behavior": "코인 전체 / 체인별; 검색·정렬 범위 갱신"
+    },
+    {
+      "region": "B 갱신 상태",
+      "components": [
+        "Badge",
+        "Typography",
+        "Button",
+        "Alert"
+      ],
+      "behavior": "60초 예정·성공/관측 시각·지연·오류 표시"
+    },
+    {
+      "region": "C 요약",
+      "components": [
+        "Card",
+        "Statistic",
+        "Progress",
+        "Tag"
+      ],
+      "behavior": "수량·분모가 있는 근거 충족률·등급 미산정"
+    },
+    {
+      "region": "D 순위",
+      "components": [
+        "Bar"
+      ],
+      "behavior": "동일 단위 수량 기준; 정확한 문자열 Tooltip; 미확인 제외"
+    },
+    {
+      "region": "E 추이",
+      "components": [
+        "Line",
+        "Empty"
+      ],
+      "behavior": "실제 시계열 연결 전 Empty"
+    },
+    {
+      "region": "F 목록",
+      "components": [
+        "Table",
+        "Input.Search",
+        "Select"
+      ],
+      "behavior": "BigInt 정렬·필터·고정 식별자 열·원본 수량"
+    },
+    {
+      "region": "G 상세 근거",
+      "components": [
+        "Drawer",
+        "Descriptions",
+        "Tabs",
+        "Typography"
+      ],
+      "behavior": "주소·원문·관측 시점·제약·산정 기준"
+    },
+    {
+      "region": "공통 비동기 상태",
+      "components": [
+        "Skeleton",
+        "Empty",
+        "Alert"
+      ],
+      "behavior": "초기 로딩·자료 없음·부분 응답·오래된 자료를 구분"
+    }
+  ],
+  "principles": [
+    "현재 시안은 저충실도이며 실제 라이브러리 화면 캡처가 아님",
+    "색상·아이콘·카드 장식은 구조 확정 이후 조정",
+    "추가 ProComponents·상태 관리 패키지는 현 단계에서 선정하지 않음",
+    "문자열 수량을 Statistic/차트에 전달할 때 Number로 암묵 변환하지 않는 구현 검토 필요"
+  ],
+  "officialReferences": [
+    "https://ant.design/components/overview/",
+    "https://ant.design/components/table/",
+    "https://ant.design/components/segmented/",
+    "https://ant-design-charts.antgroup.com/en/components/overview",
+    "https://ui.shadcn.com/docs/components/base/data-table",
+    "https://ui.shadcn.com/docs/components/base/chart"
+  ],
+  "currentComparison": "component-options/comparison.json",
+  "currentCandidates": [
+    "Ant Design",
+    "Material 3 design patterns + separately composed components",
+    "MUI"
+  ]
+}

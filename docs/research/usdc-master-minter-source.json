@@ -1,0 +1,131 @@
+{
+  "schemaVersion": "1.0",
+  "purpose": "MASTER_MINTER_SOURCE_RESEARCH_NOT_ASSESSMENT",
+  "reviewedAt": "2026-10-20T01:21:51.667Z",
+  "reference": {
+    "networkId": "1",
+    "address": "0xE982615d461DD5cD06575BbeA87624fda4e3de17",
+    "runtimeBytes": 7667,
+    "runtimeKeccak256": "0x02fdd843a6e0369ab3914b7f7900a2198234700330badd0c59912f81661bb811",
+    "report": "../../reports/usdc-role-code-readonly.json",
+    "reportSha256": "77b950c896ca2d94d9345af51ab1d44f8ed1eefe427e493c602fe497ae58f60e",
+    "codeEvidenceId": "e22",
+    "observedBlockOrSlot": "26230421"
+  },
+  "officialSource": {
+    "commit": "fc85788bc7c23cefe3df1a757133048bfddadeaa",
+    "files": [
+      {
+        "path": "contracts/minting/Controller.sol",
+        "sha256": "ac98c81a4997b0ae5c0ef84a480174c93df1bb8fad0aa817e539dd58bf3c3bf7",
+        "gitBlobSha1": "12c36f3c1604262aba6f3938f1afc0e377051b9f",
+        "url": "https://github.com/circlefin/stablecoin-evm/blob/fc85788bc7c23cefe3df1a757133048bfddadeaa/contracts/minting/Controller.sol"
+      },
+      {
+        "path": "contracts/minting/MasterMinter.sol",
+        "sha256": "d905a13a909c2f7ec37fc398c490b765977d726fe7206f0db6e50d247e2bc972",
+        "gitBlobSha1": "f75064107e5b448a397dc72f38f57a11c6ca19af",
+        "url": "https://github.com/circlefin/stablecoin-evm/blob/fc85788bc7c23cefe3df1a757133048bfddadeaa/contracts/minting/MasterMinter.sol"
+      },
+      {
+        "path": "contracts/minting/MintController.sol",
+        "sha256": "311d489760ba230cafe17be7ab16232e9edeb2e127ea3adf7971ca1ee8eeb109",
+        "gitBlobSha1": "2f2c6b5c6df4c6adad121dc7fa9c05455c411507",
+        "url": "https://github.com/circlefin/stablecoin-evm/blob/fc85788bc7c23cefe3df1a757133048bfddadeaa/contracts/minting/MintController.sol"
+      },
+      {
+        "path": "contracts/minting/MinterManagementInterface.sol",
+        "sha256": "73ff178bccd7a1430d065479765058a1983c2962b45f0bd32ad69fd82178ca0e",
+        "gitBlobSha1": "1b8eddfbd1e52499531b3adba2f167cd0cf5a97f",
+        "url": "https://github.com/circlefin/stablecoin-evm/blob/fc85788bc7c23cefe3df1a757133048bfddadeaa/contracts/minting/MinterManagementInterface.sol"
+      },
+      {
+        "path": "doc/masterminter.md",
+        "sha256": "3407d2d45429f6cb808afe9504885b71b6d205191ba0fd893b703733a1d3a75a",
+        "gitBlobSha1": "bf7245f2cf166492efcd5aa620247042ef2988a1",
+        "url": "https://github.com/circlefin/stablecoin-evm/blob/fc85788bc7c23cefe3df1a757133048bfddadeaa/doc/masterminter.md"
+      }
+    ],
+    "scope": "DOCUMENTED_MODEL_AND_CURRENT_SOURCE_NOT_DEPLOYMENT_CERTIFICATION",
+    "sourceCompilerPragma": "0.6.12"
+  },
+  "service": {
+    "url": "https://sourcify.dev/server/v2/contract/1/0xE982615d461DD5cD06575BbeA87624fda4e3de17?fields=all",
+    "storedAt": "2026-10-20T01:19:14.823Z",
+    "response": {
+      "reference": "../../.state/usdc-master-minter/sourcify-v2.json",
+      "sha256": "a76b8bff9fd3d3148ca15cc65875ffb3ba0bf476c012fd46fa064b4c1b0709ed"
+    },
+    "compilerVersion": "0.4.24+commit.e67f0147",
+    "contract": "MasterMinter",
+    "serviceVerifiedAt": "2026-02-13T03:19:19Z",
+    "serviceClaim": "match",
+    "sourceHashes": [
+      {
+        "sourceUnit": "MasterMinter.sol",
+        "sha256": "8b92cce3e0c8c790272c42a67bfb4abdd6f2b67839a53f123c978eca748cf0e2",
+        "keccak256": "0x5b54f35e2de497a465bb3e07b5cebe03a587912893e3fc060ae1a4f56007ea88"
+      }
+    ],
+    "abiSha256": "101d509930127aad777533b4e3435a579d3f22c91f5d49308d596cb3225cff5e",
+    "transformations": [
+      {
+        "id": "1",
+        "type": "replace",
+        "offset": 7624,
+        "reason": "cborAuxdata"
+      }
+    ],
+    "transformationsAppliedLocally": false,
+    "comparison": {
+      "serviceClaim": "match",
+      "serviceOnchain": {
+        "exactRuntime": "EXACT_MATCH",
+        "metadataExcluded": "UNKNOWN",
+        "observedBytes": 7667,
+        "candidateBytes": 7667,
+        "observedBodyBytes": "UNKNOWN",
+        "candidateBodyBytes": "UNKNOWN"
+      },
+      "serviceRecompiled": {
+        "exactRuntime": "MISMATCH",
+        "metadataExcluded": "UNKNOWN",
+        "observedBytes": 7667,
+        "candidateBytes": 7667,
+        "observedBodyBytes": "UNKNOWN",
+        "candidateBodyBytes": "UNKNOWN"
+      },
+      "serviceReportsMetadataReplacement": true,
+      "scope": "THIRD_PARTY_CLAIM_AND_UNTRANSFORMED_BYTE_COMPARISONS"
+    }
+  },
+  "getters": [
+    {
+      "signature": "owner()",
+      "selector": "0x8da5cb5b",
+      "output": "address",
+      "stateMutability": "view",
+      "provenance": "THIRD_PARTY_RECOMPILATION_ABI_CANDIDATE"
+    },
+    {
+      "signature": "getMinterManager()",
+      "selector": "0x9398608b",
+      "output": "address",
+      "stateMutability": "view",
+      "provenance": "THIRD_PARTY_RECOMPILATION_ABI_CANDIDATE"
+    }
+  ],
+  "notExecuted": [
+    "getWorker(address)",
+    "controller/minter enumeration",
+    "configureMinter",
+    "setMinterManager",
+    "mint"
+  ],
+  "sourceBinding": "UNKNOWN",
+  "limitations": [
+    "Current official Solidity 0.6.12 sources and third-party 0.4.24 artifact are distinct versions.",
+    "Service match includes metadata replacement, not full untransformed source-to-runtime identity.",
+    "Owner and manager getter responses do not establish operator identity or effective mint authorization."
+  ]
+}

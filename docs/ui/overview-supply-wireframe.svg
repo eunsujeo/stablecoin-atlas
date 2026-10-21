@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1080" viewBox="0 0 1600 1080" role="img" aria-labelledby="title desc"><title id="title">스테이블코인 공급량 와이어프레임</title><desc id="desc">코인 전체와 체인별 공급량 화면의 저충실도 설계. 금액, 순위, 점수는 미산정이며 조작부는 동작하지 않습니다.</desc><style>text{font-family:-apple-system,"Apple SD Gothic Neo",sans-serif}rect,path{shape-rendering:geometricPrecision}</style>
+<rect x="0" y="0" width="1600" height="1080" rx="0" fill="#f5f5f5" stroke="#b8bec5"/>
+<rect x="0" y="0" width="208" height="1080" rx="0" fill="#e6e7e9" stroke="#b8bec5"/>
+<text x="24" y="44" font-size="17" font-weight="600" fill="#30363d">COMPATIBILITY</text>
+<text x="24" y="70" font-size="11" font-weight="400" fill="#30363d">LOW-FIDELITY v0.2</text>
+<rect x="14" y="118" width="180" height="44" rx="6" fill="#fff" stroke="#b8bec5"/>
+<text x="28" y="146" font-size="16" font-weight="600" fill="#30363d">검토 현황</text>
+<text x="28" y="202" font-size="16" font-weight="400" fill="#30363d">자산 프로필</text>
+<text x="28" y="258" font-size="16" font-weight="400" fill="#30363d">자산 비교</text>
+<text x="28" y="314" font-size="16" font-weight="400" fill="#30363d">근거 · 보고서</text>
+<text x="24" y="985" font-size="12" font-weight="400" fill="#30363d">컴포넌트 선정 단계</text>
+<text x="24" y="1008" font-size="12" font-weight="400" fill="#30363d">정적 와이어프레임</text>
+<text x="24" y="1031" font-size="11" font-weight="400" fill="#30363d">버튼 / 자동 갱신 비활성</text>
+<text x="248" y="48" font-size="27" font-weight="600" fill="#30363d">스테이블코인 현황</text>
+<text x="248" y="78" font-size="14" font-weight="400" fill="#30363d">A  범위 전환 → 공급량 순위 → 검토 근거 순으로 확인</text>
+<rect x="1198" y="22" width="362" height="60" rx="6" fill="#eceeef" stroke="#b8bec5"/>
+<text x="1216" y="47" font-size="15" font-weight="600" fill="#30363d">B  60초 갱신 · 구현 예정</text>
+<text x="1216" y="68" font-size="12" font-weight="400" fill="#30363d">마지막 성공: —  |  출처 갱신 시각: —</text>
+<rect x="248" y="104" width="1312" height="48" rx="6" fill="#eee" stroke="#b8bec5"/>
+<text x="266" y="134" font-size="15" font-weight="600" fill="#30363d">WIREFRAME ONLY · 금액 / 순위 / 그래프 비율은 미산정 · 실제 데이터 없음</text>
+<rect x="248" y="176" width="354" height="44" rx="6" fill="#fff" stroke="#b8bec5"/>
+<rect x="250" y="178" width="174" height="40" rx="6" fill="#d7dadd" stroke="#b8bec5"/>
+<text x="274" y="204" font-size="16" font-weight="600" fill="#30363d">코인 전체</text>
+<text x="447" y="204" font-size="16" font-weight="400" fill="#30363d">체인별</text>
+<text x="632" y="202" font-size="15" font-weight="600" fill="#30363d">선택 3개 코인</text>
+<rect x="1258" y="176" width="302" height="44" rx="6" fill="#fff" stroke="#b8bec5"/>
+<text x="1276" y="204" font-size="15" font-weight="400" fill="#30363d">지표: 유통량 [제안]  ▾</text>
+<rect x="248" y="244" width="310" height="116" rx="6" fill="#fff" stroke="#b8bec5"/>
+<text x="266" y="270" font-size="13" font-weight="400" fill="#30363d">C  비교 범위</text>
+<text x="266" y="307" font-size="27" font-weight="600" fill="#30363d">3개 코인</text>
+<text x="266" y="337" font-size="12" font-weight="400" fill="#30363d">전체 체인 집계 출처 연결 예정</text>
+<rect x="582" y="244" width="310" height="116" rx="6" fill="#fff" stroke="#b8bec5"/>
+<text x="600" y="270" font-size="13" font-weight="400" fill="#30363d">합계 수량</text>
+<text x="600" y="307" font-size="27" font-weight="600" fill="#30363d">—</text>
+<text x="600" y="337" font-size="12" font-weight="400" fill="#30363d">동일 지표·시점일 때만 합산</text>
+<rect x="916" y="244" width="310" height="116" rx="6" fill="#fff" stroke="#b8bec5"/>
+<text x="934" y="270" font-size="13" font-weight="400" fill="#30363d">근거 충족률 [제안]</text>
+<text x="934" y="307" font-size="27" font-weight="600" fill="#30363d">— / 100</text>
+<text x="934" y="337" font-size="12" font-weight="400" fill="#30363d">기준·분모 확정 후 산정</text>
+<rect x="1250" y="244" width="310" height="116" rx="6" fill="#fff" stroke="#b8bec5"/>
+<text x="1268" y="270" font-size="13" font-weight="400" fill="#30363d">근거 충족률 등급 [제안]</text>
+<text x="1268" y="307" font-size="27" font-weight="600" fill="#30363d">미산정</text>
+<text x="1268" y="337" font-size="12" font-weight="400" fill="#30363d">등급 기준은 아직 미확정</text>
+<rect x="248" y="384" width="784" height="300" rx="6" fill="#fff" stroke="#b8bec5"/>
+<text x="270" y="418" font-size="18" font-weight="600" fill="#30363d">D  공급량 순위 · 가로 막대</text>
+<text x="270" y="444" font-size="13" font-weight="400" fill="#30363d">배치 예시 · 막대 길이는 동일한 자리 표시자입니다.</text>
+<text x="270" y="497" font-size="13" font-weight="400" fill="#30363d">USDT</text>
+<rect x="468" y="478" width="378" height="28" rx="2" fill="#e4e6e8" stroke="#b8bec5"/>
+<text x="870" y="497" font-size="14" font-weight="400" fill="#30363d">수량 —</text>
+<text x="270" y="552" font-size="13" font-weight="400" fill="#30363d">USDC</text>
+<rect x="468" y="533" width="378" height="28" rx="2" fill="#e4e6e8" stroke="#b8bec5"/>
+<text x="870" y="552" font-size="14" font-weight="400" fill="#30363d">수량 —</text>
+<text x="270" y="607" font-size="13" font-weight="400" fill="#30363d">RLUSD</text>
+<rect x="468" y="588" width="378" height="28" rx="2" fill="#e4e6e8" stroke="#b8bec5"/>
+<text x="870" y="607" font-size="14" font-weight="400" fill="#30363d">수량 —</text>
+<text x="270" y="666" font-size="12" font-weight="400" fill="#30363d">내림차순 정렬 예정 · 미확인 값은 순위에서 제외</text>
+<rect x="1056" y="384" width="504" height="300" rx="6" fill="#fff" stroke="#b8bec5"/>
+<text x="1078" y="418" font-size="18" font-weight="600" fill="#30363d">E  추이 그래프 / 출처</text>
+<rect x="1078" y="438" width="460" height="126" rx="6" fill="#f4f4f4" stroke="#b8bec5"/>
+<text x="1135" y="492" font-size="17" font-weight="600" fill="#30363d">과거 시계열 확보 후 표시</text>
+<text x="1120" y="523" font-size="13" font-weight="400" fill="#30363d">정적 현재값으로 추이를 생성하지 않음</text>
+<text x="1078" y="595" font-size="13" font-weight="400" fill="#30363d">출처: 미선정  |  단위: 토큰 수량</text>
+<text x="1078" y="620" font-size="13" font-weight="400" fill="#30363d">발행량 · 유통량 · 시가총액 구분 필요</text>
+<text x="1078" y="652" font-size="12" font-weight="400" fill="#30363d">조회 실패: 이전 값 + 관측 시각 + 오류 표시</text>
+<rect x="248" y="708" width="1312" height="276" rx="6" fill="#fff" stroke="#b8bec5"/>
+<text x="270" y="740" font-size="18" font-weight="600" fill="#30363d">F  순위 / 검토 목록</text>
+<text x="1186" y="740" font-size="14" font-weight="400" fill="#30363d">검색  [                 ]</text>
+<text x="270" y="779" font-size="13" font-weight="600" fill="#30363d">순위</text>
+<text x="342" y="779" font-size="13" font-weight="600" fill="#30363d">코인</text>
+<text x="638" y="779" font-size="13" font-weight="600" fill="#30363d">수량</text>
+<text x="820" y="779" font-size="13" font-weight="600" fill="#30363d">점유율</text>
+<text x="986" y="779" font-size="13" font-weight="600" fill="#30363d">근거 충족률</text>
+<text x="1190" y="779" font-size="13" font-weight="600" fill="#30363d">등급</text>
+<text x="1370" y="779" font-size="13" font-weight="600" fill="#30363d">시점 / 근거</text>
+<path d="M266 793L1540 793" stroke="#d6d9dd"/>
+<text x="270" y="811" font-size="13" font-weight="400" fill="#30363d">—</text>
+<text x="342" y="811" font-size="13" font-weight="400" fill="#30363d">USDT</text>
+<text x="638" y="811" font-size="13" font-weight="400" fill="#30363d">—</text>
+<text x="820" y="811" font-size="13" font-weight="400" fill="#30363d">—</text>
+<text x="986" y="811" font-size="13" font-weight="400" fill="#30363d">— / 100</text>
+<text x="1190" y="811" font-size="13" font-weight="400" fill="#30363d">미산정</text>
+<text x="1370" y="811" font-size="13" font-weight="400" fill="#30363d">근거 보기 →</text>
+<path d="M266 827L1540 827" stroke="#d6d9dd"/>
+<text x="270" y="845" font-size="13" font-weight="400" fill="#30363d">—</text>
+<text x="342" y="845" font-size="13" font-weight="400" fill="#30363d">USDC</text>
+<text x="638" y="845" font-size="13" font-weight="400" fill="#30363d">—</text>
+<text x="820" y="845" font-size="13" font-weight="400" fill="#30363d">—</text>
+<text x="986" y="845" font-size="13" font-weight="400" fill="#30363d">— / 100</text>
+<text x="1190" y="845" font-size="13" font-weight="400" fill="#30363d">미산정</text>
+<text x="1370" y="845" font-size="13" font-weight="400" fill="#30363d">근거 보기 →</text>
+<path d="M266 861L1540 861" stroke="#d6d9dd"/>
+<text x="270" y="879" font-size="13" font-weight="400" fill="#30363d">—</text>
+<text x="342" y="879" font-size="13" font-weight="400" fill="#30363d">RLUSD</text>
+<text x="638" y="879" font-size="13" font-weight="400" fill="#30363d">—</text>
+<text x="820" y="879" font-size="13" font-weight="400" fill="#30363d">—</text>
+<text x="986" y="879" font-size="13" font-weight="400" fill="#30363d">— / 100</text>
+<text x="1190" y="879" font-size="13" font-weight="400" fill="#30363d">미산정</text>
+<text x="1370" y="879" font-size="13" font-weight="400" fill="#30363d">근거 보기 →</text>
+<text x="270" y="966" font-size="12" font-weight="400" fill="#30363d">행 순서는 배치 예시이며 실제 발행량 / 유통량 순위가 아닙니다.</text>
+<text x="248" y="1019" font-size="14" font-weight="600" fill="#30363d">G  상세 Drawer: 전체 식별자 · 원본 수량 · 관측 시각 · 보고서 · 산정 기준</text>
+<text x="248" y="1048" font-size="13" font-weight="400" fill="#30363d">근거 충족률은 기술 검토 자료의 충족 정도를 뜻합니다. 안전성·상환 능력·투자 등급을 산정하지 않습니다.</text>
+</svg>

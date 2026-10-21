@@ -1,0 +1,265 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "XRPL_HELD_TRUST_LINE_RESEARCH_NOT_ASSET_ASSESSMENT",
+  "status": "COMPLETE_WITH_ADAPTER_PAGINATION_LIMITATION",
+  "completedAt": "2026-10-21T03:51:36.274Z",
+  "records": [
+    {
+      "profileId": "xrpl-usdc",
+      "sampleType": "AMM_SPECIAL_ACCOUNT_NOT_REGULAR_WALLET",
+      "holder": "rM7cHVPfhe9yxQNk2kDNBEQqoQmMcQGPWE",
+      "issuer": "rGm7WCVp9gb4jZHWTEtGUr4dd74z2XuWhE",
+      "currency": "5553444300000000000000000000000000000000",
+      "selectionLedgerHash": "A3D6696A4EBC62BADF174BF4D0762A56AC43E8F4FB3E781CD40230885C5E99EB",
+      "selectionLedgerIndex": "107797509",
+      "adapterReport": "../../reports/xrpl-usdc-amm-holder-readonly.json",
+      "adapterReportSha256": "294f541ef354a1f6fdf4eb51ae87563c6a357c4aa65f20793522086d67360c4a",
+      "adapterObservation": {
+        "holder": "rM7cHVPfhe9yxQNk2kDNBEQqoQmMcQGPWE",
+        "issuer": "rGm7WCVp9gb4jZHWTEtGUr4dd74z2XuWhE",
+        "currency": "5553444300000000000000000000000000000000",
+        "status": "INCONCLUSIVE",
+        "lineState": "UNKNOWN",
+        "pagesRead": 3,
+        "complete": false,
+        "reason": "PAGINATION_LIMIT"
+      },
+      "adapterLedgerHash": "A3D6696A4EBC62BADF174BF4D0762A56AC43E8F4FB3E781CD40230885C5E99EB",
+      "adapterLedgerIndex": "107797509",
+      "adapterValidation": {
+        "kind": "ASSESSMENT_REPORT_VALIDATION",
+        "scope": "SCHEMA_AND_INTERNAL_CONSISTENCY_ONLY",
+        "valid": true,
+        "issues": [],
+        "issueLimitReached": false
+      },
+      "directObservation": {
+        "profileId": "xrpl-usdc",
+        "holder": "rM7cHVPfhe9yxQNk2kDNBEQqoQmMcQGPWE",
+        "issuer": "rGm7WCVp9gb4jZHWTEtGUr4dd74z2XuWhE",
+        "currency": "5553444300000000000000000000000000000000",
+        "request": {
+          "method": "ledger_entry",
+          "params": {
+            "api_version": 2,
+            "ledger_hash": "A3D6696A4EBC62BADF174BF4D0762A56AC43E8F4FB3E781CD40230885C5E99EB",
+            "binary": false,
+            "ripple_state": {
+              "accounts": [
+                "rM7cHVPfhe9yxQNk2kDNBEQqoQmMcQGPWE",
+                "rGm7WCVp9gb4jZHWTEtGUr4dd74z2XuWhE"
+              ],
+              "currency": "5553444300000000000000000000000000000000"
+            }
+          }
+        },
+        "status": "OBSERVED",
+        "validated": true,
+        "ledgerHash": "A3D6696A4EBC62BADF174BF4D0762A56AC43E8F4FB3E781CD40230885C5E99EB",
+        "ledgerIndex": "107797509",
+        "ledgerEntryIndex": "8C01D65D6973AC126DFE0AE40B043106313BD014BE5207D799EC5DA599B3B7B4",
+        "rawFields": {
+          "LedgerEntryType": "RippleState",
+          "Balance": {
+            "currency": "5553444300000000000000000000000000000000",
+            "issuer": "rrrrrrrrrrrrrrrrrrrrBZbvji",
+            "value": "-137002.6309953493"
+          },
+          "LowLimit": {
+            "currency": "5553444300000000000000000000000000000000",
+            "issuer": "rGm7WCVp9gb4jZHWTEtGUr4dd74z2XuWhE",
+            "value": "0"
+          },
+          "HighLimit": {
+            "currency": "5553444300000000000000000000000000000000",
+            "issuer": "rM7cHVPfhe9yxQNk2kDNBEQqoQmMcQGPWE",
+            "value": "0"
+          },
+          "FlagsRaw": "16908288"
+        },
+        "interpretation": {
+          "holderSide": "HIGH",
+          "uninterpretedFlagBits": "131072",
+          "balanceValue": "137002.6309953493",
+          "flagsRaw": "16908288",
+          "bits": {
+            "LowAuth": false,
+            "HighAuth": false,
+            "LowNoRipple": false,
+            "HighNoRipple": false,
+            "LowFreeze": false,
+            "HighFreeze": false,
+            "AMMNode": true,
+            "LowDeepFreeze": false,
+            "HighDeepFreeze": false
+          },
+          "holderSettings": {
+            "authorized": false,
+            "freeze": false,
+            "deepFreeze": false,
+            "noRipple": false
+          },
+          "issuerSettings": {
+            "authorized": false,
+            "freeze": false,
+            "deepFreeze": false,
+            "noRipple": false
+          }
+        },
+        "holderLimitValue": "0",
+        "issuerLimitValue": "0",
+        "positiveHolderBalance": true,
+        "observedAt": "2026-10-21T03:51:35.751Z"
+      }
+    },
+    {
+      "profileId": "xrpl-rlusd",
+      "sampleType": "AMM_SPECIAL_ACCOUNT_NOT_REGULAR_WALLET",
+      "holder": "rhWTXC2m2gGGA9WozUaoMm6kLAVPb1tcS3",
+      "issuer": "rMxCKbEDwqr76QuheSUMdEGf4B9xJ8m5De",
+      "currency": "524C555344000000000000000000000000000000",
+      "selectionLedgerHash": "A3D6696A4EBC62BADF174BF4D0762A56AC43E8F4FB3E781CD40230885C5E99EB",
+      "selectionLedgerIndex": "107797509",
+      "adapterReport": "../../reports/xrpl-rlusd-amm-holder-readonly.json",
+      "adapterReportSha256": "e1dd0fca1f6911e0cda52d74a5d6f4f64ec267678e3d19ba8695a76bba23fe6c",
+      "adapterObservation": {
+        "holder": "rhWTXC2m2gGGA9WozUaoMm6kLAVPb1tcS3",
+        "issuer": "rMxCKbEDwqr76QuheSUMdEGf4B9xJ8m5De",
+        "currency": "524C555344000000000000000000000000000000",
+        "status": "INCONCLUSIVE",
+        "lineState": "UNKNOWN",
+        "pagesRead": 3,
+        "complete": false,
+        "reason": "PAGINATION_LIMIT"
+      },
+      "adapterLedgerHash": "C0A8B2C4180E07B7DF8A4726997563A29CCDE5A918BCFA80CEB8E531E3DD0D16",
+      "adapterLedgerIndex": "107797510",
+      "adapterValidation": {
+        "kind": "ASSESSMENT_REPORT_VALIDATION",
+        "scope": "SCHEMA_AND_INTERNAL_CONSISTENCY_ONLY",
+        "valid": true,
+        "issues": [],
+        "issueLimitReached": false
+      },
+      "directObservation": {
+        "profileId": "xrpl-rlusd",
+        "holder": "rhWTXC2m2gGGA9WozUaoMm6kLAVPb1tcS3",
+        "issuer": "rMxCKbEDwqr76QuheSUMdEGf4B9xJ8m5De",
+        "currency": "524C555344000000000000000000000000000000",
+        "request": {
+          "method": "ledger_entry",
+          "params": {
+            "api_version": 2,
+            "ledger_hash": "A3D6696A4EBC62BADF174BF4D0762A56AC43E8F4FB3E781CD40230885C5E99EB",
+            "binary": false,
+            "ripple_state": {
+              "accounts": [
+                "rhWTXC2m2gGGA9WozUaoMm6kLAVPb1tcS3",
+                "rMxCKbEDwqr76QuheSUMdEGf4B9xJ8m5De"
+              ],
+              "currency": "524C555344000000000000000000000000000000"
+            }
+          }
+        },
+        "status": "OBSERVED",
+        "validated": true,
+        "ledgerHash": "A3D6696A4EBC62BADF174BF4D0762A56AC43E8F4FB3E781CD40230885C5E99EB",
+        "ledgerIndex": "107797509",
+        "ledgerEntryIndex": "2BCFBCB6565955DC4360705C247A4235D695FBFE197F6E8386E00136F2BB7E27",
+        "rawFields": {
+          "LedgerEntryType": "RippleState",
+          "Balance": {
+            "currency": "524C555344000000000000000000000000000000",
+            "issuer": "rrrrrrrrrrrrrrrrrrrrBZbvji",
+            "value": "2436280.212624066"
+          },
+          "LowLimit": {
+            "currency": "524C555344000000000000000000000000000000",
+            "issuer": "rhWTXC2m2gGGA9WozUaoMm6kLAVPb1tcS3",
+            "value": "0"
+          },
+          "HighLimit": {
+            "currency": "524C555344000000000000000000000000000000",
+            "issuer": "rMxCKbEDwqr76QuheSUMdEGf4B9xJ8m5De",
+            "value": "0"
+          },
+          "FlagsRaw": "16842752"
+        },
+        "interpretation": {
+          "holderSide": "LOW",
+          "uninterpretedFlagBits": "65536",
+          "balanceValue": "2436280.212624066",
+          "flagsRaw": "16842752",
+          "bits": {
+            "LowAuth": false,
+            "HighAuth": false,
+            "LowNoRipple": false,
+            "HighNoRipple": false,
+            "LowFreeze": false,
+            "HighFreeze": false,
+            "AMMNode": true,
+            "LowDeepFreeze": false,
+            "HighDeepFreeze": false
+          },
+          "holderSettings": {
+            "authorized": false,
+            "freeze": false,
+            "deepFreeze": false,
+            "noRipple": false
+          },
+          "issuerSettings": {
+            "authorized": false,
+            "freeze": false,
+            "deepFreeze": false,
+            "noRipple": false
+          }
+        },
+        "holderLimitValue": "0",
+        "issuerLimitValue": "0",
+        "positiveHolderBalance": true,
+        "observedAt": "2026-10-21T03:51:36.273Z"
+      }
+    }
+  ],
+  "stages": {
+    "selectionAndAdapterRpcRequests": 16,
+    "additionalExactLedgerEntryRpcRequests": 2,
+    "totalRpcRequests": 18,
+    "publicTransactions": 0,
+    "retries": 0,
+    "endpointChanges": 0
+  },
+  "researchArtifacts": [
+    {
+      "report": "../../reports/xrpl-amm-sample-selection-research.json",
+      "sha256": "48e47be8c8225180593ccf196d5d404e6d63d25d6b2be6cfc0f8b37bc213809b",
+      "mode": "0600"
+    },
+    {
+      "report": "../../reports/xrpl-held-trustline-direct-research.json",
+      "sha256": "9634057c8ada3037019f62ebc29d7385c3eb06bc3575449c483c6ca3e0600529",
+      "mode": "0600"
+    }
+  ],
+  "flagSource": {
+    "commit": "ef5064eeb9e0ce467fae4694d58609de84109131",
+    "sha256": "adfef6c0e45870f08e06ab0c1773affa1ef011d9f297b403cb10e1dff4528b7a",
+    "reference": "https://github.com/XRPLF/rippled/blob/ef5064eeb9e0ce467fae4694d58609de84109131/include/xrpl/protocol/LedgerFormats.h"
+  },
+  "localInterpretationCases": 12,
+  "independentOfflineChecks": "RAW_BALANCE_ORIENTATION_FLAGS_POSITIVITY_AND_PRIOR_REPORT_HASHES_VERIFIED",
+  "implementationCheckHistory": {
+    "passed": 212,
+    "failed": 0,
+    "meaning": "Prior unchanged implementation tests, not a new test run or validation of the one-off research reader."
+  },
+  "productCodeModification": false,
+  "existingReportsPreserved": true,
+  "limitations": [
+    "AMM special accounts are not regular wallets, service/custody accounts or key-control authentication.",
+    "Existing account_lines Adapter reports remain incomplete INCONCLUSIVE/PAGINATION_LIMIT; direct RippleState is separate research, not Adapter PASS or support promotion.",
+    "Same selection/direct ledger hash verified; later Adapter ledger/hash remains separate.",
+    "Auth=false and limits0 do not imply holding is forbidden. Actual transactions/authority exercise and amendment activation were not tested.",
+    "No independent node/consensus proof, source/deployment binding, safety or financial approval."
+  ]
+}

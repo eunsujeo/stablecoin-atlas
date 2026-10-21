@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 1,
+  "coins": [
+    {
+      "id": "usdc",
+      "symbol": "USDC",
+      "name": "USD Coin",
+      "pricingId": "usd-coin"
+    },
+    {
+      "id": "usdt",
+      "symbol": "USDT",
+      "name": "Tether",
+      "pricingId": "tether"
+    },
+    {
+      "id": "rlusd",
+      "symbol": "RLUSD",
+      "name": "Ripple USD",
+      "pricingId": "ripple-usd"
+    }
+  ],
+  "networks": [
+    {
+      "id": "ethereum",
+      "name": "Ethereum",
+      "family": "EVM",
+      "networkId": "1",
+      "providerKey": "ethereum"
+    },
+    {
+      "id": "tron",
+      "name": "TRON",
+      "family": "TRON",
+      "networkId": "728126428",
+      "providerKey": "tron"
+    },
+    {
+      "id": "solana",
+      "name": "Solana",
+      "family": "SOLANA",
+      "networkId": "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d",
+      "providerKey": "solana"
+    },
+    {
+      "id": "xrpl",
+      "name": "XRPL",
+      "family": "XRPL",
+      "networkId": "0",
+      "providerKey": null
+    }
+  ],
+  "deployments": [
+    {
+      "id": "usdc-ethereum",
+      "coinId": "usdc",
+      "networkId": "ethereum",
+      "identity": {
+        "kind": "CONTRACT",
+        "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+      },
+      "origin": "UNKNOWN",
+      "reference": "usdc-readonly.json"
+    },
+    {
+      "id": "usdt-ethereum",
+      "coinId": "usdt",
+      "networkId": "ethereum",
+      "identity": {
+        "kind": "CONTRACT",
+        "address": "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+      },
+      "origin": "UNKNOWN",
+      "reference": "usdt-readonly.json"
+    },
+    {
+      "id": "rlusd-ethereum",
+      "coinId": "rlusd",
+      "networkId": "ethereum",
+      "identity": {
+        "kind": "CONTRACT",
+        "address": "0x8292Bb45bf1Ee4d140127049757C2E0fF06317eD"
+      },
+      "origin": "UNKNOWN",
+      "reference": "rlusd-readonly.json"
+    },
+    {
+      "id": "usdt-tron",
+      "coinId": "usdt",
+      "networkId": "tron",
+      "identity": {
+        "kind": "CONTRACT",
+        "address": "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
+      },
+      "origin": "UNKNOWN",
+      "reference": "tron-usdt-allowance-readonly.json"
+    },
+    {
+      "id": "usdc-solana",
+      "coinId": "usdc",
+      "networkId": "solana",
+      "identity": {
+        "kind": "MINT",
+        "address": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+      },
+      "origin": "UNKNOWN",
+      "reference": "solana-usdc-account-public-readonly.json"
+    },
+    {
+      "id": "usdt-solana",
+      "coinId": "usdt",
+      "networkId": "solana",
+      "identity": {
+        "kind": "MINT",
+        "address": "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"
+      },
+      "origin": "UNKNOWN",
+      "reference": "solana-usdt-account-public-readonly.json"
+    },
+    {
+      "id": "usdc-xrpl",
+      "coinId": "usdc",
+      "networkId": "xrpl",
+      "identity": {
+        "kind": "ISSUED",
+        "issuer": "rGm7WCVp9gb4jZHWTEtGUr4dd74z2XuWhE",
+        "currency": "5553444300000000000000000000000000000000"
+      },
+      "origin": "UNKNOWN",
+      "reference": "xrpl-usdc-account-public-readonly.json"
+    },
+    {
+      "id": "rlusd-xrpl",
+      "coinId": "rlusd",
+      "networkId": "xrpl",
+      "identity": {
+        "kind": "ISSUED",
+        "issuer": "rMxCKbEDwqr76QuheSUMdEGf4B9xJ8m5De",
+        "currency": "524C555344000000000000000000000000000000"
+      },
+      "origin": "UNKNOWN",
+      "reference": "xrpl-rlusd-account-public-readonly.json"
+    }
+  ]
+}

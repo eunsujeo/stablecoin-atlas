@@ -1,0 +1,371 @@
+{
+  "version": "1.0",
+  "status": "LOCAL_RESEARCH_MARKET_LAYOUT",
+  "language": "ko-KR",
+  "purpose": "스테이블코인의 체인별 기술 호환성 검토와 근거 추적",
+  "primaryAudience": "자산별 구현 차이와 증거를 검토하는 엔지니어·기술 검토자",
+  "deliverableScope": {
+    "designedFrames": [
+      "검토 현황",
+      "XRPL USDC 자산 상세 / 관측 탭",
+      "코인 전체 공급량 현황",
+      "체인별 공급량 현황",
+      "Ant Design 코인 전체 / 체인별",
+      "Material 3 코인 전체 / 체인별",
+      "MUI 코인 전체 / 체인별",
+      "터미널 코인 전체 / 체인별",
+      "고충실도 다크 스테이블코인 전체 현황",
+      "고충실도 라이트 스테이블코인 전체 현황"
+    ],
+    "implementedApplication": true,
+    "interactivePrototype": true,
+    "dataSource": "기존 v0.1 상세는 저장된 실제 근거; component-options v0.4는 별도의 명시적 가상 데이터",
+    "freshNetworkQueries": 0,
+    "componentSelection": "COMPARING_ANT_DESIGN_MATERIAL3_MUI_NOT_SELECTED",
+    "applicationScope": "로컬 실제 저장 검증 근거·공급자 시장 자료·목데이터 분리; 외부 자동 수집·DB·점수 산정·공개 배포 없음"
+  },
+  "navigation": [
+    {
+      "label": "검토 현황",
+      "purpose": "8개 프로필의 구현된 읽기 범위·근거 종류·남은 제약 비교",
+      "frame": "overview-wireframe.svg"
+    },
+    {
+      "label": "자산 프로필",
+      "purpose": "식별자·관측·기능별 판정·소스·보고서 탐색",
+      "frame": "asset-detail-wireframe.svg",
+      "tabs": [
+        "관측",
+        "기능별 판정",
+        "소스 검토",
+        "근거 · 보고서"
+      ]
+    },
+    {
+      "label": "자산 비교",
+      "purpose": "선택한2~3개 프로필을 동일 capability 행으로 비교",
+      "frameStatus": "PLANNED_NOT_DRAWN"
+    },
+    {
+      "label": "근거 · 보고서",
+      "purpose": "보고서 유형·시점·관측 방식별 목록과 원문 추적",
+      "frameStatus": "PLANNED_NOT_DRAWN"
+    }
+  ],
+  "plannedInteractions": [
+    {
+      "trigger": "현황 검색",
+      "result": "자산명·체인·전체 식별자로 검색; 체인/근거 필터와 AND 조합"
+    },
+    {
+      "trigger": "프로필 행 선택",
+      "result": "선택 프로필 상세 화면의 관측 탭으로 이동; 뒤로 갈 때 필터/스크롤 보존"
+    },
+    {
+      "trigger": "근거 선택",
+      "result": "해당 원문·전체 주소/hash·보고서 시점·제약 열기; 선택 report/source ID와 hash 연결 유지"
+    },
+    {
+      "trigger": "금액 표시",
+      "result": "십진 문자열 보존. 기본 화면의 전체 정밀도와 원시값을 구분; Number 변환/임의 반올림 금지"
+    },
+    {
+      "trigger": "주소·hash 복사",
+      "result": "전체값 복사와 성공 알림. 화면에서 축약한 문자열 자체를 복사하지 않음"
+    },
+    {
+      "trigger": "정렬",
+      "result": "명시한 관측 시점 기준. 서로 다른 report/source를 하나의 snapshot으로 병합하지 않음"
+    },
+    {
+      "trigger": "보고서 열기",
+      "result": "향후 로컬 파일 검증·미리보기 흐름. 이번 정적 시안에는 파일 처리 기능 없음"
+    },
+    {
+      "trigger": "내보내기",
+      "result": "향후 선택한 원본 보고서/필터를 명시해 내보내기. 이번 정적 시안에는 내보내기 기능 없음"
+    }
+  ],
+  "statusModel": {
+    "support": {
+      "SUPPORTED": "지원 근거 있음",
+      "NOT_SUPPORTED": "미지원 근거 있음",
+      "UNKNOWN": "지원 미확인"
+    },
+    "scenarioVerdict": {
+      "PASS": "시나리오 성공",
+      "FAIL": "시나리오 실패",
+      "INCONCLUSIVE": "판정 미확정",
+      "NOT_TESTED": "미검증",
+      "NOT_APPLICABLE": "비적용",
+      "UNSUPPORTED": "실행 미지원"
+    },
+    "observation": {
+      "OBSERVED": "관측됨",
+      "INCONCLUSIVE": "관측 미확정",
+      "NOT_PRESENT": "완전 조회에서 부재 확인"
+    },
+    "knowledge": {
+      "KNOWN": "확인된 값",
+      "UNKNOWN": "미확인",
+      "NOT_APPLICABLE": "비적용"
+    },
+    "sourceReview": {
+      "SOURCE_REVIEWED": "선택 소스 검토"
+    },
+    "principles": [
+      "지원·시나리오 판정·관측·소스 검토를 다른 라벨 축으로 유지",
+      "조회/보고서 검증 성공을 자산 안전성·입출금 가능·취급 승인으로 표시하지 않음",
+      "관측 실패/누락/NOT_TESTED/UNKNOWN/NOT_APPLICABLE/명시적0을 구분",
+      "Auth 비트false나 한도0을 보유 불가로 표시하지 않음",
+      "프로필 전체를 임의의 안전 점수나 PASS 하나로 집계하지 않음",
+      "AMM 표본과 일반 지갑을 구분하고 표본 유형을 금액 옆에 노출"
+    ]
+  },
+  "dataBindings": {
+    "overview": {
+      "source": "../research/stablecoin-compatibility-summary.json",
+      "rows": "profiles[]",
+      "identity": "profileId + chainFamily + identifier",
+      "sourceCount": {
+        "value": 39,
+        "meaning": "선택 소스 findings 수; 점검 성공 개수나 위험도 점수가 아님"
+      }
+    },
+    "assetDetailExample": {
+      "profileId": "xrpl-usdc",
+      "researchSource": "../research/xrpl-held-trustline-observation.json",
+      "selector": "records[profileId=xrpl-usdc]",
+      "balance": "directObservation.interpretation.balanceValue",
+      "rawBalance": "directObservation.rawFields.Balance.value",
+      "holderSide": "directObservation.interpretation.holderSide",
+      "settings": [
+        "directObservation.interpretation.holderSettings",
+        "directObservation.interpretation.issuerSettings"
+      ],
+      "ledger": [
+        "directObservation.ledgerIndex",
+        "directObservation.ledgerHash"
+      ],
+      "observedAt": "directObservation.observedAt",
+      "sampleType": "sampleType",
+      "separateAdapterResult": "adapterObservation + adapterReport + adapterReportSha256",
+      "adapterVerdict": "INCONCLUSIVE",
+      "separationReason": "직접 연구 관측과 기존 Adapter의 페이지 미완료 결과는 별도 근거이며 연구 값으로 Adapter 판정을 덮어쓰지 않는다."
+    }
+  },
+  "emptyAndErrorStates": [
+    {
+      "state": "초기 데이터 없음",
+      "display": "보고서를 선택하세요. 누락된 값과 건수를0으로 채우지 않음."
+    },
+    {
+      "state": "검색 결과 없음",
+      "display": "일치하는 프로필이 없습니다. 필터 초기화 제공."
+    },
+    {
+      "state": "유효하지 않은 파일",
+      "display": "보고서 형식을 확인하지 못했습니다. 안전한 검증 코드와 기존 표시 유지."
+    },
+    {
+      "state": "부분 관측/오류",
+      "display": "확인한 값·미확인 항목·사유·그 시점의 근거를 함께 표시."
+    },
+    {
+      "state": "과거 관측",
+      "display": "관측 시각과 저장된 자료임을 항상 표시. 정의되지 않은 최신성 기준으로 자동 인증하지 않음."
+    }
+  ],
+  "layout": {
+    "desktopFrame": {
+      "width": 1600,
+      "height": 1080
+    },
+    "sidebarWidth": 224,
+    "contentPadding": 40,
+    "gap": 24,
+    "spacingScale": [
+      4,
+      8,
+      12,
+      16,
+      24,
+      32,
+      40
+    ],
+    "responsivePlan": {
+      "atLeast1280": "고정 사이드바·비교표·상세2열",
+      "768to1279": "접을 수 있는 사이드바·상세1열·식별자 열을 고정한 표 가로 스크롤",
+      "below768": "프로필 카드와 상세1열; 상태와 근거의 의미 유지"
+    },
+    "theme": "고충실도 다크 / 라이트 정적 시안; 상세는 visual-design/design-notes.json",
+    "darkTheme": "다크와 라이트 시안 작성 완료; 실제 앱 테마 전환은 미구현"
+  },
+  "tokens": {
+    "canvas": "#F6F8FB",
+    "surface": "#FFFFFF",
+    "navigation": "#111B2E",
+    "text": "#182438",
+    "mutedText": "#53637B",
+    "border": "#DCE3ED",
+    "primary": "#245BDB",
+    "observedBackground": "#EDF3FF",
+    "inconclusiveText": "#835200",
+    "inconclusiveBackground": "#FFF4D6",
+    "fontFamily": "system-ui / Apple SD Gothic Neo / Noto Sans KR",
+    "numberFont": "tabular-nums / ui-monospace"
+  },
+  "accessibility": {
+    "status": "색상과 텍스트 라벨 함께 사용",
+    "focus": "구현 시 키보드 이동·가시적 포커스·표의 th/scope·drawer 닫기 후 포커스 복귀",
+    "numericFormatting": "문자열 정밀도·복사 원문·긴 식별자 전체 확인 보장",
+    "contrastTarget": "일반 텍스트 WCAG AA4.5:1 이상"
+  },
+  "acceptanceCriteria": [
+    "SVG/PNG2장을1600×1080으로 확인 가능",
+    "8개 프로필을 chain/identifier로 구분",
+    "XRPL 실제 값과 raw/ledger/AMM 표본 표시",
+    "Adapter INCONCLUSIVE와 직접 연구 OBSERVED를 동시 구분",
+    "조작부가 설계 시안임을 명시",
+    "기존 제품 코드·원본 공개망/연구 근거·판정 의미 보존",
+    "코인 전체 / 체인별 와이어프레임에 공급량 순위·추이 빈 상태·60초 갱신 예정·점수와 등급 미산정 표시"
+  ],
+  "comparisonRules": [
+    "ERC-20 allowance·Solana delegate·XRPL trust-line 인가를 같은 기능으로 합치지 않음",
+    "같은 capability라도 체인별 의미와 관측/실행 범위를 표시",
+    "미지원과 미검증을 구분하고 비적용 항목을 실패로 집계하지 않음",
+    "각 값에 원본 보고서·관측 시점·block/slot/ledger를 연결; 서로 다른 시점을 하나의 상태로 합치지 않음"
+  ],
+  "supplyDashboard": {
+    "status": "DESIGN_ONLY",
+    "frames": [
+      "overview-supply-wireframe.svg",
+      "chain-supply-wireframe.svg"
+    ],
+    "modes": {
+      "coinOverall": [
+        "USDT",
+        "USDC",
+        "RLUSD"
+      ],
+      "assetChain": "기존 8개 프로필; 코인 전체 발행량으로 합산하지 않음"
+    },
+    "metric": "유통량 우선 제안; 발행량·유통량 정의와 출처 확정 필요",
+    "source": "NOT_SELECTED",
+    "ranking": "동일 지표·단위·시점 기준의 범위 내 정렬; 미확인 제외",
+    "refresh": {
+      "plannedIntervalSeconds": 60,
+      "implemented": false,
+      "display": [
+        "마지막 조회 성공",
+        "출처 관측 시점",
+        "오류 / 이전 값 / 오래된 자료 상태"
+      ],
+      "semantics": "조회 주기는 원천 자료의 갱신 주기를 보장하지 않음"
+    },
+    "amounts": "십진 문자열 원문 보존; BigInt 기반 정렬; 차트 좌표만 제한된 수치로 변환",
+    "history": "실제 시계열 확보 전 빈 상태; 현재값으로 과거 추이 생성 금지",
+    "score": {
+      "status": "DRAFT_NOT_CALCULATED",
+      "label": "근거 충족률",
+      "scale": "0–100 제안",
+      "gradeLabel": "근거 충족률 등급",
+      "rubric": "항목·분모·비적용 처리·구간·버전 미확정; 현재 표시 — / 100 및 미산정",
+      "semantics": "지원 여부·개별 판정은 별도 유지; 안전성이나 투자 등급 아님"
+    },
+    "componentProposal": "component-selection.json",
+    "mockPreview": {
+      "source": "mock-dashboard-data.json",
+      "realCalculation": false,
+      "score": "수작업 가상 점수·등급; 실제 rubric 미확정",
+      "history": "목데이터로 만든 가상 추이; 실제 과거 자료 아님"
+    }
+  },
+  "componentComparison": "component-options/comparison.json",
+  "terminalModeReview": "terminal-mode-review.json",
+  "componentMockData": "mock-dashboard-data.json",
+  "visualConcept": "visual-design/design-notes.json",
+  "dataFlow": {
+    "status": "USER_ACCEPTED_DESIGN_NOT_IMPLEMENTED",
+    "pipeline": [
+      "출처별 수집",
+      "원문과 정규화 수치·출처·자료시각·수집시각 저장",
+      "조회 API",
+      "웹 화면"
+    ],
+    "webReadIntervalSeconds": 60,
+    "sourceRefresh": "출처별 별도 설정; 웹 조회 시각과 자료 시각 구분",
+    "database": "NOT_SELECTED"
+  },
+  "terminalMode": {
+    "kind": "WEB_TERMINAL_THEME",
+    "previousShellTuiInterpretation": "SUPERSEDED_BY_USER_CORRECTION",
+    "status": "DESIGN_ONLY"
+  },
+  "runtime": {
+    "entry": "../../web/index.html",
+    "command": "npm run ui",
+    "server": "../../tools/ui-preview.mjs",
+    "data": "검증 /evidence/index.json; 실제 시장 /market-data.json; 가상 자료 /mock-data.json",
+    "adr": "../adr/0033-local-mock-dashboard.md",
+    "features": [
+      "다크·라이트 전환과 선택 저장",
+      "코인 전체·체인별 범위 전환",
+      "코인 필터",
+      "수량 BigInt 정렬·검색",
+      "정확한 수량 차트 툴팁·키보드 접근",
+      "코인 구성·부분 범위 체인 분포",
+      "범위별 원본 수량 상세 모달",
+      "목데이터 다시 읽기와 실패 시 기존 값 유지",
+      "기본 항목별 실제 저장 근거",
+      "로컬 Fixture와 실제 자산 읽기 구분",
+      "자산 프로필 식별자·항목·문서",
+      "동일 범위 2~3개 자산 비교",
+      "실행별 원본 스냅샷·해시·문서 보존",
+      "코인·네트워크·발행 자산 고유 ID 등록",
+      "실제 코인 전체 유통량 및 같은 코인 체인별 총공급량 순위",
+      "정밀 소수 문자열과 source/observation/화면 시각 구분",
+      "XRPL obligations 별도 지표·확정 원장 상세",
+      "실제 저장 관측 시계열 · 1점은 점만 표시",
+      "시장 화면에서60초마다 로컬 저장본 재독 · 외부 API 요청 없음"
+    ],
+    "notImplemented": [
+      "외부 자동 API 수집기·DB·자동 공급자 전환",
+      "정확한 계정 rate/credit 예산과 수집기429처리",
+      "실제 점수 산정 기준",
+      "터미널 스타일 웹 테마",
+      "공개 배포"
+    ],
+    "verification": {
+      "automated": "npm run check:225 passed;0 failed/cancelled/skipped",
+      "browser": "실제 Chrome에서 111개 저장 읽기·91개 로컬 항목, 원래 FAIL 보존, 상세 관측·근거·문서, 실제 자산 8개·로컬 Fixture 7개, 2~3개 비교·중복 거부, 다크/라이트·모바일 확인; research market layout: coin row selection updates network comparison; disclosure/details, 2/3/1 chain rankings, light/dark/mobile, failed-read retention, no external page requests",
+      "sourceIntegrity": "게시 문서·발췌본·원본 스냅샷 해시와 현재 입력 해시 일치",
+      "localRun": "신규 사설 Anvil 7개 Fixture: PASS64/INCONCLUSIVE22/FAIL5(FalseReturnToken), 원판정 보존",
+      "deployment": "LOCAL_ONLY"
+    },
+    "evidenceBuild": "npm run evidence:build",
+    "localValidation": "npm run lab -- --out reports/dashboard-local-validation.json",
+    "evidenceAdr": "../adr/0034-offline-evidence-dashboard.md",
+    "market": {
+      "build": "npm run market:build",
+      "adr": "../adr/0035-stored-market-observations.md",
+      "registry": "../../data/asset-registry.json",
+      "route": "#live",
+      "store": "reports/market-store",
+      "registeredCoins": 3,
+      "registeredNetworks": 4,
+      "registeredDeployments": 8,
+      "observations": 14,
+      "automaticProviderRequests": 0,
+      "visualTreatment": {
+        "layout": "Compact research workspace with aligned ranking rows and adjacent network comparison",
+        "palette": "Neutral dark/light with restrained sage selection accent; no gradient summary cards",
+        "summary": "Selected coin circulating supply, USD quote and original observation time",
+        "interaction": "Selecting a coin in the ranking updates network comparison and summaries",
+        "disclosures": "Original records, calculation scope and sparse history live in native details disclosures",
+        "accessibility": "Native keyboard controls, retained exact-decimal details and 390px responsive layout",
+        "scope": "Presentation only; provider data, definitions and external request behavior preserved"
+      }
+    }
+  }
+}

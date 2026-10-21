@@ -1,0 +1,733 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "SOURCE_COMPATIBILITY_RESEARCH_NOT_ASSESSMENT",
+  "reviewedAt": "2026-10-20T08:16:21.480702+00:00",
+  "policy": {
+    "authorityReviewBasis": "SOURCE_SUFFICIENT_FOR_CURRENT_COMPATIBILITY_SCOPE",
+    "serviceOperations": "OUT_OF_SCOPE",
+    "roleAccountCollection": "NOT_REQUIRED",
+    "actualAuthorityExercise": "NOT_REQUIRED",
+    "existingAssessmentVerdicts": "UNCHANGED",
+    "deploymentSourceIdentity": "NOT_REQUIRED_TO_FINISH_SELECTED_SOURCE_REVIEW",
+    "sourceReviewedMeaning": "Selected pinned code inspected, not runtime authority authentication."
+  },
+  "sources": {
+    "u-v1": {
+      "snapshot": "../../.state/usdc-source/contracts/v1/FiatTokenV1.sol",
+      "sha256": "423a0c805f7bfff28c89432f671a38d19717fb4b6c3e5591fa46d5d4b04f2c21",
+      "origin": "fc85788bc7c23cefe3df1a757133048bfddadeaa",
+      "lineCount": 454
+    },
+    "u-v22": {
+      "snapshot": "../../.state/usdc-source/contracts/v2/FiatTokenV2_2.sol",
+      "sha256": "d1f045f392042e4e8ac04d4c53a8e6d2f599085025a6ff979252bc9783b3fc3a",
+      "origin": "fc85788bc7c23cefe3df1a757133048bfddadeaa",
+      "lineCount": 312
+    },
+    "u-owner": {
+      "snapshot": "../../.state/usdc-source/contracts/v1/Ownable.sol",
+      "sha256": "75f378c6a232f5cc85f2a46b5b2296c14bcbdf864114c3fee3996102e93aa946",
+      "origin": "fc85788bc7c23cefe3df1a757133048bfddadeaa",
+      "lineCount": 90
+    },
+    "u-pause": {
+      "snapshot": "../../.state/usdc-source/contracts/v1/Pausable.sol",
+      "sha256": "3aac2a3b16249fdfe82357649fb5ad2bd5887cb521b59f0833851457a8e845b8",
+      "origin": "fc85788bc7c23cefe3df1a757133048bfddadeaa",
+      "lineCount": 95
+    },
+    "u-blacklist": {
+      "snapshot": "../../.state/usdc-source/contracts/v1/Blacklistable.sol",
+      "sha256": "c788c40515a7255735bae06bebe0025af70a3713097bcc10293bd263f098ba90",
+      "origin": "fc85788bc7c23cefe3df1a757133048bfddadeaa",
+      "lineCount": 120
+    },
+    "u-rescue": {
+      "snapshot": "../../.state/usdc-source/contracts/v1.1/Rescuable.sol",
+      "sha256": "dcbfd372225bef5d8b4e76cea28bf172260a0eb85eeda666b0447e37123e100c",
+      "origin": "fc85788bc7c23cefe3df1a757133048bfddadeaa",
+      "lineCount": 74
+    },
+    "u-v11": {
+      "snapshot": "../../.state/usdc-source/contracts/v1.1/FiatTokenV1_1.sol",
+      "sha256": "f69c5a0b774b213eaead9641a2d5a40d6bb459207a3b2b8cf580bc2622a50ffc",
+      "origin": "fc85788bc7c23cefe3df1a757133048bfddadeaa",
+      "lineCount": 30
+    },
+    "u-v2": {
+      "snapshot": "../../.state/usdc-source/contracts/v2/FiatTokenV2.sol",
+      "sha256": "e50ea04584155d83d326b4dcdfe9668fc29d4d351f0f9ba87bd49897bede8af8",
+      "origin": "fc85788bc7c23cefe3df1a757133048bfddadeaa",
+      "lineCount": 239
+    },
+    "u-v21": {
+      "snapshot": "../../.state/usdc-source/contracts/v2/FiatTokenV2_1.sol",
+      "sha256": "ec3a38d994c9880e318cfa5543f0b7847f77e197d67e7164c9a0313006e8b1eb",
+      "origin": "fc85788bc7c23cefe3df1a757133048bfddadeaa",
+      "lineCount": 54
+    },
+    "t-eth": {
+      "snapshot": "../../.state/usdt-controls/source-01.sol",
+      "sha256": "36bf0b5747dfe7f79a03c9bc09af63e93e352d3c61199fbf025fd2c962b485f8",
+      "origin": "SOURCIFY_THIRD_PARTY_SNAPSHOT_ISSUER_REVISION_UNKNOWN",
+      "lineCount": 447
+    },
+    "r-base": {
+      "snapshot": "../../.state/rlusd-controls/archive/contracts/StablecoinUpgradeable.sol",
+      "sha256": "31d051fde36df4d1d30f640fa9be924b5171723aaeabdef1ffb74c2ecdd1a627",
+      "origin": "3632128f690aa8aaf1d23628adb54f4be60303f1",
+      "lineCount": 195
+    },
+    "r-v2": {
+      "snapshot": "../../.state/rlusd-controls/archive/contracts/StablecoinUpgradeableV2.sol",
+      "sha256": "e68627eae643d584fabf885b92850686839cc1dcaab84115f85ee3257b2073df",
+      "origin": "3632128f690aa8aaf1d23628adb54f4be60303f1",
+      "lineCount": 147
+    },
+    "r-account": {
+      "snapshot": "../../.state/rlusd-controls/archive/contracts/AccountPausableUpgradeable.sol",
+      "sha256": "72099e204f56ed157c7cdd60be4268650007fbff46cedd1677543734a9194ace",
+      "origin": "3632128f690aa8aaf1d23628adb54f4be60303f1",
+      "lineCount": 114
+    }
+  },
+  "profiles": [
+    {
+      "profileId": "ethereum-usdc",
+      "sourceReviewStatus": "SOURCE_REVIEWED",
+      "reviewScope": "SELECTED_PINNED_FUNCTION_BODIES_NOT_FULL_DEPLOYMENT_AUDIT",
+      "provenanceRecord": "usdc-source-binding.json",
+      "findings": [
+        {
+          "id": "usdc-transfer",
+          "signatures": [
+            "transfer(address,uint256)",
+            "transferFrom(address,address,uint256)"
+          ],
+          "conditionsInSource": "V1 inherited path: whenNotPaused; transfer checks sender/to; transferFrom checks caller/from/to against blacklist; nonzero endpoints, sufficient balance and allowance.",
+          "sourceBehavior": "Both return true; _transfer emits Transfer. transferFrom subtracts allowance even at uint256 maximum; no additional Approval emitted by this body.",
+          "references": [
+            {
+              "sourceId": "u-v1",
+              "startLine": 258,
+              "endLine": 320,
+              "excerptSha256": "a97c3a939a1c63e48088e5df080ed0d753ee338e49879f4edf510c2af8d48e4f"
+            }
+          ]
+        },
+        {
+          "id": "usdc-approve-version-difference",
+          "signatures": [
+            "approve(address,uint256)"
+          ],
+          "conditionsInSource": "V1 adds whenNotPaused + sender/spender blacklist checks. V2.2 override adds whenNotPaused and calls inherited _approve; no blacklist modifier in override or _approve.",
+          "sourceBehavior": "_approve rejects zero owner/spender, overwrites allowance and emits Approval; no zero-reset precondition in reviewed path. Returns true. V1 conditions must not be copied onto V2.2.",
+          "references": [
+            {
+              "sourceId": "u-v1",
+              "startLine": 220,
+              "endLine": 248,
+              "excerptSha256": "d0020928040e31be6d358aa8d4202a309fbd1aa9f29dfe6e90beebb154e8a393"
+            },
+            {
+              "sourceId": "u-v22",
+              "startLine": 262,
+              "endLine": 272,
+              "excerptSha256": "131c345b165bf8f47f5e24aba71a39aa73023088345fea3da78da5899c1d9d0a"
+            }
+          ]
+        },
+        {
+          "id": "usdc-mint",
+          "signatures": [
+            "mint(address,uint256)"
+          ],
+          "conditionsInSource": "whenNotPaused -> onlyMinters -> notBlacklisted(caller) -> notBlacklisted(to); nonzero target, positive amount within minterAllowed.",
+          "sourceBehavior": "Increases supply/recipient balance, reduces minting allowance; Mint and Transfer(zero,to,amount), returns true.",
+          "references": [
+            {
+              "sourceId": "u-v1",
+              "startLine": 109,
+              "endLine": 145,
+              "excerptSha256": "160f7d1263804b2065e9c4fff7c7cb3da0668a1d362d412d0dfe89550a5ac974"
+            }
+          ]
+        },
+        {
+          "id": "usdc-minter-management",
+          "signatures": [
+            "configureMinter(address,uint256)",
+            "removeMinter(address)"
+          ],
+          "conditionsInSource": "configureMinter: whenNotPaused then onlyMasterMinter; removeMinter: onlyMasterMinter.",
+          "sourceBehavior": "Configures status/minting allowance or removes status and zeros allowance; respective events, true.",
+          "references": [
+            {
+              "sourceId": "u-v1",
+              "startLine": 150,
+              "endLine": 156,
+              "excerptSha256": "c2c550d860c34d353931955d25c343dcdc73514027091f7ef818702486c48060"
+            },
+            {
+              "sourceId": "u-v1",
+              "startLine": 329,
+              "endLine": 355,
+              "excerptSha256": "a0a9ae4a1c52185a3eb8800e88f961c97bd1bc062286ab59b404734029a6feef"
+            }
+          ]
+        },
+        {
+          "id": "usdc-burn",
+          "signatures": [
+            "burn(uint256)"
+          ],
+          "conditionsInSource": "whenNotPaused -> onlyMinters -> notBlacklisted(caller); positive amount no greater than own balance.",
+          "sourceBehavior": "Burns caller holdings and supply, Burn and Transfer to zero; not arbitrary holder clawback.",
+          "references": [
+            {
+              "sourceId": "u-v1",
+              "startLine": 363,
+              "endLine": 378,
+              "excerptSha256": "d213ed792a47883f02e686eb6e1fe9a8b8ad95de5694e5aa1eff7fe529895997"
+            }
+          ]
+        },
+        {
+          "id": "usdc-role-updates",
+          "signatures": [
+            "transferOwnership(address)",
+            "updateMasterMinter(address)",
+            "updatePauser(address)",
+            "updateBlacklister(address)",
+            "updateRescuer(address)"
+          ],
+          "conditionsInSource": "onlyOwner with nonzero replacement checks in selected bodies; token owner role distinct from a proxy admin.",
+          "sourceBehavior": "Updates selected role address; actual holders/signers and proxy upgrade execution are outside this source review.",
+          "references": [
+            {
+              "sourceId": "u-owner",
+              "startLine": 73,
+              "endLine": 90,
+              "excerptSha256": "ec83e88c95ff4f53983851bc08abc0f114bb6ae0a2011cbbe6db28a49efa6562"
+            },
+            {
+              "sourceId": "u-v1",
+              "startLine": 384,
+              "endLine": 391,
+              "excerptSha256": "858e441ff0f9dcb0b7ac4d68908806cc80f183d2caebb5bff0b2e6b61ec1374d"
+            },
+            {
+              "sourceId": "u-pause",
+              "startLine": 87,
+              "endLine": 94,
+              "excerptSha256": "47b7e45686bf9daabaa7443ce3baad9fe25278fd387e4614859ee7e3be446c38"
+            },
+            {
+              "sourceId": "u-blacklist",
+              "startLine": 90,
+              "endLine": 99,
+              "excerptSha256": "e6f0b05aa3b56e42217f27d4bb5c56ef8bf7003c48dd9e7a05d8f1d22fa6a60d"
+            },
+            {
+              "sourceId": "u-rescue",
+              "startLine": 66,
+              "endLine": 73,
+              "excerptSha256": "d88c09815d5c94a4c21d73205140c1153db9dfe55acb1df3b8b45946c69ab2ba"
+            }
+          ]
+        },
+        {
+          "id": "usdc-pause",
+          "signatures": [
+            "pause()",
+            "unpause()"
+          ],
+          "conditionsInSource": "onlyPauser, not generic owner for calling these functions.",
+          "sourceBehavior": "Changes paused flag, Pause/Unpause events.",
+          "references": [
+            {
+              "sourceId": "u-pause",
+              "startLine": 62,
+              "endLine": 81,
+              "excerptSha256": "d8b64554ee04f7ff2080ee5111ca156e15bb12ba146bef9a5d4b16f5d943f4b3"
+            }
+          ]
+        },
+        {
+          "id": "usdc-blacklist",
+          "signatures": [
+            "blacklist(address)",
+            "unBlacklist(address)"
+          ],
+          "conditionsInSource": "onlyBlacklister.",
+          "sourceBehavior": "Writes blacklist through internal override and emits Blacklisted/UnBlacklisted; no arbitrary-balance burn function inferred.",
+          "references": [
+            {
+              "sourceId": "u-blacklist",
+              "startLine": 38,
+              "endLine": 55,
+              "excerptSha256": "16ebca3bd8d0c992ee8be164cfda751afa3accc367b763c54188c1d06ab8d2c9"
+            },
+            {
+              "sourceId": "u-blacklist",
+              "startLine": 71,
+              "endLine": 84,
+              "excerptSha256": "43f731dad377c767512b697d895c1c304692e3b136d1db3dcb2d53623580fd8a"
+            },
+            {
+              "sourceId": "u-v1",
+              "startLine": 396,
+              "endLine": 421,
+              "excerptSha256": "915affce872f20c221e28b91a4809e4f4248751751d60e5a67ed2368b29a36e7"
+            },
+            {
+              "sourceId": "u-v22",
+              "startLine": 196,
+              "endLine": 212,
+              "excerptSha256": "39447848a244e2dd8107861c743563fae7050244a57c99791d77339b4e86a7c4"
+            }
+          ]
+        },
+        {
+          "id": "usdc-rescue",
+          "signatures": [
+            "rescueERC20(address,address,uint256)"
+          ],
+          "conditionsInSource": "onlyRescuer; address type in Solidity is IERC20 for tokenContract.",
+          "sourceBehavior": "Calls safeTransfer on selected tokens held by this contract; not authority to spend arbitrary user wallets.",
+          "references": [
+            {
+              "sourceId": "u-rescue",
+              "startLine": 43,
+              "endLine": 60,
+              "excerptSha256": "baebead7ba286b2c24a090744c804cd56ea07695396af60ba833279d2f0e852a"
+            }
+          ]
+        }
+      ],
+      "limitations": [
+        "Official pinned source candidate, not deployed bytecode identity.",
+        "Proxy-admin source not reviewed here; token owner and proxy admin are separate.",
+        "Only source version-specific findings apply; V2.2 overrides V1 approval restrictions."
+      ],
+      "deploymentSourceBinding": "UNKNOWN",
+      "actualAuthorityExercise": "NOT_TESTED"
+    },
+    {
+      "profileId": "ethereum-usdt",
+      "sourceReviewStatus": "SOURCE_REVIEWED",
+      "reviewScope": "SELECTED_PINNED_FUNCTION_BODIES_NOT_FULL_DEPLOYMENT_AUDIT",
+      "provenanceRecord": "usdt-control-provenance.json",
+      "findings": [
+        {
+          "id": "usdt-local-transfer",
+          "signatures": [
+            "transfer(address,uint256)"
+          ],
+          "conditionsInSource": "Outer token whenNotPaused + sender not blacklisted; deprecated selects forwarding, otherwise BasicToken.transfer with payload-size guard.",
+          "sourceBehavior": "Local function has no bool output. Fee = value*basisPointsRate/10000 capped maximumFee, recipient gets remainder; optional fee Transfer to owner plus recipient Transfer.",
+          "references": [
+            {
+              "sourceId": "t-eth",
+              "startLine": 122,
+              "endLine": 137,
+              "excerptSha256": "611323cd6bb0c342ecdef65e7bbb2c1564b5c3b15256f066e78dd495f6390f2d"
+            },
+            {
+              "sourceId": "t-eth",
+              "startLine": 336,
+              "endLine": 344,
+              "excerptSha256": "e3223ec3085dc505aa176f54cd69de9a11857da36df9d68d8cdab1ea5737f960"
+            }
+          ]
+        },
+        {
+          "id": "usdt-local-delegated",
+          "signatures": [
+            "transferFrom(address,address,uint256)"
+          ],
+          "conditionsInSource": "Outer token whenNotPaused + from not blacklisted; local StandardToken path subtracts allowance except MAX_UINT.",
+          "sourceBehavior": "No bool output; local capped-fee transfer and optional fee event. No generalized receiver/caller blacklist check beyond source body.",
+          "references": [
+            {
+              "sourceId": "t-eth",
+              "startLine": 167,
+              "endLine": 188,
+              "excerptSha256": "d450ea7903e644fc991aa4792b5520a1fffa4a66240e4e3e5ff75bbf2d8ac8c6"
+            },
+            {
+              "sourceId": "t-eth",
+              "startLine": 346,
+              "endLine": 354,
+              "excerptSha256": "c0f4d7849c0dcb548f73252e3e060337f2817a01e1b173adc89725c5ad2cef96"
+            }
+          ]
+        },
+        {
+          "id": "usdt-local-approve",
+          "signatures": [
+            "approve(address,uint256)"
+          ],
+          "conditionsInSource": "Payload-size guard; deprecated forwards, local path rejects nonzero-to-nonzero allowance change. No whenNotPaused/blacklist modifier on reviewed approve path.",
+          "sourceBehavior": "Local allowance overwrite + Approval, no bool output; zero-reset required for nonzero replacement. Forwarded target behavior not reviewed.",
+          "references": [
+            {
+              "sourceId": "t-eth",
+              "startLine": 195,
+              "endLine": 207,
+              "excerptSha256": "61c57894ad309eb85649b6a40cc1ad77213c018cb1c42cdc9c5d15d8c7cc9804"
+            },
+            {
+              "sourceId": "t-eth",
+              "startLine": 365,
+              "endLine": 372,
+              "excerptSha256": "47cef86051fd61f1b44e87c21fd98e22a1fcc93d295ec396caa247be8889df12"
+            }
+          ]
+        },
+        {
+          "id": "usdt-owner-controls",
+          "signatures": [
+            "pause()",
+            "unpause()",
+            "addBlackList(address)",
+            "removeBlackList(address)",
+            "destroyBlackFunds(address)"
+          ],
+          "conditionsInSource": "onlyOwner; pause/unpause include opposite paused-state guards; destroyBlackFunds requires blacklisted target.",
+          "sourceBehavior": "Owner can toggle pause/blacklist; destroy zeros local target balance and reduces local supply by balanceOf result. Do not generalize through deprecated forwarding.",
+          "references": [
+            {
+              "sourceId": "t-eth",
+              "startLine": 250,
+              "endLine": 261,
+              "excerptSha256": "cf95e0ea418cdfe3ffc1470d19a08474e6dc19bdd213d64680316ac834048b18"
+            },
+            {
+              "sourceId": "t-eth",
+              "startLine": 277,
+              "endLine": 294,
+              "excerptSha256": "1a56da996e5680e7259d4ba1f404e5ba5f1c32bed63c66c2ad840da1655027a9"
+            }
+          ]
+        },
+        {
+          "id": "usdt-issuance-fees",
+          "signatures": [
+            "issue(uint256)",
+            "redeem(uint256)",
+            "setParams(uint256,uint256)"
+          ],
+          "conditionsInSource": "onlyOwner; issue overflow guards, redeem supply/owner-balance checks; fee inputs constrained in setParams.",
+          "sourceBehavior": "issue/redeem change owner balance and supply; setParams changes fee fields (maximumFee scaled by decimals). Existence of fee controls is not a failure.",
+          "references": [
+            {
+              "sourceId": "t-eth",
+              "startLine": 402,
+              "endLine": 435,
+              "excerptSha256": "8a10033d661ff8ddb9f76ee7162e3dc9e63f94aafd9a807ea114f7d9414f4d63"
+            }
+          ]
+        },
+        {
+          "id": "usdt-legacy-forwarding",
+          "signatures": [
+            "deprecate(address)",
+            "transfer(address,uint256)",
+            "transferFrom(address,address,uint256)",
+            "approve(address,uint256)"
+          ],
+          "conditionsInSource": "deprecate is onlyOwner; token entry points branch on deprecated.",
+          "sourceBehavior": "Sets upgradedAddress/deprecated; calls legacy target, not an EIP1967-slot dispatch claim. Source-only review does not chase target or assert current dispatch.",
+          "references": [
+            {
+              "sourceId": "t-eth",
+              "startLine": 336,
+              "endLine": 399,
+              "excerptSha256": "2eb3dedf7eae808e545585d42992252657287ef64b944287dc923a6b7efc01a9"
+            }
+          ]
+        }
+      ],
+      "limitations": [
+        "Third-party Sourcify source; issuer repository revision unknown.",
+        "Source conclusions on local/deprecated branches are conditional; no target chase."
+      ],
+      "deploymentSourceBinding": "UNKNOWN",
+      "actualAuthorityExercise": "NOT_TESTED"
+    },
+    {
+      "profileId": "ethereum-rlusd",
+      "sourceReviewStatus": "SOURCE_REVIEWED",
+      "reviewScope": "SELECTED_PINNED_FUNCTION_BODIES_NOT_FULL_DEPLOYMENT_AUDIT",
+      "provenanceRecord": "rlusd-control-abi-study.json",
+      "findings": [
+        {
+          "id": "rlusd-role-controls",
+          "signatures": [
+            "mint(address,uint256)",
+            "burn(uint256)",
+            "clawback(address,uint256)",
+            "_authorizeUpgrade(address)"
+          ],
+          "conditionsInSource": "Direct declarations require MINTER_ROLE, BURNER_ROLE, CLAWBACKER_ROLE, UPGRADER_ROLE respectively.",
+          "sourceBehavior": "mint calls _mint; burn burns own holdings; clawback burns specified from; UUPS authorization hook gated by role. Inherited mint/burn/upgrade mechanics are not fully reviewed.",
+          "references": [
+            {
+              "sourceId": "r-base",
+              "startLine": 78,
+              "endLine": 105,
+              "excerptSha256": "0c5701619bee6227a201d8e8ef1df47e9bd3dfc63e29bc71dbdf1f0f6ac5c1db"
+            },
+            {
+              "sourceId": "r-base",
+              "startLine": 161,
+              "endLine": 161,
+              "excerptSha256": "05e57f5bf12568de6f95705072e3d3a30d0c4d749baaedd8c2ca9d9e6afaf10b"
+            }
+          ]
+        },
+        {
+          "id": "rlusd-pause",
+          "signatures": [
+            "pause()",
+            "unpause()",
+            "pauseAccounts(address[])",
+            "unpauseAccount(address)"
+          ],
+          "conditionsInSource": "onlyRole(PAUSER_ROLE); base pauseAccounts requires strictly sorted addresses. V2 override also rejects empty array and uses _tryPauseAccount.",
+          "sourceBehavior": "Global and per-account pause are distinct; per-account mapping and AccountPaused/AccountUnpaused events reviewed. Inherited global implementation not included.",
+          "references": [
+            {
+              "sourceId": "r-base",
+              "startLine": 113,
+              "endLine": 155,
+              "excerptSha256": "9c7fe994a5de5c70278485d3e0063c65709395ad89b804ed05f3aae1eec396ec"
+            },
+            {
+              "sourceId": "r-v2",
+              "startLine": 92,
+              "endLine": 104,
+              "excerptSha256": "31d6a1d62e5de1ddf81c2025e6bc571fddfeaf3d8b359748b115babf5d4a8abd"
+            },
+            {
+              "sourceId": "r-account",
+              "startLine": 75,
+              "endLine": 113,
+              "excerptSha256": "bb087080cae2780ce597734bd31ca31eb8c31811ada6be238c73f50ea58fd95b"
+            }
+          ]
+        },
+        {
+          "id": "rlusd-update-version-difference",
+          "signatures": [
+            "_update(address,address,uint256)"
+          ],
+          "conditionsInSource": "Base checks from -> to -> caller. V2 checks to -> caller, then skips from pause check only if to==zero and from!=caller.",
+          "sourceBehavior": "V2 allows frozen-from burn/clawback branch but does not bypass to/caller checks or the call to ERC20PausableUpgradeable._update. Global and full inherited effects remain limited by missing dependency source.",
+          "references": [
+            {
+              "sourceId": "r-base",
+              "startLine": 172,
+              "endLine": 179,
+              "excerptSha256": "84e733f39f6f28c79d5124f9217100fa59d8438e22c87eb75df9e4d3e77a9774"
+            },
+            {
+              "sourceId": "r-v2",
+              "startLine": 77,
+              "endLine": 89,
+              "excerptSha256": "be8583cfb66bc512a9b5910098720fa768303c3e49141dd98431f78800daa237"
+            }
+          ]
+        },
+        {
+          "id": "rlusd-approve",
+          "signatures": [
+            "approve(address,uint256)"
+          ],
+          "conditionsInSource": "V2 calls base approve; base modifiers check spender -> caller -> whenNotPaused.",
+          "sourceBehavior": "returns super.approve result. Full allowance mutation, zero-reset semantics and emitted Approval belong to absent ERC20Upgradeable dependency: INHERITED_NOT_REVIEWED, not assumed.",
+          "references": [
+            {
+              "sourceId": "r-base",
+              "startLine": 187,
+              "endLine": 195,
+              "excerptSha256": "b014d049a8369654294f77c65609e231b22a2813e831d9eb4aa293086dfbaf78"
+            },
+            {
+              "sourceId": "r-v2",
+              "startLine": 107,
+              "endLine": 113,
+              "excerptSha256": "dd5d2d4d3533a3230aaa2e24d85b3c325c720ac482150384d36272f5fb527af9"
+            }
+          ]
+        },
+        {
+          "id": "rlusd-permit",
+          "signatures": [
+            "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"
+          ],
+          "conditionsInSource": "V2 checks owner -> spender -> caller account pause -> global whenNotPaused.",
+          "sourceBehavior": "Calls super.permit; signature/nonce/allowance internals not reviewed because dependency sources absent.",
+          "references": [
+            {
+              "sourceId": "r-v2",
+              "startLine": 131,
+              "endLine": 146,
+              "excerptSha256": "d0dd3fefb3bcbd5652d95f74a2c2f965b42c32b06ea23fdef95e504a8d8b280b"
+            }
+          ]
+        },
+        {
+          "id": "rlusd-initialization",
+          "signatures": [
+            "initialize(string,string,address,address,address,address,address)",
+            "reinitialize()"
+          ],
+          "conditionsInSource": "Base initializer; V2 initialize _onlyUninitialized then reinitializer(2); V2 reinitialize reinitializer(2).",
+          "sourceBehavior": "Initializers grant selected admin/minter/upgrader/pauser/clawback roles, not BURNER_ROLE in these bodies. Absence of initial grant does not mean burn unavailable. Supplied ABI initialization names differ; no deployment identity conclusion.",
+          "references": [
+            {
+              "sourceId": "r-base",
+              "startLine": 51,
+              "endLine": 66,
+              "excerptSha256": "89938a41065e90af932ba21b601b6b31613cc6385e12ced19e9bb4924506c97d"
+            },
+            {
+              "sourceId": "r-v2",
+              "startLine": 24,
+              "endLine": 38,
+              "excerptSha256": "a98bbefce2c837aa4c2df3f1c61ac24af9b35cf62db94b9ba29b617421af0c04"
+            },
+            {
+              "sourceId": "r-v2",
+              "startLine": 54,
+              "endLine": 75,
+              "excerptSha256": "374be15b2b5a21f71c0f61754fb770ca93249acdce15e8b84dc31f2f99ed4fb9"
+            }
+          ]
+        }
+      ],
+      "limitations": [
+        "User archive matched recorded repository tree; not deployed source/ABI identity.",
+        "OpenZeppelin imports missing: inherited mechanics INHERITED_NOT_REVIEWED.",
+        "Supplied ABI initializer names differ from reviewed V2 source."
+      ],
+      "deploymentSourceBinding": "UNKNOWN",
+      "actualAuthorityExercise": "NOT_TESTED",
+      "supplementalSourceReviews": [
+        {
+          "reference": "rlusd-explorer-source-review.json",
+          "status": "SOURCE_REVIEWED",
+          "scope": "NEW_EXPLORER_SNAPSHOT_WITH_LOCAL_IMPORT_CLOSURE_AND_SELECTED_INHERITED_PATHS",
+          "priorArchiveUnchanged": true
+        }
+      ]
+    },
+    {
+      "profileId": "tron-usdt",
+      "sourceReviewStatus": "SOURCE_REVIEWED",
+      "findings": [],
+      "deploymentSourceBinding": "UNKNOWN",
+      "actualAuthorityExercise": "NOT_TESTED",
+      "sourceDiscovery": [
+        {
+          "url": "https://tronscan.org/contract/TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t/code",
+          "result": "WEB_EXTRACTION_INTERNAL_ERROR_NOT_HTTP_POLICY_DIAGNOSIS"
+        },
+        {
+          "url": "https://docs.tronscan.org/en/api/contract/contract-detail",
+          "result": "DOCUMENTED_CONTRACT_METADATA_NOT_SOURCE_BODIES"
+        }
+      ],
+      "supplementalSourceInputs": [
+        {
+          "reference": "tron-html-intake.json",
+          "status": "PARTIAL_RENDER_ONLY_FULL_SOURCE_UNAVAILABLE",
+          "documentation": "../TRON_SOURCE_HTML_INTAKE.md"
+        }
+      ],
+      "priorSourceReview": {
+        "sourceReviewStatus": "SOURCE_NOT_AVAILABLE",
+        "reason": "No pinned TRON deployment source snapshot; Ethereum USDT source is not substituted. Explorer code page extraction returned Internal Error; contract-detail documentation does not supply source bodies."
+      },
+      "reviewScope": "SELECTED_PATHS_IN_USER_EXPORTED_SOURCE_SNAPSHOT_NOT_DEPLOYMENT_AUTHENTICATION",
+      "supplementalSourceReviews": [
+        {
+          "reference": "tron-export-source-review.json",
+          "status": "SOURCE_REVIEWED",
+          "documentation": "../TRON_EXPORTED_SOURCE_REVIEW.md",
+          "inputSha256": "b4c0163910110198f41452e6f8f5d1322df70e4871b2fd35f09968b002480b49",
+          "findingCount": 10
+        }
+      ],
+      "limitations": [
+        "Filename associations inferred from declarations/imports; source provenance and deployed bytecode binding not authenticated.",
+        "Forwarded target implementation not supplied; runtime returns/current settings not observed.",
+        "Prior partial HTML intake and source-discovery errors are historical input diagnoses."
+      ]
+    },
+    {
+      "profileId": "solana-usdc",
+      "sourceReviewStatus": "PROTOCOL_DOCUMENTED_ONLY",
+      "findings": [],
+      "reference": "../STABLECOIN_ACCOUNT_MODELS.md",
+      "reason": "Protocol account model researched; per-asset implementation/settings not reviewed. No execution adapter in current scope.",
+      "supplementalReadObservations": [
+        {
+          "reference": "solana-mint-observation.json",
+          "status": "OBSERVED",
+          "documentation": "../SOLANA_MINT_READONLY.md",
+          "scope": "MINT_SETTINGS_ONLY_NOT_AUTHORITY_EXERCISE_OR_SOURCE_BINDING"
+        }
+      ]
+    },
+    {
+      "profileId": "solana-usdt",
+      "sourceReviewStatus": "PROTOCOL_DOCUMENTED_ONLY",
+      "findings": [],
+      "reference": "../STABLECOIN_ACCOUNT_MODELS.md",
+      "reason": "Protocol account model researched; per-asset implementation/settings not reviewed. No execution adapter in current scope.",
+      "supplementalReadObservations": [
+        {
+          "reference": "solana-mint-observation.json",
+          "status": "OBSERVED",
+          "documentation": "../SOLANA_MINT_READONLY.md",
+          "scope": "MINT_SETTINGS_ONLY_NOT_AUTHORITY_EXERCISE_OR_SOURCE_BINDING"
+        }
+      ]
+    },
+    {
+      "profileId": "xrpl-usdc",
+      "sourceReviewStatus": "PROTOCOL_DOCUMENTED_ONLY",
+      "findings": [],
+      "reference": "../STABLECOIN_ACCOUNT_MODELS.md",
+      "reason": "Protocol account model researched; per-asset implementation/settings not reviewed. No execution adapter in current scope.",
+      "supplementalReadObservations": [
+        {
+          "reference": "xrpl-issuer-observation.json",
+          "status": "OBSERVED",
+          "documentation": "../XRPL_ISSUER_READONLY.md",
+          "scope": "ISSUER_ACCOUNTROOT_SETTINGS_ONLY_NOT_AUTHORITY_EXERCISE_OR_SOURCE_BINDING"
+        }
+      ]
+    },
+    {
+      "profileId": "xrpl-rlusd",
+      "sourceReviewStatus": "PROTOCOL_DOCUMENTED_ONLY",
+      "findings": [],
+      "reference": "../STABLECOIN_ACCOUNT_MODELS.md",
+      "reason": "Protocol account model researched; per-asset implementation/settings not reviewed. No execution adapter in current scope.",
+      "supplementalReadObservations": [
+        {
+          "reference": "xrpl-issuer-observation.json",
+          "status": "OBSERVED",
+          "documentation": "../XRPL_ISSUER_READONLY.md",
+          "scope": "ISSUER_ACCOUNTROOT_SETTINGS_ONLY_NOT_AUTHORITY_EXERCISE_OR_SOURCE_BINDING"
+        }
+      ]
+    }
+  ],
+  "newRpcRequests": "0",
+  "scopeCompletion": "SELECTED_AVAILABLE_SOURCE_REVIEW_COMPLETE_WITH_EXPLICIT_GAPS"
+}

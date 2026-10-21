@@ -1,0 +1,105 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "DOCUMENTED_CONTROL_PROVENANCE_NOT_ASSESSMENT",
+  "reviewedAt": "2026-10-20T01:45:41.376229+00:00",
+  "scope": "ETHEREUM_MAINNET_DESIGN_DOCUMENTS_ONLY_NO_NEW_RPC",
+  "networkId": "1",
+  "proxy": "0x8292bb45bf1ee4d140127049757c2e0ff06317ed",
+  "historicalDeclaredImplementation": "0x9747a0d261c2d56eb93f542068e5d1e23170fa9e",
+  "priorObservation": {
+    "report": "../../reports/rlusd-readonly.json",
+    "sha256": "b164f5a99ff8ba3c6248e08e616f45cec113052c0ae8cc0f1c25aa449b6575ba",
+    "block": "26230253",
+    "currentImplementation": "UNKNOWN"
+  },
+  "officialLinkChain": [
+    {
+      "url": "https://docs.ripple.com/products/stablecoin/developer-resources/rlusd-on-ethereum",
+      "section": "Further reading / RLUSD GitHub repository",
+      "target": "https://github.com/ripple/RLUSD-Implementation",
+      "provenance": "DOCUMENTED"
+    },
+    {
+      "url": "https://github.com/ripple/RLUSD-Implementation/blob/3632128f690aa8aaf1d23628adb54f4be60303f1/README.md",
+      "section": "EVM Compatible Implementation",
+      "target": "https://github.com/ripple/RLUSD-Implementation/blob/3632128f690aa8aaf1d23628adb54f4be60303f1/doc/rlusd-evm-compatible-design.md",
+      "provenance": "DOCUMENTED"
+    }
+  ],
+  "repositoryRevision": {
+    "repository": "https://github.com/ripple/RLUSD-Implementation",
+    "refAtLookup": "main",
+    "commit": "3632128f690aa8aaf1d23628adb54f4be60303f1",
+    "tree": "4901f0b35e551f9315c31bae29662f34876c226d",
+    "commitResponseSha256": "af3802adbb197f88c3fba5573a906f1131af1d2638f778447b435e647ea2ce49",
+    "scope": "SOURCE_DOCUMENT_REVISION_NOT_DEPLOYMENT_REVISION"
+  },
+  "files": [
+    {
+      "path": "README.md",
+      "permalink": "https://github.com/ripple/RLUSD-Implementation/blob/3632128f690aa8aaf1d23628adb54f4be60303f1/README.md",
+      "bytes": 442,
+      "sha256": "39baf487de8c331224a0e24609fe934efb1ac477b6f392bf4381553d8fcf6cfd",
+      "gitBlobSha1": "b58806d773b451b7b5becd0e359c1e1d41e8eaed",
+      "retrieval": "GITHUB_CONTENTS_AT_COMMIT",
+      "blobCheck": "MATCHED_CONTENTS_RESPONSE_BEFORE_SAVE",
+      "localSnapshot": "../../.state/rlusd-controls/README.md"
+    },
+    {
+      "path": "doc/rlusd-evm-compatible-design.md",
+      "permalink": "https://github.com/ripple/RLUSD-Implementation/blob/3632128f690aa8aaf1d23628adb54f4be60303f1/doc/rlusd-evm-compatible-design.md",
+      "bytes": 7094,
+      "sha256": "4835c4e56be6331189b5ff9e37023fa16153b723f6b1a3f3a62c78d7d83aa52f",
+      "gitBlobSha1": "f590b36b0a204da4f6b2a1cce1e37e09e635f743",
+      "retrieval": "GITHUB_CONTENTS_AT_COMMIT",
+      "blobCheck": "MATCHED_CONTENTS_RESPONSE_BEFORE_SAVE",
+      "localSnapshot": "../../.state/rlusd-controls/doc/rlusd-evm-compatible-design.md"
+    }
+  ],
+  "documentedDesign": {
+    "provenance": "DOCUMENTED",
+    "sourcePath": "doc/rlusd-evm-compatible-design.md",
+    "roleModel": [
+      "Role Admin",
+      "Minter",
+      "Burner",
+      "Pauser",
+      "Clawbacker",
+      "Upgrader"
+    ],
+    "upgradePattern": "UUPS",
+    "signingModelClaim": "CUSTOM_MULTISIGN",
+    "scope": "ISSUER_DESIGN_DESCRIPTION_NOT_OBSERVED_AUTHORITY_OR_BEHAVIOR"
+  },
+  "getterCandidates": [],
+  "getterCandidateStatus": "NO_CANONICAL_READ_ABI_ACQUIRED",
+  "retrievalLimitations": [
+    {
+      "resource": "https://github.com/ripple/RLUSD-Implementation/blob/main/doc/rlusd-ethereum-design.md",
+      "result": "HTTP 404 Not Found",
+      "meaning": "OLD_LINK_FAILURE_NOT_ABSENCE_OF_DESIGN_OR_CONTROLS"
+    },
+    {
+      "resource": "https://github.com/ripple/RLUSD-Implementation/tree/main/contracts",
+      "result": "Failed to fetch restricted URL",
+      "diagnosis": "BROWSER_TOOL_ERROR_NO_PROXY_DIAGNOSIS"
+    },
+    {
+      "resource": "https://api.github.com/repos/ripple/RLUSD-Implementation/contents/LICENSE?ref=3632128f690aa8aaf1d23628adb54f4be60303f1",
+      "result": "HTTP 403 rate limit exceeded",
+      "meaning": "README_AND_DESIGN_WERE_SAVED_BEFORE_THIS_FAILURE_NO_FURTHER_DOWNLOAD_ATTEMPT"
+    }
+  ],
+  "deploymentSourceBinding": "UNKNOWN",
+  "authorityState": "UNKNOWN",
+  "support": "UNKNOWN",
+  "getterExecution": "NOT_TESTED",
+  "behaviorExecution": "NOT_TESTED",
+  "nextStep": "ACQUIRE_CANONICAL_CONTROL_SOURCE_AND_ABI_WHEN_ACCESS_AVAILABLE_THEN_PLAN_QUALIFIED_READS",
+  "limitations": [
+    "Document revision and hashes do not link source to deployed runtime.",
+    "Historical proxy/implementation observations are not current dispatch or authority evidence.",
+    "Do not infer owner(), paused(), role constants, membership getters or account-freeze getter ABI from design prose or another asset.",
+    "Do not infer multisig signers, quorum or deployed role accounts from issuer design claims."
+  ]
+}

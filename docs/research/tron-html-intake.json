@@ -1,0 +1,107 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "TRON_USER_HTML_INTAKE_NOT_COMPLETE_SOURCE",
+  "provenance": "USER_PROVIDED_EXPLORER_HTML",
+  "inspectedAt": "2026-10-21T00:30:23.762331+00:00",
+  "inputHtmlSha256": "1e56c3624c543494e54e4f5eee9b823a30cd9f3d413437d0e6fe9332a4c71151",
+  "inputBytes": 2462770,
+  "claimedContract": "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+  "claimedAddressAuthentication": "NOT_ESTABLISHED",
+  "editorCount": 10,
+  "visibleLineCount": "170",
+  "files": [
+    {
+      "fileLabel": "BasicToken.sol",
+      "visibleLineCount": 17,
+      "firstRenderedLine": 1,
+      "lastRenderedLine": 17,
+      "renderedTextSha256": "9727f7c22ec9f3303e8fb6beac3a9570ed5e6642080db4c5e0dbfe839ea47003",
+      "sourceBodyCompleteness": "PARTIAL_RENDER_ONLY"
+    },
+    {
+      "fileLabel": "BlackList.sol",
+      "visibleLineCount": 17,
+      "firstRenderedLine": 1,
+      "lastRenderedLine": 17,
+      "renderedTextSha256": "5e58ea2cb3fbc60729f8d8c8a9c8fbb62d38d0a57cf0121a7b58e9dd1ba6a015",
+      "sourceBodyCompleteness": "PARTIAL_RENDER_ONLY"
+    },
+    {
+      "fileLabel": "Migrations.sol",
+      "visibleLineCount": 17,
+      "firstRenderedLine": 1,
+      "lastRenderedLine": 17,
+      "renderedTextSha256": "a4ad8cdb5eb5b7a0a92c87bc1b0bfdf3368243a8383b34ea838b024b0444be53",
+      "sourceBodyCompleteness": "PARTIAL_RENDER_ONLY"
+    },
+    {
+      "fileLabel": "MultiSigWallet.sol",
+      "visibleLineCount": 17,
+      "firstRenderedLine": 1,
+      "lastRenderedLine": 17,
+      "renderedTextSha256": "344d7b57e8f3f80b3cc45547695441cd5316635ae19e6f52e4c487ebee958942",
+      "sourceBodyCompleteness": "PARTIAL_RENDER_ONLY"
+    },
+    {
+      "fileLabel": "Ownable.sol",
+      "visibleLineCount": 17,
+      "firstRenderedLine": 1,
+      "lastRenderedLine": 17,
+      "renderedTextSha256": "1758e8ff4a32c32be64adec7af445bfb37f9b73bd32ee84cd1f9c41c6c6f5e25",
+      "sourceBodyCompleteness": "PARTIAL_RENDER_ONLY"
+    },
+    {
+      "fileLabel": "Pausable.sol",
+      "visibleLineCount": 17,
+      "firstRenderedLine": 1,
+      "lastRenderedLine": 17,
+      "renderedTextSha256": "6aeb94c467910edb7cc6b032b48d695cb638c8eb03417afd08c1ccf05e035a0c",
+      "sourceBodyCompleteness": "PARTIAL_RENDER_ONLY"
+    },
+    {
+      "fileLabel": "SafeMath.sol",
+      "visibleLineCount": 17,
+      "firstRenderedLine": 1,
+      "lastRenderedLine": 17,
+      "renderedTextSha256": "6ff84e5a49c04dfae6bfde09d2bdf9aa1d5c458c014cafe154446297704a2cc5",
+      "sourceBodyCompleteness": "PARTIAL_RENDER_ONLY"
+    },
+    {
+      "fileLabel": "StandardToken.sol",
+      "visibleLineCount": 17,
+      "firstRenderedLine": 1,
+      "lastRenderedLine": 17,
+      "renderedTextSha256": "4554000d553a81de38e11fa2b9fa58c289206b7d1e9adf5204b96a85a9a5af69",
+      "sourceBodyCompleteness": "PARTIAL_RENDER_ONLY"
+    },
+    {
+      "fileLabel": "StandardTokenWithFees.sol",
+      "visibleLineCount": 17,
+      "firstRenderedLine": 1,
+      "lastRenderedLine": 17,
+      "renderedTextSha256": "846f116bf3264eae0e594e8ab1f7552d96e6951cd200819eb97fb07fae4a8ada",
+      "sourceBodyCompleteness": "PARTIAL_RENDER_ONLY"
+    },
+    {
+      "fileLabel": "TetherToken.sol",
+      "visibleLineCount": 17,
+      "firstRenderedLine": 1,
+      "lastRenderedLine": 17,
+      "renderedTextSha256": "87d2a021d4648325ad2a094359668b456a37792464329bd58c394a5b0b7477ad",
+      "sourceBodyCompleteness": "PARTIAL_RENDER_ONLY"
+    }
+  ],
+  "hydration": {
+    "frameCount": 1,
+    "containsSolidityPragma": false,
+    "completeSourceBundleFound": false
+  },
+  "sourceReviewStatus": "SOURCE_NOT_AVAILABLE",
+  "reason": "Only virtualized Monaco DOM viewport lines1..17 per file are saved; no full Solidity source object/literal found. Rendered fragments are not exported as complete .sol files.",
+  "htmlExecuted": false,
+  "networkRequests": "0",
+  "originalPreserved": true,
+  "localExportHelper": "../../tools/research/export-tron-editor-sources.js",
+  "browserExportExecution": "NOT_TESTED",
+  "helperValidation": "LOCAL_MOCK_ONLY_NO_NETWORK"
+}

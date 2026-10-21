@@ -1,4 +1,5 @@
 import { RpcError } from './evm/rpc.js';
+import { JsonRpcError } from './rpc/json-rpc.js';
 
 const localMessages = new Set([
   'lab accepts only --profile and --out', 'Unknown profile', 'assess uses the read-only baseline profile',
@@ -12,6 +13,18 @@ const localMessages = new Set([
   'Receipt timeout; execution outcome unknown',
   'Report output must be a regular file path.', 'Could not save report; details omitted.',
   'Report saved, but temporary cleanup failed.',
+  'Set TRON_RPC_URL in the environment', 'Unknown chain. Use evm or tron.',
+  'Set SOLANA_RPC_URL in the environment', 'Unknown chain. Use evm, tron or solana.',
+  'Invalid Solana token account address.', 'Invalid XRPL holder address.', '--token-account requires --chain solana.',
+  'Solana requires --token-account instead of --holder.', 'XRPL accepts issuer, currency and optional holder.',
+  'Invalid Solana network reference.', 'Solana holder queries are not implemented.',
+  'Solana mint is outside the supported read-only set.',
+  'Set XRPL_RPC_URL in the environment', 'Unknown chain. Use evm, tron, solana or xrpl.',
+  'Issuer and currency options require XRPL.', 'Currency code requires XRPL.',
+  'Invalid XRPL network reference.', 'XRPL accepts issuer and currency only.',
+  'Unsupported XRPL currency and issuer pair.', 'XRPL holder queries are not implemented.',
+  'Invalid TRON address.', 'Invalid TRON network id.', 'Invalid TRON head reference.',
+  'Unsupported TRON read method.', 'TRON spender requires holder.', '--spender requires --chain tron.',
 ]);
 
 // Never interpolate arbitrary exception text, causes, stack, input or endpoint fragments.
@@ -25,6 +38,7 @@ function trustedMessage(error: unknown): string {
   if (error instanceof RpcError && Number.isSafeInteger(error.code)) {
     return `${error.reverted ? 'Execution reverted' : 'RPC error'} (code ${error.code})`;
   }
+  if (error instanceof JsonRpcError && Number.isSafeInteger(error.code)) return `RPC error (code ${error.code})`;
   if (error.name === 'InvalidAddressError') return 'Invalid address input.';
   const code = (error as Error & { code?: unknown }).code;
   if (typeof code === 'string' && code.startsWith('ERR_PARSE_ARGS_')) return 'Invalid command options. Use --help.';

@@ -3,7 +3,8 @@ export const known = <T>(value: T): Knowledge<T> => ({ status: 'KNOWN', value })
 export const unknown = (reason: string): Knowledge<never> => ({ status: 'UNKNOWN', reason });
 export const na = (reason: string): Knowledge<never> => ({ status: 'NOT_APPLICABLE', reason });
 export interface AssetIdentity {
-  chainFamily: 'EVM' | 'TRON' | 'SOLANA'; networkId: string;
+  chainFamily: 'EVM' | 'TRON' | 'SOLANA' | 'XRPL'; networkId: string;
+  issuedCurrency?: Knowledge<string>;
   assetStandard: Knowledge<string>; contractAddress: Knowledge<string>;
   mintAddress: Knowledge<string>; tokenProgramId: Knowledge<string>;
   symbol: Knowledge<string>; name: Knowledge<string>; decimals: Knowledge<number>;

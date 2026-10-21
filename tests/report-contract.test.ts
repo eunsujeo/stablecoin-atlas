@@ -59,6 +59,7 @@ test('v1 schema rejects missing fields, unknown core enums and lossy amount enco
     r => Object.assign(r.results[0]!.observations, { balance: '1e18' }),
     r => Object.assign(r.results[0]!.observations, { balance: '-1' }),
     r => Object.assign(r.results[0]!.observations, { initialAllowance: '-1' }),
+    ...[1, '-1', '1e18'].map(allowance => (r: AssessmentReport) => Object.assign(r.results[0]!.observations, { allowance })),
     r => Object.assign(r.results[0]!.observations, { supplyBeforeNegative: 1 }),
     r => Object.assign(r.results[0]!.observations, { supplyAfterNegative: '1e12' }),
     r => Object.assign(r.results[0]!.observations, { metadata: { totalSupply: { status: 'OK', value: 1 } } }),
@@ -93,7 +94,7 @@ test('cross-record contract rejects broken evidence, identity, summary and scena
   for (const verdict of ['PASS', 'FAIL'] as const) {
     const r = sample(verdict);
     r.evidence[0]!.provenance = 'DOCUMENTED';
-    assert.throws(() => assertReportContract(r), /Missing observed evidence/);
+    assert.throws(() => assertReportContract(r), /OBSERVED_EVIDENCE_REQUIRED/);
     r.results[0]!.evidenceReferences = [];
     assert.equal(validateReportShape(r), false);
   }

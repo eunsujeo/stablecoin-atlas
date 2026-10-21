@@ -1,0 +1,371 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Qualified RLUSD control probe v1 (not AssessmentReport)",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "kind": {
+      "const": "QUALIFIED_RLUSD_CONTROL_PROBE_NOT_ASSESSMENT"
+    },
+    "sourceBinding": {
+      "const": "UNKNOWN"
+    },
+    "verdict": {
+      "const": "INCONCLUSIVE"
+    },
+    "support": {
+      "const": "UNKNOWN"
+    },
+    "authorityState": {
+      "const": "UNKNOWN"
+    },
+    "issuerVerificationStatus": {
+      "const": "UNKNOWN"
+    },
+    "nativeOrBridged": {
+      "const": "UNKNOWN"
+    },
+    "behaviorExecution": {
+      "const": "NOT_TESTED"
+    },
+    "reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "networkId",
+        "proxy",
+        "implementation",
+        "proxyCodeHash",
+        "implementationCodeHash"
+      ],
+      "properties": {
+        "networkId": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*$"
+        },
+        "proxy": {
+          "type": "string",
+          "pattern": "^0x[0-9a-fA-F]{40}$"
+        },
+        "implementation": {
+          "type": "string",
+          "pattern": "^0x[0-9a-fA-F]{40}$"
+        },
+        "proxyCodeHash": {
+          "type": "string",
+          "pattern": "^0x[0-9a-fA-F]{64}$"
+        },
+        "implementationCodeHash": {
+          "type": "string",
+          "pattern": "^0x[0-9a-fA-F]{64}$"
+        }
+      }
+    },
+    "caller": {
+      "const": "0x0000000000000000000000000000000000000000"
+    },
+    "stage": {
+      "enum": [
+        "PRECONDITION_ERROR",
+        "OBSERVED",
+        "PARTIAL",
+        "CONSISTENCY_ERROR"
+      ]
+    },
+    "initial": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "blockNumber",
+            "blockHash",
+            "proxyCodeHash",
+            "implementationCodeHash",
+            "declaredImplementation"
+          ],
+          "properties": {
+            "blockNumber": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "blockHash": {
+              "type": "string",
+              "pattern": "^0x[0-9a-fA-F]{64}$"
+            },
+            "proxyCodeHash": {
+              "type": "string",
+              "pattern": "^0x[0-9a-fA-F]{64}$"
+            },
+            "implementationCodeHash": {
+              "type": "string",
+              "pattern": "^0x[0-9a-fA-F]{64}$"
+            },
+            "declaredImplementation": {
+              "type": "string",
+              "pattern": "^0x[0-9a-fA-F]{40}$"
+            }
+          }
+        }
+      ]
+    },
+    "readings": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "signature",
+          "readStatus",
+          "evidenceReferences"
+        ],
+        "properties": {
+          "signature": {
+            "enum": [
+              "paused()",
+              "DEFAULT_ADMIN_ROLE()",
+              "MINTER_ROLE()",
+              "BURNER_ROLE()",
+              "PAUSER_ROLE()",
+              "CLAWBACKER_ROLE()",
+              "UPGRADER_ROLE()"
+            ]
+          },
+          "readStatus": {
+            "enum": [
+              "NOT_TESTED",
+              "OK",
+              "READ_FAILED",
+              "INVALID_RESPONSE"
+            ]
+          },
+          "evidenceReferences": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^e[1-9][0-9]*$"
+            },
+            "uniqueItems": true
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^0x[0-9a-f]{64}$"
+              },
+              {
+                "type": "boolean"
+              }
+            ]
+          },
+          "errorKind": {
+            "enum": [
+              "REVERT",
+              "RPC_ERROR",
+              "TRANSPORT_ERROR"
+            ]
+          },
+          "candidateConsistency": {
+            "enum": [
+              "MATCH",
+              "MISMATCH"
+            ]
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "readStatus": {
+                  "const": "OK"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "value"
+              ],
+              "properties": {
+                "value": {}
+              }
+            },
+            "else": {
+              "not": {
+                "required": [
+                  "value"
+                ],
+                "properties": {
+                  "value": {}
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "readStatus": {
+                  "const": "READ_FAILED"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "errorKind"
+              ],
+              "properties": {
+                "errorKind": {}
+              }
+            },
+            "else": {
+              "not": {
+                "required": [
+                  "errorKind"
+                ],
+                "properties": {
+                  "errorKind": {}
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "provenance",
+          "kind",
+          "observedAt",
+          "observedBlockOrSlot",
+          "data"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "provenance": {
+            "const": "OBSERVED"
+          },
+          "kind": {
+            "enum": [
+              "RPC",
+              "RPC_ERROR",
+              "BLOCK_REFERENCE",
+              "BLOCK_REFERENCE_ERROR"
+            ]
+          },
+          "observedAt": {
+            "type": "string"
+          },
+          "observedBlockOrSlot": {
+            "type": "string"
+          },
+          "data": {}
+        },
+        "additionalProperties": false
+      },
+      "maxItems": 26
+    },
+    "sourceEvidence": {
+      "const": {
+        "reference": "../docs/research/rlusd-control-abi-study.json",
+        "sha256": "b4673375590e26ad013f7b27802b3c95ac38c9460aafce1416ebe2ebf368f6fe",
+        "priorReport": "../reports/rlusd-readonly.json",
+        "priorReportSha256": "b164f5a99ff8ba3c6248e08e616f45cec113052c0ae8cc0f1c25aa449b6575ba",
+        "abiProvenance": "USER_PROVIDED_CANDIDATE_NOT_DEPLOYMENT_VERIFIED",
+        "fullSourceAbiIdentity": "UNKNOWN"
+      }
+    },
+    "startedAt": {
+      "type": "string"
+    },
+    "completedAt": {
+      "type": "string"
+    },
+    "limitations": {
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "type": "string"
+      }
+    },
+    "precheckEvidenceReferences": {
+      "type": "array",
+      "maxItems": 26,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^e[1-9][0-9]*$"
+      }
+    },
+    "postcheckEvidenceReferences": {
+      "type": "array",
+      "maxItems": 26,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^e[1-9][0-9]*$"
+      }
+    },
+    "requestCount": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 24
+    },
+    "skipped": {
+      "const": [
+        {
+          "signature": "getRoleAdmin(bytes32)",
+          "execution": "NOT_TESTED",
+          "reason": "ROLE_ARGUMENT_OUTSIDE_NO_ARGUMENT_SCOPE"
+        },
+        {
+          "signature": "hasRole(bytes32,address)",
+          "execution": "NOT_TESTED",
+          "reason": "NO_JUSTIFIED_ACCOUNT_SAMPLE"
+        },
+        {
+          "signature": "accountPaused(address)",
+          "execution": "NOT_TESTED",
+          "reason": "NO_JUSTIFIED_ACCOUNT_SAMPLE"
+        }
+      ]
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "kind",
+    "sourceBinding",
+    "verdict",
+    "support",
+    "authorityState",
+    "issuerVerificationStatus",
+    "nativeOrBridged",
+    "behaviorExecution",
+    "reference",
+    "caller",
+    "stage",
+    "initial",
+    "readings",
+    "evidence",
+    "startedAt",
+    "completedAt",
+    "limitations",
+    "sourceEvidence",
+    "precheckEvidenceReferences",
+    "postcheckEvidenceReferences",
+    "requestCount",
+    "skipped"
+  ]
+}

@@ -1,0 +1,261 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Qualified MasterMinter management responses (not AssessmentReport)",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "kind": {
+      "const": "QUALIFIED_MINTER_MANAGEMENT_PROBE_NOT_ASSESSMENT"
+    },
+    "caller": {
+      "const": "0x0000000000000000000000000000000000000000"
+    },
+    "sourceBinding": {
+      "const": "UNKNOWN"
+    },
+    "authorityState": {
+      "const": "UNKNOWN"
+    },
+    "support": {
+      "const": "UNKNOWN"
+    },
+    "verdict": {
+      "const": "INCONCLUSIVE"
+    },
+    "behaviorExecution": {
+      "const": "NOT_TESTED"
+    },
+    "stage": {
+      "enum": [
+        "PRECONDITION_ERROR",
+        "OBSERVED",
+        "PARTIAL",
+        "CONSISTENCY_ERROR"
+      ]
+    },
+    "reason": {
+      "type": "string"
+    },
+    "reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "target",
+        "codeHash",
+        "codeBytes"
+      ],
+      "properties": {
+        "target": {
+          "type": "string",
+          "pattern": "^0x[0-9a-fA-F]{40}$"
+        },
+        "codeHash": {
+          "type": "string",
+          "pattern": "^0x[0-9a-fA-F]{64}$"
+        },
+        "codeBytes": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "baseProbe": {
+      "type": "object"
+    },
+    "readings": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "signature",
+          "readStatus",
+          "evidenceReferences"
+        ],
+        "properties": {
+          "signature": {
+            "enum": [
+              "owner()",
+              "getMinterManager()",
+              "getWorker(address)"
+            ]
+          },
+          "readStatus": {
+            "enum": [
+              "NOT_TESTED",
+              "OK",
+              "READ_FAILED",
+              "INVALID_RESPONSE"
+            ]
+          },
+          "evidenceReferences": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^e[1-9][0-9]*$"
+            },
+            "uniqueItems": true
+          },
+          "value": {
+            "type": "string",
+            "pattern": "^0x[0-9a-fA-F]{40}$"
+          },
+          "errorKind": {
+            "enum": [
+              "REVERT",
+              "RPC_ERROR",
+              "TRANSPORT_ERROR"
+            ]
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "readStatus": {
+                  "const": "OK"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "value"
+              ],
+              "properties": {
+                "value": {}
+              }
+            },
+            "else": {
+              "not": {
+                "required": [
+                  "value"
+                ],
+                "properties": {
+                  "value": {}
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "readStatus": {
+                  "const": "READ_FAILED"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "errorKind"
+              ],
+              "properties": {
+                "errorKind": {}
+              }
+            },
+            "else": {
+              "not": {
+                "required": [
+                  "errorKind"
+                ],
+                "properties": {
+                  "errorKind": {}
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "provenance",
+          "kind",
+          "observedAt",
+          "observedBlockOrSlot",
+          "data"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "provenance": {
+            "const": "OBSERVED"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "observedAt": {
+            "type": "string"
+          },
+          "observedBlockOrSlot": {
+            "type": "string"
+          },
+          "data": {}
+        },
+        "additionalProperties": false
+      }
+    },
+    "startedAt": {
+      "type": "string"
+    },
+    "completedAt": {
+      "type": "string"
+    },
+    "limitations": {
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "type": "string"
+      }
+    },
+    "sourceEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reference",
+        "sha256",
+        "scope"
+      ],
+      "properties": {
+        "reference": {
+          "const": "../docs/research/usdc-master-minter-source.json"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "scope": {
+          "const": "THIRD_PARTY_0_4_24_ABI_NOT_CURRENT_OFFICIAL_0_6_12_DEPLOYMENT_BINDING"
+        }
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "kind",
+    "caller",
+    "sourceBinding",
+    "authorityState",
+    "support",
+    "verdict",
+    "behaviorExecution",
+    "stage",
+    "reason",
+    "reference",
+    "baseProbe",
+    "readings",
+    "evidence",
+    "startedAt",
+    "completedAt",
+    "limitations"
+  ]
+}

@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1080" viewBox="0 0 1600 1080" role="img" aria-labelledby="title desc"><title id="title">XRPL USDC 자산 상세 화면 — UI 설계 시안</title><desc id="desc">한국어 스테이블코인 호환성 검토 대시보드의 정적 디자인 시안. 저장된 실제 근거를 예시로 사용하며 버튼과 필터는 동작하지 않습니다.</desc><style>text{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}</style>
+<rect x="0" y="0" width="1600" height="1080" rx="0" fill="#F6F8FB"/>
+<rect x="0" y="0" width="224" height="1080" rx="0" fill="#111B2E"/>
+<rect x="24" y="25" width="30" height="30" rx="7" fill="#245BDB"/>
+<text x="31" y="46" font-size="20" fill="white" font-weight="700">C</text>
+<text x="65" y="45" font-size="13" fill="white" font-weight="700">COMPATIBILITY</text>
+<text x="26" y="83" font-size="11" fill="#A5B4CF" font-weight="600">ASSET RESEARCH LAB</text>
+<text x="26" y="139" font-size="11" fill="#A5B4CF" font-weight="500">워크스페이스</text>
+<text x="32" y="187" font-size="14" fill="#B7C4DB" font-weight="400">검토 현황</text>
+<rect x="14" y="212" width="196" height="42" rx="7" fill="#213556"/>
+<rect x="14" y="222" width="3" height="22" rx="1" fill="#7AA4FF"/>
+<text x="32" y="239" font-size="14" fill="white" font-weight="600">자산 프로필</text>
+<text x="32" y="291" font-size="14" fill="#B7C4DB" font-weight="400">자산 비교</text>
+<text x="32" y="343" font-size="14" fill="#B7C4DB" font-weight="400">근거 · 보고서</text>
+<path d="M24 941H200" fill="none" stroke="#34435B"/>
+<text x="26" y="975" font-size="12" fill="#B7C4DB" font-weight="400">저장된 근거를 읽는 공간</text>
+<text x="26" y="1002" font-size="12" fill="#B7C4DB" font-weight="400">디자인 시안 v0.1</text>
+<text x="26" y="1030" font-size="11" fill="#A5B4CF" font-weight="400">화면 내 조작은 비활성</text>
+<rect x="224" y="0" width="1376" height="64" rx="0" fill="white"/>
+<path d="M224 64H1600" fill="none" stroke="#DCE3ED"/>
+<text x="264" y="39" font-size="14" fill="#182438" font-weight="600">스테이블코인 호환성 검토</text>
+<text x="1194" y="39" font-size="12" fill="#53637B" font-weight="400">저장된 보고서 · 2026-10-21 UTC</text>
+<rect x="1544" y="19" width="28" height="28" rx="14" fill="#EDF3FF"/>
+<text x="1552" y="38" font-size="12" fill="#245BDB" font-weight="700">R</text>
+<text x="264" y="106" font-size="12" fill="#53637B" font-weight="400">자산 프로필  /  XRPL  /  USDC</text>
+<text x="264" y="151" font-size="30" fill="#182438" font-weight="750">USDC</text>
+<rect x="370" y="128" width="70" height="26" rx="5" fill="#EDF3FF"/>
+<text x="380" y="146" font-size="12" fill="#245BDB" font-weight="600">XRPL</text>
+<rect x="450" y="128" width="76" height="26" rx="5" fill="#EEF1F5"/>
+<text x="460" y="146" font-size="12" fill="#53637B" font-weight="600">메인넷</text>
+<rect x="1260" y="122" width="142" height="38" rx="6" fill="white" stroke="#DCE3ED"/>
+<text x="1276" y="147" font-size="13" fill="#182438" font-weight="600">원문 보고서</text>
+<rect x="1414" y="122" width="154" height="38" rx="6" fill="#245BDB"/>
+<text x="1430" y="147" font-size="13" fill="white" font-weight="600">내보내기</text>
+<rect x="264" y="184" width="1304" height="143" rx="12" fill="white" stroke="#DCE3ED"/>
+<text x="284" y="214" font-size="11" fill="#53637B" font-weight="600">자산 식별자</text>
+<text x="284" y="244" font-size="12" fill="#53637B" font-weight="400">Issuer</text>
+<text x="379" y="244" font-size="13" fill="#182438" font-weight="400" class="mono">rGm7WCVp9gb4jZHWTEtGUr4dd74z2XuWhE</text>
+<text x="284" y="278" font-size="12" fill="#53637B" font-weight="400">Currency</text>
+<text x="379" y="278" font-size="13" fill="#182438" font-weight="400" class="mono">5553444300000000000000000000000000000000</text>
+<path d="M948 204L948 307" stroke="#DCE3ED"/>
+<text x="976" y="217" font-size="12" fill="#53637B" font-weight="400">지원 판정</text>
+<rect x="1090" y="199" width="106" height="26" rx="5" fill="#EEF1F5"/>
+<text x="1100" y="217" font-size="12" fill="#53637B" font-weight="600">지원 미확인</text>
+<text x="976" y="253" font-size="12" fill="#53637B" font-weight="400">표본 유형</text>
+<text x="1090" y="253" font-size="13" fill="#182438" font-weight="600">AMM 특수 계정</text>
+<text x="976" y="287" font-size="12" fill="#53637B" font-weight="400">데이터 기준</text>
+<text x="1090" y="287" font-size="12" fill="#53637B" font-weight="400">저장된 관측 · 실시간 아님</text>
+<text x="264" y="367" font-size="14" fill="#245BDB" font-weight="650">관측</text>
+<text x="368" y="367" font-size="14" fill="#53637B" font-weight="400">기능별 판정</text>
+<text x="528" y="367" font-size="14" fill="#53637B" font-weight="400">소스 검토</text>
+<text x="676" y="367" font-size="14" fill="#53637B" font-weight="400">근거 · 보고서</text>
+<path d="M264 385H1568" fill="none" stroke="#DCE3ED"/>
+<path d="M264 385H320" fill="none" stroke="#245BDB"/>
+<rect x="264" y="409" width="816" height="240" rx="12" fill="white" stroke="#DCE3ED"/>
+<text x="284" y="443" font-size="16" fill="#182438" font-weight="650">직접 RippleState 연구 관측</text>
+<rect x="923" y="423" width="130" height="26" rx="5" fill="#EDF3FF"/>
+<text x="933" y="441" font-size="12" fill="#245BDB" font-weight="600">관측됨</text>
+<text x="284" y="477" font-size="12" fill="#53637B" font-weight="400">표본 계정의 보유 잔액</text>
+<text x="284" y="522" font-size="32" fill="#182438" font-weight="700" class="mono">137002.6309953493</text>
+<text x="717" y="520" font-size="14" fill="#53637B" font-weight="600">USDC</text>
+<text x="284" y="555" font-size="12" fill="#53637B" font-weight="400">Holder</text>
+<text x="361" y="555" font-size="12" fill="#182438" font-weight="400" class="mono">rM7cHVPfhe9yxQNk2kDNBEQqoQmMcQGPWE</text>
+<path d="M284 574H1060" fill="none" stroke="#DCE3ED"/>
+<text x="284" y="600" font-size="12" fill="#53637B" font-weight="400" class="mono">원시 잔액  −137002.6309953493</text>
+<text x="284" y="627" font-size="12" fill="#53637B" font-weight="400">Holder는 HIGH 쪽 · low 관점 원시 잔액의 부호를 변환</text>
+<rect x="1104" y="409" width="464" height="240" rx="12" fill="#FFF4D6"/>
+<text x="1126" y="443" font-size="16" fill="#182438" font-weight="650">공통 Adapter 결과</text>
+<rect x="1126" y="464" width="122" height="26" rx="5" fill="#FFF4D6"/>
+<text x="1136" y="482" font-size="12" fill="#835200" font-weight="600">판정 미확정</text>
+<text x="1126" y="520" font-size="15" fill="#835200" font-weight="650">3페이지 상한에 도달했습니다.</text>
+<text x="1126" y="552" font-size="12" fill="#835200" font-weight="400" class="mono">PAGINATION_LIMIT · complete=false</text>
+<text x="1126" y="586" font-size="13" fill="#835200" font-weight="400">해당 실행에서는 잔액을 채택하지 않았습니다.</text>
+<text x="1126" y="617" font-size="13" fill="#835200" font-weight="400">직접 연구 관측과 별도의 결과로 보존합니다.</text>
+<rect x="264" y="673" width="816" height="283" rx="12" fill="white" stroke="#DCE3ED"/>
+<text x="284" y="708" font-size="16" fill="#182438" font-weight="650">Trust-line 설정</text>
+<text x="780" y="708" font-size="12" fill="#53637B" font-weight="400">동일 ledger의 비트 관측</text>
+<text x="284" y="746" font-size="12" fill="#53637B" font-weight="600">설정</text>
+<text x="730" y="746" font-size="12" fill="#53637B" font-weight="600">Holder 쪽</text>
+<text x="905" y="746" font-size="12" fill="#53637B" font-weight="600">Issuer 쪽</text>
+<path d="M284 758H1060" fill="none" stroke="#DCE3ED"/>
+<text x="284" y="776" font-size="13" fill="#182438" font-weight="400">인가 · Auth</text>
+<text x="730" y="776" font-size="13" fill="#182438" font-weight="400" class="mono">false</text>
+<text x="905" y="776" font-size="13" fill="#182438" font-weight="400" class="mono">false</text>
+<path d="M284 787H1060" fill="none" stroke="#DCE3ED"/>
+<text x="284" y="805" font-size="13" fill="#182438" font-weight="400">개별 동결 · Freeze</text>
+<text x="730" y="805" font-size="13" fill="#182438" font-weight="400" class="mono">false</text>
+<text x="905" y="805" font-size="13" fill="#182438" font-weight="400" class="mono">false</text>
+<path d="M284 816H1060" fill="none" stroke="#DCE3ED"/>
+<text x="284" y="834" font-size="13" fill="#182438" font-weight="400">DeepFreeze</text>
+<text x="730" y="834" font-size="13" fill="#182438" font-weight="400" class="mono">false</text>
+<text x="905" y="834" font-size="13" fill="#182438" font-weight="400" class="mono">false</text>
+<path d="M284 845H1060" fill="none" stroke="#DCE3ED"/>
+<text x="284" y="863" font-size="13" fill="#182438" font-weight="400">NoRipple</text>
+<text x="730" y="863" font-size="13" fill="#182438" font-weight="400" class="mono">false</text>
+<text x="905" y="863" font-size="13" fill="#182438" font-weight="400" class="mono">false</text>
+<path d="M284 874H1060" fill="none" stroke="#DCE3ED"/>
+<text x="284" y="892" font-size="13" fill="#182438" font-weight="400">한도</text>
+<text x="730" y="892" font-size="13" fill="#182438" font-weight="400" class="mono">0</text>
+<text x="905" y="892" font-size="13" fill="#182438" font-weight="400" class="mono">0</text>
+<text x="284" y="946" font-size="11" fill="#53637B" font-weight="400">Auth 비트와 한도만으로 보유·전송 가능성을 판정하지 않습니다.</text>
+<rect x="1104" y="673" width="464" height="283" rx="12" fill="white" stroke="#DCE3ED"/>
+<text x="1126" y="708" font-size="16" fill="#182438" font-weight="650">관측 근거</text>
+<text x="1126" y="747" font-size="11" fill="#53637B" font-weight="400">Validated ledger</text>
+<text x="1126" y="767" font-size="12" fill="#182438" font-weight="400" class="mono">107797509</text>
+<text x="1126" y="787" font-size="11" fill="#53637B" font-weight="400">관측 시각 · UTC</text>
+<text x="1126" y="807" font-size="12" fill="#182438" font-weight="400" class="mono">2026-10-21 03:51:35</text>
+<text x="1126" y="827" font-size="11" fill="#53637B" font-weight="400">Ledger hash</text>
+<text x="1126" y="847" font-size="12" fill="#182438" font-weight="400" class="mono">A3D6696A4EBC…30885C5E99EB</text>
+<text x="1126" y="867" font-size="11" fill="#53637B" font-weight="400">근거 유형</text>
+<text x="1126" y="887" font-size="12" fill="#182438" font-weight="400">직접 연구 조회 · OBSERVED</text>
+<text x="1126" y="936" font-size="13" fill="#245BDB" font-weight="600">전체 hash · 원시 필드 확인  →</text>
+<rect x="264" y="980" width="1304" height="60" rx="6" fill="#EDF1F7"/>
+<text x="284" y="1005" font-size="13" fill="#53637B" font-weight="400">설정 관측은 해당 ledger의 기록입니다. 실제 전송·권한 행사는 미검증입니다.</text>
+<text x="284" y="1026" font-size="12" fill="#53637B" font-weight="400">연구 관측을 공통 Adapter의 성공 판정이나 자산 취급 승인으로 합치지 않습니다.</text>
+</svg>

@@ -1,0 +1,1457 @@
+{
+  "schemaVersion": "1.0",
+  "purpose": "RESEARCH_CATALOG_NOT_ASSESSMENT",
+  "reviewedAt": "2026-10-20T05:35:22.453823+00:00",
+  "scope": "Selected stablecoin deployments, not an exhaustive supported-network list",
+  "sources": [
+    {
+      "id": "circle-addresses",
+      "url": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
+      "title": "USDC contract addresses",
+      "section": "Mainnet: Ethereum, Solana, XRPL",
+      "reviewedAt": "2026-10-20T01:05:41Z",
+      "provenance": "DOCUMENTED"
+    },
+    {
+      "id": "circle-ethereum",
+      "url": "https://www.circle.com/multi-chain-usdc/ethereum",
+      "title": "USDC on Ethereum",
+      "section": "Token Standard / FAQ native USDC",
+      "reviewedAt": "2026-10-20T00:31:52Z",
+      "provenance": "DOCUMENTED"
+    },
+    {
+      "id": "circle-solana",
+      "url": "https://www.circle.com/multi-chain-usdc/solana",
+      "title": "USDC on Solana",
+      "section": "Token Standard / FAQ native USDC",
+      "reviewedAt": "2026-10-20T00:31:52Z",
+      "provenance": "DOCUMENTED"
+    },
+    {
+      "id": "tether-protocols",
+      "url": "https://tether.to/en/supported-protocols/",
+      "title": "Supported Protocols and Integration Guidelines",
+      "section": "Ethereum / TRC20 Token via Tron / Solana Token",
+      "reviewedAt": "2026-10-20T00:31:52Z",
+      "provenance": "DOCUMENTED"
+    },
+    {
+      "id": "ripple-addresses",
+      "url": "https://docs.ripple.com/products/stablecoin/overview/token-addresses",
+      "title": "RLUSD token addresses",
+      "section": "XRPL issuer / Ethereum proxy",
+      "reviewedAt": "2026-10-20T00:38:49Z",
+      "provenance": "DOCUMENTED"
+    },
+    {
+      "id": "ripple-networks",
+      "url": "https://docs.ripple.com/products/stablecoin/overview/supported-chains-and-networks",
+      "title": "RLUSD chains and networks",
+      "section": "Supported blockchains",
+      "reviewedAt": "2026-10-20T00:31:52Z",
+      "provenance": "DOCUMENTED"
+    },
+    {
+      "id": "ripple-xrpl",
+      "url": "https://docs.ripple.com/products/stablecoin/developer-resources/rlusd-on-the-xrpl",
+      "title": "RLUSD on the XRP Ledger",
+      "section": "Mainnet issuer / RLUSD currency details",
+      "reviewedAt": "2026-10-20T00:31:52Z",
+      "provenance": "DOCUMENTED"
+    },
+    {
+      "id": "solana-tokens",
+      "url": "https://solana.com/docs/tokens",
+      "title": "Solana Tokens, Token Accounts, and Token Extensions",
+      "section": "Mint / Token Program / Token Accounts",
+      "reviewedAt": "2026-10-20T00:31:52Z",
+      "provenance": "DOCUMENTED"
+    },
+    {
+      "id": "solana-basics",
+      "url": "https://solana.com/docs/tokens/basics",
+      "title": "SPL Token Basics",
+      "section": "Delegate and authority instruction semantics",
+      "reviewedAt": "2026-10-20T00:31:52Z",
+      "provenance": "DOCUMENTED"
+    },
+    {
+      "id": "xrpl-tokens",
+      "url": "https://xrpl.org/docs/concepts/tokens/fungible-tokens/trust-line-tokens",
+      "title": "Trust Line Tokens",
+      "section": "Issuer and currency identity / trust lines",
+      "reviewedAt": "2026-10-20T00:31:52Z",
+      "provenance": "DOCUMENTED"
+    }
+  ],
+  "profiles": [
+    {
+      "id": "ethereum-usdc",
+      "assetSymbol": "USDC",
+      "issuerBrandLabel": "Circle",
+      "chain": {
+        "name": "Ethereum",
+        "family": "EVM",
+        "network": "MAINNET",
+        "networkId": "1",
+        "networkIdEvidence": "HISTORICAL_READ_ONLY"
+      },
+      "standardReference": "ERC-20 (issuer documented)",
+      "identifier": {
+        "kind": "CONTRACT",
+        "contractAddress": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+      },
+      "documentedClaims": [
+        {
+          "kind": "ADDRESS_REFERENCE",
+          "sourceId": "circle-addresses",
+          "section": "Mainnet / Ethereum",
+          "value": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+          "provenance": "DOCUMENTED"
+        },
+        {
+          "kind": "ISSUER_NATIVE_STATEMENT",
+          "sourceId": "circle-ethereum",
+          "section": "FAQ native USDC",
+          "value": "NATIVE_USDC_ISSUER_STATEMENT",
+          "provenance": "DOCUMENTED"
+        }
+      ],
+      "historicalObservations": [
+        {
+          "provenance": "OBSERVED",
+          "scope": "HISTORICAL_READ_ONLY",
+          "report": "../../reports/usdc-readonly.json",
+          "sha256": "611b00ab17332a475d6ca32b8b9c072b8995a2b4df96183830b2fbb5fcccbcdf",
+          "observedAt": "2026-10-19T00:36:50.049Z",
+          "chainFamily": "EVM",
+          "networkId": "1",
+          "assetAddress": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+          "observedBlockOrSlot": "26223078",
+          "decimals": {
+            "status": "KNOWN",
+            "value": 6
+          },
+          "nativeOrBridged": {
+            "status": "UNKNOWN",
+            "reason": "Metadata does not establish origin"
+          },
+          "issuerVerificationStatus": "UNKNOWN",
+          "implementationAddress": {
+            "status": "KNOWN",
+            "value": "0x43506849D7C04F9138D1A2050bbF3A0c054402dd"
+          },
+          "results": [
+            {
+              "scenarioId": "ERC20-001",
+              "capability": "IDENTITY",
+              "verdict": "PASS",
+              "support": "UNKNOWN"
+            },
+            {
+              "scenarioId": "EVM-PROXY-001",
+              "capability": "UPGRADEABILITY",
+              "verdict": "PASS",
+              "support": "UNKNOWN"
+            },
+            {
+              "scenarioId": "ERC20-000",
+              "capability": "BALANCE",
+              "verdict": "NOT_TESTED",
+              "support": "UNKNOWN"
+            },
+            {
+              "scenarioId": "ERC20-002",
+              "capability": "TRANSFER",
+              "verdict": "NOT_TESTED",
+              "support": "UNKNOWN"
+            },
+            {
+              "scenarioId": "ERC20-003",
+              "capability": "ALLOWANCE",
+              "verdict": "NOT_TESTED",
+              "support": "UNKNOWN"
+            },
+            {
+              "scenarioId": "ERC20-004",
+              "capability": "ALLOWANCE",
+              "verdict": "NOT_TESTED",
+              "support": "UNKNOWN"
+            },
+            {
+              "scenarioId": "ERC20-005",
+              "capability": "TRANSFER",
+              "verdict": "NOT_TESTED",
+              "support": "UNKNOWN"
+            },
+            {
+              "scenarioId": "ERC20-006",
+              "capability": "TRANSFER_FEE",
+              "verdict": "NOT_TESTED",
+              "support": "UNKNOWN"
+            },
+            {
+              "scenarioId": "ERC20-007",
+              "capability": "PAUSE",
+              "verdict": "NOT_TESTED",
+              "support": "UNKNOWN"
+            },
+            {
+              "scenarioId": "ERC20-007",
+              "capability": "BLACKLIST",
+              "verdict": "NOT_TESTED",
+              "support": "UNKNOWN"
+            }
+          ]
+        }
+      ],
+      "currentAssessment": {
+        "adapterState": "IMPLEMENTED_READ_ONLY",
+        "newRpcObservation": "OBSERVED_READ_ONLY",
+        "mainnetStateChange": "NOT_TESTED",
+        "issuerVerificationStatus": "UNKNOWN",
+        "nativeOrBridgedOnChain": "UNKNOWN",
+        "authorityState": "UNKNOWN",
+        "tokenProgramId": "NOT_APPLICABLE"
+      },
+      "gaps": [
+        "asset-identity",
+        "asset-behavior",
+        "issuer-controls",
+        "network-operations",
+        "issuer-risk-separate"
+      ],
+      "controlReadResearch": {
+        "reference": "EVM_STABLECOIN_CONTROLS.md",
+        "reviewedAt": "2026-10-20T05:35:22.453823+00:00",
+        "scope": "DOCUMENTED_CANDIDATES_AND_GAPS_NOT_ONCHAIN_ASSESSMENT",
+        "deploymentSourceBinding": "UNKNOWN",
+        "authorityState": "UNKNOWN",
+        "getterExecution": "OBSERVED_DECODE_ONLY",
+        "nextStep": "SERVICE_CUSTOMER_ACCOUNT_AND_CONTROLLER_MINTER_CONTEXT; OWNER_CONTROL_SAMPLE_OBSERVED; HISTORICAL_LOOKUP_FAILURE_UNRESOLVED",
+        "sourceBindingResearch": {
+          "reference": "usdc-source-binding.json",
+          "sourceCommit": "fc85788bc7c23cefe3df1a757133048bfddadeaa",
+          "status": "UNKNOWN",
+          "scope": "PINNED_SOURCE_CANDIDATE_NOT_VERIFIED_DEPLOYMENT_ABI",
+          "candidateRuntimeComparison": "FULL_MISMATCH_METADATA_EXCLUDED_MATCH",
+          "verificationServiceInput": "LOCALLY_RECOMPILED_SERVICE_OUTPUT_EXACT_OBSERVED_METADATA_MISMATCH"
+        },
+        "roleCodeExecution": "OBSERVED_BYTES_ONLY",
+        "managementGetterExecution": "OBSERVED_DECODE_ONLY"
+      },
+      "qualifiedControlObservations": [
+        {
+          "report": "../../reports/usdc-controls-readonly.json",
+          "sha256": "c545f70fe19943d41e8afc62b5d5be861c1140b2211d78d3e40b06440e2fc14c",
+          "provenance": "OBSERVED",
+          "scope": "QUALIFIED_GETTER_RESPONSES_NOT_ASSESSMENT_OR_AUTHORITY_PROOF",
+          "observedAt": "2026-10-20T01:04:04.423Z",
+          "networkId": "1",
+          "assetAddress": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+          "observedBlockOrSlot": "26230386",
+          "blockHash": "0x703cacabd604851a3b16ce05d6d4bfed17dfffd3944e256b800ac271273bfd74",
+          "stage": "OBSERVED",
+          "readings": [
+            {
+              "signature": "owner()",
+              "readStatus": "OK",
+              "evidenceReferences": [
+                "e14"
+              ],
+              "value": "0xFcb19e6a322b27c06842A71e8c725399f049AE3a"
+            },
+            {
+              "signature": "pauser()",
+              "readStatus": "OK",
+              "evidenceReferences": [
+                "e15"
+              ],
+              "value": "0x4914f61d25e5C567143774B76EdbF4D5109a8566"
+            },
+            {
+              "signature": "paused()",
+              "readStatus": "OK",
+              "evidenceReferences": [
+                "e16"
+              ],
+              "value": false
+            },
+            {
+              "signature": "blacklister()",
+              "readStatus": "OK",
+              "evidenceReferences": [
+                "e17"
+              ],
+              "value": "0x0A06BE16275B95a7d2567fBdAE118b36C7DA78F9"
+            },
+            {
+              "signature": "masterMinter()",
+              "readStatus": "OK",
+              "evidenceReferences": [
+                "e18"
+              ],
+              "value": "0xE982615d461DD5cD06575BbeA87624fda4e3de17"
+            },
+            {
+              "signature": "isBlacklisted(address)",
+              "readStatus": "NOT_TESTED",
+              "evidenceReferences": []
+            }
+          ],
+          "verdict": "INCONCLUSIVE",
+          "support": "UNKNOWN",
+          "authorityState": "UNKNOWN",
+          "behaviorExecution": "NOT_TESTED"
+        },
+        {
+          "report": "../../reports/usdc-role-code-readonly.json",
+          "sha256": "77b950c896ca2d94d9345af51ab1d44f8ed1eefe427e493c602fe497ae58f60e",
+          "provenance": "OBSERVED",
+          "scope": "QUALIFIED_GETTER_AND_ROLE_CODE_RESPONSES_NOT_ASSESSMENT_OR_AUTHORITY_PROOF",
+          "observedAt": "2026-10-20T01:11:05.609Z",
+          "networkId": "1",
+          "assetAddress": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+          "observedBlockOrSlot": "26230421",
+          "blockHash": "0x998a2dfa68cc13dd441d842a4115f39442eb0e7d19ddecea1461979bdc055eec",
+          "stage": "OBSERVED",
+          "readings": [
+            {
+              "signature": "owner()",
+              "readStatus": "OK",
+              "evidenceReferences": [
+                "e14"
+              ],
+              "value": "0xFcb19e6a322b27c06842A71e8c725399f049AE3a"
+            },
+            {
+              "signature": "pauser()",
+              "readStatus": "OK",
+              "evidenceReferences": [
+                "e15"
+              ],
+              "value": "0x4914f61d25e5C567143774B76EdbF4D5109a8566"
+            },
+            {
+              "signature": "paused()",
+              "readStatus": "OK",
+              "evidenceReferences": [
+                "e16"
+              ],
+              "value": false
+            },
+            {
+              "signature": "blacklister()",
+              "readStatus": "OK",
+              "evidenceReferences": [
+                "e17"
+              ],
+              "value": "0x0A06BE16275B95a7d2567fBdAE118b36C7DA78F9"
+            },
+            {
+              "signature": "masterMinter()",
+              "readStatus": "OK",
+              "evidenceReferences": [
+                "e18"
+              ],
+              "value": "0xE982615d461DD5cD06575BbeA87624fda4e3de17"
+            },
+            {
+              "signature": "isBlacklisted(address)",
+              "readStatus": "NOT_TESTED",
+              "evidenceReferences": []
+            }
+          ],
+          "roleCodeReadings": [
+            {
+              "signature": "owner()",
+              "readStatus": "OK",
+              "getterEvidenceReferences": [
+                "e14"
+              ],
+              "evidenceReferences": [
+                "e19"
+              ],
+              "recheckEvidenceReferences": [
+                "e33"
+              ],
+              "consistency": "MATCH",
+              "address": "0xFcb19e6a322b27c06842A71e8c725399f049AE3a",
+              "codePresence": "EMPTY",
+              "codeBytes": 0,
+              "codeHash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
+            },
+            {
+              "signature": "pauser()",
+              "readStatus": "OK",
+              "getterEvidenceReferences": [
+                "e15"
+              ],
+              "evidenceReferences": [
+                "e20"
+              ],
+              "recheckEvidenceReferences": [
+                "e34"
+              ],
+              "consistency": "MATCH",
+              "address": "0x4914f61d25e5C567143774B76EdbF4D5109a8566",
+              "codePresence": "EMPTY",
+              "codeBytes": 0,
+              "codeHash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
+            },
+            {
+              "signature": "blacklister()",
+              "readStatus": "OK",
+              "getterEvidenceReferences": [
+                "e17"
+              ],
+              "evidenceReferences": [
+                "e21"
+              ],
+              "recheckEvidenceReferences": [
+                "e35"
+              ],
+              "consistency": "MATCH",
+              "address": "0x0A06BE16275B95a7d2567fBdAE118b36C7DA78F9",
+              "codePresence": "EMPTY",
+              "codeBytes": 0,
+              "codeHash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
+            },
+            {
+              "signature": "masterMinter()",
+              "readStatus": "OK",
+              "getterEvidenceReferences": [
+                "e18"
+              ],
+              "evidenceReferences": [
+                "e22"
+              ],
+              "recheckEvidenceReferences": [
+                "e36"
+              ],
+              "consistency": "MATCH",
+              "address": "0xE982615d461DD5cD06575BbeA87624fda4e3de17",
+              "codePresence": "PRESENT",
+              "codeBytes": 7667,
+              "codeHash": "0x02fdd843a6e0369ab3914b7f7900a2198234700330badd0c59912f81661bb811"
+            }
+          ],
+          "verdict": "INCONCLUSIVE",
+          "support": "UNKNOWN",
+          "authorityState": "UNKNOWN",
+          "behaviorExecution": "NOT_TESTED"
+        },
+        {
+          "report": "../../reports/usdc-minter-management-readonly.json",
+          "sha256": "390b3aebc38fa98fd8f6fe6cf2e39c3dad0b995da380122c41cb563de2fe46bf",
+          "provenance": "OBSERVED",
+          "scope": "QUALIFIED_MASTER_MINTER_MANAGEMENT_RESPONSES_NOT_AUTHORITY_PROOF",
+          "observedAt": "2026-10-20T01:24:29.115Z",
+          "networkId": "1",
+          "assetAddress": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+          "observedBlockOrSlot": "26230486",
+          "blockHash": "0x3aad29d0780ab49dbe77ae6da708b4d44cc0518164e4349578f041a67389ee30",
+          "stage": "OBSERVED",
+          "managementTarget": "0xE982615d461DD5cD06575BbeA87624fda4e3de17",
+          "managementReadings": [
+            {
+              "signature": "owner()",
+              "readStatus": "OK",
+              "evidenceReferences": [
+                "e4"
+              ],
+              "value": "0xC1d9fe41D19Dd52cb3Ae5d1D3b0030B5D498c704"
+            },
+            {
+              "signature": "getMinterManager()",
+              "readStatus": "OK",
+              "evidenceReferences": [
+                "e5"
+              ],
+              "value": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+            },
+            {
+              "signature": "getWorker(address)",
+              "readStatus": "NOT_TESTED",
+              "evidenceReferences": []
+            }
+          ],
+          "verdict": "INCONCLUSIVE",
+          "support": "UNKNOWN",
+          "authorityState": "UNKNOWN",
+          "behaviorExecution": "NOT_TESTED"
+        },
+        {
+          "report": "../../reports/usdc-owner-sample-readonly.json",
+          "sha256": "95602ebaa8ff898f7de003643e97f0f52721076f8a4131f2410fc6aca6e640c1",
+          "provenance": "OBSERVED",
+          "scope": "QUALIFIED_OWNER_CONTROL_ADDRESS_SAMPLE_NOT_SERVICE_ACCOUNT_OR_AUTHORITY_ASSESSMENT",
+          "observedAt": "2026-10-20T05:34:26.335Z",
+          "networkId": "1",
+          "assetAddress": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+          "observedBlockOrSlot": "26231733",
+          "blockHash": "0xa877c6c244100b6b1a01d931caf2d7294a6a97e83448a3dfc803100db8324bd2",
+          "stage": "OBSERVED",
+          "sample": {
+            "address": "0xFcb19e6a322b27c06842A71e8c725399f049AE3a",
+            "classification": "CONTROL_ADDRESS_SAMPLE_NOT_SERVICE_OR_CUSTOMER_ACCOUNT",
+            "selectionReason": "FRESH_NONZERO_OWNER_GETTER_RESPONSE",
+            "baseEvidenceReferences": [
+              {
+                "namespace": "baseProbe",
+                "id": "e14"
+              }
+            ]
+          },
+          "signature": "isBlacklisted(address)",
+          "readStatus": "OK",
+          "value": false,
+          "baseRequestCount": 25,
+          "requestCount": 21,
+          "totalRequestCount": 46,
+          "sourceBinding": "UNKNOWN",
+          "authorityState": "UNKNOWN",
+          "support": "UNKNOWN",
+          "verdict": "INCONCLUSIVE",
+          "behaviorExecution": "NOT_TESTED"
+        }
+      ],
+      "historicalAdminInvestigations": [
+        {
+          "report": "../../reports/usdc-master-minter-history-readonly.json",
+          "sha256": "d54b5088c4b1d27649f359d51a04022516fd279401e8ff8fcf92c1924b3f35df",
+          "provenance": "OBSERVED",
+          "scope": "FAILED_HISTORY_READ_ATTEMPT_NOT_AUTHORITY_EVIDENCE",
+          "observedAt": "2026-10-20T01:34:51.863Z",
+          "networkId": "1",
+          "target": "0xE982615d461DD5cD06575BbeA87624fda4e3de17",
+          "proposedFromBlock": "7439432",
+          "proposedToBlock": "7440431",
+          "stage": "ERROR",
+          "verdict": "INCONCLUSIVE",
+          "logQueryExecution": "NOT_TESTED",
+          "deploymentReceiptResponse": "NULL",
+          "deploymentTransactionResponse": "NULL",
+          "blockRpcErrorCode": 4444,
+          "currentAuthority": "UNKNOWN"
+        }
+      ]
+    },
+    {
+      "id": "ethereum-usdt",
+      "assetSymbol": "USDT",
+      "issuerBrandLabel": "Tether",
+      "chain": {
+        "name": "Ethereum",
+        "family": "EVM",
+        "network": "MAINNET",
+        "networkId": "1",
+        "networkIdEvidence": "HISTORICAL_READ_ONLY"
+      },
+      "standardReference": "ERC-20 integration (issuer documented)",
+      "identifier": {
+        "kind": "CONTRACT",
+        "contractAddress": "0xdac17f958d2ee523a2206206994597c13d831ec7"
+      },
+      "documentedClaims": [
+        {
+          "kind": "ADDRESS_REFERENCE",
+          "sourceId": "tether-protocols",
+          "section": "Ethereum / USDt",
+          "value": "0xdac17f958d2ee523a2206206994597c13d831ec7",
+          "provenance": "DOCUMENTED",
+          "linkTarget": "https://etherscan.io/token/0xdac17f958d2ee523a2206206994597c13d831ec7"
+        },
+        {
+          "kind": "TRANSFER_RETURN",
+          "sourceId": "tether-protocols",
+          "section": "Ethereum integration exception",
+          "value": "TRANSFER_BOOLEAN_NOT_RETURNED_DOCUMENTED_ONLY",
+          "provenance": "DOCUMENTED"
+        }
+      ],
+      "historicalObservations": [
+        {
+          "provenance": "OBSERVED",
+          "scope": "HISTORICAL_READ_ONLY",
+          "report": "../../reports/usdt-readonly.json",
+          "sha256": "af78a1cf4d8d0ac3f8cb50f785044d21670932e7cf7b8c5c1473be4ad8991709",
+          "observedAt": "2026-10-19T00:36:49.934Z",
+          "chainFamily": "EVM",
+          "networkId": "1",
+          "assetAddress": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+          "observedBlockOrSlot": "26223078",
+          "decimals": {
+            "status": "KNOWN",
+            "value": 6
+          },
+          "nativeOrBridged": {
+            "status": "UNKNOWN",
+            "reason": "Metadata does not establish origin"
+          },
+          "issuerVerificationStatus": "UNKNOWN",
+          "implementationAddress": {
+            "status": "UNKNOWN",
+            "reason": "No recognized target resolved"
+          },
+          "results": [
+            {
+              "scenarioId": "ERC20-001",
+              "capability": "IDENTITY",
+              "verdict": "PASS",
+              "support": "UNKNOWN"
+            },
+            {
+              "scenarioId": "EVM-PROXY-001",
+              "capability": "UPGRADEABILITY",
+              "verdict": "INCONCLUSIVE",
+              "support": "UNKNOWN"
+            },
+            {
+              "scenarioId": "ERC20-000",
+              "capability": "BALANCE",
+              "verdict": "NOT_TESTED",
+              "support": "UNKNOWN"
+            },
+            {
+              "scenarioId": "ERC20-002",
+              "capability": "TRANSFER",
+              "verdict": "NOT_TESTED",
+              "support": "UNKNOWN"
+            },
+            {
+              "scenarioId": "ERC20-003",
+              "capability": "ALLOWANCE",
+              "verdict": "NOT_TESTED",
+              "support": "UNKNOWN"
+            },
+            {
+              "scenarioId": "ERC20-004",
+              "capability": "ALLOWANCE",
+              "verdict": "NOT_TESTED",
+              "support": "UNKNOWN"
+            },
+            {
+              "scenarioId": "ERC20-005",
+              "capability": "TRANSFER",
+              "verdict": "NOT_TESTED",
+              "support": "UNKNOWN"
+            },
+            {
+              "scenarioId": "ERC20-006",
+              "capability": "TRANSFER_FEE",
+              "verdict": "NOT_TESTED",
+              "support": "UNKNOWN"
+            },
+            {
+              "scenarioId": "ERC20-007",
+              "capability": "PAUSE",
+              "verdict": "NOT_TESTED",
+              "support": "UNKNOWN"
+            },
+            {
+              "scenarioId": "ERC20-007",
+              "capability": "BLACKLIST",
+              "verdict": "NOT_TESTED",
+              "support": "UNKNOWN"
+            }
+          ]
+        }
+      ],
+      "currentAssessment": {
+        "adapterState": "IMPLEMENTED_READ_ONLY",
+        "newRpcObservation": "NOT_TESTED",
+        "mainnetStateChange": "NOT_TESTED",
+        "issuerVerificationStatus": "UNKNOWN",
+        "nativeOrBridgedOnChain": "UNKNOWN",
+        "authorityState": "UNKNOWN",
+        "tokenProgramId": "NOT_APPLICABLE"
+      },
+      "gaps": [
+        "asset-identity",
+        "asset-behavior",
+        "issuer-controls",
+        "network-operations",
+        "issuer-risk-separate"
+      ],
+      "controlReadResearch": {
+        "reference": "EVM_STABLECOIN_CONTROLS.md",
+        "reviewedAt": "2026-10-20T05:14:18.941957+00:00",
+        "scope": "THIRD_PARTY_SOURCE_ABI_CANDIDATES_NOT_ONCHAIN_ASSESSMENT",
+        "deploymentSourceBinding": "UNKNOWN",
+        "authorityState": "UNKNOWN",
+        "getterExecution": "OBSERVED_QUALIFIED_READ_ONLY",
+        "nextStep": "SERVICE_CUSTOMER_ACCOUNT_CONTEXT_AND_REAL_ASSET_BEHAVIOR_GAPS_REMAIN; OWNER_CONTROL_SAMPLE_OBSERVED",
+        "officialAddressReference": "https://tether.to/en/supported-protocols/",
+        "explorerRetrieval": {
+          "url": "https://etherscan.io/token/0xdac17f958d2ee523a2206206994597c13d831ec7",
+          "result": "HTTP 403 Forbidden",
+          "headers": "NOT_AVAILABLE",
+          "scope": "BROWSER_RETRIEVAL_FAILURE_NOT_CONTROL_ABSENCE"
+        },
+        "provenanceRecord": "usdt-control-provenance.json",
+        "provenanceSha256": "5bdaf4b373d249e7ba850c7691139f69a3bd108a61c5f1d3198858fb15472baa",
+        "controlAbiStatus": "THIRD_PARTY_CANDIDATE_NOT_ISSUER_CERTIFIED_OR_REGISTERED",
+        "getterCandidateCount": 9,
+        "noArgumentGetterCandidateCount": 7,
+        "serviceOnchainVsHistoricalRuntime": "EXACT_MATCH",
+        "serviceRecompiledVsHistoricalRuntime": "MISMATCH"
+      },
+      "qualifiedControlObservations": [
+        {
+          "report": "../../reports/usdt-controls-readonly.json",
+          "sha256": "79286af198858a1e883e443509cd5755d077a49e17e6099ffbcc1eb58af479e8",
+          "provenance": "OBSERVED",
+          "scope": "QUALIFIED_CONTROL_RESPONSES_NOT_ASSESSMENT",
+          "observedAt": "2026-10-20T04:55:28.646Z",
+          "networkId": "1",
+          "assetAddress": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+          "observedBlockOrSlot": "26231540",
+          "blockHash": "0xd82d212d5cf8ad5e388f1a82e183d3d3ec5b94a768a7e9d38c1a336a1bd3613c",
+          "stage": "OBSERVED",
+          "decodedGetterCount": 7,
+          "requestCount": 14,
+          "ownerResponseComparison": "MATCH",
+          "paused": false,
+          "deprecated": false,
+          "upgradedAddress": "0x0000000000000000000000000000000000000000",
+          "basisPointsRate": "0",
+          "maximumFee": "0",
+          "sourceBinding": "UNKNOWN",
+          "authorityState": "UNKNOWN",
+          "support": "UNKNOWN",
+          "verdict": "INCONCLUSIVE",
+          "behaviorExecution": "NOT_TESTED"
+        },
+        {
+          "report": "../../reports/usdt-owner-sample-readonly.json",
+          "sha256": "2e6216eab0c24facde0d6db345f5eaba227206cb84b1850940f871e8313f788e",
+          "provenance": "OBSERVED",
+          "scope": "QUALIFIED_OWNER_CONTROL_ADDRESS_SAMPLE_NOT_SERVICE_ACCOUNT_OR_AUTHORITY_ASSESSMENT",
+          "observedAt": "2026-10-20T05:13:28.091Z",
+          "networkId": "1",
+          "assetAddress": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+          "observedBlockOrSlot": "26231630",
+          "blockHash": "0xc1b0692d64f1e8e0d080baf413449be8de7aa932df53eef699dfcf92aac6717a",
+          "stage": "OBSERVED",
+          "sample": {
+            "address": "0xC6CDE7C39eB2f0F0095F41570af89eFC2C1Ea828",
+            "classification": "CONTROL_ADDRESS_SAMPLE_NOT_SERVICE_OR_CUSTOMER_ACCOUNT",
+            "selectionReason": "FRESH_MATCHING_NONZERO_OWNER_GETTER_RESPONSES",
+            "baseEvidenceReferences": [
+              {
+                "namespace": "baseProbe",
+                "id": "e6"
+              },
+              {
+                "namespace": "baseProbe",
+                "id": "e7"
+              }
+            ]
+          },
+          "sampleCode": {
+            "readStatus": "OK",
+            "codePresence": "PRESENT",
+            "codeBytes": 5705,
+            "codeHash": "0x621a994556d636b7de0b2f1fad36188c978abc119bc04832ad8b0976331cf85a",
+            "consistency": "MATCH"
+          },
+          "readings": [
+            {
+              "signature": "isBlackListed(address)",
+              "readStatus": "OK",
+              "value": false
+            },
+            {
+              "signature": "getBlackListStatus(address)",
+              "readStatus": "OK",
+              "value": false
+            }
+          ],
+          "blacklistResponseComparison": "MATCH",
+          "ownerConsistency": "MATCH",
+          "totalRequestCount": 26,
+          "sourceBinding": "UNKNOWN",
+          "authorityState": "UNKNOWN",
+          "support": "UNKNOWN",
+          "verdict": "INCONCLUSIVE",
+          "behaviorExecution": "NOT_TESTED"
+        }
+      ]
+    },
+    {
+      "id": "tron-usdt",
+      "assetSymbol": "USDT",
+      "issuerBrandLabel": "Tether",
+      "chain": {
+        "name": "TRON",
+        "family": "TRON",
+        "network": "MAINNET",
+        "networkId": "728126428",
+        "networkIdEvidence": "HISTORICAL_READ_ONLY"
+      },
+      "standardReference": "TRC-20 integration (issuer documented)",
+      "identifier": {
+        "kind": "CONTRACT",
+        "contractAddress": "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
+      },
+      "documentedClaims": [
+        {
+          "kind": "ADDRESS_REFERENCE",
+          "sourceId": "tether-protocols",
+          "section": "TRC20 Token via Tron / USDt",
+          "value": "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+          "provenance": "DOCUMENTED",
+          "linkTarget": "https://tronscan.org/#/token20/TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
+        }
+      ],
+      "historicalObservations": [
+        {
+          "provenance": "OBSERVED",
+          "scope": "HISTORICAL_READ_ONLY",
+          "report": "../../reports/tron-usdt-allowance-readonly.json",
+          "sha256": "7b1cb51b4bbed387ceb1a80161ac81ebe8258bbf2d79a5786ecf822398b92b6f",
+          "observedAt": "2026-10-19T04:38:48.194Z",
+          "chainFamily": "TRON",
+          "networkId": "728126428",
+          "assetAddress": "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+          "observedBlockOrSlot": "UNKNOWN",
+          "decimals": {
+            "status": "KNOWN",
+            "value": 6
+          },
+          "nativeOrBridged": {
+            "status": "UNKNOWN",
+            "reason": "Metadata does not establish origin"
+          },
+          "issuerVerificationStatus": "UNKNOWN",
+          "implementationAddress": {
+            "status": "UNKNOWN",
+            "reason": "TRON proxy inspection is not implemented"
+          },
+          "results": [
+            {
+              "scenarioId": "TRC20-001",
+              "capability": "IDENTITY",
+              "verdict": "INCONCLUSIVE",
+              "support": "UNKNOWN"
+            },
+            {
+              "scenarioId": "TRC20-000",
+              "capability": "BALANCE",
+              "verdict": "INCONCLUSIVE",
+              "support": "UNKNOWN"
+            },
+            {
+              "scenarioId": "TRC20-007",
+              "capability": "ALLOWANCE",
+              "verdict": "INCONCLUSIVE",
+              "support": "UNKNOWN"
+            },
+            {
+              "scenarioId": "TRC20-002",
+              "capability": "TRANSFER",
+              "verdict": "NOT_TESTED",
+              "support": "UNKNOWN"
+            },
+            {
+              "scenarioId": "TRC20-003",
+              "capability": "ALLOWANCE",
+              "verdict": "NOT_TESTED",
+              "support": "UNKNOWN"
+            },
+            {
+              "scenarioId": "TRC20-004",
+              "capability": "UPGRADEABILITY",
+              "verdict": "NOT_TESTED",
+              "support": "UNKNOWN"
+            },
+            {
+              "scenarioId": "TRC20-005",
+              "capability": "RESOURCE_CONSUMPTION",
+              "verdict": "NOT_TESTED",
+              "support": "UNKNOWN"
+            },
+            {
+              "scenarioId": "TRC20-006",
+              "capability": "TRANSFER_FEE",
+              "verdict": "NOT_TESTED",
+              "support": "UNKNOWN"
+            }
+          ],
+          "allowanceSample": {
+            "owner": "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+            "spender": "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+            "allowance": "0",
+            "readStatus": "OK",
+            "context": "TOKEN_CONTRACT_SELF_PAIR_NOT_SERVICE_WALLET"
+          }
+        }
+      ],
+      "currentAssessment": {
+        "adapterState": "IMPLEMENTED_READ_ONLY",
+        "newRpcObservation": "NOT_TESTED",
+        "mainnetStateChange": "NOT_TESTED",
+        "issuerVerificationStatus": "UNKNOWN",
+        "nativeOrBridgedOnChain": "UNKNOWN",
+        "authorityState": "UNKNOWN",
+        "tokenProgramId": "NOT_APPLICABLE"
+      },
+      "gaps": [
+        "asset-identity",
+        "asset-behavior",
+        "issuer-controls",
+        "network-operations",
+        "issuer-risk-separate",
+        "tron-response-block"
+      ]
+    },
+    {
+      "id": "solana-usdc",
+      "assetSymbol": "USDC",
+      "issuerBrandLabel": "Circle",
+      "chain": {
+        "name": "Solana",
+        "family": "SOLANA",
+        "network": "MAINNET",
+        "networkId": "UNKNOWN",
+        "networkIdEvidence": "NOT_OBSERVED"
+      },
+      "standardReference": "SPL (issuer documented); actual token program UNKNOWN",
+      "identifier": {
+        "kind": "MINT_CANDIDATE",
+        "mintAddress": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        "accountTypeObservation": "UNKNOWN"
+      },
+      "documentedClaims": [
+        {
+          "kind": "ADDRESS_REFERENCE",
+          "sourceId": "circle-addresses",
+          "section": "Mainnet / Solana",
+          "value": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+          "provenance": "DOCUMENTED"
+        },
+        {
+          "kind": "ISSUER_NATIVE_STATEMENT",
+          "sourceId": "circle-solana",
+          "section": "FAQ native USDC",
+          "value": "NATIVE_USDC_ISSUER_STATEMENT",
+          "provenance": "DOCUMENTED"
+        }
+      ],
+      "historicalObservations": [],
+      "currentAssessment": {
+        "adapterState": "NOT_IMPLEMENTED",
+        "newRpcObservation": "NOT_TESTED",
+        "mainnetStateChange": "NOT_TESTED",
+        "issuerVerificationStatus": "UNKNOWN",
+        "nativeOrBridgedOnChain": "UNKNOWN",
+        "authorityState": "UNKNOWN",
+        "tokenProgramId": "UNKNOWN"
+      },
+      "gaps": [
+        "asset-identity",
+        "asset-behavior",
+        "issuer-controls",
+        "network-operations",
+        "issuer-risk-separate",
+        "solana-account-model"
+      ]
+    },
+    {
+      "id": "solana-usdt",
+      "assetSymbol": "USDT",
+      "issuerBrandLabel": "Tether",
+      "chain": {
+        "name": "Solana",
+        "family": "SOLANA",
+        "network": "MAINNET",
+        "networkId": "UNKNOWN",
+        "networkIdEvidence": "NOT_OBSERVED"
+      },
+      "standardReference": "Solana Token (issuer documented); actual token program UNKNOWN",
+      "identifier": {
+        "kind": "MINT_CANDIDATE",
+        "mintAddress": "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+        "accountTypeObservation": "UNKNOWN"
+      },
+      "documentedClaims": [
+        {
+          "kind": "ADDRESS_REFERENCE",
+          "sourceId": "tether-protocols",
+          "section": "Solana Token / USDt",
+          "value": "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+          "provenance": "DOCUMENTED",
+          "linkTarget": "https://explorer.solana.com/address/Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"
+        }
+      ],
+      "historicalObservations": [],
+      "currentAssessment": {
+        "adapterState": "NOT_IMPLEMENTED",
+        "newRpcObservation": "NOT_TESTED",
+        "mainnetStateChange": "NOT_TESTED",
+        "issuerVerificationStatus": "UNKNOWN",
+        "nativeOrBridgedOnChain": "UNKNOWN",
+        "authorityState": "UNKNOWN",
+        "tokenProgramId": "UNKNOWN"
+      },
+      "gaps": [
+        "asset-identity",
+        "asset-behavior",
+        "issuer-controls",
+        "network-operations",
+        "issuer-risk-separate",
+        "solana-account-model"
+      ]
+    },
+    {
+      "id": "ethereum-rlusd",
+      "assetSymbol": "RLUSD",
+      "issuerBrandLabel": "Ripple",
+      "chain": {
+        "name": "Ethereum",
+        "family": "EVM",
+        "network": "MAINNET",
+        "networkId": "1",
+        "networkIdEvidence": "HISTORICAL_READ_ONLY"
+      },
+      "standardReference": "ERC-20 (issuer documented)",
+      "identifier": {
+        "kind": "CONTRACT",
+        "contractAddress": "0x8292bb45bf1ee4d140127049757c2e0ff06317ed"
+      },
+      "documentedClaims": [
+        {
+          "kind": "PROXY_ADDRESS_REFERENCE",
+          "sourceId": "ripple-addresses",
+          "section": "Ethereum proxy address",
+          "value": "0x8292bb45bf1ee4d140127049757c2e0ff06317ed",
+          "provenance": "DOCUMENTED",
+          "linkTarget": "https://etherscan.io/token/0x8292bb45bf1ee4d140127049757c2e0ff06317ed"
+        },
+        {
+          "kind": "NETWORK_REFERENCE",
+          "sourceId": "ripple-networks",
+          "section": "Supported blockchains / Ethereum",
+          "value": "ETHEREUM_ERC20",
+          "provenance": "DOCUMENTED"
+        }
+      ],
+      "historicalObservations": [
+        {
+          "provenance": "OBSERVED",
+          "scope": "HISTORICAL_READ_ONLY",
+          "report": "../../reports/rlusd-readonly.json",
+          "sha256": "b164f5a99ff8ba3c6248e08e616f45cec113052c0ae8cc0f1c25aa449b6575ba",
+          "observedAt": "2026-10-20T00:37:35.295Z",
+          "chainFamily": "EVM",
+          "networkId": "1",
+          "assetAddress": "0x8292Bb45bf1Ee4d140127049757C2E0fF06317eD",
+          "observedBlockOrSlot": "26230253",
+          "blockHash": "0x74d3f973aace560fc8d3053fb54ea7b808d0cf1301cc88718991835b9334cc0f",
+          "decimals": {
+            "status": "KNOWN",
+            "value": 18
+          },
+          "nativeOrBridged": {
+            "status": "UNKNOWN",
+            "reason": "Metadata does not establish origin"
+          },
+          "issuerVerificationStatus": "UNKNOWN",
+          "implementationAddress": {
+            "status": "KNOWN",
+            "value": "0x9747a0d261c2d56Eb93f542068e5d1E23170fa9e"
+          },
+          "results": [
+            {
+              "scenarioId": "ERC20-001",
+              "capability": "IDENTITY",
+              "verdict": "PASS",
+              "support": "UNKNOWN"
+            },
+            {
+              "scenarioId": "EVM-PROXY-001",
+              "capability": "UPGRADEABILITY",
+              "verdict": "PASS",
+              "support": "UNKNOWN"
+            },
+            {
+              "scenarioId": "ERC20-000",
+              "capability": "BALANCE",
+              "verdict": "NOT_TESTED",
+              "support": "UNKNOWN"
+            },
+            {
+              "scenarioId": "ERC20-008",
+              "capability": "TRANSFER",
+              "verdict": "NOT_TESTED",
+              "support": "UNKNOWN"
+            },
+            {
+              "scenarioId": "ERC20-009",
+              "capability": "ALLOWANCE",
+              "verdict": "NOT_TESTED",
+              "support": "UNKNOWN"
+            },
+            {
+              "scenarioId": "ERC20-010",
+              "capability": "ALLOWANCE",
+              "verdict": "NOT_TESTED",
+              "support": "UNKNOWN"
+            },
+            {
+              "scenarioId": "ERC20-002",
+              "capability": "TRANSFER",
+              "verdict": "NOT_TESTED",
+              "support": "UNKNOWN"
+            },
+            {
+              "scenarioId": "ERC20-003",
+              "capability": "ALLOWANCE",
+              "verdict": "NOT_TESTED",
+              "support": "UNKNOWN"
+            },
+            {
+              "scenarioId": "ERC20-004",
+              "capability": "ALLOWANCE",
+              "verdict": "NOT_TESTED",
+              "support": "UNKNOWN"
+            },
+            {
+              "scenarioId": "ERC20-005",
+              "capability": "TRANSFER",
+              "verdict": "NOT_TESTED",
+              "support": "UNKNOWN"
+            },
+            {
+              "scenarioId": "ERC20-006",
+              "capability": "TRANSFER_FEE",
+              "verdict": "NOT_TESTED",
+              "support": "UNKNOWN"
+            },
+            {
+              "scenarioId": "ERC20-007",
+              "capability": "PAUSE",
+              "verdict": "NOT_TESTED",
+              "support": "UNKNOWN"
+            },
+            {
+              "scenarioId": "ERC20-007",
+              "capability": "BLACKLIST",
+              "verdict": "NOT_TESTED",
+              "support": "UNKNOWN"
+            }
+          ],
+          "proxyObservation": {
+            "pattern": "EIP1967_IMPLEMENTATION_SLOT",
+            "resolution": "RESOLVED",
+            "adminSlot": "ZERO",
+            "authorityState": "UNKNOWN",
+            "scope": "DECLARED_POINTER_AND_CODE_ONLY_NOT_DISPATCH_OR_AUTHORIZATION"
+          },
+          "limitations": [
+            "Numeric block pin and header hash are provider observations, not independent verification or finality.",
+            "Zero admin slot does not establish absence of administrators, owners, roles, or upgradeability."
+          ]
+        }
+      ],
+      "currentAssessment": {
+        "adapterState": "IMPLEMENTED_READ_ONLY",
+        "newRpcObservation": "OBSERVED_READ_ONLY",
+        "mainnetStateChange": "NOT_TESTED",
+        "issuerVerificationStatus": "UNKNOWN",
+        "nativeOrBridgedOnChain": "UNKNOWN",
+        "authorityState": "UNKNOWN",
+        "tokenProgramId": "NOT_APPLICABLE"
+      },
+      "gaps": [
+        "asset-identity",
+        "asset-behavior",
+        "issuer-controls",
+        "network-operations",
+        "issuer-risk-separate"
+      ],
+      "controlReadResearch": {
+        "reference": "EVM_STABLECOIN_CONTROLS.md",
+        "reviewedAt": "2026-10-20T03:41:14.438591+00:00",
+        "scope": "DOCUMENTED_CANDIDATES_AND_GAPS_NOT_ONCHAIN_ASSESSMENT",
+        "deploymentSourceBinding": "UNKNOWN",
+        "authorityState": "UNKNOWN",
+        "getterExecution": "OBSERVED_QUALIFIED_READ_ONLY",
+        "nextStep": "ACCOUNT_SAMPLE_EVIDENCE_UNRESOLVED_RECEIPT_NULL; OTHER_STABLECOIN_CONTROL_ABI_GAPS_REMAIN",
+        "provenanceRecord": "rlusd-control-provenance.json",
+        "officialDesignStatus": "PINNED_DOCUMENTED_ROLE_UUPS_MULTISIGN_MODEL",
+        "controlAbiStatus": "USER_PROVIDED_CANDIDATE_NOT_DEPLOYMENT_VERIFIED",
+        "abiStudyReference": "rlusd-control-abi-study.json",
+        "abiStudySha256": "b4673375590e26ad013f7b27802b3c95ac38c9460aafce1416ebe2ebf368f6fe",
+        "getterCandidateCount": 10,
+        "sourceAbiComparison": "FULL_IDENTITY_NOT_ESTABLISHED"
+      },
+      "qualifiedControlObservations": [
+        {
+          "report": "../../reports/rlusd-controls-readonly.json",
+          "sha256": "07792cfc7a300037d7dac593a9eb21b46f1ebb187be4302ebf564c2edb68a3f8",
+          "provenance": "OBSERVED",
+          "scope": "QUALIFIED_CONTROL_RESPONSES_NOT_ASSESSMENT",
+          "observedAt": "2026-10-20T03:17:42.820Z",
+          "networkId": "1",
+          "assetAddress": "0x8292Bb45bf1Ee4d140127049757C2E0fF06317eD",
+          "observedBlockOrSlot": "26231053",
+          "blockHash": "0x6d250264d8df631b4b78bfe35dad2ae04b94b26fb5839c6115b6ea133440b072",
+          "stage": "OBSERVED",
+          "decodedGetterCount": 7,
+          "requestCount": 22,
+          "paused": false,
+          "roleIdCandidateMatches": 5,
+          "sourceBinding": "UNKNOWN",
+          "authorityState": "UNKNOWN",
+          "support": "UNKNOWN",
+          "verdict": "INCONCLUSIVE",
+          "behaviorExecution": "NOT_TESTED"
+        },
+        {
+          "report": "../../reports/rlusd-role-admin-readonly.json",
+          "sha256": "103600baa283d8a42739f21bced6de80d97b31c89a7f2d3a9a0a288a887d3b73",
+          "provenance": "OBSERVED",
+          "scope": "QUALIFIED_ROLE_ADMIN_RESPONSES_NOT_AUTHORITY_ASSESSMENT",
+          "observedAt": "2026-10-20T03:39:56.253Z",
+          "networkId": "1",
+          "assetAddress": "0x8292Bb45bf1Ee4d140127049757C2E0fF06317eD",
+          "observedBlockOrSlot": "26231164",
+          "blockHash": "0xf0c931bb543e2926b8547d49a5bd23714e7fc6d2f41f9f80f4be746ae336b7ec",
+          "stage": "OBSERVED",
+          "decodedRelationshipCount": 6,
+          "adminRoleMatches": "ALL_SIX_MATCH_OBSERVED_DEFAULT_ADMIN_ROLE_ID",
+          "defaultAdminSelfRelation": true,
+          "totalRequestCount": 48,
+          "sourceBinding": "UNKNOWN",
+          "authorityState": "UNKNOWN",
+          "support": "UNKNOWN",
+          "verdict": "INCONCLUSIVE",
+          "membershipExecution": "NOT_TESTED",
+          "behaviorExecution": "NOT_TESTED"
+        }
+      ],
+      "publicAccountSampleResearch": {
+        "reference": "../RLUSD_ACCOUNT_CANDIDATES.md",
+        "sourceReference": "rlusd-deployment-reference.json",
+        "status": "UNRESOLVED_RECEIPT_NULL",
+        "candidateSelection": "NOT_ESTABLISHED",
+        "membershipExecution": "NOT_TESTED",
+        "accountFreezeExecution": "NOT_TESTED"
+      },
+      "accountCandidateInvestigations": [
+        {
+          "report": "../../reports/rlusd-account-candidates-readonly.json",
+          "sha256": "3e7552b6392a1ed9595dd69a61cfd1bdbc35becf3142ac533b3c94ef7df01743",
+          "provenance": "OBSERVED",
+          "scope": "FAILED_DEPLOYMENT_RECEIPT_READ_NOT_ACCOUNT_ABSENCE",
+          "observedAt": "2026-10-20T03:58:04.559Z",
+          "networkId": "1",
+          "assetAddress": "0x8292Bb45bf1Ee4d140127049757C2E0fF06317eD",
+          "stage": "ERROR",
+          "requestCount": 2,
+          "receiptResponse": "NULL",
+          "candidateCount": 0,
+          "verdict": "INCONCLUSIVE",
+          "authorityState": "UNKNOWN",
+          "membershipExecution": "NOT_TESTED",
+          "accountFreezeExecution": "NOT_TESTED"
+        }
+      ]
+    },
+    {
+      "id": "xrpl-usdc",
+      "assetSymbol": "USDC",
+      "issuerBrandLabel": "Circle",
+      "chain": {
+        "name": "XRP Ledger",
+        "family": "XRPL",
+        "network": "MAINNET",
+        "networkId": "UNKNOWN",
+        "networkIdEvidence": "NOT_OBSERVED"
+      },
+      "standardReference": "XRPL issued-token reference; observed ledger/account type UNKNOWN",
+      "identifier": {
+        "kind": "ISSUED_CURRENCY",
+        "currency": "5553444300000000000000000000000000000000",
+        "issuerAddress": "rGm7WCVp9gb4jZHWTEtGUr4dd74z2XuWhE",
+        "ledgerObservation": "UNKNOWN"
+      },
+      "documentedClaims": [
+        {
+          "kind": "CURRENCY_ISSUER_REFERENCE",
+          "sourceId": "circle-addresses",
+          "section": "Mainnet / XRPL",
+          "value": "5553444300000000000000000000000000000000.rGm7WCVp9gb4jZHWTEtGUr4dd74z2XuWhE",
+          "provenance": "DOCUMENTED",
+          "linkTarget": "https://livenet.xrpl.org/token/5553444300000000000000000000000000000000.rGm7WCVp9gb4jZHWTEtGUr4dd74z2XuWhE"
+        }
+      ],
+      "historicalObservations": [],
+      "currentAssessment": {
+        "adapterState": "NOT_IMPLEMENTED",
+        "newRpcObservation": "NOT_TESTED",
+        "mainnetStateChange": "NOT_TESTED",
+        "issuerVerificationStatus": "UNKNOWN",
+        "nativeOrBridgedOnChain": "UNKNOWN",
+        "authorityState": "UNKNOWN",
+        "tokenProgramId": "NOT_APPLICABLE"
+      },
+      "gaps": [
+        "asset-identity",
+        "asset-behavior",
+        "issuer-controls",
+        "network-operations",
+        "issuer-risk-separate",
+        "xrpl-issued-token-model"
+      ]
+    },
+    {
+      "id": "xrpl-rlusd",
+      "assetSymbol": "RLUSD",
+      "issuerBrandLabel": "Ripple",
+      "chain": {
+        "name": "XRP Ledger",
+        "family": "XRPL",
+        "network": "MAINNET",
+        "networkId": "UNKNOWN",
+        "networkIdEvidence": "NOT_OBSERVED"
+      },
+      "standardReference": "XRPL issued token (issuer documented)",
+      "identifier": {
+        "kind": "ISSUED_CURRENCY",
+        "currency": "524C555344000000000000000000000000000000",
+        "issuerAddress": "rMxCKbEDwqr76QuheSUMdEGf4B9xJ8m5De",
+        "ledgerObservation": "UNKNOWN"
+      },
+      "documentedClaims": [
+        {
+          "kind": "ISSUER_REFERENCE",
+          "sourceId": "ripple-addresses",
+          "section": "XRPL issuer address",
+          "value": "rMxCKbEDwqr76QuheSUMdEGf4B9xJ8m5De",
+          "provenance": "DOCUMENTED"
+        },
+        {
+          "kind": "CURRENCY_REFERENCE",
+          "sourceId": "ripple-xrpl",
+          "section": "RLUSD currency details",
+          "value": "524C555344000000000000000000000000000000",
+          "provenance": "DOCUMENTED"
+        },
+        {
+          "kind": "NETWORK_REFERENCE",
+          "sourceId": "ripple-networks",
+          "section": "Supported blockchains / XRP Ledger",
+          "value": "XRPL_ISSUED_TOKEN_NOT_XRP",
+          "provenance": "DOCUMENTED"
+        }
+      ],
+      "historicalObservations": [],
+      "currentAssessment": {
+        "adapterState": "NOT_IMPLEMENTED",
+        "newRpcObservation": "NOT_TESTED",
+        "mainnetStateChange": "NOT_TESTED",
+        "issuerVerificationStatus": "UNKNOWN",
+        "nativeOrBridgedOnChain": "UNKNOWN",
+        "authorityState": "UNKNOWN",
+        "tokenProgramId": "NOT_APPLICABLE"
+      },
+      "gaps": [
+        "asset-identity",
+        "asset-behavior",
+        "issuer-controls",
+        "network-operations",
+        "issuer-risk-separate",
+        "xrpl-issued-token-model"
+      ]
+    }
+  ],
+  "gapDefinitions": [
+    {
+      "id": "asset-identity",
+      "requiredEvidence": "Chain, address or mint/currency+issuer, origin and metadata evidence",
+      "currentEvidence": "Official references and historical read-only reports where available",
+      "unresolvedReason": "Documents do not prove current account/code or issuer authority",
+      "nextAllowedAction": "Reverify official sources; use implemented read-only adapters after explicit asset/network matching",
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "asset-behavior",
+      "requiredEvidence": "Deposit/withdrawal transfer amount, returned data, events, approval/delegation and revocation as applicable",
+      "currentEvidence": "Private fixtures exercise selected engine behaviors only",
+      "unresolvedReason": "No mainnet transfer or approval was executed for these profiles",
+      "nextAllowedAction": "Map documented differences to independent private fixtures; keep real-asset execution NOT_TESTED",
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "issuer-controls",
+      "requiredEvidence": "Per-deployment pause/freeze/blacklist/clawback/upgrade evidence as applicable",
+      "currentEvidence": "Ethereum USDC and RLUSD have dated declared implementation/code observations; RLUSD EIP-1967 admin slot is ZERO, actual authority remains UNKNOWN; USDC qualified probe at block26230386 decoded five getter responses with matching before/after header/code; role authority and address-specific restrictions remain UNKNOWN; role-code probe block26230421 observed owner/pauser/blacklister EMPTY and masterMinter PRESENT7667bytes with matching rechecks; control subjects remain UNKNOWN",
+      "unresolvedReason": "No generic method-name or empty-slot inference; no cross-chain authority equivalence",
+      "nextAllowedAction": "Follow EVM_STABLECOIN_CONTROLS.md: establish deployment/source commit/ABI binding and account sample context before adding asset-specific read-only control getters; no setters or public transactions",
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "network-operations",
+      "requiredEvidence": "Account preparation, fees/resources, block or ledger binding, finality and reconciliation",
+      "currentEvidence": "Historical EVM block and TRON head context only",
+      "unresolvedReason": "Private runtime success is not mainnet finality or operational sizing evidence",
+      "nextAllowedAction": "Define per-chain read-only evidence requirements; do not add public-network writes",
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "issuer-risk-separate",
+      "requiredEvidence": "Legal issuer, reserves, redemption conditions and internal policy review",
+      "currentEvidence": "Not assessed by this technical catalog",
+      "unresolvedReason": "Brand labels/native statements do not establish asset safety or redemption rights",
+      "nextAllowedAction": "Maintain separate official-source review; do not generate a combined asset-safety score",
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "tron-response-block",
+      "requiredEvidence": "Exact response state block for metadata/balance/allowance",
+      "currentEvidence": "UNKNOWN; historical self-pair allowance is 0 and is not a service-wallet sample",
+      "unresolvedReason": "Head context does not bind getter response state",
+      "nextAllowedAction": "Follow documented response-block investigation; retain INCONCLUSIVE",
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "solana-account-model",
+      "requiredEvidence": "Mint account type, owner Token Program, decimals, authorities/extensions, token accounts/ATA, delegate state",
+      "currentEvidence": "Issuer address references only; no Solana Adapter/SDK/RPC execution",
+      "unresolvedReason": "SPL label does not identify Original Token Program versus Token-2022 or authority state",
+      "nextAllowedAction": "Research official Solana model; implementation and RPC validation are a separate task",
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "xrpl-issued-token-model",
+      "requiredEvidence": "Validated ledger, currency+issuer, trust-line settings, issuer flags/freeze/clawback, reserves and payment semantics",
+      "currentEvidence": "Official currency/issuer references only; no XRPL Adapter/SDK/RPC execution",
+      "unresolvedReason": "Issuer tokens are not XRP, ERC20 contracts or Solana mints; XRPL EVM sidechain is a different network",
+      "nextAllowedAction": "Research XRPL issued tokens and ledger model; no TrustSet/payment/account-setting transactions",
+      "status": "UNKNOWN"
+    }
+  ],
+  "privateFixtureReferences": [
+    {
+      "chainFamily": "EVM",
+      "reference": "../PHASE1_COMPLETION.md",
+      "scope": "ENGINE_HARNESS_ONLY_NOT_REAL_STABLECOIN_EXECUTION"
+    },
+    {
+      "chainFamily": "TRON",
+      "reference": "../TRON_TVM_RUNTIME.md",
+      "scope": "ENGINE_HARNESS_ONLY_NOT_REAL_STABLECOIN_EXECUTION"
+    }
+  ],
+  "limitations": [
+    "Ethereum RLUSD metadata/proxy and USDC qualified control read observations added on 2026-10-20; no public-network transactions. Other reports retain original times.",
+    "Official address references, historical observations and private fixture results are separate evidence axes.",
+    "Research entries do not register adapters, verify issuers, change prior verdicts or prove reserves/redemption/peg stability.",
+    "Solana mint account owner/program and XRPL ledger/currency-issuer state remain unobserved.",
+    "Explorer links are issuer-provided references; following a link is not an account/code observation."
+  ]
+}

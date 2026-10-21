@@ -1,0 +1,168 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1080" viewBox="0 0 1600 1080" role="img" aria-labelledby="title desc"><title id="title">검토 현황 화면 — UI 설계 시안</title><desc id="desc">한국어 스테이블코인 호환성 검토 대시보드의 정적 디자인 시안. 저장된 실제 근거를 예시로 사용하며 버튼과 필터는 동작하지 않습니다.</desc><style>text{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}</style>
+<rect x="0" y="0" width="1600" height="1080" rx="0" fill="#F6F8FB"/>
+<rect x="0" y="0" width="224" height="1080" rx="0" fill="#111B2E"/>
+<rect x="24" y="25" width="30" height="30" rx="7" fill="#245BDB"/>
+<text x="31" y="46" font-size="20" fill="white" font-weight="700">C</text>
+<text x="65" y="45" font-size="13" fill="white" font-weight="700">COMPATIBILITY</text>
+<text x="26" y="83" font-size="11" fill="#A5B4CF" font-weight="600">ASSET RESEARCH LAB</text>
+<text x="26" y="139" font-size="11" fill="#A5B4CF" font-weight="500">워크스페이스</text>
+<rect x="14" y="160" width="196" height="42" rx="7" fill="#213556"/>
+<rect x="14" y="170" width="3" height="22" rx="1" fill="#7AA4FF"/>
+<text x="32" y="187" font-size="14" fill="white" font-weight="600">검토 현황</text>
+<text x="32" y="239" font-size="14" fill="#B7C4DB" font-weight="400">자산 프로필</text>
+<text x="32" y="291" font-size="14" fill="#B7C4DB" font-weight="400">자산 비교</text>
+<text x="32" y="343" font-size="14" fill="#B7C4DB" font-weight="400">근거 · 보고서</text>
+<path d="M24 941H200" fill="none" stroke="#34435B"/>
+<text x="26" y="975" font-size="12" fill="#B7C4DB" font-weight="400">저장된 근거를 읽는 공간</text>
+<text x="26" y="1002" font-size="12" fill="#B7C4DB" font-weight="400">디자인 시안 v0.1</text>
+<text x="26" y="1030" font-size="11" fill="#A5B4CF" font-weight="400">화면 내 조작은 비활성</text>
+<rect x="224" y="0" width="1376" height="64" rx="0" fill="white"/>
+<path d="M224 64H1600" fill="none" stroke="#DCE3ED"/>
+<text x="264" y="39" font-size="14" fill="#182438" font-weight="600">스테이블코인 호환성 검토</text>
+<text x="1194" y="39" font-size="12" fill="#53637B" font-weight="400">저장된 보고서 · 2026-10-21 UTC</text>
+<rect x="1544" y="19" width="28" height="28" rx="14" fill="#EDF3FF"/>
+<text x="1552" y="38" font-size="12" fill="#245BDB" font-weight="700">R</text>
+<text x="264" y="106" font-size="11" fill="#53637B" font-weight="600">WORKSPACE  /  OVERVIEW</text>
+<text x="264" y="151" font-size="28" fill="#182438" font-weight="700">스테이블코인 검토 현황</text>
+<text x="264" y="179" font-size="14" fill="#53637B" font-weight="400">체인별 구현 차이와 관측 근거, 남은 제약을 한곳에서 확인합니다.</text>
+<rect x="1420" y="122" width="148" height="38" rx="6" fill="white" stroke="#DCE3ED"/>
+<text x="1436" y="147" font-size="13" fill="#182438" font-weight="600">보고서 열기</text>
+<rect x="264" y="207" width="314" height="108" rx="12" fill="white" stroke="#DCE3ED"/>
+<text x="284" y="234" font-size="12" fill="#53637B" font-weight="500">자산 프로필</text>
+<text x="284" y="273" font-size="26" fill="#182438" font-weight="700">8</text>
+<text x="284" y="297" font-size="11" fill="#53637B" font-weight="400">자산 × 체인 × 식별자</text>
+<rect x="594" y="207" width="314" height="108" rx="12" fill="white" stroke="#DCE3ED"/>
+<text x="614" y="234" font-size="12" fill="#53637B" font-weight="500">체인</text>
+<text x="614" y="273" font-size="26" fill="#182438" font-weight="700">4</text>
+<text x="614" y="297" font-size="11" fill="#53637B" font-weight="400">Ethereum · TRON · Solana · XRPL</text>
+<rect x="924" y="207" width="314" height="108" rx="12" fill="white" stroke="#DCE3ED"/>
+<text x="944" y="234" font-size="12" fill="#53637B" font-weight="500">선택 소스 근거</text>
+<text x="944" y="273" font-size="26" fill="#182438" font-weight="700">39</text>
+<text x="944" y="297" font-size="11" fill="#53637B" font-weight="400">검토한 findings 기준</text>
+<rect x="1254" y="207" width="314" height="108" rx="12" fill="white" stroke="#DCE3ED"/>
+<text x="1274" y="234" font-size="12" fill="#53637B" font-weight="500">보기 모드</text>
+<text x="1274" y="273" font-size="23" fill="#182438" font-weight="700">저장된 근거</text>
+<text x="1274" y="297" font-size="11" fill="#53637B" font-weight="400">실시간 조회와 구분</text>
+<rect x="264" y="339" width="1304" height="48" rx="8" fill="white" stroke="#DCE3ED"/>
+<text x="282" y="369" font-size="14" fill="#53637B" font-weight="400">⌕  자산명 · 체인 · 주소 검색</text>
+<path d="M724 348L724 378" stroke="#DCE3ED"/>
+<text x="750" y="369" font-size="13" fill="#182438" font-weight="400">모든 체인  ▾</text>
+<text x="936" y="369" font-size="13" fill="#182438" font-weight="400">모든 근거 유형  ▾</text>
+<text x="1392" y="369" font-size="12" fill="#53637B" font-weight="400">8개 프로필</text>
+<rect x="264" y="411" width="1304" height="548" rx="10" fill="white" stroke="#DCE3ED"/>
+<rect x="265" y="412" width="1302" height="42" rx="0" fill="#F0F3F8"/>
+<text x="288" y="439" font-size="12" fill="#53637B" font-weight="600">자산</text>
+<text x="506" y="439" font-size="12" fill="#53637B" font-weight="600">체인</text>
+<text x="662" y="439" font-size="12" fill="#53637B" font-weight="600">구현된 읽기 범위</text>
+<text x="928" y="439" font-size="12" fill="#53637B" font-weight="600">확보한 근거</text>
+<text x="1162" y="439" font-size="12" fill="#53637B" font-weight="600">남은 관측 · 제약</text>
+<rect x="288" y="469" width="32" height="32" rx="16" fill="#E9EDF4"/>
+<text x="299" y="491" font-size="13" fill="#53637B" font-weight="700">U</text>
+<text x="332" y="480" font-size="14" fill="#182438" font-weight="650">USDC</text>
+<text x="332" y="500" font-size="11" fill="#53637B" font-weight="400">USD Coin</text>
+<text x="506" y="490" font-size="13" fill="#182438" font-weight="400">Ethereum</text>
+<text x="662" y="490" font-size="13" fill="#182438" font-weight="400">컨트랙트 · 잔액 · 승인량</text>
+<rect x="928" y="473" width="60" height="26" rx="5" fill="#EDF3FF"/>
+<text x="938" y="491" font-size="12" fill="#245BDB" font-weight="600">소스</text>
+<rect x="996" y="473" width="60" height="26" rx="5" fill="#EEF1F5"/>
+<text x="1006" y="491" font-size="12" fill="#53637B" font-weight="600">읽기</text>
+<text x="1162" y="490" font-size="13" fill="#53637B" font-weight="400">배포 코드 동일성 미확인</text>
+<text x="1538" y="491" font-size="24" fill="#245BDB" font-weight="400">›</text>
+<path d="M280 517H1552" fill="none" stroke="#DCE3ED"/>
+<rect x="288" y="532" width="32" height="32" rx="16" fill="#E9EDF4"/>
+<text x="299" y="554" font-size="13" fill="#53637B" font-weight="700">U</text>
+<text x="332" y="543" font-size="14" fill="#182438" font-weight="650">USDT</text>
+<text x="332" y="563" font-size="11" fill="#53637B" font-weight="400">Tether USD</text>
+<text x="506" y="553" font-size="13" fill="#182438" font-weight="400">Ethereum</text>
+<text x="662" y="553" font-size="13" fill="#182438" font-weight="400">컨트랙트 · 잔액 · 승인량</text>
+<rect x="928" y="536" width="60" height="26" rx="5" fill="#EDF3FF"/>
+<text x="938" y="554" font-size="12" fill="#245BDB" font-weight="600">소스</text>
+<rect x="996" y="536" width="60" height="26" rx="5" fill="#EEF1F5"/>
+<text x="1006" y="554" font-size="12" fill="#53637B" font-weight="600">읽기</text>
+<text x="1162" y="553" font-size="13" fill="#53637B" font-weight="400">전달 대상 내부 미확인</text>
+<text x="1538" y="554" font-size="24" fill="#245BDB" font-weight="400">›</text>
+<path d="M280 580H1552" fill="none" stroke="#DCE3ED"/>
+<rect x="288" y="595" width="32" height="32" rx="16" fill="#E9EDF4"/>
+<text x="299" y="617" font-size="13" fill="#53637B" font-weight="700">R</text>
+<text x="332" y="606" font-size="14" fill="#182438" font-weight="650">RLUSD</text>
+<text x="332" y="626" font-size="11" fill="#53637B" font-weight="400">Ripple USD</text>
+<text x="506" y="616" font-size="13" fill="#182438" font-weight="400">Ethereum</text>
+<text x="662" y="616" font-size="13" fill="#182438" font-weight="400">컨트랙트 · 선택 제어 설정</text>
+<rect x="928" y="599" width="60" height="26" rx="5" fill="#EDF3FF"/>
+<text x="938" y="617" font-size="12" fill="#245BDB" font-weight="600">소스</text>
+<rect x="996" y="599" width="60" height="26" rx="5" fill="#EEF1F5"/>
+<text x="1006" y="617" font-size="12" fill="#53637B" font-weight="600">읽기</text>
+<text x="1162" y="616" font-size="13" fill="#53637B" font-weight="400">소스 snapshot 차이 보존</text>
+<text x="1538" y="617" font-size="24" fill="#245BDB" font-weight="400">›</text>
+<path d="M280 643H1552" fill="none" stroke="#DCE3ED"/>
+<rect x="288" y="658" width="32" height="32" rx="16" fill="#E9EDF4"/>
+<text x="299" y="680" font-size="13" fill="#53637B" font-weight="700">U</text>
+<text x="332" y="669" font-size="14" fill="#182438" font-weight="650">USDT</text>
+<text x="332" y="689" font-size="11" fill="#53637B" font-weight="400">Tether USD</text>
+<text x="506" y="679" font-size="13" fill="#182438" font-weight="400">TRON</text>
+<text x="662" y="679" font-size="13" fill="#182438" font-weight="400">컨트랙트 · 잔액 · 승인량</text>
+<rect x="928" y="662" width="60" height="26" rx="5" fill="#EDF3FF"/>
+<text x="938" y="680" font-size="12" fill="#245BDB" font-weight="600">소스</text>
+<rect x="996" y="662" width="60" height="26" rx="5" fill="#EEF1F5"/>
+<text x="1006" y="680" font-size="12" fill="#53637B" font-weight="600">읽기</text>
+<text x="1162" y="679" font-size="13" fill="#53637B" font-weight="400">응답 상태 블록 미확인</text>
+<text x="1538" y="680" font-size="24" fill="#245BDB" font-weight="400">›</text>
+<path d="M280 706H1552" fill="none" stroke="#DCE3ED"/>
+<rect x="288" y="721" width="32" height="32" rx="16" fill="#E9EDF4"/>
+<text x="299" y="743" font-size="13" fill="#53637B" font-weight="700">U</text>
+<text x="332" y="732" font-size="14" fill="#182438" font-weight="650">USDC</text>
+<text x="332" y="752" font-size="11" fill="#53637B" font-weight="400">USD Coin</text>
+<text x="506" y="742" font-size="13" fill="#182438" font-weight="400">Solana</text>
+<text x="662" y="742" font-size="13" fill="#182438" font-weight="400">Mint · Token Account</text>
+<rect x="928" y="725" width="60" height="26" rx="5" fill="#EDF3FF"/>
+<text x="938" y="743" font-size="12" fill="#245BDB" font-weight="600">관측</text>
+<rect x="996" y="725" width="60" height="26" rx="5" fill="#EEF1F5"/>
+<text x="1006" y="743" font-size="12" fill="#53637B" font-weight="600">읽기</text>
+<text x="1162" y="742" font-size="13" fill="#53637B" font-weight="400">전송 · 위임 행사 미검증</text>
+<text x="1538" y="743" font-size="24" fill="#245BDB" font-weight="400">›</text>
+<path d="M280 769H1552" fill="none" stroke="#DCE3ED"/>
+<rect x="288" y="784" width="32" height="32" rx="16" fill="#E9EDF4"/>
+<text x="299" y="806" font-size="13" fill="#53637B" font-weight="700">U</text>
+<text x="332" y="795" font-size="14" fill="#182438" font-weight="650">USDT</text>
+<text x="332" y="815" font-size="11" fill="#53637B" font-weight="400">Tether USD</text>
+<text x="506" y="805" font-size="13" fill="#182438" font-weight="400">Solana</text>
+<text x="662" y="805" font-size="13" fill="#182438" font-weight="400">Mint · Token Account</text>
+<rect x="928" y="788" width="60" height="26" rx="5" fill="#EDF3FF"/>
+<text x="938" y="806" font-size="12" fill="#245BDB" font-weight="600">관측</text>
+<rect x="996" y="788" width="60" height="26" rx="5" fill="#EEF1F5"/>
+<text x="1006" y="806" font-size="12" fill="#53637B" font-weight="600">읽기</text>
+<text x="1162" y="805" font-size="13" fill="#53637B" font-weight="400">전송 · 위임 행사 미검증</text>
+<text x="1538" y="806" font-size="24" fill="#245BDB" font-weight="400">›</text>
+<rect x="265" y="832" width="1302" height="63" rx="0" fill="#EDF3FF"/>
+<rect x="265" y="832" width="3" height="63" rx="0" fill="#245BDB"/>
+<path d="M280 832H1552" fill="none" stroke="#DCE3ED"/>
+<rect x="288" y="847" width="32" height="32" rx="16" fill="#E9EDF4"/>
+<text x="299" y="869" font-size="13" fill="#53637B" font-weight="700">U</text>
+<text x="332" y="858" font-size="14" fill="#182438" font-weight="650">USDC</text>
+<text x="332" y="878" font-size="11" fill="#53637B" font-weight="400">USD Coin</text>
+<text x="506" y="868" font-size="13" fill="#182438" font-weight="400">XRPL</text>
+<text x="662" y="868" font-size="13" fill="#182438" font-weight="400">Issuer · Trust-line</text>
+<rect x="928" y="851" width="60" height="26" rx="5" fill="#EDF3FF"/>
+<text x="938" y="869" font-size="12" fill="#245BDB" font-weight="600">연구</text>
+<rect x="996" y="851" width="60" height="26" rx="5" fill="#EEF1F5"/>
+<text x="1006" y="869" font-size="12" fill="#53637B" font-weight="600">읽기</text>
+<text x="1162" y="868" font-size="13" fill="#835200" font-weight="400">공통 Adapter 페이지 제한</text>
+<text x="1538" y="869" font-size="24" fill="#245BDB" font-weight="400">›</text>
+<path d="M280 895H1552" fill="none" stroke="#DCE3ED"/>
+<rect x="288" y="910" width="32" height="32" rx="16" fill="#E9EDF4"/>
+<text x="299" y="932" font-size="13" fill="#53637B" font-weight="700">R</text>
+<text x="332" y="921" font-size="14" fill="#182438" font-weight="650">RLUSD</text>
+<text x="332" y="941" font-size="11" fill="#53637B" font-weight="400">Ripple USD</text>
+<text x="506" y="931" font-size="13" fill="#182438" font-weight="400">XRPL</text>
+<text x="662" y="931" font-size="13" fill="#182438" font-weight="400">Issuer · Trust-line</text>
+<rect x="928" y="914" width="60" height="26" rx="5" fill="#EDF3FF"/>
+<text x="938" y="932" font-size="12" fill="#245BDB" font-weight="600">연구</text>
+<rect x="996" y="914" width="60" height="26" rx="5" fill="#EEF1F5"/>
+<text x="1006" y="932" font-size="12" fill="#53637B" font-weight="600">읽기</text>
+<text x="1162" y="931" font-size="13" fill="#835200" font-weight="400">공통 Adapter 페이지 제한</text>
+<text x="1538" y="932" font-size="24" fill="#245BDB" font-weight="400">›</text>
+<text x="264" y="993" font-size="12" fill="#53637B" font-weight="600">근거를 확인하는 순서</text>
+<text x="418" y="993" font-size="13" fill="#182438" font-weight="400">프로필 선택  →  기능별 판정  →  관측 시점 · 원문 보고서</text>
+<rect x="264" y="1012" width="1304" height="40" rx="6" fill="#EDF1F7"/>
+<text x="280" y="1037" font-size="12" fill="#53637B" font-weight="400">검토 완료 · 설정 관측 · 시나리오 성공은 서로 다른 상태입니다. 지원 여부와 검증 판정은 상세 화면에서 구분합니다.</text>
+</svg>

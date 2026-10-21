@@ -1,0 +1,506 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Qualified control read probe v1 (not AssessmentReport)",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "kind": {
+      "const": "QUALIFIED_CONTROL_READ_PROBE_NOT_ASSESSMENT"
+    },
+    "sourceBinding": {
+      "const": "UNKNOWN"
+    },
+    "verdict": {
+      "const": "INCONCLUSIVE"
+    },
+    "support": {
+      "const": "UNKNOWN"
+    },
+    "authorityState": {
+      "const": "UNKNOWN"
+    },
+    "issuerVerificationStatus": {
+      "const": "UNKNOWN"
+    },
+    "nativeOrBridged": {
+      "const": "UNKNOWN"
+    },
+    "behaviorExecution": {
+      "const": "NOT_TESTED"
+    },
+    "reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "networkId",
+        "proxy",
+        "implementation",
+        "proxyCodeHash",
+        "implementationCodeHash"
+      ],
+      "properties": {
+        "networkId": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*$"
+        },
+        "proxy": {
+          "type": "string",
+          "pattern": "^0x[0-9a-fA-F]{40}$"
+        },
+        "implementation": {
+          "type": "string",
+          "pattern": "^0x[0-9a-fA-F]{40}$"
+        },
+        "proxyCodeHash": {
+          "type": "string",
+          "pattern": "^0x[0-9a-fA-F]{64}$"
+        },
+        "implementationCodeHash": {
+          "type": "string",
+          "pattern": "^0x[0-9a-fA-F]{64}$"
+        }
+      }
+    },
+    "caller": {
+      "const": "0x0000000000000000000000000000000000000000"
+    },
+    "stage": {
+      "enum": [
+        "PRECONDITION_ERROR",
+        "OBSERVED",
+        "PARTIAL",
+        "CONSISTENCY_ERROR"
+      ]
+    },
+    "reason": {
+      "enum": [
+        "PRECONDITIONS_NOT_ESTABLISHED",
+        "NETWORK_BLOCK_OR_REFERENCE_NOT_ESTABLISHED",
+        "POST_READ_HEADER_OR_CODE_NOT_ESTABLISHED",
+        "READ_RESPONSES_ONLY"
+      ]
+    },
+    "initial": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "readings": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "signature",
+          "readStatus",
+          "evidenceReferences"
+        ],
+        "properties": {
+          "signature": {
+            "enum": [
+              "owner()",
+              "pauser()",
+              "paused()",
+              "blacklister()",
+              "masterMinter()",
+              "isBlacklisted(address)"
+            ]
+          },
+          "readStatus": {
+            "enum": [
+              "NOT_TESTED",
+              "OK",
+              "READ_FAILED",
+              "INVALID_RESPONSE"
+            ]
+          },
+          "evidenceReferences": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^e[1-9][0-9]*$"
+            },
+            "uniqueItems": true
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^0x[0-9a-fA-F]{40}$"
+              },
+              {
+                "type": "boolean"
+              }
+            ]
+          },
+          "errorKind": {
+            "enum": [
+              "REVERT",
+              "RPC_ERROR",
+              "TRANSPORT_ERROR"
+            ]
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "readStatus": {
+                  "const": "OK"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "value"
+              ],
+              "properties": {
+                "value": {}
+              }
+            },
+            "else": {
+              "not": {
+                "required": [
+                  "value"
+                ],
+                "properties": {
+                  "value": {}
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "readStatus": {
+                  "const": "READ_FAILED"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "errorKind"
+              ],
+              "properties": {
+                "errorKind": {}
+              }
+            },
+            "else": {
+              "not": {
+                "required": [
+                  "errorKind"
+                ],
+                "properties": {
+                  "errorKind": {}
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "provenance",
+          "kind",
+          "observedAt",
+          "observedBlockOrSlot",
+          "data"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "provenance": {
+            "const": "OBSERVED"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "observedAt": {
+            "type": "string"
+          },
+          "observedBlockOrSlot": {
+            "type": "string"
+          },
+          "data": {}
+        },
+        "additionalProperties": false
+      }
+    },
+    "sourceEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reference",
+        "sha256",
+        "scope",
+        "getters"
+      ],
+      "properties": {
+        "reference": {
+          "const": "../docs/research/usdc-source-binding.json"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "scope": {
+          "const": "REGENERATED_CANDIDATE_ABI_NOT_EXACT_SOURCE_BINDING"
+        },
+        "getters": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5
+        }
+      }
+    },
+    "startedAt": {
+      "type": "string"
+    },
+    "completedAt": {
+      "type": "string"
+    },
+    "limitations": {
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "type": "string"
+      }
+    },
+    "roleCodeReadings": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "signature",
+          "readStatus",
+          "evidenceReferences",
+          "getterEvidenceReferences",
+          "recheckEvidenceReferences",
+          "consistency"
+        ],
+        "properties": {
+          "signature": {
+            "enum": [
+              "owner()",
+              "pauser()",
+              "blacklister()",
+              "masterMinter()"
+            ]
+          },
+          "readStatus": {
+            "enum": [
+              "NOT_TESTED",
+              "OK",
+              "READ_FAILED",
+              "INVALID_RESPONSE"
+            ]
+          },
+          "evidenceReferences": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^e[1-9][0-9]*$"
+            },
+            "uniqueItems": true
+          },
+          "errorKind": {
+            "enum": [
+              "REVERT",
+              "RPC_ERROR",
+              "TRANSPORT_ERROR"
+            ]
+          },
+          "address": {
+            "type": "string",
+            "pattern": "^0x[0-9a-fA-F]{40}$"
+          },
+          "getterEvidenceReferences": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^e[1-9][0-9]*$"
+            },
+            "uniqueItems": true
+          },
+          "recheckEvidenceReferences": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^e[1-9][0-9]*$"
+            },
+            "uniqueItems": true
+          },
+          "consistency": {
+            "enum": [
+              "NOT_CHECKED",
+              "MATCH",
+              "MISMATCH",
+              "NOT_ESTABLISHED"
+            ]
+          },
+          "codePresence": {
+            "enum": [
+              "EMPTY",
+              "PRESENT"
+            ]
+          },
+          "codeBytes": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 131072
+          },
+          "codeHash": {
+            "type": "string",
+            "pattern": "^0x[0-9a-fA-F]{64}$"
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "readStatus": {
+                  "const": "OK"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "codePresence"
+              ],
+              "properties": {
+                "codePresence": {}
+              }
+            },
+            "else": {
+              "not": {
+                "required": [
+                  "codePresence"
+                ],
+                "properties": {
+                  "codePresence": {}
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "readStatus": {
+                  "const": "OK"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "codeBytes"
+              ],
+              "properties": {
+                "codeBytes": {}
+              }
+            },
+            "else": {
+              "not": {
+                "required": [
+                  "codeBytes"
+                ],
+                "properties": {
+                  "codeBytes": {}
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "readStatus": {
+                  "const": "OK"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "codeHash"
+              ],
+              "properties": {
+                "codeHash": {}
+              }
+            },
+            "else": {
+              "not": {
+                "required": [
+                  "codeHash"
+                ],
+                "properties": {
+                  "codeHash": {}
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "readStatus": {
+                  "const": "READ_FAILED"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "errorKind"
+              ],
+              "properties": {
+                "errorKind": {}
+              }
+            },
+            "else": {
+              "not": {
+                "required": [
+                  "errorKind"
+                ],
+                "properties": {
+                  "errorKind": {}
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "kind",
+    "sourceBinding",
+    "verdict",
+    "support",
+    "authorityState",
+    "issuerVerificationStatus",
+    "nativeOrBridged",
+    "behaviorExecution",
+    "reference",
+    "caller",
+    "stage",
+    "reason",
+    "initial",
+    "readings",
+    "evidence",
+    "startedAt",
+    "completedAt",
+    "limitations"
+  ]
+}

@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { type Address } from 'viem';
+import { getAddress, type Address } from 'viem';
 import { enforceEvidence, summarize } from '../domain/evaluator.js';
 import type { AssessmentReport, Capability, Profile, ScenarioOutcome, ScenarioResult } from '../domain/model.js';
 import { resolveIdentity } from './identity.js';
@@ -12,7 +12,11 @@ const limitations = [
   'Issuer, origin, upgrade authority, arbitrary controls, finality and sweep are not verified; proxy inspection covers recognized structural signals only.',
   'Read-only calls and preflight return values do not prove mined transaction return data; receipts carry no function return values.',
 ];
-export async function assessEvm(rpc: Rpc, networkId: string, token: string, profile: Profile, actors?: Actors, holder?: Address): Promise<AssessmentReport> {
+export async function assessEvm(rpc: Rpc, networkId: string, token: string, profile: Profile, actors?: Actors, holder?: Address, spender?: Address): Promise<AssessmentReport> {
+  if (spender !== undefined) {
+    if (actors || !holder || !spender) throw new Error('Allowance read requires owner/spender without fixture actors.');
+    holder = getAddress(holder); spender = getAddress(spender);
+  }
   // Each assessment has a self-contained evidence namespace.
   rpc.evidence.length = 0;
   const startedAt = new Date().toISOString();
@@ -53,7 +57,20 @@ export async function assessEvm(rpc: Rpc, networkId: string, token: string, prof
       }
     }
   } else {
-    if (holder) {
+    if (holder && spender !== undefined) {
+      const from = rpc.evidence.length, started = new Date().toISOString();
+      const pair = { owner: holder, spender };
+      let raw: unknown, failed = false;
+      try {
+        const block = await rpc.pin();
+        raw = await rpc.request('eth_call', [{ to: resolved.token, data: executor.data('allowance', [holder, spender]) }, block]);
+      } catch { failed = true; }
+      const valid = !failed && typeof raw === 'string' && /^0x[0-9a-fA-F]{64}$/.test(raw);
+      add('ERC20-011', 'ALLOWANCE', started, from, { verdict: valid ? 'PASS' : 'INCONCLUSIVE', support: 'UNKNOWN',
+        observations: { ...pair, readStatus: failed ? 'READ_FAILED' : valid ? 'OK' : 'INVALID_RESPONSE', ...(valid ? { allowance: BigInt(raw as string) } : {}) },
+        limitations: ['Allowance getter response for this pair/block only; approve, transferFrom, revocation, authority and transfer permission are not tested. Same-account pairs are context only.'],
+      }, failed);
+    } else if (holder) {
       const from = rpc.evidence.length, started = new Date().toISOString();
       try {
         const balance = await executor.read<bigint>('balanceOf', [holder]);
@@ -63,7 +80,7 @@ export async function assessEvm(rpc: Rpc, networkId: string, token: string, prof
       }
     }
     for (const scenario of scenarios) {
-      if (holder && scenario.id === 'ERC20-000') continue;
+      if (holder && spender === undefined && scenario.id === 'ERC20-000') continue;
       add(scenario.id, scenario.capability, startedAt, rpc.evidence.length, { verdict: 'NOT_TESTED', support: 'UNKNOWN', observations: {},
         limitations: ['Read-only mode: state-changing scenarios require the isolated local fixture lab.'] });
     }

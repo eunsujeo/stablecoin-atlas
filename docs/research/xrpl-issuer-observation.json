@@ -1,0 +1,155 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "XRPL_ISSUER_OBSERVATION_SUPPLEMENT_NOT_ASSESSMENT",
+  "report": "../../reports/xrpl-stablecoin-issuers-readonly.json",
+  "reportSha256": "06f3fa67bed51814be7fcdb8761c60dad26c040655932ee3e4a8869d2ac00415",
+  "observation": {
+    "schemaVersion": "1.0",
+    "kind": "XRPL_ISSUER_RESEARCH_NOT_ASSESSMENT",
+    "observedAt": "2026-10-21T01:11:56.199Z",
+    "networkBinding": "MATCHED_SERVER_REPORTED_MAINNET_ID",
+    "expectedNetworkId": "0",
+    "ledgerHash": "06CDF41C72C0CE1C2634450ADA368892F6CAA9D48C7685FE411DFDA9232A4EA2",
+    "ledgerIndex": "107795106",
+    "ledgerValidation": "RPC_REPORTED_VALIDATED",
+    "status": "OBSERVED",
+    "requestCount": 4,
+    "productAdapter": "NOT_IMPLEMENTED",
+    "actualAuthorityExercise": "NOT_TESTED",
+    "trustLineAndPaymentExecution": "NOT_TESTED",
+    "amendmentActivation": "UNKNOWN",
+    "issuerAuthentication": "UNKNOWN",
+    "observations": [
+      {
+        "profileId": "xrpl-usdc",
+        "currency": "5553444300000000000000000000000000000000",
+        "issuer": "rGm7WCVp9gb4jZHWTEtGUr4dd74z2XuWhE",
+        "status": "OBSERVED",
+        "ledgerHash": "06CDF41C72C0CE1C2634450ADA368892F6CAA9D48C7685FE411DFDA9232A4EA2",
+        "ledgerIndex": "107795106",
+        "accountRoot": {
+          "Account": "rGm7WCVp9gb4jZHWTEtGUr4dd74z2XuWhE",
+          "LedgerEntryType": "AccountRoot",
+          "flags": {
+            "flagsRaw": "26804224",
+            "bits": {
+              "requireAuth": false,
+              "disableMaster": true,
+              "noFreeze": false,
+              "globalFreeze": false,
+              "defaultRipple": true,
+              "allowTrustLineClawback": false
+            },
+            "uninterpretedFlagBits": "17367040"
+          },
+          "transferRate": {
+            "state": "NOT_PRESENT"
+          }
+        }
+      },
+      {
+        "profileId": "xrpl-rlusd",
+        "currency": "524C555344000000000000000000000000000000",
+        "issuer": "rMxCKbEDwqr76QuheSUMdEGf4B9xJ8m5De",
+        "status": "OBSERVED",
+        "ledgerHash": "06CDF41C72C0CE1C2634450ADA368892F6CAA9D48C7685FE411DFDA9232A4EA2",
+        "ledgerIndex": "107795106",
+        "accountRoot": {
+          "Account": "rMxCKbEDwqr76QuheSUMdEGf4B9xJ8m5De",
+          "LedgerEntryType": "AccountRoot",
+          "flags": {
+            "flagsRaw": "2174353408",
+            "bits": {
+              "requireAuth": false,
+              "disableMaster": true,
+              "noFreeze": false,
+              "globalFreeze": false,
+              "defaultRipple": true,
+              "allowTrustLineClawback": true
+            },
+            "uninterpretedFlagBits": "17432576"
+          },
+          "transferRate": {
+            "state": "NOT_PRESENT"
+          }
+        }
+      }
+    ],
+    "requests": [
+      {
+        "method": "server_info",
+        "status": "OBSERVED"
+      },
+      {
+        "method": "ledger",
+        "status": "OBSERVED"
+      },
+      {
+        "method": "account_info",
+        "status": "OBSERVED"
+      },
+      {
+        "method": "account_info",
+        "status": "OBSERVED"
+      }
+    ]
+  },
+  "flagLayoutSource": {
+    "repository": "https://github.com/XRPLF/rippled",
+    "commit": "ef5064eeb9e0ce467fae4694d58609de84109131",
+    "snapshot": "../../.state/xrpl-issuer-source/ef5064eeb9e0ce467fae4694d58609de84109131/LedgerFormats.h",
+    "url": "https://raw.githubusercontent.com/XRPLF/rippled/ef5064eeb9e0ce467fae4694d58609de84109131/include/xrpl/protocol/LedgerFormats.h",
+    "sha256": "adfef6c0e45870f08e06ab0c1773affa1ef011d9f297b403cb10e1dff4528b7a",
+    "bytes": 19704,
+    "deploymentBinaryBinding": "UNKNOWN"
+  },
+  "officialSourcesCheckedAt": "2026-10-21",
+  "officialSources": [
+    {
+      "purpose": "USDC currency+issuer",
+      "url": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
+      "section": "Mainnet / XRPL"
+    },
+    {
+      "purpose": "RLUSD mainnet issuer and currency",
+      "url": "https://docs.ripple.com/products/stablecoin/developer-resources/rlusd-on-the-xrpl"
+    },
+    {
+      "purpose": "AccountRoot fields",
+      "url": "https://xrpl.org/docs/references/protocol/ledger-data/ledger-entry-types/accountroot"
+    },
+    {
+      "purpose": "RPC mainnet network_id",
+      "url": "https://xrpl.org/docs/references/http-websocket-apis/public-api-methods/server-info-methods/server_info"
+    },
+    {
+      "purpose": "Validated ledger pin",
+      "url": "https://xrpl.org/docs/references/http-websocket-apis/public-api-methods/ledger-methods/ledger"
+    },
+    {
+      "purpose": "Pinned account info",
+      "url": "https://xrpl.org/docs/references/http-websocket-apis/public-api-methods/account-methods/account_info"
+    },
+    {
+      "purpose": "Public endpoint selection",
+      "url": "https://xrpl.org/docs/tutorials/public-servers"
+    }
+  ],
+  "limitations": [
+    "Server network_id and validated state are provider-reported, not independent cryptographic authentication.",
+    "Only issuer AccountRoot settings observed; no currency supply/holder/trust-line/payment/amendment state verified.",
+    "Flag setting is not key control or actual authority exercise.",
+    "Product Adapter and historical report/catalog verdicts unchanged."
+  ],
+  "documentAccessDiagnostics": {
+    "webTool": "SOME_RPC_PAGES_UNSUPPORTED_MARKDOWN_CONTENT_TYPE",
+    "localAccountInfoDocumentGet": {
+      "httpStatus": 403,
+      "reason": "Forbidden",
+      "xSquidErrorPresent": false,
+      "viaPresent": false,
+      "cause": "UNDETERMINED_NOT_CLASSIFIED_AS_PROXY_POLICY_BLOCK"
+    },
+    "liveRpcRead": "SEPARATE_FOUR_REQUEST_SUCCESS"
+  }
+}

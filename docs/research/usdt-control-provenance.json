@@ -1,0 +1,515 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "THIRD_PARTY_USDT_CONTROL_SOURCE_CANDIDATES_NOT_ASSESSMENT",
+  "reviewedAt": "2026-10-20T04:45:51.919Z",
+  "networkId": "1",
+  "assetAddress": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+  "officialAddressReference": {
+    "url": "https://tether.to/en/supported-protocols/",
+    "section": "Ethereum Network / USDt contract address",
+    "target": "https://etherscan.io/token/0xdac17f958d2ee523a2206206994597c13d831ec7",
+    "provenance": "DOCUMENTED_ADDRESS_REFERENCE_NOT_ABI_AUTHENTICATION",
+    "reviewedAt": "2026-10-20T04:45:51.920Z"
+  },
+  "verificationService": {
+    "url": "https://sourcify.dev/server/v2/contract/1/0xdac17f958d2ee523a2206206994597c13d831ec7?fields=all",
+    "documentation": "https://docs.sourcify.dev/docs/api/",
+    "retrievedAt": "2026-10-20T04:41:44.398Z",
+    "snapshot": "../../.state/usdt-controls/sourcify.json",
+    "sha256": "2e255dcfa76b39884b55c2165b66b5fff2e1607ff8377101908c34fb4e212886",
+    "bytes": 232094,
+    "provenance": "THIRD_PARTY_SERVICE_ARTIFACT_NOT_ISSUER_CERTIFIED_ABI",
+    "verifiedAt": "2024-08-08T13:56:23Z",
+    "reportedCreationMatch": "match",
+    "reportedRuntimeMatch": "match",
+    "runtimeTransformations": [
+      {
+        "id": "1",
+        "type": "replace",
+        "offset": 11032,
+        "reason": "cborAuxdata"
+      }
+    ],
+    "transformationsApplied": "NOT_TESTED"
+  },
+  "source": {
+    "unit": "TetherToken.sol",
+    "snapshot": "../../.state/usdt-controls/source-01.sol",
+    "bytes": 14888,
+    "sha256": "36bf0b5747dfe7f79a03c9bc09af63e93e352d3c61199fbf025fd2c962b485f8",
+    "keccak256": "0x7c5dbf50adea1dc99fd5726975a99a7d50b232a2f476b34e41f2123c11686419",
+    "metadataContentHash": "MATCH",
+    "issuerRepositoryRevision": "UNKNOWN"
+  },
+  "abi": {
+    "snapshot": "../../.state/usdt-controls/abi.json",
+    "sha256": "7045e6cf869135de86aba06de0c35962a9643395134037168fa34369213ad9ba",
+    "serialization": "JSON.stringify(service.abi,null,2)+newline UTF-8",
+    "entryCount": 44,
+    "functionCount": 32,
+    "viewFunctionCount": 19,
+    "provenance": "THIRD_PARTY_CANDIDATE_NOT_REGISTERED_DEPLOYMENT_ABI"
+  },
+  "metadata": {
+    "snapshot": "../../.state/usdt-controls/metadata.json",
+    "sha256": "5241fd842d602a34a7787037b55c5b2ad1bd0e24cbcfbe1f5f22120961ad98b8",
+    "scope": "SERVICE_RECOMPILATION_METADATA_NOT_AUTHENTICATED_ONCHAIN_METADATA"
+  },
+  "compilation": {
+    "language": "Solidity",
+    "compiler": "solc",
+    "compilerVersion": "0.4.18+commit.9cf6e910",
+    "compilerSettings": {
+      "libraries": {},
+      "optimizer": {
+        "runs": 0,
+        "enabled": false
+      },
+      "remappings": []
+    },
+    "name": "TetherToken",
+    "fullyQualifiedName": "TetherToken.sol:TetherToken"
+  },
+  "independentCompilation": "NOT_TESTED",
+  "historicalRuntime": {
+    "report": "../../reports/usdt-readonly.json",
+    "reportSha256": "af78a1cf4d8d0ac3f8cb50f785044d21670932e7cf7b8c5c1473be4ad8991709",
+    "evidenceReference": "e4",
+    "blockNumber": "26223078",
+    "observedAt": "2026-10-19T00:36:48.854Z",
+    "bytes": 11075,
+    "sha256": "6d967f98f2f3843065688dc2065248e3686b56fc0b6ddfa82007df016148becb",
+    "keccak256": "0xb44fb4e949d0f78f87f79ee46428f23a2a5713ce6fc6e0beb3dda78c2ac1ea55"
+  },
+  "runtimeComparison": {
+    "scope": "FULL_UNTRANSFORMED_BYTE_ARRAYS_NOT_HEX_STRING_CASE",
+    "serviceOnchain": {
+      "bytes": 11075,
+      "sha256": "6d967f98f2f3843065688dc2065248e3686b56fc0b6ddfa82007df016148becb",
+      "keccak256": "0xb44fb4e949d0f78f87f79ee46428f23a2a5713ce6fc6e0beb3dda78c2ac1ea55"
+    },
+    "serviceRecompiled": {
+      "bytes": 11075,
+      "sha256": "c893378b31c00a8fcd7afd9f65a001f41d5bd7b18e3575ccbc3457a744a4b979",
+      "keccak256": "0xc60427dda11e864272d53e4327226c4f1b67b81e36124a73e23f197649a8cc27"
+    },
+    "onchainVsHistorical": "EXACT_MATCH",
+    "recompiledVsHistorical": "MISMATCH",
+    "sourceToRuntimeBinding": "UNKNOWN"
+  },
+  "getterCandidates": [
+    {
+      "signature": "owner()",
+      "selector": "0x8da5cb5b",
+      "inputs": [],
+      "outputs": [
+        "address"
+      ],
+      "stateMutability": "view",
+      "legacyConstant": true,
+      "abiEntry": {
+        "name": "owner",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "payable": false,
+        "constant": true,
+        "stateMutability": "view"
+      },
+      "source": {
+        "unit": "TetherToken.sol",
+        "contract": "Ownable",
+        "kind": "PUBLIC_VARIABLE_GETTER",
+        "line": 42
+      },
+      "callerRestriction": "NO_ACCESS_MODIFIER_IN_LOCAL_GETTER_DECLARATION",
+      "selection": "NO_ARGUMENTS",
+      "currentValue": "UNKNOWN",
+      "execution": "NOT_TESTED"
+    },
+    {
+      "signature": "getOwner()",
+      "selector": "0x893d20e8",
+      "inputs": [],
+      "outputs": [
+        "address"
+      ],
+      "stateMutability": "view",
+      "legacyConstant": true,
+      "abiEntry": {
+        "name": "getOwner",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "payable": false,
+        "constant": true,
+        "stateMutability": "view"
+      },
+      "source": {
+        "unit": "TetherToken.sol",
+        "contract": "BlackList",
+        "kind": "DIRECT_CONSTANT_FUNCTION",
+        "line": 271
+      },
+      "callerRestriction": "NO_ACCESS_MODIFIER_IN_LOCAL_GETTER_DECLARATION",
+      "selection": "NO_ARGUMENTS",
+      "currentValue": "UNKNOWN",
+      "execution": "NOT_TESTED"
+    },
+    {
+      "signature": "paused()",
+      "selector": "0x5c975abb",
+      "inputs": [],
+      "outputs": [
+        "bool"
+      ],
+      "stateMutability": "view",
+      "legacyConstant": true,
+      "abiEntry": {
+        "name": "paused",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "payable": false,
+        "constant": true,
+        "stateMutability": "view"
+      },
+      "source": {
+        "unit": "TetherToken.sol",
+        "contract": "Pausable",
+        "kind": "PUBLIC_VARIABLE_GETTER",
+        "line": 228
+      },
+      "callerRestriction": "NO_ACCESS_MODIFIER_IN_LOCAL_GETTER_DECLARATION",
+      "selection": "NO_ARGUMENTS",
+      "currentValue": "UNKNOWN",
+      "execution": "NOT_TESTED"
+    },
+    {
+      "signature": "deprecated()",
+      "selector": "0x0e136b19",
+      "inputs": [],
+      "outputs": [
+        "bool"
+      ],
+      "stateMutability": "view",
+      "legacyConstant": true,
+      "abiEntry": {
+        "name": "deprecated",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "payable": false,
+        "constant": true,
+        "stateMutability": "view"
+      },
+      "source": {
+        "unit": "TetherToken.sol",
+        "contract": "TetherToken",
+        "kind": "PUBLIC_VARIABLE_GETTER",
+        "line": 317
+      },
+      "callerRestriction": "NO_ACCESS_MODIFIER_IN_LOCAL_GETTER_DECLARATION",
+      "selection": "NO_ARGUMENTS",
+      "currentValue": "UNKNOWN",
+      "execution": "NOT_TESTED"
+    },
+    {
+      "signature": "upgradedAddress()",
+      "selector": "0x26976e3f",
+      "inputs": [],
+      "outputs": [
+        "address"
+      ],
+      "stateMutability": "view",
+      "legacyConstant": true,
+      "abiEntry": {
+        "name": "upgradedAddress",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "payable": false,
+        "constant": true,
+        "stateMutability": "view"
+      },
+      "source": {
+        "unit": "TetherToken.sol",
+        "contract": "TetherToken",
+        "kind": "PUBLIC_VARIABLE_GETTER",
+        "line": 316
+      },
+      "callerRestriction": "NO_ACCESS_MODIFIER_IN_LOCAL_GETTER_DECLARATION",
+      "selection": "NO_ARGUMENTS",
+      "currentValue": "UNKNOWN",
+      "execution": "NOT_TESTED"
+    },
+    {
+      "signature": "basisPointsRate()",
+      "selector": "0xdd644f72",
+      "inputs": [],
+      "outputs": [
+        "uint256"
+      ],
+      "stateMutability": "view",
+      "legacyConstant": true,
+      "abiEntry": {
+        "name": "basisPointsRate",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "payable": false,
+        "constant": true,
+        "stateMutability": "view"
+      },
+      "source": {
+        "unit": "TetherToken.sol",
+        "contract": "BasicToken",
+        "kind": "PUBLIC_VARIABLE_GETTER",
+        "line": 106
+      },
+      "callerRestriction": "NO_ACCESS_MODIFIER_IN_LOCAL_GETTER_DECLARATION",
+      "selection": "NO_ARGUMENTS",
+      "currentValue": "UNKNOWN",
+      "execution": "NOT_TESTED",
+      "futureJsonEncoding": "UNSIGNED_DECIMAL_STRING_NOT_NUMBER"
+    },
+    {
+      "signature": "maximumFee()",
+      "selector": "0x35390714",
+      "inputs": [],
+      "outputs": [
+        "uint256"
+      ],
+      "stateMutability": "view",
+      "legacyConstant": true,
+      "abiEntry": {
+        "name": "maximumFee",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "payable": false,
+        "constant": true,
+        "stateMutability": "view"
+      },
+      "source": {
+        "unit": "TetherToken.sol",
+        "contract": "BasicToken",
+        "kind": "PUBLIC_VARIABLE_GETTER",
+        "line": 107
+      },
+      "callerRestriction": "NO_ACCESS_MODIFIER_IN_LOCAL_GETTER_DECLARATION",
+      "selection": "NO_ARGUMENTS",
+      "currentValue": "UNKNOWN",
+      "execution": "NOT_TESTED",
+      "futureJsonEncoding": "UNSIGNED_DECIMAL_STRING_NOT_NUMBER"
+    },
+    {
+      "signature": "isBlackListed(address)",
+      "selector": "0xe47d6060",
+      "inputs": [
+        "address"
+      ],
+      "outputs": [
+        "bool"
+      ],
+      "stateMutability": "view",
+      "legacyConstant": true,
+      "abiEntry": {
+        "name": "isBlackListed",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "payable": false,
+        "constant": true,
+        "stateMutability": "view"
+      },
+      "source": {
+        "unit": "TetherToken.sol",
+        "contract": "BlackList",
+        "kind": "PUBLIC_MAPPING_GETTER",
+        "line": 275
+      },
+      "callerRestriction": "NO_ACCESS_MODIFIER_IN_LOCAL_GETTER_DECLARATION",
+      "selection": "JUSTIFIED_PUBLIC_ACCOUNT_SAMPLE_REQUIRED",
+      "currentValue": "UNKNOWN",
+      "execution": "NOT_TESTED"
+    },
+    {
+      "signature": "getBlackListStatus(address)",
+      "selector": "0x59bf1abe",
+      "inputs": [
+        "address"
+      ],
+      "outputs": [
+        "bool"
+      ],
+      "stateMutability": "view",
+      "legacyConstant": true,
+      "abiEntry": {
+        "name": "getBlackListStatus",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "_maker",
+            "type": "address"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "payable": false,
+        "constant": true,
+        "stateMutability": "view"
+      },
+      "source": {
+        "unit": "TetherToken.sol",
+        "contract": "BlackList",
+        "kind": "DIRECT_CONSTANT_FUNCTION",
+        "line": 267
+      },
+      "callerRestriction": "NO_ACCESS_MODIFIER_IN_LOCAL_GETTER_DECLARATION",
+      "selection": "JUSTIFIED_PUBLIC_ACCOUNT_SAMPLE_REQUIRED",
+      "currentValue": "UNKNOWN",
+      "execution": "NOT_TESTED"
+    }
+  ],
+  "documentedSourceBehavior": [
+    {
+      "kind": "FORWARDING_BRANCH",
+      "sourceLines": [
+        338,
+        348,
+        357,
+        366,
+        375,
+        391
+      ],
+      "functions": [
+        "transfer(address,uint256)",
+        "transferFrom(address,address,uint256)",
+        "balanceOf(address)",
+        "approve(address,uint256)",
+        "allowance(address,address)",
+        "totalSupply()"
+      ],
+      "condition": "deprecated",
+      "target": "upgradedAddress",
+      "scope": "SOURCE_BRANCH_ONLY_NOT_EIP1967_PROXY_OR_OBSERVED_DISPATCH"
+    },
+    {
+      "kind": "TRANSFER_RESTRICTION_DIFFERENCES",
+      "sourceLines": [
+        336,
+        337,
+        346,
+        347
+      ],
+      "scope": "SOURCE_PATH_ONLY_NOT_CURRENT_ACCOUNT_POLICY_OR_TRANSFER_RESULT"
+    },
+    {
+      "kind": "LEGACY_APPROVE_ZERO_RESET",
+      "sourceLines": [
+        201,
+        365,
+        366
+      ],
+      "scope": "STANDARDTOKEN_LOCAL_BRANCH_REQUIREMENT_NOT_ALL_FORWARDED_IMPLEMENTATIONS"
+    },
+    {
+      "kind": "GETTER_PATHS",
+      "local": [
+        "owner()",
+        "getOwner()",
+        "paused()",
+        "deprecated()",
+        "upgradedAddress()",
+        "basisPointsRate()",
+        "maximumFee()",
+        "isBlackListed(address)",
+        "getBlackListStatus(address)"
+      ],
+      "possiblyForwarded": [
+        "balanceOf(address)",
+        "allowance(address,address)",
+        "totalSupply()"
+      ],
+      "scope": "SOURCE_DECLARATIONS_ONLY_NO_RUNTIME_EXECUTION"
+    }
+  ],
+  "abiCompatibilityNotes": [
+    {
+      "signature": "decimals()",
+      "outputs": [
+        "uint256"
+      ],
+      "scope": "SERVICE_ABI_TYPE_NOT_PRODUCT_ENGINE_CHANGE"
+    },
+    {
+      "signature": "transfer(address,uint256)",
+      "outputs": [],
+      "scope": "SOURCE_AND_SERVICE_ABI_ALIGN_WITH_ISSUER_NO_BOOLEAN_DESCRIPTION_NOT_EXECUTION_PROOF"
+    }
+  ],
+  "deploymentSourceBinding": "UNKNOWN",
+  "authorityState": "UNKNOWN",
+  "support": "UNKNOWN",
+  "getterExecution": "NOT_TESTED",
+  "behaviorExecution": "NOT_TESTED",
+  "newRpcObservation": "NOT_TESTED",
+  "nextStep": "FRESH_FIXED_CHAIN_ADDRESS_FULL_CODE_HASH_QUALIFIED_NO_ARGUMENT_READ_PROBE_THEN_JUSTIFIED_ACCOUNT_SAMPLES",
+  "limitations": [
+    "No new RPC, installation, independent compilation, source scripts, setters or product ABI registration.",
+    "A service onchain copy matching a dated report is not fresh independent chain verification.",
+    "Service match uses metadata replacement; untransformed recompiled full runtime differs.",
+    "Deprecated/upgradedAddress values, target code and effective forwarding/authorization remain unknown.",
+    "Prior Etherscan HTTP403Forbidden is preserved as a separate access result; not retried."
+  ]
+}

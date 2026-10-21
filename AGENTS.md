@@ -2,19 +2,36 @@
 
 이 저장소는 독립적인 Multi-Chain Asset Compatibility Lab이다. 기존 Integration Test Kit 코드를 복사하거나 의존하지 않는다. Codex 단독으로 개발하며 하위 에이전트에 위임하지 않는다.
 
-- 현재 범위는 Phase 1: ERC-20 엔진, CLI, 로컬 Fixture, JSON 증거 보고서다. TRON/Solana, LLM, 웹 UI를 앞당겨 구현하지 않는다.
+- Phase 1 ERC-20 구현·로컬 검증을 완료했고, 사용자가 후속 TRON 진행을 승인했다. TRC-20 읽기 전용과, 사용자가 추가 승인한 프로그램 생성·소유·격리가 확인된 신규 사설 TRON TVM Fixture의 로컬 실행을 범위로 한다. 외부 TRON RPC는 계속 읽기 전용이다. 운영 키·공개망/테스트넷 쓰기, Solana/XRPL 실행 Adapter, 제품 내부 LLM, 웹 UI는 이번 범위에 넣지 않는다. 사용자 추가 요청에 따른 Solana USDC/USDT·XRPL USDC/RLUSD와 Ethereum RLUSD의 공식 식별자·프로필 조사는 research-only로 포함한다.
+- 사용자 후속 진행 승인(2026-10-21): Solana USDC/USDT mint의 연구 전용 읽기 CLI를 허용한다. ADR0027에 따라 genesis·공통 context slot·program/82-byte mint 설정만 관측하며 제품 실행 Adapter·거래·서명·SDK는 추가하지 않는다. SOLANA_RPC_URL 또는 명시적 공개 RPC 선택을 사용한다.
+- 사용자 후속 진행 승인(2026-10-21): XRPL USDC/RLUSD issuer AccountRoot의 연구 전용 읽기를 ADR0028 범위로 허용한다. XRPL_RPC_URL 또는 명시적 공개 RPC 선택, network_id·validated ledger hash 고정과 설정 관측만 수행하며 제품 Adapter·서명/거래·trust-line/Payment 구현은 추가하지 않는다.
+- 사용자 체인 연결 모듈 진행 승인(2026-10-21): ADR0029의 Solana USDC/USDT mint-only ReadOnlyAdapter와 공통 assess CLI 연결을 허용한다. 기존 Solana 실행 Adapter 제외에서 이 읽기 경로만 예외이며 holder/delegate·서명/거래·SDK·XRPL 제품 Adapter는 추가하지 않는다.
+- 사용자 후속 체인 연결 승인(2026-10-21): ADR0030의 XRPL USDC/RLUSD issuer-only ReadOnlyAdapter·공통 assess CLI 연결을 허용한다. currency+issuer와 XRPL identity 조건만 추가하며 trust-line/Payment·잔액/공급량·서명/거래·SDK는 제외한다. XRPL_RPC_URL을 사용하고 실패 후 endpoint 전환은 하지 않는다.
+- 사용자 계정 단위 읽기 확장 승인(2026-10-21): ADR0032의 Solana 명시 Token Account·XRPL holder trust-line 읽기와 공통 CLI/보고서 연결을 허용한다. 앞선 holder/delegate/trust-line 제외에서 이 설정 관측만 예외다. Solana --token-account, XRPL --holder를 구분하고 계정 없는 기존 경로를 유지한다. 지갑 자동 수집/열거·ATA 생성·SDK·서명/거래·실제 권한 행사는 추가하지 않으며 실제 주소 확보를 완료조건으로 요구하지 않는다.
+- 사용자 XRPL 양수 보유 표본 연구 승인(2026-10-21): XRP/기존 허용 USDC·RLUSD의 고정 두 AMM pair 선정과 해당 계정의 trust-line 관측을 허용한다. amm_info·고정 ripple_state ledger_entry는 이번 제한된 연구용이며 제품 RPC 허용목록을 확대하지 않는다. AMM 특수 계정과 일반 지갑을 구분하고, 페이지 미완료 보고서와 직접 연구 증거를 분리한다. 전체 보유자 열거·다른 pair 탐색·키/서명/거래는 추가하지 않는다.
+- 현재 제품 우선순위는 스테이블코인이다. 기존 조사 목록의 Ethereum/EVM USDC·USDT와 TRON/TVM USDT를 출발점으로 자산×체인×컨트랙트 프로필, 입출금·승인·철회·발행사 제어의 관측 증거를 먼저 보강한다. 스테이블코인 출처·프로필 조사에는 Solana와 XRPL도 포함하되 일반 토큰 변형·무관한 체인 수 확대·UI를 우선하지 않는다. 조사 목록에 있다는 이유로 Adapter/SDK/거래 구현 완료로 표시하지 않는다. 기존 조사 기록을 현재 공식 지원/주소 인증으로 간주하지 않고 새 조사 시 공식 출처를 재확인한다. 사설 Fixture는 동작 대조군이며 실제 스테이블코인의 실행·상환·가격 안정성 증거가 아니다.
+- 사용자 확정 범위(2026-10-20): 서비스·수탁 지갑 운영·내부 장부를 검증하지 않는다. 권한은 고정 소스의 함수/modifier/조건을 확인하는 것으로 현재 호환성 검토에 충분하다. 역할 계정·서비스 지갑 수집이나 실제 권한 행사를 완료 필수조건으로 요구하지 않는다. SOURCE_REVIEWED는 별도 연구 상태이며 제품 PASS/지원/실제 권한 인증으로 바꾸지 않는다. 기존 UNKNOWN/NOT_TESTED와 소스·상속 미확보 사유를 보존한다. 현재 범위의 남은 작업은 추가 확인 없이 진행하고 과거의 서비스 표본 요구를 재개하지 않는다. 현재 기준은 docs/STABLECOIN_COMPATIBILITY_MATRIX.md와 docs/adr/0026-source-based-compatibility-scope.md다.
 - 코드로 관측한 조건만 판정한다. PASS는 개별 시나리오의 성공이며 자산 안전성이나 금융기관의 취급 승인이 아니다.
 - 증거가 없으면 INCONCLUSIVE, 실행하지 않았으면 NOT_TESTED. UNKNOWN과 NOT_APPLICABLE을 구분한다. 함수 실패로 기능 부재를 단정하지 않는다.
 - 지원 여부와 검증 판정을 분리한다. 수수료·zero-reset·관리자 권한의 존재 자체는 실패나 취약점이 아니다.
 - 공통 도메인에 ERC-20 메서드를 강제하지 않는다. 체인별 실행 의미는 Adapter 안에 둔다.
 - 금액은 bigint와 십진 문자열로 처리한다. JSON 금액에 Number를 사용하지 않는다.
-- 상태 변경은 프로그램이 생성한 사설 Anvil의 신규 Fixture에서만 한다. 외부 RPC는 읽기 전용이다. 운영 키·운영 거래·임의 민팅/동결을 추가하지 않는다.
-- RPC_URL은 환경변수로 받는다. 보고서와 로그에 RPC URL, 개인키, 인증 토큰을 기록하지 않는다. 네트워크 환경의 관리형 프록시 설정을 존중한다.
+- 상태 변경은 프로그램이 생성한 사설 Anvil 또는 생성 주체·새 데이터·격리와 소유권을 확인한 신규 사설 TRON TVM Fixture에서만 한다. 사설 TVM은 loopback API·공개 peer 차단·폐기 계정·실행별 초기화·소유 자원 정리를 검증한다. 외부 RPC는 읽기 전용이다. 운영 키·운영 거래·임의 민팅/동결을 추가하지 않는다.
+- EVM RPC_URL과 TRON JSON-RPC용 TRON_RPC_URL은 환경변수로 받는다. 보고서와 로그에 RPC URL, 개인키, 인증 토큰을 기록하지 않는다. 네트워크 환경의 관리형 프록시 설정을 존중한다.
 - 변경 후 `npm run check`를 실행한다. 테스트는 실제 상태 변화, 반환값, 이벤트, 오류 경로를 검증한다. 실패 Fixture의 보고서 FAIL과 자동 테스트 실패를 구분한다.
 - 문서와 코드의 실제 지원 범위를 맞춘다. 큰 기술 결정은 docs/adr에 기록한다.
 - CLAUDE.md를 생성하지 않는다. Codex 모델/추론 수준/인증을 프로젝트 파일로 바꾸려고 하지 않는다. 제품 내부 OpenAI API 호출·API 키는 필요하지 않다.
 
 주요 경로: `src/domain`, `src/evm`, `src/lab`, `src/assessment.ts`, `fixtures`, `tests`.
+
+## 사용자 승인 로컬 웹 미리보기
+
+- 사용자가 다크·라이트 디자인을 확정하고 다음 구현을 승인했다. 앞선 웹 UI 제외의 예외로 ADR0033의 로컬 목데이터 대시보드를 허용한다. `web`과 `tools/ui-preview.mjs`에서 테마·범위·필터·정렬·차트·가상 자료 상세를 구현한다.
+- `npm run ui`는 127.0.0.1에서 고정 자산과 명시적 가상 JSON만 제공한다. 외부 조회·운영 데이터·DB·수집기·실제 점수 산정·공개 배포는 이 단계에 포함하지 않는다. 기존 CLI·Adapter·원본 근거와 판정 의미를 유지한다.
+- 터미널 모드는 실제 셸 TUI가 아니라 브라우저에서 동작하는 터미널 스타일 웹이라는 사용자의 정정을 따른다. 이번 구현은 확정한 일반 다크·라이트 화면이다.
+- 사용자 후속 승인: ADR0034의 오프라인 근거 문서 생성과 항목별 현황·자산 프로필·자산 비교를 허용한다. 고정 목록의 로컬 Fixture/저장된 읽기 보고서를 검사하여 원본 바이트를 로컬에 보존하고, 웹에는 검토된 발췌본·문서만 제공한다. 웹 요청으로 검증·거래·파일 생성을 실행하지 않는다. 목데이터 공급량과 실제 저장 근거는 분리한다.
+
+- 사용자 시장 자료 연결 승인(2026-10-21): ADR0035의 코인/네트워크/발행 자산 등록과 기존 Arkham·XRPL 저장 관측의 오프라인 정규화·로컬 시장 화면을 허용한다. 웹60초 갱신은 저장본 재독만 수행한다. 코인 전체 유통량·체인별 공급자 총공급량·XRPL obligations를 구분하고 누락을0으로 만들지 않는다. 외부 자동 수집·DB·자동 공급자 전환·웹 요청의 API 호출·키 제공은 추가하지 않는다.
 
 ## 개발용 Router와 Herdr 작업 흐름
 

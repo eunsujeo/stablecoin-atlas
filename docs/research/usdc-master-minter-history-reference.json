@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "1.0",
+  "purpose": "BOUNDED_HISTORY_REFERENCE_NOT_AUTHORITY_ASSESSMENT",
+  "reference": {
+    "networkId": "1",
+    "target": "0xE982615d461DD5cD06575BbeA87624fda4e3de17",
+    "codeHash": "0x02fdd843a6e0369ab3914b7f7900a2198234700330badd0c59912f81661bb811",
+    "fromBlock": "7439432",
+    "toBlock": "7440431",
+    "deploymentHash": "0x9a20409c717d56fa630f64f9a2fc6d07e26308cf37de5f1833c24e348fa6d4ed",
+    "maxSamples": 3
+  },
+  "events": [
+    {
+      "name": "ControllerConfigured",
+      "signature": "ControllerConfigured(address,address)",
+      "method": "configureController",
+      "indexed": 2,
+      "selected": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "ControllerRemoved",
+      "signature": "ControllerRemoved(address)",
+      "method": "removeController",
+      "indexed": 1,
+      "selected": [
+        0
+      ]
+    },
+    {
+      "name": "MinterManagerSet",
+      "signature": "MinterManagerSet(address,address)",
+      "method": "setMinterManager",
+      "indexed": 2,
+      "selected": [
+        1
+      ]
+    },
+    {
+      "name": "OwnershipTransferred",
+      "signature": "OwnershipTransferred(address,address)",
+      "method": "transferOwnership",
+      "indexed": 0,
+      "selected": [
+        1
+      ]
+    }
+  ],
+  "compilerVersion": "0.4.24+commit.e67f0147",
+  "sourceResponse": {
+    "reference": "../../.state/usdc-master-minter/sourcify-v2.json",
+    "sha256": "a76b8bff9fd3d3148ca15cc65875ffb3ba0bf476c012fd46fa064b4c1b0709ed"
+  },
+  "deploymentClaim": {
+    "transactionHash": "0x9a20409c717d56fa630f64f9a2fc6d07e26308cf37de5f1833c24e348fa6d4ed",
+    "blockNumber": "7439432",
+    "transactionIndex": "40",
+    "deployer": "0x95Ba4cF87D6723ad9C0Db21737D862bE80e93911"
+  },
+  "provenance": "THIRD_PARTY_REFERENCE_TO_BE_CORROBORATED_WITH_RPC",
+  "limits": {
+    "maxBlocks": 1000,
+    "maxLogs": 100,
+    "maxSamples": 3,
+    "maxRequests": 32,
+    "maxResponseBytes": 2097152,
+    "perRequestTimeoutMs": 10000
+  },
+  "limitations": [
+    "Deployment claim must be checked before any dependent log search.",
+    "Administrative calldata and event matching does not authenticate current operators or source binding."
+  ]
+}

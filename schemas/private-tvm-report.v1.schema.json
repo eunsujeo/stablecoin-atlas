@@ -1,0 +1,1028 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:mca:private-tvm-report:1.0",
+  "title": "Private TVM evidence report v1.0 (separate from AssessmentReport)",
+  "oneOf": [
+    {
+      "allOf": [
+        {
+          "$ref": "#/definitions/runtime"
+        },
+        {
+          "properties": {
+            "kind": {
+              "const": "TRON_PRIVATE_TVM_RUNTIME_SMOKE"
+            }
+          },
+          "type": "object"
+        }
+      ]
+    },
+    {
+      "$ref": "#/definitions/fixtureReport"
+    },
+    {
+      "$ref": "#/definitions/suite"
+    }
+  ],
+  "definitions": {
+    "sample": {
+      "type": "object",
+      "properties": {
+        "owner": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "recipient": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "spender": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "allowance": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "totalSupply": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        }
+      },
+      "required": [
+        "owner",
+        "recipient",
+        "spender",
+        "allowance",
+        "totalSupply"
+      ],
+      "additionalProperties": false
+    },
+    "head": {
+      "type": "object",
+      "properties": {
+        "number": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "required": [
+        "number",
+        "id"
+      ],
+      "additionalProperties": false
+    },
+    "actors": {
+      "type": "object",
+      "properties": {
+        "owner": {
+          "type": "string",
+          "pattern": "^T[1-9A-HJ-NP-Za-km-z]{33}$"
+        },
+        "recipient": {
+          "type": "string",
+          "pattern": "^T[1-9A-HJ-NP-Za-km-z]{33}$"
+        },
+        "spender": {
+          "type": "string",
+          "pattern": "^T[1-9A-HJ-NP-Za-km-z]{33}$"
+        }
+      },
+      "required": [
+        "owner",
+        "recipient",
+        "spender"
+      ],
+      "additionalProperties": false
+    },
+    "transaction": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "TriggerSmartContract"
+        },
+        "owner": {
+          "type": "string",
+          "pattern": "^T[1-9A-HJ-NP-Za-km-z]{33}$"
+        },
+        "contract": {
+          "type": "string",
+          "pattern": "^T[1-9A-HJ-NP-Za-km-z]{33}$"
+        },
+        "calldata": {
+          "type": "string",
+          "pattern": "^(?:[a-f0-9]{2})+$"
+        },
+        "rawDataSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "required": [
+        "type",
+        "owner",
+        "contract",
+        "calldata",
+        "rawDataSha256"
+      ],
+      "additionalProperties": false
+    },
+    "log": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "topics": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        },
+        "data": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "required": [
+        "address",
+        "topics",
+        "data"
+      ],
+      "additionalProperties": false
+    },
+    "event": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "enum": [
+            "Transfer",
+            "Approval"
+          ]
+        },
+        "first": {
+          "type": "string",
+          "pattern": "^T[1-9A-HJ-NP-Za-km-z]{33}$"
+        },
+        "second": {
+          "type": "string",
+          "pattern": "^T[1-9A-HJ-NP-Za-km-z]{33}$"
+        },
+        "amount": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "emitter": {
+          "type": "string",
+          "pattern": "^T[1-9A-HJ-NP-Za-km-z]{33}$"
+        },
+        "logIndex": {
+          "const": "0"
+        },
+        "topics": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        },
+        "data": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "required": [
+        "name",
+        "first",
+        "second",
+        "amount",
+        "emitter",
+        "logIndex",
+        "topics",
+        "data"
+      ],
+      "additionalProperties": false
+    },
+    "receipt": {
+      "type": "object",
+      "properties": {
+        "txId": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "executionResult": {
+          "enum": [
+            "SUCCESS",
+            "REVERT"
+          ]
+        },
+        "blockNumber": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "blockId": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "feeSun": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "energyUsageTotal": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "transaction": {
+          "$ref": "#/definitions/transaction"
+        },
+        "returnValue": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "const": "NOT_APPLICABLE"
+            }
+          ]
+        },
+        "event": {
+          "$ref": "#/definitions/event"
+        }
+      },
+      "required": [
+        "txId",
+        "executionResult",
+        "blockNumber",
+        "blockId"
+      ],
+      "additionalProperties": false
+    },
+    "initial": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "symbol": {
+          "type": "string"
+        },
+        "decimals": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "totalSupply": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "ownerBalance": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "ownerSelfAllowance": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "observedBlockOrSlot": {
+          "const": "UNKNOWN"
+        }
+      },
+      "required": [
+        "name",
+        "symbol",
+        "decimals",
+        "totalSupply",
+        "ownerBalance",
+        "ownerSelfAllowance",
+        "observedBlockOrSlot"
+      ],
+      "additionalProperties": false
+    },
+    "negativeObservation": {
+      "type": "object",
+      "properties": {
+        "fixtureExpectation": {
+          "enum": [
+            "PASS",
+            "FAIL"
+          ]
+        },
+        "fixtureVerdict": {
+          "enum": [
+            "PASS",
+            "FAIL"
+          ]
+        },
+        "validatorRegression": {
+          "enum": [
+            "NORMAL_ACCEPTANCE_OBSERVED",
+            "EXPECTED_REJECTION_OBSERVED"
+          ]
+        },
+        "expectedError": {
+          "enum": [
+            "NONE",
+            "FIXTURE_CALL_LOG_MISMATCH",
+            "FIXTURE_CALL_RETURN_MISMATCH"
+          ]
+        },
+        "actualError": {
+          "enum": [
+            "NONE",
+            "FIXTURE_CALL_LOG_MISMATCH",
+            "FIXTURE_CALL_RETURN_MISMATCH"
+          ]
+        },
+        "execution": {
+          "$ref": "#/definitions/receipt"
+        },
+        "contractResult": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        },
+        "logs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/log"
+          }
+        },
+        "before": {
+          "$ref": "#/definitions/sample"
+        },
+        "after": {
+          "$ref": "#/definitions/sample"
+        },
+        "stateResponseBlock": {
+          "const": "UNKNOWN"
+        },
+        "limitation": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "fixtureExpectation",
+        "fixtureVerdict",
+        "validatorRegression",
+        "expectedError",
+        "actualError",
+        "execution",
+        "contractResult",
+        "logs",
+        "before",
+        "after",
+        "stateResponseBlock",
+        "limitation"
+      ],
+      "additionalProperties": false
+    },
+    "case": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "variant": {
+          "enum": [
+            "standard",
+            "false-return",
+            "malformed-return",
+            "missing-event"
+          ]
+        },
+        "outcome": {
+          "enum": [
+            "OBSERVED",
+            "ERROR",
+            "NOT_TESTED"
+          ]
+        },
+        "stage": {
+          "type": "string",
+          "pattern": "^[A-Z_]+$"
+        },
+        "amount": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            {
+              "const": "UNKNOWN"
+            }
+          ]
+        },
+        "amountRule": {
+          "const": "OWNER_BALANCE_PLUS_ONE"
+        },
+        "expectedExecutionResult": {
+          "enum": [
+            "SUCCESS",
+            "REVERT"
+          ]
+        },
+        "caller": {
+          "type": "string",
+          "pattern": "^T[1-9A-HJ-NP-Za-km-z]{33}$"
+        },
+        "before": {
+          "$ref": "#/definitions/sample"
+        },
+        "after": {
+          "$ref": "#/definitions/sample"
+        },
+        "stateResponseBlock": {
+          "const": "UNKNOWN"
+        },
+        "builderAccepted": {
+          "type": "boolean"
+        },
+        "txId": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "receipt": {
+          "$ref": "#/definitions/receipt"
+        },
+        "precondition": {
+          "enum": [
+            "ZERO_WITHOUT_ALLOWANCE",
+            "UNAPPROVED",
+            "BALANCE",
+            "ALLOWANCE",
+            "BALANCE_WITH_ALLOWANCE"
+          ]
+        },
+        "preconditionVerified": {
+          "type": "boolean"
+        },
+        "observation": {
+          "$ref": "#/definitions/negativeObservation"
+        }
+      },
+      "required": [
+        "outcome",
+        "stage"
+      ],
+      "additionalProperties": false
+    },
+    "evidence": {
+      "type": "object",
+      "properties": {
+        "owner": {
+          "type": "string",
+          "pattern": "^T[1-9A-HJ-NP-Za-km-z]{33}$"
+        },
+        "stage": {
+          "type": "string",
+          "pattern": "^[A-Z_]+$"
+        },
+        "stateResponseBlock": {
+          "const": "UNKNOWN"
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "accountFunded": {
+          "type": "boolean"
+        },
+        "txId": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "contract": {
+          "type": "string",
+          "pattern": "^T[1-9A-HJ-NP-Za-km-z]{33}$"
+        },
+        "broadcastCode": {
+          "type": "string",
+          "pattern": "^[A-Z_]+$"
+        },
+        "broadcastAccepted": {
+          "type": "boolean"
+        },
+        "receipt": {
+          "$ref": "#/definitions/receipt"
+        },
+        "runtimeCodeMatchesBuild": {
+          "type": "boolean"
+        },
+        "initialState": {
+          "$ref": "#/definitions/initial"
+        },
+        "actors": {
+          "$ref": "#/definitions/actors"
+        },
+        "scenarioVersion": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "scenarioProfile": {
+          "enum": [
+            "NORMAL",
+            "BOUNDARY",
+            "TRANSFER_PROBE"
+          ]
+        },
+        "scenarios": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/case"
+          }
+        },
+        "probe": {
+          "$ref": "#/definitions/case"
+        },
+        "failure": {
+          "type": "string",
+          "pattern": "^(FIXTURE_[A-Z_]+|UNSAFE_DEPLOY_[A-Z_]+|UNSAFE_CALL_[A-Z_]+|INVALID_INTEGER)$"
+        }
+      },
+      "required": [
+        "owner",
+        "stage",
+        "stateResponseBlock",
+        "limitations"
+      ],
+      "additionalProperties": false
+    },
+    "build": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string"
+        },
+        "file": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "manifestCommit": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "sourceFile": {
+          "enum": [
+            "TronStandardToken.sol",
+            "TronNegativeTokens.sol"
+          ]
+        },
+        "contractName": {
+          "enum": [
+            "TronStandardToken",
+            "TronFalseReturnToken",
+            "TronMalformedReturnToken",
+            "TronMissingEventToken"
+          ]
+        },
+        "variant": {
+          "enum": [
+            "standard",
+            "false-return",
+            "malformed-return",
+            "missing-event"
+          ]
+        },
+        "abiSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "reportedVersion": {
+          "type": "string"
+        },
+        "sourceSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "settings": {
+          "type": "object",
+          "properties": {
+            "optimizer": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "const": false
+                },
+                "runs": {
+                  "const": 200
+                }
+              },
+              "required": [
+                "enabled",
+                "runs"
+              ],
+              "additionalProperties": false
+            },
+            "evmVersion": {
+              "const": "istanbul"
+            },
+            "outputSelection": {
+              "const": {
+                "*": {
+                  "*": [
+                    "abi",
+                    "evm.bytecode.object",
+                    "evm.deployedBytecode.object"
+                  ]
+                }
+              }
+            }
+          },
+          "required": [
+            "optimizer",
+            "evmVersion",
+            "outputSelection"
+          ],
+          "additionalProperties": false
+        },
+        "bytecodeSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "runtimeBytecodeSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "required": [
+        "version",
+        "file",
+        "sha256",
+        "manifestCommit",
+        "sourceFile",
+        "contractName",
+        "variant",
+        "abiSha256",
+        "reportedVersion",
+        "sourceSha256",
+        "settings",
+        "bytecodeSha256",
+        "runtimeBytecodeSha256"
+      ],
+      "additionalProperties": false
+    },
+    "observations": {
+      "type": "object",
+      "properties": {
+        "requestedAccountCount": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "accountGenerationVerified": {
+          "type": "boolean"
+        },
+        "probe": {
+          "type": "object",
+          "properties": {
+            "sourceSha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "classSha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "compiler": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "sourceSha256",
+            "classSha256",
+            "compiler"
+          ],
+          "additionalProperties": false
+        },
+        "imageId": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "javaRuntimeVersion": {
+          "type": "string"
+        },
+        "codeVersion": {
+          "type": "string"
+        },
+        "peerCount": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "genesis": {
+          "$ref": "#/definitions/head"
+        },
+        "headBefore": {
+          "$ref": "#/definitions/head"
+        },
+        "headAfter": {
+          "$ref": "#/definitions/head"
+        },
+        "headObservationMs": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "fixture": {
+          "$ref": "#/definitions/evidence"
+        },
+        "resourceSample": {
+          "type": "object",
+          "properties": {
+            "cpuPercent": {
+              "type": "string"
+            },
+            "memory": {
+              "type": "string"
+            },
+            "memoryPercent": {
+              "type": "string"
+            },
+            "sampleKind": {
+              "const": "SINGLE_DOCKER_STATS_OBSERVATION"
+            }
+          },
+          "required": [
+            "cpuPercent",
+            "memory",
+            "memoryPercent",
+            "sampleKind"
+          ],
+          "additionalProperties": false
+        },
+        "internalNetwork": {
+          "type": "boolean"
+        },
+        "hostPublishedPorts": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "containerLoopbackProbe": {
+          "type": "boolean"
+        },
+        "automaticAccountsRequested": {
+          "type": "boolean"
+        },
+        "memoryLimitBytes": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "cpuLimit": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "pidsLimit": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "elapsedMs": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "oomKilled": {
+          "type": "boolean"
+        },
+        "shutdownExitCode": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "runtime": {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "kind": {
+          "enum": [
+            "TRON_PRIVATE_TVM_RUNTIME_SMOKE",
+            "TRON_PRIVATE_TVM_FIXTURE_DEPLOYMENT",
+            "TRON_PRIVATE_TVM_TOKEN_SCENARIOS",
+            "TRON_PRIVATE_TVM_TOKEN_BOUNDARIES",
+            "TRON_PRIVATE_TVM_TRANSFER_PROBE"
+          ]
+        },
+        "runId": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$"
+        },
+        "image": {
+          "type": "string",
+          "pattern": "^tronbox/tre@sha256:[a-f0-9]{64}$"
+        },
+        "startedAt": {
+          "type": "string"
+        },
+        "completedAt": {
+          "type": "string"
+        },
+        "outcome": {
+          "enum": [
+            "READY",
+            "ERROR"
+          ]
+        },
+        "failure": {
+          "type": "string",
+          "pattern": "^[A-Z_]+$"
+        },
+        "observations": {
+          "$ref": "#/definitions/observations"
+        },
+        "resources": {
+          "type": "object",
+          "properties": {
+            "container": {
+              "type": "string"
+            },
+            "network": {
+              "type": "string"
+            },
+            "containerId": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "networkId": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          },
+          "required": [
+            "container",
+            "network"
+          ],
+          "additionalProperties": false
+        },
+        "cleanup": {
+          "type": "object",
+          "properties": {
+            "container": {
+              "enum": [
+                "NOT_CREATED",
+                "ABSENT",
+                "REMOVED",
+                "FAILED",
+                "UNVERIFIED",
+                "RETAINED"
+              ]
+            },
+            "network": {
+              "enum": [
+                "NOT_CREATED",
+                "ABSENT",
+                "REMOVED",
+                "FAILED",
+                "UNVERIFIED",
+                "RETAINED"
+              ]
+            }
+          },
+          "required": [
+            "container",
+            "network"
+          ],
+          "additionalProperties": false
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "kind",
+        "runId",
+        "image",
+        "startedAt",
+        "completedAt",
+        "outcome",
+        "observations",
+        "resources",
+        "cleanup",
+        "limitations"
+      ],
+      "additionalProperties": false
+    },
+    "fixtureReport": {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "kind": {
+          "enum": [
+            "TRON_PRIVATE_TVM_FIXTURE_DEPLOYMENT",
+            "TRON_PRIVATE_TVM_TOKEN_SCENARIOS",
+            "TRON_PRIVATE_TVM_TOKEN_BOUNDARIES",
+            "TRON_PRIVATE_TVM_TRANSFER_PROBE"
+          ]
+        },
+        "outcome": {
+          "enum": [
+            "OBSERVED",
+            "ERROR"
+          ]
+        },
+        "build": {
+          "$ref": "#/definitions/build"
+        },
+        "evidence": {
+          "$ref": "#/definitions/evidence"
+        },
+        "runtime": {
+          "$ref": "#/definitions/runtime"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "kind",
+        "outcome",
+        "build",
+        "evidence",
+        "runtime"
+      ],
+      "additionalProperties": false
+    },
+    "suiteCase": {
+      "type": "object",
+      "properties": {
+        "variant": {
+          "enum": [
+            "standard",
+            "false-return",
+            "malformed-return",
+            "missing-event"
+          ]
+        },
+        "outcome": {
+          "enum": [
+            "OBSERVED",
+            "ERROR",
+            "NOT_TESTED"
+          ]
+        },
+        "report": {
+          "$ref": "#/definitions/fixtureReport"
+        }
+      },
+      "required": [
+        "variant",
+        "outcome"
+      ],
+      "additionalProperties": false
+    },
+    "suite": {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "kind": {
+          "const": "TRON_PRIVATE_TVM_NEGATIVE_FIXTURES"
+        },
+        "outcome": {
+          "enum": [
+            "OBSERVED",
+            "ERROR"
+          ]
+        },
+        "cases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/suiteCase"
+          }
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "kind",
+        "outcome",
+        "cases",
+        "limitations"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

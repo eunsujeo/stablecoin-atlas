@@ -1,0 +1,380 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "STATIC_ACCOUNT_EVIDENCE_INDEX_NOT_ASSESSMENT_OR_RPC_ADMISSION",
+  "reviewedAt": "2026-10-20T06:50:58.312183+00:00",
+  "catalogSnapshot": {
+    "reference": "stablecoin-profiles.json",
+    "sha256": "02ab835ab86702714d40daa43783ceb8cc599edfd6b188cb7deb891b91ee263c"
+  },
+  "evidenceIndex": [
+    {
+      "profileId": "ethereum-usdc",
+      "category": "historicalObservations",
+      "report": "../../reports/usdc-readonly.json",
+      "sha256": "611b00ab17332a475d6ca32b8b9c072b8995a2b4df96183830b2fbb5fcccbcdf",
+      "observedAt": "2026-10-19T00:36:50.049Z"
+    },
+    {
+      "profileId": "ethereum-usdc",
+      "category": "qualifiedControlObservations",
+      "report": "../../reports/usdc-controls-readonly.json",
+      "sha256": "c545f70fe19943d41e8afc62b5d5be861c1140b2211d78d3e40b06440e2fc14c",
+      "observedAt": "2026-10-20T01:04:04.423Z"
+    },
+    {
+      "profileId": "ethereum-usdc",
+      "category": "qualifiedControlObservations",
+      "report": "../../reports/usdc-role-code-readonly.json",
+      "sha256": "77b950c896ca2d94d9345af51ab1d44f8ed1eefe427e493c602fe497ae58f60e",
+      "observedAt": "2026-10-20T01:11:05.609Z"
+    },
+    {
+      "profileId": "ethereum-usdc",
+      "category": "qualifiedControlObservations",
+      "report": "../../reports/usdc-minter-management-readonly.json",
+      "sha256": "390b3aebc38fa98fd8f6fe6cf2e39c3dad0b995da380122c41cb563de2fe46bf",
+      "observedAt": "2026-10-20T01:24:29.115Z"
+    },
+    {
+      "profileId": "ethereum-usdc",
+      "category": "qualifiedControlObservations",
+      "report": "../../reports/usdc-owner-sample-readonly.json",
+      "sha256": "95602ebaa8ff898f7de003643e97f0f52721076f8a4131f2410fc6aca6e640c1",
+      "observedAt": "2026-10-20T05:34:26.335Z"
+    },
+    {
+      "profileId": "ethereum-usdc",
+      "category": "historicalAdminInvestigations",
+      "report": "../../reports/usdc-master-minter-history-readonly.json",
+      "sha256": "d54b5088c4b1d27649f359d51a04022516fd279401e8ff8fcf92c1924b3f35df",
+      "observedAt": "2026-10-20T01:34:51.863Z"
+    },
+    {
+      "profileId": "ethereum-usdt",
+      "category": "historicalObservations",
+      "report": "../../reports/usdt-readonly.json",
+      "sha256": "af78a1cf4d8d0ac3f8cb50f785044d21670932e7cf7b8c5c1473be4ad8991709",
+      "observedAt": "2026-10-19T00:36:49.934Z"
+    },
+    {
+      "profileId": "ethereum-usdt",
+      "category": "qualifiedControlObservations",
+      "report": "../../reports/usdt-controls-readonly.json",
+      "sha256": "79286af198858a1e883e443509cd5755d077a49e17e6099ffbcc1eb58af479e8",
+      "observedAt": "2026-10-20T04:55:28.646Z"
+    },
+    {
+      "profileId": "ethereum-usdt",
+      "category": "qualifiedControlObservations",
+      "report": "../../reports/usdt-owner-sample-readonly.json",
+      "sha256": "2e6216eab0c24facde0d6db345f5eaba227206cb84b1850940f871e8313f788e",
+      "observedAt": "2026-10-20T05:13:28.091Z"
+    },
+    {
+      "profileId": "tron-usdt",
+      "category": "historicalObservations",
+      "report": "../../reports/tron-usdt-allowance-readonly.json",
+      "sha256": "7b1cb51b4bbed387ceb1a80161ac81ebe8258bbf2d79a5786ecf822398b92b6f",
+      "observedAt": "2026-10-19T04:38:48.194Z"
+    },
+    {
+      "profileId": "ethereum-rlusd",
+      "category": "historicalObservations",
+      "report": "../../reports/rlusd-readonly.json",
+      "sha256": "b164f5a99ff8ba3c6248e08e616f45cec113052c0ae8cc0f1c25aa449b6575ba",
+      "observedAt": "2026-10-20T00:37:35.295Z"
+    },
+    {
+      "profileId": "ethereum-rlusd",
+      "category": "qualifiedControlObservations",
+      "report": "../../reports/rlusd-controls-readonly.json",
+      "sha256": "07792cfc7a300037d7dac593a9eb21b46f1ebb187be4302ebf564c2edb68a3f8",
+      "observedAt": "2026-10-20T03:17:42.820Z"
+    },
+    {
+      "profileId": "ethereum-rlusd",
+      "category": "qualifiedControlObservations",
+      "report": "../../reports/rlusd-role-admin-readonly.json",
+      "sha256": "103600baa283d8a42739f21bced6de80d97b31c89a7f2d3a9a0a288a887d3b73",
+      "observedAt": "2026-10-20T03:39:56.253Z"
+    },
+    {
+      "profileId": "ethereum-rlusd",
+      "category": "accountCandidateInvestigations",
+      "report": "../../reports/rlusd-account-candidates-readonly.json",
+      "sha256": "3e7552b6392a1ed9595dd69a61cfd1bdbc35becf3142ac533b3c94ef7df01743",
+      "observedAt": "2026-10-20T03:58:04.559Z"
+    }
+  ],
+  "profiles": [
+    {
+      "profileId": "ethereum-usdc",
+      "chainFamily": "EVM",
+      "accountEvidenceStatus": "HISTORICAL_CONTROL_ADDRESS_SAMPLE_ONLY",
+      "samples": [
+        {
+          "address": "0xFcb19e6a322b27c06842A71e8c725399f049AE3a",
+          "classification": "CONTROL_ADDRESS_SAMPLE_NOT_SERVICE_OR_CUSTOMER_ACCOUNT",
+          "selectionReason": "FRESH_NONZERO_OWNER_GETTER_RESPONSE",
+          "report": "../../reports/usdc-owner-sample-readonly.json",
+          "sha256": "95602ebaa8ff898f7de003643e97f0f52721076f8a4131f2410fc6aca6e640c1",
+          "observedAt": "2026-10-20T05:34:26.335Z",
+          "observedBlockOrSlot": "26231733",
+          "blockHash": "0xa877c6c244100b6b1a01d931caf2d7294a6a97e83448a3dfc803100db8324bd2",
+          "ownerGetterEvidenceReferences": [
+            {
+              "namespace": "baseProbe",
+              "id": "e14"
+            }
+          ],
+          "freshQueryAdmission": "REQUIRES_SAME_EXECUTION_FRESH_OWNER_GATE",
+          "serviceAccountIdentity": "UNKNOWN",
+          "operatorIdentity": "UNKNOWN",
+          "authorityState": "UNKNOWN"
+        }
+      ],
+      "serviceCustomerAccountEvidence": "NOT_ESTABLISHED",
+      "newAccountQueryExecution": "NOT_TESTED",
+      "authorityState": "UNKNOWN"
+    },
+    {
+      "profileId": "ethereum-usdt",
+      "chainFamily": "EVM",
+      "accountEvidenceStatus": "HISTORICAL_CONTROL_ADDRESS_SAMPLE_ONLY",
+      "samples": [
+        {
+          "address": "0xC6CDE7C39eB2f0F0095F41570af89eFC2C1Ea828",
+          "classification": "CONTROL_ADDRESS_SAMPLE_NOT_SERVICE_OR_CUSTOMER_ACCOUNT",
+          "selectionReason": "FRESH_MATCHING_NONZERO_OWNER_GETTER_RESPONSES",
+          "report": "../../reports/usdt-owner-sample-readonly.json",
+          "sha256": "2e6216eab0c24facde0d6db345f5eaba227206cb84b1850940f871e8313f788e",
+          "observedAt": "2026-10-20T05:13:28.091Z",
+          "observedBlockOrSlot": "26231630",
+          "blockHash": "0xc1b0692d64f1e8e0d080baf413449be8de7aa932df53eef699dfcf92aac6717a",
+          "ownerGetterEvidenceReferences": [
+            {
+              "namespace": "baseProbe",
+              "id": "e6"
+            },
+            {
+              "namespace": "baseProbe",
+              "id": "e7"
+            }
+          ],
+          "freshQueryAdmission": "REQUIRES_SAME_EXECUTION_FRESH_OWNER_GATE",
+          "serviceAccountIdentity": "UNKNOWN",
+          "operatorIdentity": "UNKNOWN",
+          "authorityState": "UNKNOWN"
+        }
+      ],
+      "serviceCustomerAccountEvidence": "NOT_ESTABLISHED",
+      "newAccountQueryExecution": "NOT_TESTED",
+      "authorityState": "UNKNOWN"
+    },
+    {
+      "profileId": "tron-usdt",
+      "chainFamily": "TRON",
+      "accountEvidenceStatus": "TOKEN_CONTRACT_SELF_PAIR_ONLY_NOT_SERVICE_ACCOUNT",
+      "samples": [],
+      "serviceCustomerAccountEvidence": "NOT_ESTABLISHED",
+      "newAccountQueryExecution": "NOT_TESTED",
+      "authorityState": "UNKNOWN"
+    },
+    {
+      "profileId": "solana-usdc",
+      "chainFamily": "SOLANA",
+      "accountEvidenceStatus": "RESEARCH_ONLY_NO_ACCOUNT_OBSERVATION",
+      "samples": [],
+      "serviceCustomerAccountEvidence": "NOT_ESTABLISHED",
+      "newAccountQueryExecution": "NOT_TESTED",
+      "authorityState": "UNKNOWN"
+    },
+    {
+      "profileId": "solana-usdt",
+      "chainFamily": "SOLANA",
+      "accountEvidenceStatus": "RESEARCH_ONLY_NO_ACCOUNT_OBSERVATION",
+      "samples": [],
+      "serviceCustomerAccountEvidence": "NOT_ESTABLISHED",
+      "newAccountQueryExecution": "NOT_TESTED",
+      "authorityState": "UNKNOWN"
+    },
+    {
+      "profileId": "ethereum-rlusd",
+      "chainFamily": "EVM",
+      "accountEvidenceStatus": "NO_QUALIFIED_ACCOUNT_SAMPLE",
+      "samples": [],
+      "serviceCustomerAccountEvidence": "NOT_ESTABLISHED",
+      "newAccountQueryExecution": "NOT_TESTED",
+      "authorityState": "UNKNOWN"
+    },
+    {
+      "profileId": "xrpl-usdc",
+      "chainFamily": "XRPL",
+      "accountEvidenceStatus": "RESEARCH_ONLY_NO_ACCOUNT_OBSERVATION",
+      "samples": [],
+      "serviceCustomerAccountEvidence": "NOT_ESTABLISHED",
+      "newAccountQueryExecution": "NOT_TESTED",
+      "authorityState": "UNKNOWN"
+    },
+    {
+      "profileId": "xrpl-rlusd",
+      "chainFamily": "XRPL",
+      "accountEvidenceStatus": "RESEARCH_ONLY_NO_ACCOUNT_OBSERVATION",
+      "samples": [],
+      "serviceCustomerAccountEvidence": "NOT_ESTABLISHED",
+      "newAccountQueryExecution": "NOT_TESTED",
+      "authorityState": "UNKNOWN"
+    }
+  ],
+  "missingInputs": [
+    {
+      "id": "service-account-context",
+      "profiles": [
+        "ethereum-usdc",
+        "ethereum-usdt",
+        "ethereum-rlusd",
+        "tron-usdt"
+      ],
+      "status": "MISSING_CONTEXT",
+      "required": [
+        "Exact chain/network and asset identifier",
+        "Public account address and purpose: balance holder or allowance owner/spender",
+        "Public provenance or user-provided operational-purpose statement, timestamp and scope"
+      ],
+      "secretsRequired": false,
+      "doesNotEstablish": [
+        "Operator identity",
+        "Key control",
+        "Permission to send transactions",
+        "Role membership"
+      ]
+    },
+    {
+      "id": "usdc-controller-minter",
+      "profiles": [
+        "ethereum-usdc"
+      ],
+      "status": "HISTORICAL_LOOKUP_UNRESOLVED",
+      "required": [
+        "Corroborated account-specific controller/minter provenance",
+        "Historical response availability change or supplied receipt/transaction/header/log evidence before revisiting failed path"
+      ],
+      "existingFailureReport": "../../reports/usdc-master-minter-history-readonly.json",
+      "noMatchEstablished": false
+    },
+    {
+      "id": "rlusd-role-account",
+      "profiles": [
+        "ethereum-rlusd"
+      ],
+      "status": "HISTORICAL_LOOKUP_UNRESOLVED",
+      "required": [
+        "Corroborated account-specific RoleGranted or equivalent public provenance",
+        "Receipt/transaction/header/log context for any proposed deployment-event account"
+      ],
+      "existingFailureReport": "../../reports/rlusd-account-candidates-readonly.json",
+      "noMatchEstablished": false
+    },
+    {
+      "id": "tron-state-block",
+      "profiles": [
+        "tron-usdt"
+      ],
+      "status": "EXACT_RESPONSE_BLOCK_NOT_ESTABLISHED",
+      "required": [
+        "Evidence connecting the actual read snapshot atomically to a verified full block ID"
+      ],
+      "reference": "TRON_RESPONSE_BLOCK_BINDING.md"
+    }
+  ],
+  "nextIndependentWork": {
+    "id": "qualified-service-account-evidence",
+    "scope": "ACCOUNT_PURPOSE_AND_PROVENANCE_ACQUISITION_BEFORE_ACTUAL_READ",
+    "prerequisite": "Public chain/asset/account/purpose/provenance original input; do not reuse synthetic fixture or historic control samples as service wallets",
+    "rpcExecution": "NOT_TESTED",
+    "runnerImplementation": "IMPLEMENTED"
+  },
+  "limits": [
+    "Static historical evidence index; not a new on-chain observation, freshness guarantee or allowlist.",
+    "Two control samples are not two service accounts, and reports are not independent assets.",
+    "Raw RPC URLs, credentials, keys, signing material and customer identifying data are not input requirements.",
+    "Public-network transactions remain outside scope; Solana/XRPL execution adapters remain outside current scope.",
+    "Source binding and actual authority remain UNKNOWN; private fixture behavior is separate from real stablecoin execution."
+  ],
+  "localInputValidation": {
+    "implementation": "../../tools/research/service-account-context.ts",
+    "documentation": "../SERVICE_ACCOUNT_CONTEXT.md",
+    "status": "IMPLEMENTED_LOCAL_ONLY",
+    "rpcAdmission": "NOT_GRANTED",
+    "queryExecution": "NOT_TESTED"
+  },
+  "readOnlyRunner": {
+    "implementation": "../../tools/research/service-account-readonly.ts",
+    "documentation": "../SERVICE_ACCOUNT_READONLY.md",
+    "status": "IMPLEMENTED_VERIFIED_WITH_SYNTHETIC_LOCAL_HTTP",
+    "actualServiceAccountObservation": "NOT_TESTED",
+    "evmAllowance": "IMPLEMENTED_EXPLICIT_OPT_IN_GETTER_ONLY",
+    "evmAllowanceDocumentation": "../EVM_ALLOWANCE_READONLY.md"
+  },
+  "privateTvmAllowancePreparation": {
+    "documentation": "../TRON_ALLOWANCE_PROBE_PREPARATION.md",
+    "verifier": "../../src/tron/lab/allowance-negative.ts",
+    "fixtureSource": "../../fixtures/TronAllowanceProbes.sol",
+    "fixtureCompilation": "VERIFIED_PINNED_LOCAL_COMPILER",
+    "evidence": "SYNTHETIC_VALIDATOR_CASES_ONLY",
+    "actualTvmExecution": "NOT_TESTED",
+    "serviceAccountObservation": "NOT_TESTED"
+  },
+  "privateTvmAllowanceExecution": {
+    "documentation": "../TRON_ALLOWANCE_PROBE_EXECUTION.md",
+    "report": "../../reports/tron-tvm-allowance-suite.json",
+    "schema": "../../schemas/private-tvm-allowance.v1.schema.json",
+    "actualTvmExecution": "OBSERVED_PRIVATE_FIXTURE_ONLY",
+    "runtimeCount": "10",
+    "targetCallCount": "10",
+    "setupApprovalCount": "5",
+    "transactionCount": "25",
+    "fixtureRequestCount": "435",
+    "cleanup": "ALL_OWNED_CONTAINERS_AND_NETWORKS_REMOVED",
+    "serviceAccountObservation": "NOT_TESTED",
+    "actualStablecoinExecution": "NOT_TESTED"
+  },
+  "userRequestedHolderObservations": [
+    {
+      "profileId": "tron-usdt",
+      "documentation": "../TRON_HOLDER_BALANCE_OBSERVATION.md",
+      "report": "../../reports/tron-usdt-user-holder-readonly.json",
+      "sha256": "0c880d3437d6f6923e53905ee43c73736c53328585abb0c2337e13290c604628",
+      "provenance": "OBSERVED",
+      "accountSource": "USER_PROVIDED_IN_CONVERSATION",
+      "purpose": "USER_REQUESTED_BALANCE_READ",
+      "scope": "GENERAL_HOLDER_BALANCE_NOT_SERVICE_ACCOUNT_CLAIM",
+      "observedAt": "2026-10-20T07:59:49.804Z",
+      "networkId": "728126428",
+      "scenarioId": "TRC20-000",
+      "assessmentEvidenceReferences": [
+        "e10",
+        "e11",
+        "e13"
+      ],
+      "readStatus": "OK",
+      "rawBalance": "0",
+      "decimals": 6,
+      "queryBlockOrSlot": "UNKNOWN",
+      "verdict": "INCONCLUSIVE",
+      "support": "UNKNOWN",
+      "requestCount": "9",
+      "successfulRequestCount": "8",
+      "closingHeadAvailable": false,
+      "closingHeadError": {
+        "method": "eth_getBlockByNumber",
+        "error": "HTTP 429"
+      },
+      "allowanceRead": "NOT_TESTED",
+      "behaviorExecution": "NOT_TESTED",
+      "ownership": "UNKNOWN",
+      "serviceAccountIdentity": "UNKNOWN",
+      "authorityState": "UNKNOWN"
+    }
+  ]
+}

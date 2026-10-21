@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1080" viewBox="0 0 1600 1080" role="img" aria-labelledby="title desc"><title id="title">구역을 구분한 터미널 목데이터 ASSET x CHAIN</title><desc id="desc">컴포넌트 비교용 정적 와이어프레임. 데이터와 순위는 미산정. 실제 라이브러리 렌더링 또는 실행 앱이 아닙니다.</desc><style>text{font-family:-apple-system,"Apple SD Gothic Neo",sans-serif}.mono{font-family:ui-monospace,Menlo,"Apple SD Gothic Neo",monospace}</style>
+<rect x="0" y="0" width="1600" height="1080" rx="0" fill="#191d23" stroke="none"/>
+<rect x="0" y="0" width="1600" height="1080" rx="0" fill="#0D1420" stroke="none"/>
+<text xml:space="preserve" x="40" y="43" font-size="23" fill="#7DD3FC" font-weight="600" class="mono">COMPATIBILITY LAB</text>
+<text xml:space="preserve" x="705" y="42" font-size="16" fill="#7DD3FC" font-weight="400" class="mono">[1] COINS    [2] ASSET x CHAIN</text>
+<rect x="1390" y="19" width="170" height="26" rx="13" fill="#573C12" stroke="none"/>
+<text xml:space="preserve" x="1402" y="37" font-size="12" fill="#FFE29B" font-weight="600">MOCK DATA</text>
+<rect x="40" y="67" width="1520" height="39" rx="0" fill="#382D17" stroke="none"/>
+<text xml:space="preserve" x="55" y="93" font-size="16" fill="#FFDB8C" font-weight="400" class="mono">FICTIONAL DATA ONLY | Amounts, ranks, history, scores, grades and timestamps are examples.</text>
+<text xml:space="preserve" x="40" y="139" font-size="17" fill="#DCE8F4" font-weight="600" class="mono">VIEW: ASSET x CHAIN    SCOPE: 8 selected profiles (4 shown)</text>
+<text xml:space="preserve" x="1090" y="139" font-size="17" fill="#7DD3FC" font-weight="400" class="mono">REFRESH 60s [inactive]</text>
+<rect x="40" y="173" width="1520" height="100" rx="0" fill="#111D2D" stroke="#52708C"/>
+<rect x="55" y="160" width="160" height="25" rx="0" fill="#0D1420" stroke="none"/>
+<text xml:space="preserve" x="64" y="179" font-size="17" fill="#7DD3FC" font-weight="600" class="mono">00 / OVERVIEW</text>
+<path d="M510 189L510 257" stroke="#52708C"/>
+<path d="M1015 189L1015 257" stroke="#52708C"/>
+<text xml:space="preserve" x="62" y="211" font-size="14" fill="#A2B4C9" font-weight="400" class="mono">TOTAL SUPPLY / MOCK</text>
+<text xml:space="preserve" x="62" y="245" font-size="25" fill="#DCE8F4" font-weight="600" class="mono">100,000,000,000 tokens</text>
+<text xml:space="preserve" x="535" y="211" font-size="14" fill="#A2B4C9" font-weight="400" class="mono">SELECTED EVIDENCE / MOCK</text>
+<text xml:space="preserve" x="535" y="245" font-size="25" fill="#C4B5FD" font-weight="600" class="mono">84/100   GRADE B</text>
+<text xml:space="preserve" x="1040" y="211" font-size="14" fill="#A2B4C9" font-weight="400" class="mono">LAST SUCCESS / SOURCE</text>
+<text xml:space="preserve" x="1040" y="243" font-size="18" fill="#DCE8F4" font-weight="400" class="mono">12:00:00 / 11:59:40 [mock]</text>
+<rect x="40" y="310" width="900" height="248" rx="0" fill="#111D2D" stroke="#52708C"/>
+<rect x="55" y="297" width="220" height="25" rx="0" fill="#0D1420" stroke="none"/>
+<text xml:space="preserve" x="64" y="316" font-size="17" fill="#7DD3FC" font-weight="600" class="mono">01 / SUPPLY RANKING</text>
+<rect x="968" y="310" width="592" height="248" rx="0" fill="#111D2D" stroke="#52708C"/>
+<rect x="983" y="297" width="200" height="25" rx="0" fill="#0D1420" stroke="none"/>
+<text xml:space="preserve" x="992" y="316" font-size="17" fill="#7DD3FC" font-weight="600" class="mono">02 / COIN HISTORY</text>
+<text xml:space="preserve" x="62" y="344" font-size="15" fill="#A2B4C9" font-weight="400" class="mono">Rank  Asset / Chain          Supply [tokens]</text>
+<text xml:space="preserve" x="62" y="383" font-size="16" fill="#5EE3B4" font-weight="400" class="mono">1  USDT/Ethereum        30,000,000,000</text>
+<text xml:space="preserve" x="648" y="383" font-size="16" fill="#5EE3B4" font-weight="400" class="mono">##############</text>
+<text xml:space="preserve" x="62" y="423" font-size="16" fill="#5EE3B4" font-weight="400" class="mono">2  USDT/TRON            22,000,000,000</text>
+<text xml:space="preserve" x="648" y="423" font-size="16" fill="#5EE3B4" font-weight="400" class="mono">##########</text>
+<text xml:space="preserve" x="62" y="463" font-size="16" fill="#83B7FF" font-weight="400" class="mono">3  USDC/Ethereum        18,000,000,000</text>
+<text xml:space="preserve" x="648" y="463" font-size="16" fill="#83B7FF" font-weight="400" class="mono">########</text>
+<text xml:space="preserve" x="62" y="503" font-size="16" fill="#83B7FF" font-weight="400" class="mono">4  USDC/Solana          10,000,000,000</text>
+<text xml:space="preserve" x="648" y="503" font-size="16" fill="#83B7FF" font-weight="400" class="mono">####</text>
+<text xml:space="preserve" x="991" y="363" font-size="18" fill="#5EE3B4" font-weight="400" class="mono">USDT   . : - = + #</text>
+<text xml:space="preserve" x="991" y="407" font-size="18" fill="#83B7FF" font-weight="400" class="mono">USDC   . : - = + #</text>
+<text xml:space="preserve" x="991" y="451" font-size="18" fill="#C4B5FD" font-weight="400" class="mono">RLUSD  . : - = + #</text>
+<text xml:space="preserve" x="991" y="508" font-size="14" fill="#A2B4C9" font-weight="400" class="mono">D-5                 D0</text>
+<text xml:space="preserve" x="991" y="537" font-size="13" fill="#A2B4C9" font-weight="400" class="mono">Coin totals; separate from chain scope</text>
+<rect x="40" y="597" width="900" height="286" rx="0" fill="#111D2D" stroke="#52708C"/>
+<rect x="55" y="584" width="300" height="25" rx="0" fill="#0D1420" stroke="none"/>
+<text xml:space="preserve" x="64" y="603" font-size="17" fill="#7DD3FC" font-weight="600" class="mono">03 / PROFILE TABLE  [FOCUS]</text>
+<rect x="968" y="597" width="592" height="286" rx="0" fill="#111D2D" stroke="#52708C"/>
+<rect x="983" y="584" width="230" height="25" rx="0" fill="#0D1420" stroke="none"/>
+<text xml:space="preserve" x="992" y="603" font-size="17" fill="#7DD3FC" font-weight="600" class="mono">04 / SELECTED DETAIL</text>
+<text xml:space="preserve" x="61" y="634" font-size="15" fill="#A2B4C9" font-weight="400" class="mono">   ASSET / CHAIN          SUPPLY          SHARE   SCORE  GRADE</text>
+<path d="M56 649L922 649" stroke="#52708C"/>
+<rect x="53" y="662" width="874" height="36" rx="0" fill="#143C58" stroke="none"/>
+<rect x="53" y="662" width="4" height="36" rx="0" fill="#7DD3FC" stroke="none"/>
+<text xml:space="preserve" x="62" y="686" font-size="15" fill="#7DD3FC" font-weight="600" class="mono">&gt; USDT/Ethereum         30,000,000,000  30.0%   84    B</text>
+<text xml:space="preserve" x="62" y="730" font-size="15" fill="#DCE8F4" font-weight="400" class="mono">  USDT/TRON             22,000,000,000  22.0%   78    B</text>
+<text xml:space="preserve" x="62" y="774" font-size="15" fill="#DCE8F4" font-weight="400" class="mono">  USDC/Ethereum         18,000,000,000  18.0%   92    A</text>
+<text xml:space="preserve" x="62" y="818" font-size="15" fill="#DCE8F4" font-weight="400" class="mono">  USDC/Solana           10,000,000,000  10.0%   88    B</text>
+<text xml:space="preserve" x="62" y="860" font-size="14" fill="#A2B4C9" font-weight="400" class="mono">&gt; selected row     Enter: inspect     j/k: move</text>
+<text xml:space="preserve" x="992" y="636" font-size="20" fill="#7DD3FC" font-weight="600" class="mono">USDT / Ethereum</text>
+<path d="M985 651L1543 651" stroke="#52708C"/>
+<text xml:space="preserve" x="992" y="681" font-size="13" fill="#A2B4C9" font-weight="400" class="mono">SUPPLY / EXACT STRING</text>
+<text xml:space="preserve" x="992" y="712" font-size="19" fill="#DCE8F4" font-weight="600" class="mono">30000000000 tokens</text>
+<text xml:space="preserve" x="992" y="749" font-size="15" fill="#A2B4C9" font-weight="400" class="mono">Source: fictional UI fixture</text>
+<text xml:space="preserve" x="992" y="778" font-size="14" fill="#A2B4C9" font-weight="400" class="mono">Support: UNKNOWN [layout example]</text>
+<text xml:space="preserve" x="992" y="807" font-size="14" fill="#A2B4C9" font-weight="400" class="mono">Scenario: NOT_TESTED [example]</text>
+<text xml:space="preserve" x="992" y="852" font-size="14" fill="#FFD88B" font-weight="400" class="mono">Evidence grade: mock, not assessment</text>
+<rect x="40" y="913" width="1520" height="59" rx="0" fill="#162D42" stroke="#52708C"/>
+<text xml:space="preserve" x="62" y="950" font-size="16" fill="#7DD3FC" font-weight="600" class="mono">[Tab] Focus  [j/k ↑↓] Select  [Enter] Detail  [Esc] Back  [/] Search  [?] Help  [q] Quit</text>
+<text xml:space="preserve" x="40" y="1008" font-size="15" fill="#A2B4C9" font-weight="400" class="mono">FOCUS: profile table | SELECTION: USDT / Ethereum | No action is active in this static wireframe.</text>
+<text xml:space="preserve" x="40" y="1040" font-size="14" fill="#A2B4C9" font-weight="400" class="mono">Planned TUI: box borders + visible focus + no-color fallback. No app installed or connected.</text>
+</svg>

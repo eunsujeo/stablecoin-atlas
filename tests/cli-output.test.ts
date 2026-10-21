@@ -40,7 +40,7 @@ test('CLI publishes read-only reports, keeps stdout JSON-only, and preserves pri
     assert.equal(saved.code, 0); assert.equal(saved.stdout, '');
     const contents = await readFile(path, 'utf8'); assertReportContract(JSON.parse(contents));
     assert.equal((await stat(path)).mode & 0o777, 0o600);
-    const streamed = await cli(args, rpcUrl);
+    const streamed = await cli([...args, '--chain', 'evm'], rpcUrl);
     assert.equal(streamed.code, 0); assertReportContract(JSON.parse(streamed.stdout));
     assert(!streamed.stdout.includes('Assessments:')); assert(streamed.stderr.includes('Assessments:'));
     const failed = await cli(['assess', '--network', '2', '--token', args.at(-1)!, '--out', path], rpcUrl);

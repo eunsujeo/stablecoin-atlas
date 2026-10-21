@@ -1,0 +1,480 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Qualified RLUSD role-admin probe v1 (not AssessmentReport)",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "sourceBinding": {
+      "const": "UNKNOWN"
+    },
+    "authorityState": {
+      "const": "UNKNOWN"
+    },
+    "support": {
+      "const": "UNKNOWN"
+    },
+    "issuerVerificationStatus": {
+      "const": "UNKNOWN"
+    },
+    "nativeOrBridged": {
+      "const": "UNKNOWN"
+    },
+    "verdict": {
+      "const": "INCONCLUSIVE"
+    },
+    "behaviorExecution": {
+      "const": "NOT_TESTED"
+    },
+    "caller": {
+      "const": "0x0000000000000000000000000000000000000000"
+    },
+    "sourceEvidence": {
+      "const": {
+        "reference": "../docs/research/rlusd-control-abi-study.json",
+        "sha256": "b4673375590e26ad013f7b27802b3c95ac38c9460aafce1416ebe2ebf368f6fe",
+        "priorReport": "../reports/rlusd-readonly.json",
+        "priorReportSha256": "b164f5a99ff8ba3c6248e08e616f45cec113052c0ae8cc0f1c25aa449b6575ba",
+        "abiProvenance": "USER_PROVIDED_CANDIDATE_NOT_DEPLOYMENT_VERIFIED",
+        "fullSourceAbiIdentity": "UNKNOWN"
+      }
+    },
+    "stage": {
+      "enum": [
+        "PRECONDITION_ERROR",
+        "OBSERVED",
+        "PARTIAL",
+        "CONSISTENCY_ERROR"
+      ]
+    },
+    "startedAt": {
+      "type": "string"
+    },
+    "completedAt": {
+      "type": "string"
+    },
+    "limitations": {
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "type": "string"
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "provenance",
+          "kind",
+          "observedAt",
+          "observedBlockOrSlot",
+          "data"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "provenance": {
+            "const": "OBSERVED"
+          },
+          "kind": {
+            "enum": [
+              "RPC",
+              "RPC_ERROR"
+            ]
+          },
+          "observedAt": {
+            "type": "string"
+          },
+          "observedBlockOrSlot": {
+            "type": "string"
+          },
+          "data": {}
+        },
+        "additionalProperties": false
+      },
+      "maxItems": 32
+    },
+    "kind": {
+      "const": "QUALIFIED_RLUSD_ROLE_ADMIN_PROBE_NOT_ASSESSMENT"
+    },
+    "getter": {
+      "const": {
+        "signature": "getRoleAdmin(bytes32)",
+        "selector": "0x248a9ca3",
+        "inputs": [
+          "bytes32"
+        ],
+        "outputs": [
+          "bytes32"
+        ],
+        "stateMutability": "view"
+      }
+    },
+    "baseProbe": {
+      "type": "object"
+    },
+    "baseProbeSha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "rows": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "signature",
+          "baseEvidenceReferences",
+          "readStatus",
+          "evidenceReferences",
+          "recheckEvidenceReferences",
+          "roleIdConsistency"
+        ],
+        "properties": {
+          "signature": {
+            "enum": [
+              "DEFAULT_ADMIN_ROLE()",
+              "MINTER_ROLE()",
+              "BURNER_ROLE()",
+              "PAUSER_ROLE()",
+              "CLAWBACKER_ROLE()",
+              "UPGRADER_ROLE()"
+            ]
+          },
+          "roleId": {
+            "type": "string",
+            "pattern": "^0x[0-9a-f]{64}$"
+          },
+          "baseEvidenceReferences": {
+            "type": "array",
+            "maxItems": 32,
+            "uniqueItems": true,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "namespace",
+                "id"
+              ],
+              "properties": {
+                "namespace": {
+                  "enum": [
+                    "baseProbe",
+                    "roleAdmin"
+                  ]
+                },
+                "id": {
+                  "type": "string",
+                  "pattern": "^e[1-9][0-9]*$"
+                }
+              }
+            }
+          },
+          "readStatus": {
+            "enum": [
+              "NOT_TESTED",
+              "OK",
+              "READ_FAILED",
+              "INVALID_RESPONSE"
+            ]
+          },
+          "evidenceReferences": {
+            "type": "array",
+            "maxItems": 32,
+            "uniqueItems": true,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "namespace",
+                "id"
+              ],
+              "properties": {
+                "namespace": {
+                  "enum": [
+                    "baseProbe",
+                    "roleAdmin"
+                  ]
+                },
+                "id": {
+                  "type": "string",
+                  "pattern": "^e[1-9][0-9]*$"
+                }
+              }
+            }
+          },
+          "recheckEvidenceReferences": {
+            "type": "array",
+            "maxItems": 32,
+            "uniqueItems": true,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "namespace",
+                "id"
+              ],
+              "properties": {
+                "namespace": {
+                  "enum": [
+                    "baseProbe",
+                    "roleAdmin"
+                  ]
+                },
+                "id": {
+                  "type": "string",
+                  "pattern": "^e[1-9][0-9]*$"
+                }
+              }
+            }
+          },
+          "roleIdConsistency": {
+            "enum": [
+              "NOT_CHECKED",
+              "MATCH",
+              "MISMATCH",
+              "NOT_ESTABLISHED"
+            ]
+          },
+          "adminRoleId": {
+            "type": "string",
+            "pattern": "^0x[0-9a-f]{64}$"
+          },
+          "selfAdmin": {
+            "type": "boolean"
+          },
+          "adminRoleMatches": {
+            "type": "array",
+            "maxItems": 6,
+            "uniqueItems": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "errorKind": {
+            "enum": [
+              "REVERT",
+              "RPC_ERROR",
+              "TRANSPORT_ERROR"
+            ]
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "readStatus": {
+                  "const": "OK"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "adminRoleId"
+              ],
+              "properties": {
+                "adminRoleId": {}
+              }
+            },
+            "else": {
+              "not": {
+                "required": [
+                  "adminRoleId"
+                ],
+                "properties": {
+                  "adminRoleId": {}
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "readStatus": {
+                  "const": "OK"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "selfAdmin"
+              ],
+              "properties": {
+                "selfAdmin": {}
+              }
+            },
+            "else": {
+              "not": {
+                "required": [
+                  "selfAdmin"
+                ],
+                "properties": {
+                  "selfAdmin": {}
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "readStatus": {
+                  "const": "OK"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "adminRoleMatches"
+              ],
+              "properties": {
+                "adminRoleMatches": {}
+              }
+            },
+            "else": {
+              "not": {
+                "required": [
+                  "adminRoleMatches"
+                ],
+                "properties": {
+                  "adminRoleMatches": {}
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "readStatus": {
+                  "const": "READ_FAILED"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "errorKind"
+              ],
+              "properties": {
+                "errorKind": {}
+              }
+            },
+            "else": {
+              "not": {
+                "required": [
+                  "errorKind"
+                ],
+                "properties": {
+                  "errorKind": {}
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "precheckEvidenceReferences": {
+      "type": "array",
+      "maxItems": 32,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "namespace",
+          "id"
+        ],
+        "properties": {
+          "namespace": {
+            "enum": [
+              "baseProbe",
+              "roleAdmin"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^e[1-9][0-9]*$"
+          }
+        }
+      }
+    },
+    "postcheckEvidenceReferences": {
+      "type": "array",
+      "maxItems": 32,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "namespace",
+          "id"
+        ],
+        "properties": {
+          "namespace": {
+            "enum": [
+              "baseProbe",
+              "roleAdmin"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^e[1-9][0-9]*$"
+          }
+        }
+      }
+    },
+    "requestCount": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 32
+    },
+    "totalRequestCount": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 56
+    },
+    "requestLimits": {
+      "const": {
+        "base": 24,
+        "roleAdmin": 32,
+        "total": 56
+      }
+    },
+    "membershipExecution": {
+      "const": "NOT_TESTED"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "sourceBinding",
+    "authorityState",
+    "support",
+    "issuerVerificationStatus",
+    "nativeOrBridged",
+    "verdict",
+    "behaviorExecution",
+    "caller",
+    "sourceEvidence",
+    "stage",
+    "startedAt",
+    "completedAt",
+    "limitations",
+    "evidence",
+    "kind",
+    "getter",
+    "baseProbe",
+    "baseProbeSha256",
+    "rows",
+    "precheckEvidenceReferences",
+    "postcheckEvidenceReferences",
+    "requestCount",
+    "totalRequestCount",
+    "requestLimits",
+    "membershipExecution"
+  ]
+}
