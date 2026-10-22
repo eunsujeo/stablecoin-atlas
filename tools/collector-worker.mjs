@@ -10,7 +10,7 @@ import {claimScheduled,finishScheduled,acquireWorker,releaseWorker,schedulerStat
 import {periodicJobs,receiptStore} from './periodic-jobs.mjs';
 import {safeErrorCode} from './market-db/errors.mjs';
 export function parseCollectorArguments(args){
- const result={command:args[0],once:false,arkhamRunsPerDay:12,stateDirectory:'.state/collector-state',archiveRoot:'.state/collector-archive'};if(!['run','status'].includes(result.command))throw Error('INVALID_COMMAND');const seen=new Set();
+ const result={command:args[0],once:false,arkhamRunsPerDay:288,stateDirectory:'.state/collector-state',archiveRoot:'.state/collector-archive'};if(!['run','status'].includes(result.command))throw Error('INVALID_COMMAND');const seen=new Set();
  for(let i=1;i<args.length;i++){const flag=args[i];if(seen.has(flag))throw Error('INVALID_ARGUMENTS');seen.add(flag);
   if(flag==='--once'&&result.command==='run')result.once=true;
   else if(flag==='--arkham-runs-per-day'&&result.command==='run'&&/^\d{1,3}$/.test(args[i+1]??''))result.arkhamRunsPerDay=Number(args[++i]);

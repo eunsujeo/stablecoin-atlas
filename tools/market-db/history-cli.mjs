@@ -4,21 +4,21 @@ import {workspaceEnvironment} from '../workspace-env.mjs';
 import {boundedJson} from '../market-store.mjs';
 import {boundedRead} from '../evidence-store.mjs';
 import {connectDatabase} from './connection.mjs';
-import {initializeHistory,upgradeHistory,normalizeHistory,grantHistoryWriter,grantHistoryReader,importHistory,verifyHistoryWriter} from './history.mjs';
+import {initializeHistory,upgradeHistory,normalizeHistory,enableContinuousHistory,grantHistoryWriter,grantHistoryReader,importHistory,verifyHistoryWriter} from './history.mjs';
 import {fetchHistorySource,historyProjection,sourceByteLimit} from '../supply-history-source.mjs';
 import {historyAssets,validateSupplyHistory} from '../../web/supply-history-model.js';
 import {validateRegistry} from '../../web/market-model.js';
 import {archiveSources} from './files.mjs';
 import {safeErrorCode} from './errors.mjs';
 export async function main(args,env=process.env,{fetcher=fetch}={}){
- const command=args[0],options={};if(!['init','upgrade','normalize','grant-writer','grant','collect','import'].includes(command))throw Error('INVALID_COMMAND');
+ const command=args[0],options={};if(!['init','upgrade','normalize','continuous','grant-writer','grant','collect','import'].includes(command))throw Error('INVALID_COMMAND');
  const allowed=['--env-file',...(['grant','grant-writer'].includes(command)?['--role']:['collect','import'].includes(command)?['--archive-dir',...(command==='import'?['--manifest']:[])]:[])];
  for(let i=1;i<args.length;i+=2){const flag=args[i];if(!allowed.includes(flag)||Object.hasOwn(options,flag)||!args[i+1]||args[i+1].startsWith('--'))throw Error('INVALID_ARGUMENTS');options[flag]=args[i+1];}
  if(['grant','grant-writer'].includes(command)&&!options['--role']||command==='import'&&!options['--manifest'])throw Error('MISSING_ARGUMENT');
  const registry=validateRegistry((await boundedJson(new URL('../../data/asset-registry.json',import.meta.url),128*1024)).value);
  const variables=await workspaceEnvironment(options['--env-file'],options['--env-file']?{}:env),client=await connectDatabase(variables);
  try{
-  if(command==='init')return await initializeHistory(client);if(command==='upgrade')return await upgradeHistory(client);if(command==='normalize')return await normalizeHistory(client,registry);if(command==='grant-writer')return await grantHistoryWriter(client,options['--role']);if(command==='grant')return await grantHistoryReader(client,options['--role']);
+  if(command==='continuous')return await enableContinuousHistory(client);if(command==='init')return await initializeHistory(client);if(command==='upgrade')return await upgradeHistory(client);if(command==='normalize')return await normalizeHistory(client,registry);if(command==='grant-writer')return await grantHistoryWriter(client,options['--role']);if(command==='grant')return await grantHistoryReader(client,options['--role']);
   await verifyHistoryWriter(client);const sources=[],snapshots=[];
   let entries=Object.keys(historyAssets).map(coinId=>({coinId}));
   if(command==='import'){

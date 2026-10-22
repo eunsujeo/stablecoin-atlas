@@ -7,9 +7,10 @@ import {validateSupplyHistory} from '../../web/supply-history-model.js';
 const migration=new URL('../../db/history/001-initial.sql',import.meta.url);
 const secondMigration=new URL('../../db/history/002-supply-metric.sql',import.meta.url);
 const thirdMigration=new URL('../../db/history/003-periodic-normalized.sql',import.meta.url);
+const fourthMigration=new URL('../../db/history/004-continuous-collection.sql',import.meta.url);
 const tables=['schema_version','reader_grant','snapshot'];
 const extraTables=['writer_grant','daily_source','daily_value','daily_latest','scheduler_day','scheduler_run'];
-const allTables=v=>v===3?[...tables,...extraTables]:tables;
+const allTables=v=>v>=3?[...tables,...extraTables]:tables;
 const insertTables=['daily_source','daily_value','daily_latest','scheduler_day','scheduler_run'];
 const updateColumns={daily_latest:['value_id','source_id'],scheduler_run:['state','finished_at','error_code']};
 const identifier=value=>{if(typeof value!=='string'||!/^[a-z][a-z0-9_]{0,62}$/.test(value))fail('INVALID_IDENTIFIER');return '"'+value+'"';};
@@ -27,12 +28,12 @@ async function owner(client){
 async function verifyHistory(client){
   const {rows}=await client.query("SELECT version,encode(migration_hash,'hex') AS migration_hash,encode(structure_hash,'hex') AS structure_hash FROM atlas_history.schema_version ORDER BY version");
   const version=rows.at(-1)?.version;
-  if(![1,2,3].includes(version)||rows.length!==version)fail('HISTORY_SCHEMA_MISMATCH');
-  for(const [i,file]of [migration,secondMigration,thirdMigration].slice(0,version).entries())if(rows[i].version!==i+1||rows[i].migration_hash!==digest(await readFile(file)))fail('HISTORY_SCHEMA_MISMATCH');
+  if(![1,2,3,4].includes(version)||rows.length!==version)fail('HISTORY_SCHEMA_MISMATCH');
+  for(const [i,file]of [migration,secondMigration,thirdMigration,fourthMigration].slice(0,version).entries())if(rows[i].version!==i+1||rows[i].migration_hash!==digest(await readFile(file)))fail('HISTORY_SCHEMA_MISMATCH');
   if(rows.at(-1).structure_hash!==await structureHash(client,'atlas_history'))fail('HISTORY_SCHEMA_MISMATCH');
   const ownerId=(await client.query("SELECT nspowner::text AS id FROM pg_namespace WHERE nspname='atlas_history'")).rows[0].id;
   const roles=(await client.query('SELECT g.role_name,r.oid::text AS id FROM atlas_history.reader_grant g JOIN pg_roles r ON r.rolname=g.role_name ORDER BY g.role_name')).rows;
-  const writers=version===3?(await client.query('SELECT g.role_name,r.oid::text AS id FROM atlas_history.writer_grant g JOIN pg_roles r ON r.rolname=g.role_name ORDER BY g.role_name')).rows:[];
+  const writers=version>=3?(await client.query('SELECT g.role_name,r.oid::text AS id FROM atlas_history.writer_grant g JOIN pg_roles r ON r.rolname=g.role_name ORDER BY g.role_name')).rows:[];
   const expected=[];for(const table of allTables(version)){
     expected.push({table,name:'installer',command:'*',id:ownerId,using:'true',check:'true'});
     for(const r of [...roles,...writers])expected.push({table,name:'app_'+digest(r.role_name).slice(0,12)+'_s_'+table,command:'r',id:r.id,using:'true',check:null});
@@ -97,7 +98,7 @@ export async function grantHistoryReader(client,role){identifier(role);return tr
 const hashProjection=p=>digest(canonical(p));
 export async function importHistory(client,registry,snapshots){
   validateSupplyHistory(snapshots,registry);if(!snapshots.length)fail('HISTORY_INVALID');
-  return transaction(client,async()=>{await lock(client);const version=await requireImporter(client);if(version===3)return importDaily(client,registry,snapshots);if(version!==2)fail('HISTORY_UPGRADE_REQUIRED');let inserted=0,unchanged=0;
+  return transaction(client,async()=>{await lock(client);const version=await requireImporter(client);if(version>=3)return importDaily(client,registry,snapshots);if(version!==2)fail('HISTORY_UPGRADE_REQUIRED');let inserted=0,unchanged=0;
     for(const p of snapshots){
       const coin=(await client.query('SELECT id,symbol FROM atlas_market.coin WHERE code=$1',[p.coinId])).rows[0];
       if(!coin||coin.symbol!==registry.coins.find(c=>c.id===p.coinId)?.symbol)fail('HISTORY_IDENTITY_MISMATCH');
@@ -115,7 +116,7 @@ export async function readHistory(client,registry){
   if((await client.query('SELECT access_mode FROM atlas_market.access_grant WHERE role_name=current_user')).rows[0]?.access_mode!=='reader')fail('HISTORY_READER_REQUIRED');
   const role=(await client.query('SELECT current_user AS name')).rows[0].name;await readerPrivileges(client,role);const version=await verifyHistory(client);
   if(!(await client.query('SELECT 1 FROM atlas_history.reader_grant WHERE role_name=current_user')).rowCount)fail('HISTORY_ACCESS_DENIED');
-  if(version===3)return readDaily(client,registry);
+  if(version>=3)return readDaily(client,registry);
   const rows=(await client.query(`SELECT DISTINCT ON (s.coin_id${version===2?',s.metric':''}) c.code,${version===2?'s.metric':"'NETWORK_CIRCULATING'"} AS metric,payload.projection,encode(s.content_hash,'hex') AS hash,encode(s.source_hash,'hex') AS source,
     to_char(s.window_to,'YYYY-MM-DD') AS window_to,to_char(s.fetched_at AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS fetched
     FROM atlas_history.snapshot s JOIN atlas_market.coin c ON c.id=s.coin_id CROSS JOIN LATERAL (SELECT s.projection)payload
@@ -145,15 +146,15 @@ async function requireImporter(client){
  if(!(await client.query("SELECT has_schema_privilege(current_user,'atlas_history','USAGE') AS allowed")).rows[0].allowed)fail('DATABASE_OWNER_REQUIRED');
  const version=await verifyHistory(client);
  if((await client.query('SELECT access_mode FROM atlas_market.access_grant WHERE role_name=current_user')).rows[0]?.access_mode!=='writer')fail('HISTORY_WRITER_REQUIRED');
- if(version!==3)fail('HISTORY_UPGRADE_REQUIRED');
+ if(version<3)fail('HISTORY_UPGRADE_REQUIRED');
  const role=(await client.query('SELECT current_user AS name')).rows[0].name;await writerPrivileges(client,role);
  if(!(await client.query('SELECT 1 FROM atlas_history.writer_grant WHERE role_name=current_user')).rowCount)fail('HISTORY_ACCESS_DENIED');return version;
 }
 export async function requireHistoryRuntime(client){
- await runtimeRole(client);const version=await requireImporter(client);if(version!==3)fail('HISTORY_UPGRADE_REQUIRED');return version;
+ await runtimeRole(client);const version=await requireImporter(client);if(version<3)fail('HISTORY_UPGRADE_REQUIRED');return version;
 }
 export async function grantHistoryWriter(client,role){identifier(role);return transaction(client,async()=>{
- await lock(client);await owner(client);if(await verifyHistory(client)!==3)fail('HISTORY_UPGRADE_REQUIRED');await safeRole(client,role);
+ await lock(client);await owner(client);if(await verifyHistory(client)<3)fail('HISTORY_UPGRADE_REQUIRED');await safeRole(client,role);
  if((await client.query('SELECT access_mode FROM atlas_market.access_grant WHERE role_name=$1',[role])).rows[0]?.access_mode!=='writer')fail('HISTORY_WRITER_REQUIRED');
  const prior=(await client.query('SELECT 1 FROM atlas_history.writer_grant WHERE role_name=$1',[role])).rowCount;
  if(!prior){await client.query(`GRANT USAGE ON SCHEMA atlas_history TO ${identifier(role)}`);
@@ -165,7 +166,7 @@ export async function grantHistoryWriter(client,role){identifier(role);return tr
  }await writerPrivileges(client,role);await verifyHistory(client);return {state:prior?'UNCHANGED':'GRANTED',access:'writer'};
 });}
 export async function normalizeHistory(client,registry){return transaction(client,async()=>{
- await lock(client);await owner(client);const version=await verifyHistory(client);if(version===3)return {state:'UNCHANGED',version};if(version!==2)fail('HISTORY_UPGRADE_REQUIRED');
+ await lock(client);await owner(client);const version=await verifyHistory(client);if(version>=3)return {state:'UNCHANGED',version};if(version!==2)fail('HISTORY_UPGRADE_REQUIRED');
  const sources=(await client.query("SELECT projection,encode(content_hash,'hex') AS hash FROM atlas_history.snapshot ORDER BY fetched_at,source_hash,coin_id,metric LIMIT 10001")).rows;if(sources.length>10000)fail('HISTORY_RESPONSE_LIMIT');
  for(const s of sources){validateSupplyHistory([s.projection],registry);if(hashProjection(s.projection)!==s.hash)fail('HISTORY_CONTENT_CONFLICT');}
  const sql=await readFile(thirdMigration);await client.query(sql.toString('utf8'));const role=(await client.query('SELECT current_user AS name')).rows[0].name;
@@ -173,4 +174,18 @@ export async function normalizeHistory(client,registry){return transaction(clien
  for(const reader of (await client.query('SELECT role_name FROM atlas_history.reader_grant')).rows)for(const table of extraTables){await client.query(`GRANT SELECT ON atlas_history.${table} TO ${identifier(reader.role_name)}`);await client.query(`CREATE POLICY ${identifier('app_'+digest(reader.role_name).slice(0,12)+'_s_'+table)} ON atlas_history.${table} FOR SELECT TO ${identifier(reader.role_name)} USING(true)`);}
  for(const s of sources)await importDaily(client,registry,[s.projection]);
  await client.query('INSERT INTO atlas_history.schema_version VALUES(3,$1,$2)',[Buffer.from(digest(sql),'hex'),Buffer.from(await structureHash(client,'atlas_history'),'hex')]);await verifyHistory(client);await verifySchema(client);return {state:'NORMALIZED',version:3,legacySnapshots:sources.length};
+});}
+
+// Explicit owner migration for the user-approved 24-hour schedule. Never resets reservations.
+export async function enableContinuousHistory(client){return transaction(client,async()=>{
+ await lock(client);await owner(client);const version=await verifyHistory(client);
+ if(version===4)return {state:'UNCHANGED',version};if(version!==3)fail('HISTORY_UPGRADE_REQUIRED');
+ if(!(await client.query('SELECT pg_try_advisory_xact_lock(18471234,405) AS locked')).rows[0].locked)fail('SCHEDULER_LOCKED');
+ await client.query('SELECT pg_advisory_xact_lock(18471234,404)');
+ const day=(await client.query("SELECT to_char(CURRENT_TIMESTAMP AT TIME ZONE 'UTC','YYYY-MM-DD') AS day")).rows[0].day;
+ const previous=(await client.query("SELECT budget FROM atlas_history.scheduler_day WHERE job='ARKHAM' AND day=$1::date",[day])).rows[0]?.budget??null;
+ if(previous!==null&&![12,288].includes(previous))fail('SCHEDULER_BUDGET_MISMATCH');
+ const sql=await readFile(fourthMigration);await client.query(sql.toString('utf8'));
+ await client.query('INSERT INTO atlas_history.schema_version VALUES(4,$1,$2)',[Buffer.from(digest(sql),'hex'),Buffer.from(await structureHash(client,'atlas_history'),'hex')]);
+ await verifyHistory(client);await verifySchema(client);return {state:'UPGRADED',version:4,day,previousBudget:previous,budget:288};
 });}

@@ -2,16 +2,19 @@
 
 서버 CLI가 DB 예약을 확보한 뒤 Arkham을5분 간격, DeFiLlama를 UTC 날짜마다1회 수집한다. 브라우저와 웹 서버 시작은 공급자 API를 호출하지 않는다. 기존 `market:watch`와 새 worker를 함께 실행하지 않는다.
 
-기본 Arkham 예산은 UTC 하루12회(최대84 GET)다. 12회에 도달하면 다음 UTC 날짜까지 기다리므로 하루 종일5분 수집하는 설정은 아니다. 실패·중단 예약도 횟수에 포함하며 재시작해도 초기화하지 않는다. DeFiLlama는 하루3 GET로3자산의 두 지표를 함께 가져온다. 이는 앱의 상한이며 공급자 계정 크레딧 보증은 아니다.
+기본 Arkham 예산은 UTC 하루288회(최대2016 GET)다. 24시간 동안5분마다 현재 구간을 수집한다. 실패·중단 예약도 횟수에 포함하며 재시작해도 초기화하지 않는다. DeFiLlama는 하루3 GET로3자산의 두 지표를 함께 가져온다. 이는 앱의 상한이며 공급자 계정 크레딧 보증은 아니다.
 
-`--arkham-runs-per-day 0`은 Arkham만 끈다. 24시간5분 간격은288회/일(최대2016 GET)이므로 계정 한도를 확인한 후 명시 설정한다. DB에 기록된 해당 UTC 날짜의 예산은 변경하지 않는다. 변경은 다음 UTC 날짜부터 같은 값으로 실행한다. 프로세스 중지/PC 절전 중 빠진 구간을 몰아서 조회하지 않는다.
+`--arkham-runs-per-day 0`은 Arkham만 끈다. 명시적으로 더 낮은 상한도 설정할 수 있다. 프로세스 중지/PC 절전 중 빠진 구간을 몰아서 조회하지 않는다. 공급자가 거부한 요청은 같은 슬롯에서 재시도하지 않는다.
+
+기존12회 설정을 사용한 DB는 아래 관리자 `continuous` 전환이 필요하다. 오늘 이미 사용한 횟수/예약을 지우지 않고 오늘의12회 상한만288회로 올린다. 다른 기존 상한이면 자동 변경하지 않는다. 일반 runtime은 계속 날짜별 예산을 변경할 수 없다.
 
 ## DB 준비
 
-기존 [Supabase 설정](SUPABASE_SETUP.md)과 [DB CLI](POSTGRESQL_MARKET_CLI.md)로 core schema·월 파티션·writer/reader를 준비한다. 신규 프로젝트는 history init 후 normalize가 필요하다. 기존 v1은 upgrade 후 normalize한다. 아래 두 작업은 관리자 전용이며 수집 서비스에 관리자 설정을 전달하지 않는다.
+기존 [Supabase 설정](SUPABASE_SETUP.md)과 [DB CLI](POSTGRESQL_MARKET_CLI.md)로 core schema·월 파티션·writer/reader를 준비한다. 신규 프로젝트는 history init 후 normalize가 필요하다. 기존 v1은 upgrade 후 normalize한다. continuous를 실행할 때는 같은 DB의 수집기를 먼저 종료한다. 아래 작업은 관리자 전용이며 수집 서비스에 관리자 설정을 전달하지 않는다.
 
 ```sh
 npm run market:history:normalize -- --env-file .state/market-db-secrets/admin.env
+npm run market:history:continuous -- --env-file .state/market-db-secrets/admin.env
 npm run market:history:grant-writer -- --env-file .state/market-db-secrets/admin.env --role atlas_market_writer
 ```
 

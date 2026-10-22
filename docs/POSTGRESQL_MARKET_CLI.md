@@ -151,3 +151,5 @@ v1 SQL과 기존 유통량 payload는 보존한다. collect/import는 같은3개
 ## 일별 정규화와 주기 수집 v3
 
 [ADR0048](adr/0048-durable-periodic-collection.md)의 명시 normalize가 기존 snapshot을 보존하며 일별 값과 최신 포인터를 분리한다. 새 수집은 반복되는1년치 값을 재삽입하지 않는다. 전용 core writer에 history grant-writer를 추가하고 collector:run으로 실행한다. UTC 날짜별 호출 상한·재시작 예약·원문 복구·systemd 예제는 [수집 서비스](COLLECTOR_SERVICE.md)를 따른다. 기존 init은 v2이며 신규 프로젝트도 normalize를 별도로 실행한다.
+
+기존12회/일 DB를24시간5분 수집으로 전환하려면 수집기를 종료한 후 관리자 `market:history:continuous`로 history v4를 적용한다. 오늘 사용한 예약은 유지한다. runtime 기본값은288회/UTC일이다([ADR0049](adr/0049-continuous-five-minute-collection.md)).
