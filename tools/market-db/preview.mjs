@@ -9,7 +9,7 @@ import { validateMarket, validateRegistry } from '../../web/market-model.js';
 const stamp = column => `to_char(${column} AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"')`;
 const registryPath = new URL('../../data/asset-registry.json', import.meta.url);
 const seriesLimit = 24, byteLimit = 2 * 1024 * 1024;
-async function registryMatches(client, registry) {
+export async function registryMatches(client, registry) {
   const coins = (await client.query('SELECT code,symbol,name FROM atlas_market.coin ORDER BY code LIMIT 257')).rows;
   const networks = (await client.query('SELECT code,family,network_identity FROM atlas_market.network ORDER BY code LIMIT 257')).rows;
   const deployments = (await client.query(`SELECT d.code,c.code AS coin,n.code AS network,d.identity_display AS identity,d.origin

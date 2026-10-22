@@ -1,6 +1,6 @@
 # 신규 자산 등록 계획 도구
 
-[확장 설계](design/YEN_AND_TOP10_NETWORK_COLLECTION.md)의 첫 구현 단계다. 추적되는 metadata와 저장한 공급자 원문을 읽어 **등록 계획/단위 검증 미리보기**를 생성한다. 결과의 kind는 NOT_ACTIVE이며 DB 등록·수집 실행·기술 검증 PASS를 뜻하지 않는다. 실제 DB/reader 확장은 다음 단계다.
+[확장 설계](design/YEN_AND_TOP10_NETWORK_COLLECTION.md)의 오프라인 미리보기와 별도 DB 경로다. plan/detail은 **등록 계획/단위 검증 미리보기**이며 결과의 NOT_ACTIVE는 DB 등록·수집 실행·기술 검증 PASS를 뜻하지 않는다. 별도 DB 명령은 아래와 [ADR0053](adr/0053-registration-database-and-filtered-history.md)을 따른다.
 
 ## 포함한 정보
 
@@ -62,4 +62,20 @@ npm run --silent market:registration:detail -- \
 
 등록 CLI는 네트워크/DB/환경변수를 읽지 않는다. 원문 입력 제한은 목록16MiB/상세32MiB, JSON 깊이는32다. 기존 collector ledger·288회 예산·원문 archive와 현재 UI 선택지는 유지한다. 새 코인을 지금 대시보드에서 조회할 수 있게 만든 단계는 아니다.
 
-이번 원문 대조에서는 USDT10/USDC10/RLUSD2/JPYC4/JPYSC1의27개 조합이 선정됐다. RLUSD의 공식 추가5곳은 수량 미확보로 보존한다. 새 상세 수량은 JPYC804점×2지표, JPYSC93점×2지표로 확인했다. 다음은 이 metadata/단위 계약을 사용한 DB 버전 확장과 coin/metric별 제한 조회이며, 이후 일별 백필·정기수집·화면 연결을 진행한다.
+이번 원문 대조에서는 USDT10/USDC10/RLUSD2/JPYC4/JPYSC1의27개 조합이 선정됐다. RLUSD의 공식 추가5곳은 수량 미확보로 보존한다. 새 상세 수량은 JPYC804점×2지표, JPYSC93점×2지표로 확인했다. 다음은 기존 코인 추가 네트워크 백필·최소 권한 정기수집·화면 연결이다.
+
+## 별도 DB 등록과 저장 자료 조회
+
+`market:registration:db`는 외부 API를 호출하지 않는다. 기존 수집기를 유지하는 `atlas_registration` v1 전용이며 init/grant/install/import는 보관한 owner 설정, read는 명시 grant한 reader 설정을 쓴다. 기존 writer에는 새 권한을 부여하지 않는다. 아래 `<...>`는 실제 로컬 파일·명령 결과·원래 관측 시각으로 대체한다.
+
+```sh
+npm run market:registration:db -- init --env-file <admin.env>
+npm run market:registration:db -- grant --role atlas_app_reader --env-file <admin.env>
+npm run market:registration:db -- install --catalogue <catalogue.json> --fetched-at <원래_REQUEST_UTC시각> --env-file <admin.env>
+npm run market:registration:db -- import --selection <설치결과_selectionId> --coin jpyc --source <상세원문.json> --fetched-at <원래_REQUEST_UTC시각> --env-file <admin.env>
+npm run market:registration:db -- read --selection <selectionId> --coin jpyc --metric NETWORK_CIRCULATING --from 2025-10-22 --to 2026-10-22 --env-file <reader.env>
+```
+
+기본 raw archive는 Git 제외 `.state/registration-artifacts`다. `--archive-dir`로 비공개 영속 경로를 지정할 수 있다. metadata/legacy는 저장소의 검토된 파일을 사용하며 임의 plan 입력/HTTP 수집/활성화 옵션은 없다. 상세 코인은 `jpyc`/`jpysc` 등 metadata에 등록된 ID이고 지표는 `NETWORK_CIRCULATING` 또는 `NETWORK_MINTED`다. 후자는 발행 잔액이다. 최대1년/10개 네트워크를 조회하며, 조회 결과 `sourceId`를 `--source-id`로 지정하면 정정 전 원문에 해당하는 저장값을 확인한다. source가 없으면 MISSING이며0이나 이전 네트워크 값으로 채우지 않는다. 날짜 필터는 저장 자료를 좁힐 뿐 현재 외부 값을 수집하지 않는다. 대시보드 전환은 후속 단계다.
+
+2026-10-22 Supabase 적용: metadata1/selection1, JPYC4네트워크804점×2지표와 JPYSC1네트워크93점×2지표, 총1,794개 값·4source·4coverage를 저장했다. 같은 원문 재수입은 세 종류 모두 추가0이다. 새 schema의 table/index/TOAST 합계는896KiB(그중 index344KiB)였다. 기존 시장 schema/권한을 유지한 채 기존 reader와 worker 지속 동작을 확인했다. 측정 시점·Lead/검사 결과와 다음 작업은 [인계문](handoff/2026-10-22-registration-db-history.md)을 따른다. 이 수량으로 앞으로의 무료 용량이 충분하다고 단정하지 않는다.

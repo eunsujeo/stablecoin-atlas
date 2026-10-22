@@ -76,7 +76,7 @@ APTOS/TON/STELLAR/Hyperliquid L1 등은 시장 metadata를 표현할 수 있도�
 
 ## 6. DB 확장과 멱등성
 
-실행용 DDL은 이번에 만들지 않는다. 후속 구현은 core의 다음 migration과 history005 이상을 각각 명시 owner transaction으로 적용한다. 이미 적용된 core/history001~004/catalog migration·hash·불변 snapshot을 수정하지 않는다.
+최초 설계는 core의 다음 migration과 history005 이상을 계획했다. 후속 [ADR0053](../adr/0053-registration-database-and-filtered-history.md)은 실행 중인 기존 worker의 strict schema/registry를 보존하기 위해 별도 atlas_registration v1을 먼저 설치하는 것으로 순서를 변경한다. 이미 적용된 core/history001~004/catalog migration·hash·불변 snapshot은 수정하지 않는다.
 
 | 논리 테이블/확장 | 필요한 핵심 키·값 |
 | --- | --- |
