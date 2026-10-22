@@ -16,6 +16,23 @@ ROOT = Path(__file__).resolve().parents[1]
 REPO = ROOT.parents[1]
 STATE = ROOT / ".state/lead"
 NOTICE = "[ROUTER_LEAD_REQUEST "
+IN_FLIGHT = {"dispatching", "delivered", "delivery_uncertain", "preparation_failed"}
+OPEN = IN_FLIGHT | {"pending"}
+
+
+class HerdrError(RuntimeError):
+    def __init__(self, operation, returncode, code):
+        super().__init__("Herdr rejected " + operation + ": " + code)
+        self.code = code
+        self.returncode = returncode
+
+
+def failure(error, phase):
+    # Never persist arbitrary stderr, command arguments, screen text or environment values.
+    value = {"phase": phase, "type": type(error).__name__, "at": time.time()}
+    if isinstance(error, HerdrError):
+        value.update(code=error.code, returncode=error.returncode)
+    return value
 
 
 def write(path, value):
@@ -51,7 +68,14 @@ def herdr(*args):
         raise RuntimeError("Herdr environment required")
     process = subprocess.run(["herdr", *args], capture_output=True, text=True, timeout=10)
     if process.returncode:
-        raise RuntimeError("Herdr rejected " + " ".join(args[:2]))
+        code = "herdr_command_failed"
+        try:
+            candidate = json.loads(process.stderr).get("error", {}).get("code")
+            if isinstance(candidate, str) and re.fullmatch(r"[a-z_]{1,80}", candidate):
+                code = candidate
+        except (ValueError, AttributeError, TypeError):
+            pass
+        raise HerdrError(" ".join(args[:2]), process.returncode, code)
     return json.loads(process.stdout)["result"]
 
 
@@ -97,7 +121,7 @@ def pump():
         except BlockingIOError:
             return "dispatcher_busy"
         rows = sorted(entries(), key=lambda row: row["created_at"])
-        if any(row["state"] in {"dispatching", "delivered", "delivery_uncertain"} for row in rows):
+        if any(row["state"] in IN_FLIGHT for row in rows):
             return "awaiting_response"
         pending = next((row for row in rows if row["state"] == "pending"), None)
         if pending is None:
@@ -106,6 +130,8 @@ def pump():
         if target.get("agent_status") not in {"idle", "done"}:
             return "lead_busy"
         pending["state"] = "dispatching"
+        pending["dispatch_phase"] = "preparation"
+        pending["dispatch_started_at"] = time.time()
         write(path_for(pending["id"]), pending)
         message = (NOTICE + pending["id"] + "]\n"
                    "구현 Agent의 검토 요청입니다. AGENTS.md의 Lead bridge 절차를 따르세요. "
@@ -117,16 +143,47 @@ def pump():
         try:
             # Each request starts in a fresh Lead conversation; the request file carries all context.
             renew_lead()
+        except (RuntimeError, ValueError, OSError, subprocess.SubprocessError) as error:
+            pending.update(state="preparation_failed", failure=failure(error, "preparation"))
+            write(path_for(pending["id"]), pending)
+            return "preparation_failed"
+        # Persist before sending: a crash/timeout after here must never trigger automatic resend.
+        pending["dispatch_phase"] = "prompt"
+        write(path_for(pending["id"]), pending)
+        try:
             # Deliberately no --wait: Lead and Implementer must never wait on each other's turns.
             herdr("agent", "prompt", "router-lead", message)
-        except (RuntimeError, ValueError, OSError, subprocess.SubprocessError):
+        except (RuntimeError, ValueError, OSError, subprocess.SubprocessError) as error:
             pending["state"] = "delivery_uncertain"
+            pending["failure"] = failure(error, "prompt")
             write(path_for(pending["id"]), pending)
             return "delivery_uncertain"
         pending["state"] = "delivered"
         pending["dispatched_at"] = time.time()
         write(path_for(pending["id"]), pending)
         return "delivered"
+
+
+def cancel(identifier, reason):
+    """Explicit operator reconciliation, never a fabricated review or automatic retry."""
+    reason = clean_summary(reason)
+    STATE.mkdir(parents=True, exist_ok=True, mode=0o700)
+    with (STATE / "dispatch.lock").open("a") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        path = path_for(identifier)
+        row = json.loads(path.read_text())
+        if row["state"] not in OPEN:
+            raise ValueError("Request is not open")
+        # The operator must first inspect the pane. Never interrupt ongoing work or approvals.
+        target = agent("router-lead")
+        if target.get("agent_status") not in {"idle", "done"}:
+            raise RuntimeError("Lead must be idle/done before cancellation")
+        row.update(state="cancelled", cancelled_at=time.time(), cancellation={
+            "reason": reason, "previous_state": row["state"],
+            "pane_id": target.get("pane_id"), "state_change_seq": target.get("state_change_seq")})
+        write(path, row)
+    start_watcher()
+    return row
 
 
 def respond(identifier, response):
@@ -143,7 +200,7 @@ def record_response(identifier, response):
     value = json.loads(path.read_text())
     if value["state"] == "answered":
         raise ValueError("Response already recorded")
-    if value["state"] not in {"pending", "dispatching", "delivered", "delivery_uncertain"}:
+    if value["state"] not in OPEN:
         raise ValueError("Request is not open")
     if not isinstance(response, dict) or set(response) != {"action", "summary"}:
         raise ValueError("Response must contain action and summary only")
@@ -170,10 +227,17 @@ def watch():
                 return
             try:
                 status = pump()
-                if status == "delivery_uncertain":
+                if status in {"delivery_uncertain", "preparation_failed", "awaiting_response"}:
+                    # Existing active work can finish via respond(), which starts a new watcher.
+                    # Do not silently poll an unresolved delivery error for an hour.
+                    if status == "awaiting_response" and not any(
+                            row["state"] in {"delivery_uncertain", "preparation_failed"} for row in entries()):
+                        time.sleep(5)
+                        continue
                     return
-            except (RuntimeError, OSError, ValueError, subprocess.SubprocessError):
-                pass  # Existing request stays pending; never manufacture success.
+            except (RuntimeError, OSError, ValueError, subprocess.SubprocessError) as error:
+                write(STATE / "watcher-status.json", failure(error, "pump"))
+                return  # Keep the request pending and expose a sanitized diagnostic.
             time.sleep(5)
 
 
@@ -199,6 +263,9 @@ def main():
     command = commands.add_parser("respond")
     command.add_argument("id")
     command.add_argument("--response-file", type=Path, required=True)
+    command = commands.add_parser("cancel", help="After pane inspection, close an obsolete request without resending")
+    command.add_argument("id")
+    command.add_argument("--reason", required=True)
     commands.add_parser("pump")
     commands.add_parser("watch")
     commands.add_parser("list")
@@ -207,12 +274,14 @@ def main():
         result = submit(sys.stdin.read(2001), args.reason, args.source, args.file)
     elif args.command == "respond":
         result = respond(args.id, json.loads(args.response_file.read_text()))
+    elif args.command == "cancel":
+        result = cancel(args.id, args.reason)
     elif args.command == "result":
         path = path_for(args.id)
         deadline = time.monotonic() + max(0, min(args.wait, 45))
         while True:
             result = json.loads(path.read_text())
-            if result["state"] == "answered" or time.monotonic() >= deadline:
+            if result["state"] in {"answered", "cancelled", "preparation_failed", "delivery_uncertain"} or time.monotonic() >= deadline:
                 break
             time.sleep(1)
     elif args.command == "pump":

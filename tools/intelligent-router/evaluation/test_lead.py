@@ -46,10 +46,13 @@ class BridgeTests(unittest.TestCase):
     def test_failed_lead_renewal_sends_no_notice_and_is_not_retried(self):
         self.renew_lead.side_effect = RuntimeError("renew_uncertain")
         with patch.object(lead, "agent", return_value={"agent_status": "idle"}), patch.object(lead, "herdr") as send:
-            self.assertEqual(lead.pump(), "delivery_uncertain")
+            self.assertEqual(lead.pump(), "preparation_failed")
             self.assertEqual(lead.pump(), "awaiting_response")
             send.assert_not_called()
             self.renew_lead.assert_called_once()
+        row = json.loads(lead.path_for(self.row["id"]).read_text())
+        self.assertEqual(row["failure"]["phase"], "preparation")
+        self.assertEqual(row["dispatch_phase"], "preparation")
 
     def test_uncertain_delivery_is_not_retried(self):
         with patch.object(lead, "agent", return_value={"agent_status": "done"}), \
@@ -57,6 +60,99 @@ class BridgeTests(unittest.TestCase):
             self.assertEqual(lead.pump(), "delivery_uncertain")
             self.assertEqual(lead.pump(), "awaiting_response")
             self.assertEqual(send.call_count, 1)
+        row = json.loads(lead.path_for(self.row["id"]).read_text())
+        self.assertEqual(row["failure"]["phase"], "prompt")
+        self.assertEqual(row["dispatch_phase"], "prompt")
+
+    def test_cancel_stale_request_unblocks_next_without_resending(self):
+        self.row["state"] = "delivery_uncertain"
+        lead.write(lead.path_for(self.row["id"]), self.row)
+        next_row = dict(self.row, id="b" * 32, state="pending", created_at=2)
+        lead.write(lead.path_for(next_row["id"]), next_row)
+        with patch.object(lead, "agent", return_value={"agent_status": "idle", "pane_id": "w1:p2"}), \
+                patch.object(lead, "herdr") as send, patch.object(lead, "start_watcher") as watcher:
+            row = lead.cancel(self.row["id"], "Pane inspected; obsolete review closed explicitly")
+            watcher.assert_called_once()
+            send.assert_not_called()
+            self.assertEqual(row["state"], "cancelled")
+            self.assertIsNone(row["response"])
+            self.assertEqual(row["cancellation"]["previous_state"], "delivery_uncertain")
+            with self.assertRaises(ValueError):
+                lead.record_response(self.row["id"], {"action": "proceed", "summary": "late reply"})
+            self.assertEqual(lead.pump(), "delivered")
+            self.assertIn(next_row["id"], send.call_args.args[3])
+            self.assertNotIn(self.row["id"], send.call_args.args[3])
+
+    def test_cancel_restarts_stopped_watcher_and_delivers_existing_pending_once(self):
+        self.row["state"] = "delivery_uncertain"
+        lead.write(lead.path_for(self.row["id"]), self.row)
+        queued = dict(self.row, id="c" * 32, state="pending", created_at=2)
+        lead.write(lead.path_for(queued["id"]), queued)
+        lead.watch()  # The earlier delivery error has already stopped the dispatcher.
+        with patch.object(lead, "agent", return_value={"agent_status": "idle"}), \
+                patch.object(lead, "herdr") as send, \
+                patch.object(lead, "start_watcher", side_effect=lead.watch) as watcher:
+            lead.cancel(self.row["id"], "Pane inspected; obsolete review")
+            watcher.assert_called_once()
+            self.assertEqual(send.call_count, 1)
+            self.assertIn(queued["id"], send.call_args.args[3])
+            self.assertNotIn(self.row["id"], send.call_args.args[3])
+            self.assertEqual(lead.pump(), "awaiting_response")
+        self.assertEqual(json.loads(lead.path_for(queued["id"]).read_text())["state"], "delivered")
+
+    def test_cancellation_refuses_working_blocked_unknown_and_answered(self):
+        for status in ["working", "blocked", "unknown"]:
+            with patch.object(lead, "agent", return_value={"agent_status": status}):
+                with self.assertRaises(RuntimeError):
+                    lead.cancel(self.row["id"], "obsolete")
+            self.assertEqual(json.loads(lead.path_for(self.row["id"]).read_text())["state"], "pending")
+        lead.record_response(self.row["id"], {"action": "proceed", "summary": "reviewed"})
+        with self.assertRaises(ValueError):
+            lead.cancel(self.row["id"], "obsolete")
+
+    def test_dispatch_lock_prevents_concurrent_send(self):
+        import fcntl
+        with (self.folder / "dispatch.lock").open("a") as lock, patch.object(lead, "herdr") as send:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            self.assertEqual(lead.pump(), "dispatcher_busy")
+            send.assert_not_called()
+
+    def test_watcher_exposes_sanitized_failure_and_stops(self):
+        with patch.object(lead, "pump", side_effect=RuntimeError("token=SECRET https://private.test")):
+            lead.watch()
+        value = json.loads((self.folder / "watcher-status.json").read_text())
+        self.assertEqual(value["phase"], "pump")
+        self.assertNotIn("SECRET", json.dumps(value))
+
+    def test_herdr_diagnostic_keeps_only_structured_error_code(self):
+        import subprocess
+        process = subprocess.CompletedProcess([], 1, "", json.dumps({
+            "error": {"code": "agent_not_ready", "message": "token=SECRET https://private.test"}}))
+        with patch.dict(lead.os.environ, {"HERDR_ENV": "1"}), \
+                patch.object(lead.subprocess, "run", return_value=process):
+            with self.assertRaises(lead.HerdrError) as caught:
+                lead.herdr("agent", "prompt", "router-lead", "private message")
+        diagnostic = lead.failure(caught.exception, "prompt")
+        self.assertEqual(diagnostic["code"], "agent_not_ready")
+        self.assertEqual(diagnostic["returncode"], 1)
+        self.assertNotIn("SECRET", json.dumps(diagnostic))
+        self.assertNotIn("private", str(caught.exception))
+
+    def test_preparation_failure_blocks_session_renewal_until_cancelled(self):
+        self.row["state"] = "preparation_failed"
+        lead.write(lead.path_for(self.row["id"]), self.row)
+        self.assertTrue(renew.open_lead_request("router-impl"))
+        with patch.object(lead, "agent", return_value={"agent_status": "idle"}), \
+                patch.object(lead, "start_watcher"):
+            lead.cancel(self.row["id"], "Pane inspected; obsolete preparation")
+        self.assertFalse(renew.open_lead_request("router-impl"))
+
+    def test_watcher_stops_on_old_uncertain_blocker(self):
+        blocker = dict(self.row, id="b" * 32, state="delivery_uncertain")
+        lead.write(lead.path_for(blocker["id"]), blocker)
+        with patch.object(lead.time, "sleep") as sleep:
+            lead.watch()
+            sleep.assert_not_called()
 
     def test_response_is_correlated_and_cannot_be_overwritten(self):
         with patch.object(lead, "start_watcher"):

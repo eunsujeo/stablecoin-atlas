@@ -150,7 +150,7 @@ def screen_reason(text):
 
 
 def open_lead_request(name):
-    return any(row.get("source") == name and row["state"] in {"pending", "dispatching", "delivered", "delivery_uncertain"}
+    return any(row.get("source") == name and row["state"] in lead.OPEN
                for row in lead.entries())
 
 
@@ -274,7 +274,7 @@ def main():
         # Lead keeps no task state; lead.py pump renews it before each request.
         with (lead.STATE / "dispatch.lock").open("a") as lock:
             lead.fcntl.flock(lock, lead.fcntl.LOCK_EX | lead.fcntl.LOCK_NB)
-            if any(row["state"] in {"dispatching", "delivered", "delivery_uncertain"}
+            if any(row["state"] in lead.IN_FLIGHT
                    for row in lead.entries()):
                 raise SystemExit("Lead has an open request; not renewing")
             renew(args.agent)
