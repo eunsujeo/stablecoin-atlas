@@ -1,0 +1,760 @@
+{
+  "schemaVersion": 2,
+  "revision": 1,
+  "reviewedAt": "2026-10-22T06:27:10.991Z",
+  "reviewDocument": "docs/research/yen-stablecoins-network-coverage-2026-10-22.md",
+  "sources": [
+    {
+      "id": "circle",
+      "title": "Circle · USDC contracts",
+      "url": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
+      "kind": "ISSUER"
+    },
+    {
+      "id": "tether",
+      "title": "Tether · Supported protocols",
+      "url": "https://tether.to/en/supported-protocols/",
+      "kind": "ISSUER"
+    },
+    {
+      "id": "ripple",
+      "title": "Ripple · RLUSD token addresses",
+      "url": "https://docs.ripple.com/products/stablecoin/overview/token-addresses",
+      "kind": "ISSUER"
+    },
+    {
+      "id": "jpyc",
+      "title": "JPYC · Official mainnet contracts",
+      "url": "https://github.com/jpycoin",
+      "kind": "ISSUER"
+    },
+    {
+      "id": "jpysc",
+      "title": "Startale · JPYSC official information",
+      "url": "https://www.startale.com/ja/jpysc",
+      "kind": "ISSUER"
+    },
+    {
+      "id": "llama-api",
+      "title": "DeFiLlama · Free API",
+      "url": "https://api-docs.defillama.com/llms-free.txt",
+      "kind": "PROVIDER"
+    },
+    {
+      "id": "llama-units",
+      "title": "DeFiLlama · USD conversion implementation",
+      "url": "https://github.com/DefiLlama/peggedassets-server/blob/20a43a23318159f9b875548143dee12a0c068c80/api2/cron-task/getStableCoins.ts",
+      "kind": "PROVIDER"
+    }
+  ],
+  "coins": [
+    {
+      "id": "usdc",
+      "symbol": "USDC",
+      "name": "USD Coin",
+      "pegCurrency": "USD",
+      "productVariant": "CURRENT",
+      "sources": [
+        "circle"
+      ],
+      "notes": [],
+      "defillama": {
+        "assetId": "2",
+        "geckoId": "usd-coin",
+        "pegType": "peggedUSD",
+        "primaryAddress": null
+      },
+      "arkham": {
+        "state": "CONFIGURED",
+        "pricingId": "usd-coin"
+      }
+    },
+    {
+      "id": "usdt",
+      "symbol": "USDT",
+      "name": "Tether",
+      "pegCurrency": "USD",
+      "productVariant": "CURRENT",
+      "sources": [
+        "tether"
+      ],
+      "notes": [],
+      "defillama": {
+        "assetId": "1",
+        "geckoId": "tether",
+        "pegType": "peggedUSD",
+        "primaryAddress": null
+      },
+      "arkham": {
+        "state": "CONFIGURED",
+        "pricingId": "tether"
+      }
+    },
+    {
+      "id": "rlusd",
+      "symbol": "RLUSD",
+      "name": "Ripple USD",
+      "pegCurrency": "USD",
+      "productVariant": "CURRENT",
+      "sources": [
+        "ripple"
+      ],
+      "notes": [
+        "공식 네트워크 목록과 공급자가 수량을 제공하는 범위는 다릅니다."
+      ],
+      "defillama": {
+        "assetId": "250",
+        "geckoId": "ripple-usd",
+        "pegType": "peggedUSD",
+        "primaryAddress": null
+      },
+      "arkham": {
+        "state": "CONFIGURED",
+        "pricingId": "ripple-usd"
+      }
+    },
+    {
+      "id": "jpyc",
+      "symbol": "JPYC",
+      "name": "JPY Coin",
+      "pegCurrency": "JPY",
+      "productVariant": "CURRENT",
+      "sources": [
+        "jpyc"
+      ],
+      "notes": [
+        "현행 전자결제수단형 JPYC입니다. JPYC Prepaid와 분리합니다."
+      ],
+      "defillama": {
+        "assetId": "355",
+        "geckoId": "jpycoin",
+        "pegType": "peggedJPY",
+        "primaryAddress": "0xE7C3D8C9a439feDe00D2600032D5dB0Be71C3c29"
+      },
+      "arkham": {
+        "state": "UNVERIFIED",
+        "pricingId": null
+      }
+    },
+    {
+      "id": "jpysc",
+      "symbol": "JPYSC",
+      "name": "JPYSC",
+      "pegCurrency": "JPY",
+      "productVariant": "CURRENT",
+      "sources": [
+        "jpysc"
+      ],
+      "notes": [
+        "Ethereum 공급량과 SBI VC트레이드의 외부 입출고 가능 여부를 구분합니다."
+      ],
+      "defillama": {
+        "assetId": "427",
+        "geckoId": "jpysc",
+        "pegType": "peggedJPY",
+        "primaryAddress": "0x6781d5631BFe47432b089e64e3EaB3b6eDd26177"
+      },
+      "arkham": {
+        "state": "UNVERIFIED",
+        "pricingId": null
+      }
+    }
+  ],
+  "networks": [
+    {
+      "id": "ethereum",
+      "name": "Ethereum",
+      "family": "EVM",
+      "networkIdentity": "1",
+      "identityBasis": "LEGACY_REGISTRY",
+      "defillamaKey": "Ethereum",
+      "arkhamKey": "ethereum",
+      "sources": [
+        "llama-api"
+      ]
+    },
+    {
+      "id": "tron",
+      "name": "TRON",
+      "family": "TRON",
+      "networkIdentity": "728126428",
+      "identityBasis": "LEGACY_REGISTRY",
+      "defillamaKey": "Tron",
+      "arkhamKey": "tron",
+      "sources": [
+        "llama-api"
+      ]
+    },
+    {
+      "id": "solana",
+      "name": "Solana",
+      "family": "SOLANA",
+      "networkIdentity": "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d",
+      "identityBasis": "LEGACY_REGISTRY",
+      "defillamaKey": "Solana",
+      "arkhamKey": "solana",
+      "sources": [
+        "llama-api"
+      ]
+    },
+    {
+      "id": "xrpl",
+      "name": "XRPL",
+      "family": "XRPL",
+      "networkIdentity": "0",
+      "identityBasis": "LEGACY_REGISTRY",
+      "defillamaKey": "XRPL",
+      "arkhamKey": null,
+      "sources": [
+        "llama-api"
+      ]
+    },
+    {
+      "id": "bsc",
+      "name": "BNB Smart Chain",
+      "family": null,
+      "networkIdentity": null,
+      "identityBasis": "PENDING",
+      "defillamaKey": "BSC",
+      "arkhamKey": null,
+      "sources": [
+        "llama-api"
+      ]
+    },
+    {
+      "id": "arbitrum",
+      "name": "Arbitrum",
+      "family": null,
+      "networkIdentity": null,
+      "identityBasis": "PENDING",
+      "defillamaKey": "Arbitrum",
+      "arkhamKey": null,
+      "sources": [
+        "llama-api"
+      ]
+    },
+    {
+      "id": "polygon",
+      "name": "Polygon",
+      "family": "EVM",
+      "networkIdentity": "137",
+      "identityBasis": "ISSUER_LISTED",
+      "defillamaKey": "Polygon",
+      "arkhamKey": null,
+      "sources": [
+        "jpyc"
+      ]
+    },
+    {
+      "id": "plasma",
+      "name": "Plasma",
+      "family": null,
+      "networkIdentity": null,
+      "identityBasis": "PENDING",
+      "defillamaKey": "Plasma",
+      "arkhamKey": null,
+      "sources": [
+        "llama-api"
+      ]
+    },
+    {
+      "id": "ton",
+      "name": "TON",
+      "family": null,
+      "networkIdentity": null,
+      "identityBasis": "PENDING",
+      "defillamaKey": "TON",
+      "arkhamKey": null,
+      "sources": [
+        "llama-api"
+      ]
+    },
+    {
+      "id": "aptos",
+      "name": "Aptos",
+      "family": null,
+      "networkIdentity": null,
+      "identityBasis": "PENDING",
+      "defillamaKey": "Aptos",
+      "arkhamKey": null,
+      "sources": [
+        "llama-api"
+      ]
+    },
+    {
+      "id": "mantle",
+      "name": "Mantle",
+      "family": null,
+      "networkIdentity": null,
+      "identityBasis": "PENDING",
+      "defillamaKey": "Mantle",
+      "arkhamKey": null,
+      "sources": [
+        "llama-api"
+      ]
+    },
+    {
+      "id": "hyperliquid-l1",
+      "name": "Hyperliquid L1",
+      "family": null,
+      "networkIdentity": null,
+      "identityBasis": "PENDING",
+      "defillamaKey": "Hyperliquid L1",
+      "arkhamKey": null,
+      "sources": [
+        "llama-api"
+      ]
+    },
+    {
+      "id": "base",
+      "name": "Base",
+      "family": null,
+      "networkIdentity": null,
+      "identityBasis": "PENDING",
+      "defillamaKey": "Base",
+      "arkhamKey": null,
+      "sources": [
+        "llama-api"
+      ]
+    },
+    {
+      "id": "arc",
+      "name": "Arc",
+      "family": null,
+      "networkIdentity": null,
+      "identityBasis": "PENDING",
+      "defillamaKey": "Arc",
+      "arkhamKey": null,
+      "sources": [
+        "llama-api"
+      ]
+    },
+    {
+      "id": "avalanche",
+      "name": "Avalanche",
+      "family": "EVM",
+      "networkIdentity": "43114",
+      "identityBasis": "ISSUER_LISTED",
+      "defillamaKey": "Avalanche",
+      "arkhamKey": null,
+      "sources": [
+        "jpyc"
+      ]
+    },
+    {
+      "id": "stellar",
+      "name": "Stellar",
+      "family": null,
+      "networkIdentity": null,
+      "identityBasis": "PENDING",
+      "defillamaKey": "Stellar",
+      "arkhamKey": null,
+      "sources": [
+        "llama-api"
+      ]
+    },
+    {
+      "id": "ink",
+      "name": "Ink",
+      "family": null,
+      "networkIdentity": null,
+      "identityBasis": "PENDING",
+      "defillamaKey": "Ink",
+      "arkhamKey": null,
+      "sources": [
+        "llama-api"
+      ]
+    },
+    {
+      "id": "optimism",
+      "name": "OP Mainnet",
+      "family": null,
+      "networkIdentity": null,
+      "identityBasis": "PENDING",
+      "defillamaKey": "OP Mainnet",
+      "arkhamKey": null,
+      "sources": [
+        "llama-api"
+      ]
+    },
+    {
+      "id": "unichain",
+      "name": "Unichain",
+      "family": null,
+      "networkIdentity": null,
+      "identityBasis": "PENDING",
+      "defillamaKey": "Unichain",
+      "arkhamKey": null,
+      "sources": [
+        "llama-api"
+      ]
+    },
+    {
+      "id": "xrpl-evm",
+      "name": "XRPL EVM Sidechain",
+      "family": null,
+      "networkIdentity": null,
+      "identityBasis": "PENDING",
+      "defillamaKey": "XRPL EVM Sidechain",
+      "arkhamKey": null,
+      "sources": [
+        "llama-api"
+      ]
+    },
+    {
+      "id": "kaia",
+      "name": "Kaia",
+      "family": "EVM",
+      "networkIdentity": "8217",
+      "identityBasis": "ISSUER_LISTED",
+      "defillamaKey": "Kaia",
+      "arkhamKey": null,
+      "sources": [
+        "jpyc"
+      ]
+    }
+  ],
+  "coverage": [
+    {
+      "coinId": "usdt",
+      "networkId": "tron",
+      "relation": "ISSUER_LISTED",
+      "sources": [
+        "tether"
+      ]
+    },
+    {
+      "coinId": "usdt",
+      "networkId": "ethereum",
+      "relation": "ISSUER_LISTED",
+      "sources": [
+        "tether"
+      ]
+    },
+    {
+      "coinId": "usdt",
+      "networkId": "bsc",
+      "relation": "PROVIDER_AGGREGATE",
+      "sources": [
+        "llama-api"
+      ]
+    },
+    {
+      "coinId": "usdt",
+      "networkId": "solana",
+      "relation": "ISSUER_LISTED",
+      "sources": [
+        "tether"
+      ]
+    },
+    {
+      "coinId": "usdt",
+      "networkId": "arbitrum",
+      "relation": "PROVIDER_AGGREGATE",
+      "sources": [
+        "llama-api"
+      ]
+    },
+    {
+      "coinId": "usdt",
+      "networkId": "polygon",
+      "relation": "PROVIDER_AGGREGATE",
+      "sources": [
+        "llama-api"
+      ]
+    },
+    {
+      "coinId": "usdt",
+      "networkId": "plasma",
+      "relation": "PROVIDER_AGGREGATE",
+      "sources": [
+        "llama-api"
+      ]
+    },
+    {
+      "coinId": "usdt",
+      "networkId": "ton",
+      "relation": "PROVIDER_AGGREGATE",
+      "sources": [
+        "llama-api"
+      ]
+    },
+    {
+      "coinId": "usdt",
+      "networkId": "aptos",
+      "relation": "PROVIDER_AGGREGATE",
+      "sources": [
+        "llama-api"
+      ]
+    },
+    {
+      "coinId": "usdt",
+      "networkId": "mantle",
+      "relation": "PROVIDER_AGGREGATE",
+      "sources": [
+        "llama-api"
+      ]
+    },
+    {
+      "coinId": "usdc",
+      "networkId": "ethereum",
+      "relation": "ISSUER_LISTED",
+      "sources": [
+        "circle"
+      ]
+    },
+    {
+      "coinId": "usdc",
+      "networkId": "solana",
+      "relation": "ISSUER_LISTED",
+      "sources": [
+        "circle"
+      ]
+    },
+    {
+      "coinId": "usdc",
+      "networkId": "hyperliquid-l1",
+      "relation": "PROVIDER_AGGREGATE",
+      "sources": [
+        "llama-api"
+      ]
+    },
+    {
+      "coinId": "usdc",
+      "networkId": "base",
+      "relation": "PROVIDER_AGGREGATE",
+      "sources": [
+        "llama-api"
+      ]
+    },
+    {
+      "coinId": "usdc",
+      "networkId": "arbitrum",
+      "relation": "PROVIDER_AGGREGATE",
+      "sources": [
+        "llama-api"
+      ]
+    },
+    {
+      "coinId": "usdc",
+      "networkId": "polygon",
+      "relation": "PROVIDER_AGGREGATE",
+      "sources": [
+        "llama-api"
+      ]
+    },
+    {
+      "coinId": "usdc",
+      "networkId": "bsc",
+      "relation": "PROVIDER_AGGREGATE",
+      "sources": [
+        "llama-api"
+      ]
+    },
+    {
+      "coinId": "usdc",
+      "networkId": "arc",
+      "relation": "PROVIDER_AGGREGATE",
+      "sources": [
+        "llama-api"
+      ]
+    },
+    {
+      "coinId": "usdc",
+      "networkId": "avalanche",
+      "relation": "PROVIDER_AGGREGATE",
+      "sources": [
+        "llama-api"
+      ]
+    },
+    {
+      "coinId": "usdc",
+      "networkId": "stellar",
+      "relation": "PROVIDER_AGGREGATE",
+      "sources": [
+        "llama-api"
+      ]
+    },
+    {
+      "coinId": "usdc",
+      "networkId": "xrpl",
+      "relation": "ISSUER_LISTED",
+      "sources": [
+        "circle"
+      ]
+    },
+    {
+      "coinId": "rlusd",
+      "networkId": "ethereum",
+      "relation": "ISSUER_LISTED",
+      "sources": [
+        "ripple"
+      ]
+    },
+    {
+      "coinId": "rlusd",
+      "networkId": "xrpl",
+      "relation": "ISSUER_LISTED",
+      "sources": [
+        "ripple"
+      ]
+    },
+    {
+      "coinId": "rlusd",
+      "networkId": "base",
+      "relation": "ISSUER_LISTED",
+      "sources": [
+        "ripple"
+      ]
+    },
+    {
+      "coinId": "rlusd",
+      "networkId": "ink",
+      "relation": "ISSUER_LISTED",
+      "sources": [
+        "ripple"
+      ]
+    },
+    {
+      "coinId": "rlusd",
+      "networkId": "optimism",
+      "relation": "ISSUER_LISTED",
+      "sources": [
+        "ripple"
+      ]
+    },
+    {
+      "coinId": "rlusd",
+      "networkId": "unichain",
+      "relation": "ISSUER_LISTED",
+      "sources": [
+        "ripple"
+      ]
+    },
+    {
+      "coinId": "rlusd",
+      "networkId": "xrpl-evm",
+      "relation": "ISSUER_LISTED",
+      "sources": [
+        "ripple"
+      ]
+    },
+    {
+      "coinId": "jpyc",
+      "networkId": "ethereum",
+      "relation": "ISSUER_LISTED",
+      "sources": [
+        "jpyc"
+      ]
+    },
+    {
+      "coinId": "jpyc",
+      "networkId": "polygon",
+      "relation": "ISSUER_LISTED",
+      "sources": [
+        "jpyc"
+      ]
+    },
+    {
+      "coinId": "jpyc",
+      "networkId": "avalanche",
+      "relation": "ISSUER_LISTED",
+      "sources": [
+        "jpyc"
+      ]
+    },
+    {
+      "coinId": "jpyc",
+      "networkId": "kaia",
+      "relation": "ISSUER_LISTED",
+      "sources": [
+        "jpyc"
+      ]
+    },
+    {
+      "coinId": "jpysc",
+      "networkId": "ethereum",
+      "relation": "ISSUER_LISTED",
+      "sources": [
+        "jpysc"
+      ]
+    }
+  ],
+  "newDeployments": [
+    {
+      "id": "jpyc-ethereum",
+      "coinId": "jpyc",
+      "networkId": "ethereum",
+      "standard": "ERC-20",
+      "identity": {
+        "kind": "CONTRACT",
+        "address": "0xE7C3D8C9a439feDe00D2600032D5dB0Be71C3c29"
+      },
+      "sources": [
+        "jpyc"
+      ]
+    },
+    {
+      "id": "jpyc-polygon",
+      "coinId": "jpyc",
+      "networkId": "polygon",
+      "standard": "ERC-20",
+      "identity": {
+        "kind": "CONTRACT",
+        "address": "0xE7C3D8C9a439feDe00D2600032D5dB0Be71C3c29"
+      },
+      "sources": [
+        "jpyc"
+      ]
+    },
+    {
+      "id": "jpyc-avalanche",
+      "coinId": "jpyc",
+      "networkId": "avalanche",
+      "standard": "ERC-20",
+      "identity": {
+        "kind": "CONTRACT",
+        "address": "0xE7C3D8C9a439feDe00D2600032D5dB0Be71C3c29"
+      },
+      "sources": [
+        "jpyc"
+      ]
+    },
+    {
+      "id": "jpyc-kaia",
+      "coinId": "jpyc",
+      "networkId": "kaia",
+      "standard": "ERC-20",
+      "identity": {
+        "kind": "CONTRACT",
+        "address": "0xE7C3D8C9a439feDe00D2600032D5dB0Be71C3c29"
+      },
+      "sources": [
+        "jpyc"
+      ]
+    },
+    {
+      "id": "jpysc-ethereum",
+      "coinId": "jpysc",
+      "networkId": "ethereum",
+      "standard": "ERC-20",
+      "identity": {
+        "kind": "CONTRACT",
+        "address": "0x6781d5631BFe47432b089e64e3EaB3b6eDd26177"
+      },
+      "sources": [
+        "jpysc"
+      ]
+    }
+  ],
+  "selectionPolicy": {
+    "id": "defillama-network-circulating-usd-v1",
+    "provider": "DEFILLAMA",
+    "metric": "NETWORK_CIRCULATING_VALUE",
+    "unit": "USD",
+    "limitPerCoin": 10,
+    "scope": "PROVIDER_AGGREGATE_INCLUDING_BRIDGED",
+    "frequency": "DAILY_UTC",
+    "tieBreak": "CANONICAL_NETWORK_ID"
+  }
+}

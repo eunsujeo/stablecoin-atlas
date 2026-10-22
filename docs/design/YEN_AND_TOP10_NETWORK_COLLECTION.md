@@ -1,6 +1,6 @@
 # 엔화 자산과 코인별 최대10개 네트워크 수집 설계
 
-2026-10-22 · **설계안/미구현**. 대상은 기존 USDT·USDC·RLUSD와 신규 JPYC·JPYSC다. 사용자 요청의 ‘네트워크 상위10개’는 해당 코인의 네트워크별 유통 분포 순위로 해석한다. 체인 전체 TVL/시가총액 순위가 아니다. 최신 조사·주소·단위 근거는 [조사 기록](../research/yen-stablecoins-network-coverage-2026-10-22.md)에 모은다.
+2026-10-22 · **전체 확장 설계안**. 대상은 기존 USDT·USDC·RLUSD와 신규 JPYC·JPYSC다. 사용자 요청의 ‘네트워크 상위10개’는 해당 코인의 네트워크별 유통 분포 순위로 해석한다. 체인 전체 TVL/시가총액 순위가 아니다. 최신 조사·주소·단위 근거는 [조사 기록](../research/yen-stablecoins-network-coverage-2026-10-22.md)에 모은다. 후속 첫 구현(metadata/단위/선정 preview)은 [ADR0051](../adr/0051-registration-metadata-and-unit-preview.md), 실제 DB/수집·조회 확장은 아래 후속 단계다.
 
 ## 1. 등록 목표와 확보 범위
 

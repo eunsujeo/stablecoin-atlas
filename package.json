@@ -60,7 +60,9 @@
     "collector:status": "node --use-env-proxy tools/collector-worker.mjs status",
     "market:history:normalize": "node --use-env-proxy tools/market-db/history-cli.mjs normalize",
     "market:history:grant-writer": "node --use-env-proxy tools/market-db/history-cli.mjs grant-writer",
-    "market:history:continuous": "node --use-env-proxy tools/market-db/history-cli.mjs continuous"
+    "market:history:continuous": "node --use-env-proxy tools/market-db/history-cli.mjs continuous",
+    "market:registration:plan": "node tools/market-registration/cli.mjs plan",
+    "market:registration:detail": "node tools/market-registration/cli.mjs detail"
   },
   "dependencies": {
     "ajv": "8.20.0",

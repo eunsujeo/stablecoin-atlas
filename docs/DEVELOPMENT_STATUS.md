@@ -73,3 +73,5 @@ Overview 공급량 차트는 토큰 선택 시 확보한 네트워크를 공통 
 [ADR0049](adr/0049-continuous-five-minute-collection.md)은 사용자 요청대로 worker/서버 기본값을288회/UTC일로 변경한다. 명시 owner history v4 전환은 오늘의 기존12회 상한을 올리며 사용 횟수·슬롯·원문과 시장/일별 값은 유지한다.
 
 [ADR0050](adr/0050-yen-and-top-ten-network-design.md)의 JPYC·JPYSC/기존3코인별 최대10개 네트워크 수집은 검토·설계 단계다. 공식 식별자·공급자 coverage와 USD 환산액/수량 차이를 확인했으며 [설계 정본](design/YEN_AND_TOP10_NETWORK_COLLECTION.md)에 구현 순서·DB/조회/예약 확장 조건을 정리했다. 실제 registry·수집기·DB 등록은 아직 하지 않았다.
+
+후속 [ADR0051](adr/0051-registration-metadata-and-unit-preview.md)의 첫 구현으로 version2 등록 후보 metadata, 통화/지표 구분과 최대10네트워크 선정·일별 수량 preview CLI를 추가했다. [등록 계획 안내](MARKET_REGISTRATION.md). 기존 runtime registry·DB/수집기와 분리해 검증하며, 실제 DB 등록/새 코인 대시보드 연결은 다음 단계다.
