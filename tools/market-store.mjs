@@ -3,7 +3,7 @@ import { open, mkdir, rename, unlink, rmdir } from 'node:fs/promises';
 import { createHash, randomUUID } from 'node:crypto';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { validateMarket, validateRegistry, validateCollectionState, validateSchedulerState, validateDatabaseState, METRICS } from '../web/market-model.js';
+import { validateMarket, validateRegistry, validateCollectionState, validateSchedulerState, validateDatabaseState, validatePeriodicState, METRICS } from '../web/market-model.js';
 export const defaultMarketDirectory = new URL('../reports/market-store/', import.meta.url);
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');
 export async function boundedJson(path, limit = 2 * 1024 * 1024) {
@@ -41,7 +41,8 @@ export async function publishedMarketStatus(directory = defaultMarketDirectory) 
   try { schedulerState = validateSchedulerState((await boundedJson(join(root,'scheduler-state.json'),1024)).value); } catch {}
   let databaseState;
   try { databaseState = validateDatabaseState((await boundedJson(join(root,'database-state.json'),1024)).value); } catch {}
-  return {lastBuildState,...(databaseState?{databaseState}:{}),...(collectionState?{collectionState}:{}),...(schedulerState?{schedulerState}:{})};
+  let periodicState;try{periodicState=validatePeriodicState((await boundedJson(join(root,'periodic-state.json'),2048)).value);}catch{}
+  return {lastBuildState,...(periodicState?{periodicState}:{}),...(databaseState?{databaseState}:{}),...(collectionState?{collectionState}:{}),...(schedulerState?{schedulerState}:{})};
 }
 export function normalizeSources(registry, sources, previous = null) {
   validateRegistry(registry); const observations = [];

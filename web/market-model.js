@@ -55,7 +55,7 @@ export function validateRegistry(registry) {
   return registry;
 }
 export function validateMarket(data) {
-  keys(data,['schemaVersion','kind','publishedAt','registry','observations','networks','omittedSupplyEntries','lastBuildState','collectionState','schedulerState','databaseState','readState','tokenProfiles','supplyHistory']);
+  keys(data,['schemaVersion','kind','publishedAt','registry','observations','networks','omittedSupplyEntries','lastBuildState','collectionState','schedulerState','databaseState','readState','tokenProfiles','supplyHistory','periodicState']);
   ensure(data?.schemaVersion === 1 && data.kind === 'STORED_PROVIDER_OBSERVATIONS_NOT_ASSESSMENT' && time(data.publishedAt));
   validateRegistry(data.registry); ensure(Array.isArray(data.observations) && data.observations.length <= 5000);
   const seen = new Set();
@@ -76,6 +76,7 @@ export function validateMarket(data) {
   ensure(data.lastBuildState === undefined || ['SUCCESS','FAILED','UNKNOWN'].includes(data.lastBuildState));
   if(data.collectionState!==undefined) validateCollectionState(data.collectionState);
   if(data.schedulerState!==undefined) validateSchedulerState(data.schedulerState);
+  if(data.periodicState!==undefined)validatePeriodicState(data.periodicState);
   if(data.supplyHistory!==undefined)validateSupplyHistory(data.supplyHistory,data.registry);
   if(data.tokenProfiles!==undefined)validateTokenProfiles(data.tokenProfiles,data.registry);
   if(data.databaseState!==undefined) validateDatabaseState(data.databaseState);
@@ -130,4 +131,8 @@ export function rank(data, coinId = null) {
 }
 export function series(data, observation) {
   return data.observations.filter(o => (!data.readState || Date.parse(o.observedAt)>=Date.parse(data.readState.historyFrom)&&Date.parse(o.observedAt)<Date.parse(data.readState.historyTo)) && ['coinId','deploymentId','metric','provider','endpoint','selector'].every(k=>o[k]===observation[k])).sort((a,b)=>a.observedAt.localeCompare(b.observedAt)||a.id.localeCompare(b.id));
+}
+
+export function validatePeriodicState(row){
+ keys(row,['state','updatedAt','nextAt','arkhamRunsPerDay']);ensure(['STARTING','RUNNING','WAITING','STOPPED','FAILED'].includes(row.state)&&time(row.updatedAt)&&Number.isInteger(row.arkhamRunsPerDay)&&row.arkhamRunsPerDay>=0&&row.arkhamRunsPerDay<=288);ensure(row.state==='WAITING'?time(row.nextAt):row.nextAt===null);return row;
 }

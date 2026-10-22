@@ -55,7 +55,11 @@
     "market:history:init": "node --use-env-proxy tools/market-db/history-cli.mjs init",
     "market:history:grant": "node --use-env-proxy tools/market-db/history-cli.mjs grant",
     "market:history:collect": "node --use-env-proxy tools/market-db/history-cli.mjs collect",
-    "market:history:import": "node --use-env-proxy tools/market-db/history-cli.mjs import"
+    "market:history:import": "node --use-env-proxy tools/market-db/history-cli.mjs import",
+    "collector:run": "node --use-env-proxy tools/collector-worker.mjs run",
+    "collector:status": "node --use-env-proxy tools/collector-worker.mjs status",
+    "market:history:normalize": "node --use-env-proxy tools/market-db/history-cli.mjs normalize",
+    "market:history:grant-writer": "node --use-env-proxy tools/market-db/history-cli.mjs grant-writer"
   },
   "dependencies": {
     "ajv": "8.20.0",

@@ -147,3 +147,7 @@ npm run market:history:upgrade -- --env-file .state/market-db-secrets/admin.env
 ```
 
 v1 SQL과 기존 유통량 payload는 보존한다. collect/import는 같은3개 원문에서 유통량·발행량을 별도 metric으로 저장하므로 호출 수는 여전히 최대3회다. v2가 아니면 import는 HISTORY_UPGRADE_REQUIRED다. 기존 manifest 재사용은 외부 요청0회이며 이번 PC에는 이미 적용했다. supplyHistory는 최대6개 coin/metric snapshot, 전체16개 네트워크 시계열이다. 자동 일별 실행 일정은 추가하지 않았다.
+
+## 일별 정규화와 주기 수집 v3
+
+[ADR0048](adr/0048-durable-periodic-collection.md)의 명시 normalize가 기존 snapshot을 보존하며 일별 값과 최신 포인터를 분리한다. 새 수집은 반복되는1년치 값을 재삽입하지 않는다. 전용 core writer에 history grant-writer를 추가하고 collector:run으로 실행한다. UTC 날짜별 호출 상한·재시작 예약·원문 복구·systemd 예제는 [수집 서비스](COLLECTOR_SERVICE.md)를 따른다. 기존 init은 v2이며 신규 프로젝트도 normalize를 별도로 실행한다.

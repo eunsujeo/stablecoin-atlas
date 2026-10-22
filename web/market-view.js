@@ -81,7 +81,7 @@ async function load(){if(state.loading)return;state.loading=true;$('#live-reload
       if(read.latestRequestFailures||read.latestMissingFields)$('#live-status').textContent+=` · DB 최근 요청 실패 ${read.latestRequestFailures}건 / 값 누락 ${read.latestMissingFields}건 (최신 정상값 유지)`;
     }else $('#live-status').textContent+=' · 로컬 JSON 조회';
     const scheduler=data.schedulerState;
-    if(scheduler){
+    if(data.periodicState){const p=data.periodicState;$('#live-status').textContent+=` · 주기 수집 ${p.state==='WAITING'?'예약':p.state==='FAILED'?'오류':p.state==='STOPPED'?'중지':'실행 기록'}${p.nextAt?' · 다음 예정 '+when(p.nextAt):''}`;}else if(scheduler){
       const labels={COLLECTING:'수집 시작 기록',WAITING:'5분 주기 대기',STOPPED:'중지',FAILED:'오류로 중단',LIMIT_REACHED:'실행 한도 도달'};
       const overdue=scheduler.nextAt&&Date.now()>Date.parse(scheduler.nextAt)+60000||scheduler.state==='COLLECTING'&&Date.now()>Date.parse(scheduler.updatedAt)+180000;
       $('#live-status').textContent+=` · 자동 수집 ${overdue?'실행 상태 확인 필요':labels[scheduler.state]} ${scheduler.runs}/${scheduler.maxRuns}회${scheduler.nextAt?' · 다음 예정 '+when(scheduler.nextAt):''} (저장된 실행 기록)`;

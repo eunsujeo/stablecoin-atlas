@@ -11,7 +11,7 @@ import { atomic, defaultMarketDirectory } from '../market-store.mjs';
 const defaultArchive = fileURLToPath(new URL('../../.state/market-db-artifacts', import.meta.url));
 export function databaseCollector({ env, archiveDirectory = defaultArchive,
   registryPath = new URL('../../data/asset-registry.json', import.meta.url),
-  connect = connectDatabase, collect = collectMarket, now = () => Date.now() } = {}) {
+  connect = connectDatabase, collect = collectMarket, onCollected = async () => {}, now = () => Date.now() } = {}) {
   return async ({ directory = defaultMarketDirectory, key } = {}) => {
     const root = resolve(directory instanceof URL ? fileURLToPath(directory) : directory);
     const state = { state: 'CHECKING', updatedAt: new Date(now()).toISOString(),
@@ -31,6 +31,7 @@ export function databaseCollector({ env, archiveDirectory = defaultArchive,
       state.localPublished = true;
       if (!/^[a-f0-9-]{36}\.json$/.test(result.sourceName ?? '') || !/^[a-f0-9]{64}$/.test(result.sourceHash ?? '')) throw Error('INVALID_SOURCE_NAME');
       state.sourceName = result.sourceName; state.sourceHash = result.sourceHash;
+      await onCollected({sourceName:state.sourceName,sourceHash:state.sourceHash});
       const input = await loadSources({ reportsDirectory: dirname(root), registryPath,
         names: ['market-store/collected/' + result.sourceName] });
       if (input.sources[0].hash !== result.sourceHash) throw Error('DATABASE_CONTENT_CONFLICT');

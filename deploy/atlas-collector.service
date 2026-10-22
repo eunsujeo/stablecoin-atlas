@@ -1,0 +1,27 @@
+[Unit]
+Description=Stablecoin provider collection with PostgreSQL reservations
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=900
+StartLimitBurst=3
+
+[Service]
+Type=simple
+User=atlascollector
+Group=atlascollector
+WorkingDirectory=/opt/multi-chain-asset-compatibility
+ExecStart=/usr/bin/env node --use-env-proxy tools/collector-worker.mjs run --env-file /etc/atlas-collector/writer.env --state-dir /var/lib/atlas-collector/receipts --archive-dir /var/lib/atlas-collector/archive --arkham-runs-per-day 12
+Restart=on-failure
+RestartSec=60
+TimeoutStopSec=45
+StateDirectory=atlas-collector
+StateDirectoryMode=0700
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/atlas-collector /opt/multi-chain-asset-compatibility/reports/market-store
+
+[Install]
+WantedBy=multi-user.target

@@ -1,3 +1,4 @@
+import {importDaily,readDaily} from './daily-history.mjs';
 import {readFile} from 'node:fs/promises';
 import {transaction,runtimeRole,safeRole} from './connection.mjs';
 import {structureHash,verifySchema,verifyRuntimeAccess} from './schema.mjs';
@@ -5,7 +6,12 @@ import {canonical,digest,fail} from './plan.mjs';
 import {validateSupplyHistory} from '../../web/supply-history-model.js';
 const migration=new URL('../../db/history/001-initial.sql',import.meta.url);
 const secondMigration=new URL('../../db/history/002-supply-metric.sql',import.meta.url);
+const thirdMigration=new URL('../../db/history/003-periodic-normalized.sql',import.meta.url);
 const tables=['schema_version','reader_grant','snapshot'];
+const extraTables=['writer_grant','daily_source','daily_value','daily_latest','scheduler_day','scheduler_run'];
+const allTables=v=>v===3?[...tables,...extraTables]:tables;
+const insertTables=['daily_source','daily_value','daily_latest','scheduler_day','scheduler_run'];
+const updateColumns={daily_latest:['value_id','source_id'],scheduler_run:['state','finished_at','error_code']};
 const identifier=value=>{if(typeof value!=='string'||!/^[a-z][a-z0-9_]{0,62}$/.test(value))fail('INVALID_IDENTIFIER');return '"'+value+'"';};
 const exists=async client=>(await client.query("SELECT to_regnamespace('atlas_history') IS NOT NULL AS present")).rows[0].present;
 const lock=client=>client.query('SELECT pg_advisory_xact_lock(18471234,403)');
@@ -21,12 +27,16 @@ async function owner(client){
 async function verifyHistory(client){
   const {rows}=await client.query("SELECT version,encode(migration_hash,'hex') AS migration_hash,encode(structure_hash,'hex') AS structure_hash FROM atlas_history.schema_version ORDER BY version");
   const version=rows.at(-1)?.version;
-  if(![1,2].includes(version)||rows.length!==version||rows[0].version!==1||rows[0].migration_hash!==digest(await readFile(migration))||version===2&&(rows[1].migration_hash!==digest(await readFile(secondMigration))||rows[1].version!==2)||rows.at(-1).structure_hash!==await structureHash(client,'atlas_history'))fail('HISTORY_SCHEMA_MISMATCH');
+  if(![1,2,3].includes(version)||rows.length!==version)fail('HISTORY_SCHEMA_MISMATCH');
+  for(const [i,file]of [migration,secondMigration,thirdMigration].slice(0,version).entries())if(rows[i].version!==i+1||rows[i].migration_hash!==digest(await readFile(file)))fail('HISTORY_SCHEMA_MISMATCH');
+  if(rows.at(-1).structure_hash!==await structureHash(client,'atlas_history'))fail('HISTORY_SCHEMA_MISMATCH');
   const ownerId=(await client.query("SELECT nspowner::text AS id FROM pg_namespace WHERE nspname='atlas_history'")).rows[0].id;
   const roles=(await client.query('SELECT g.role_name,r.oid::text AS id FROM atlas_history.reader_grant g JOIN pg_roles r ON r.rolname=g.role_name ORDER BY g.role_name')).rows;
-  const expected=[];for(const table of tables){
+  const writers=version===3?(await client.query('SELECT g.role_name,r.oid::text AS id FROM atlas_history.writer_grant g JOIN pg_roles r ON r.rolname=g.role_name ORDER BY g.role_name')).rows:[];
+  const expected=[];for(const table of allTables(version)){
     expected.push({table,name:'installer',command:'*',id:ownerId,using:'true',check:'true'});
-    for(const r of roles)expected.push({table,name:'app_'+digest(r.role_name).slice(0,12)+'_s_'+table,command:'r',id:r.id,using:'true',check:null});
+    for(const r of [...roles,...writers])expected.push({table,name:'app_'+digest(r.role_name).slice(0,12)+'_s_'+table,command:'r',id:r.id,using:'true',check:null});
+    for(const r of writers){if(insertTables.includes(table))expected.push({table,name:'app_'+digest(r.role_name).slice(0,12)+'_i_'+table,command:'a',id:r.id,using:null,check:'true'});if(updateColumns[table])expected.push({table,name:'app_'+digest(r.role_name).slice(0,12)+'_u_'+table,command:'w',id:r.id,using:'true',check:'true'});}
   }
   const actual=(await client.query(`SELECT c.relname AS table,p.polname AS name,p.polcmd::text AS command,array_to_string(p.polroles,',') AS id,
     pg_get_expr(p.polqual,p.polrelid) AS using,pg_get_expr(p.polwithcheck,p.polrelid) AS check FROM pg_policy p JOIN pg_class c ON c.oid=p.polrelid
@@ -65,7 +75,7 @@ async function migrateHistory(client){
 }
 export async function upgradeHistory(client){return transaction(client,async()=>{
   await lock(client);await owner(client);const version=await verifyHistory(client);
-  if(version===2)return {state:'UNCHANGED',version};await migrateHistory(client);return {state:'UPGRADED',version:2};
+  if(version>=2)return {state:'UNCHANGED',version};await migrateHistory(client);return {state:'UPGRADED',version:2};
 });}
 export async function initializeHistory(client){return transaction(client,async()=>{
   await lock(client);await owner(client);
@@ -76,18 +86,18 @@ export async function initializeHistory(client){return transaction(client,async(
   await verifyHistory(client);await migrateHistory(client);return {state:'INITIALIZED',version:2};
 });}
 export async function grantHistoryReader(client,role){identifier(role);return transaction(client,async()=>{
-  await lock(client);await owner(client);await verifyHistory(client);await safeRole(client,role);
+  await lock(client);await owner(client);const version=await verifyHistory(client);await safeRole(client,role);
   if((await client.query('SELECT access_mode FROM atlas_market.access_grant WHERE role_name=$1',[role])).rows[0]?.access_mode!=='reader')fail('HISTORY_READER_REQUIRED');
   const prior=(await client.query('SELECT 1 FROM atlas_history.reader_grant WHERE role_name=$1',[role])).rowCount;
   if(!prior){await client.query(`GRANT USAGE ON SCHEMA atlas_history TO ${identifier(role)}`);
-    for(const table of tables){await client.query(`GRANT SELECT ON atlas_history.${table} TO ${identifier(role)}`);await client.query(`CREATE POLICY ${identifier('app_'+digest(role).slice(0,12)+'_s_'+table)} ON atlas_history.${table} FOR SELECT TO ${identifier(role)} USING(true)`);}
+    for(const table of allTables(version)){await client.query(`GRANT SELECT ON atlas_history.${table} TO ${identifier(role)}`);await client.query(`CREATE POLICY ${identifier('app_'+digest(role).slice(0,12)+'_s_'+table)} ON atlas_history.${table} FOR SELECT TO ${identifier(role)} USING(true)`);}
     await client.query('INSERT INTO atlas_history.reader_grant VALUES($1)',[role]);}
   await readerPrivileges(client,role);await verifyHistory(client);return {state:prior?'UNCHANGED':'GRANTED',access:'reader'};
 });}
 const hashProjection=p=>digest(canonical(p));
 export async function importHistory(client,registry,snapshots){
   validateSupplyHistory(snapshots,registry);if(!snapshots.length)fail('HISTORY_INVALID');
-  return transaction(client,async()=>{await lock(client);await owner(client);if(await verifyHistory(client)!==2)fail('HISTORY_UPGRADE_REQUIRED');let inserted=0,unchanged=0;
+  return transaction(client,async()=>{await lock(client);const version=await requireImporter(client);if(version===3)return importDaily(client,registry,snapshots);if(version!==2)fail('HISTORY_UPGRADE_REQUIRED');let inserted=0,unchanged=0;
     for(const p of snapshots){
       const coin=(await client.query('SELECT id,symbol FROM atlas_market.coin WHERE code=$1',[p.coinId])).rows[0];
       if(!coin||coin.symbol!==registry.coins.find(c=>c.id===p.coinId)?.symbol)fail('HISTORY_IDENTITY_MISMATCH');
@@ -105,6 +115,7 @@ export async function readHistory(client,registry){
   if((await client.query('SELECT access_mode FROM atlas_market.access_grant WHERE role_name=current_user')).rows[0]?.access_mode!=='reader')fail('HISTORY_READER_REQUIRED');
   const role=(await client.query('SELECT current_user AS name')).rows[0].name;await readerPrivileges(client,role);const version=await verifyHistory(client);
   if(!(await client.query('SELECT 1 FROM atlas_history.reader_grant WHERE role_name=current_user')).rowCount)fail('HISTORY_ACCESS_DENIED');
+  if(version===3)return readDaily(client,registry);
   const rows=(await client.query(`SELECT DISTINCT ON (s.coin_id${version===2?',s.metric':''}) c.code,${version===2?'s.metric':"'NETWORK_CIRCULATING'"} AS metric,payload.projection,encode(s.content_hash,'hex') AS hash,encode(s.source_hash,'hex') AS source,
     to_char(s.window_to,'YYYY-MM-DD') AS window_to,to_char(s.fetched_at AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS fetched
     FROM atlas_history.snapshot s JOIN atlas_market.coin c ON c.id=s.coin_id CROSS JOIN LATERAL (SELECT s.projection)payload
@@ -114,4 +125,52 @@ export async function readHistory(client,registry){
   return validateSupplyHistory(snapshots,registry);
 }
 
-export async function verifyHistoryWriter(client){return transaction(client,async()=>{await owner(client);await verifyHistory(client);});}
+export async function verifyHistoryWriter(client){return transaction(client,()=>requireImporter(client));}
+
+async function writerPrivileges(client,role){
+ await safeRole(client,role);
+ const schema=(await client.query("SELECT has_schema_privilege($1,'atlas_history','USAGE') AS usage,has_schema_privilege($1,'atlas_history','CREATE') AS create",[role])).rows[0];if(!schema.usage||schema.create)fail('HISTORY_ACCESS_DENIED');
+ const rows=(await client.query(`SELECT c.relname,a.attname,has_table_privilege($1,c.oid,'SELECT') AS readable,has_table_privilege($1,c.oid,'INSERT') AS insert,
+ has_table_privilege($1,c.oid,'UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER') AS unsafe,has_column_privilege($1,c.oid,a.attnum,'INSERT') AS column_insert,
+ has_column_privilege($1,c.oid,a.attnum,'UPDATE') AS column_update,has_column_privilege($1,c.oid,a.attnum,'REFERENCES') AS reference
+ FROM pg_class c JOIN pg_attribute a ON a.attrelid=c.oid WHERE c.relnamespace='atlas_history'::regnamespace AND c.relkind='r' AND a.attnum>0 AND NOT a.attisdropped`,[role])).rows;
+ if(!rows.length||rows.some(r=>!r.readable||r.unsafe||r.reference||r.insert!==insertTables.includes(r.relname)||r.column_insert!==insertTables.includes(r.relname)||r.column_update!==(updateColumns[r.relname]??[]).includes(r.attname)))fail('HISTORY_PRIVILEGES_UNSAFE');
+ if((await client.query("SELECT 1 FROM pg_proc WHERE pronamespace='atlas_history'::regnamespace AND has_function_privilege($1,oid,'EXECUTE')",[role])).rowCount)fail('HISTORY_PRIVILEGES_UNSAFE');
+}
+async function requireImporter(client){
+ await verifySchema(client);
+ const isOwner=(await client.query("SELECT current_user=session_user AND current_user=pg_get_userbyid(nspowner) AS owner FROM pg_namespace WHERE nspname='atlas_market'")).rows[0]?.owner;
+ if(isOwner){await owner(client);return verifyHistory(client);}
+ await runtimeRole(client);await verifyRuntimeAccess(client,true);
+ if(!(await client.query("SELECT has_schema_privilege(current_user,'atlas_history','USAGE') AS allowed")).rows[0].allowed)fail('DATABASE_OWNER_REQUIRED');
+ const version=await verifyHistory(client);
+ if((await client.query('SELECT access_mode FROM atlas_market.access_grant WHERE role_name=current_user')).rows[0]?.access_mode!=='writer')fail('HISTORY_WRITER_REQUIRED');
+ if(version!==3)fail('HISTORY_UPGRADE_REQUIRED');
+ const role=(await client.query('SELECT current_user AS name')).rows[0].name;await writerPrivileges(client,role);
+ if(!(await client.query('SELECT 1 FROM atlas_history.writer_grant WHERE role_name=current_user')).rowCount)fail('HISTORY_ACCESS_DENIED');return version;
+}
+export async function requireHistoryRuntime(client){
+ await runtimeRole(client);const version=await requireImporter(client);if(version!==3)fail('HISTORY_UPGRADE_REQUIRED');return version;
+}
+export async function grantHistoryWriter(client,role){identifier(role);return transaction(client,async()=>{
+ await lock(client);await owner(client);if(await verifyHistory(client)!==3)fail('HISTORY_UPGRADE_REQUIRED');await safeRole(client,role);
+ if((await client.query('SELECT access_mode FROM atlas_market.access_grant WHERE role_name=$1',[role])).rows[0]?.access_mode!=='writer')fail('HISTORY_WRITER_REQUIRED');
+ const prior=(await client.query('SELECT 1 FROM atlas_history.writer_grant WHERE role_name=$1',[role])).rowCount;
+ if(!prior){await client.query(`GRANT USAGE ON SCHEMA atlas_history TO ${identifier(role)}`);
+  for(const table of allTables(3)){
+   await client.query(`GRANT SELECT ON atlas_history.${table} TO ${identifier(role)}`);await client.query(`CREATE POLICY ${identifier('app_'+digest(role).slice(0,12)+'_s_'+table)} ON atlas_history.${table} FOR SELECT TO ${identifier(role)} USING(true)`);
+   if(insertTables.includes(table)){await client.query(`GRANT INSERT ON atlas_history.${table} TO ${identifier(role)}`);await client.query(`CREATE POLICY ${identifier('app_'+digest(role).slice(0,12)+'_i_'+table)} ON atlas_history.${table} FOR INSERT TO ${identifier(role)} WITH CHECK(true)`);}
+   if(updateColumns[table]){await client.query(`GRANT UPDATE(${updateColumns[table].join(',')}) ON atlas_history.${table} TO ${identifier(role)}`);await client.query(`CREATE POLICY ${identifier('app_'+digest(role).slice(0,12)+'_u_'+table)} ON atlas_history.${table} FOR UPDATE TO ${identifier(role)} USING(true) WITH CHECK(true)`);}
+  }await client.query('INSERT INTO atlas_history.writer_grant VALUES($1)',[role]);
+ }await writerPrivileges(client,role);await verifyHistory(client);return {state:prior?'UNCHANGED':'GRANTED',access:'writer'};
+});}
+export async function normalizeHistory(client,registry){return transaction(client,async()=>{
+ await lock(client);await owner(client);const version=await verifyHistory(client);if(version===3)return {state:'UNCHANGED',version};if(version!==2)fail('HISTORY_UPGRADE_REQUIRED');
+ const sources=(await client.query("SELECT projection,encode(content_hash,'hex') AS hash FROM atlas_history.snapshot ORDER BY fetched_at,source_hash,coin_id,metric LIMIT 10001")).rows;if(sources.length>10000)fail('HISTORY_RESPONSE_LIMIT');
+ for(const s of sources){validateSupplyHistory([s.projection],registry);if(hashProjection(s.projection)!==s.hash)fail('HISTORY_CONTENT_CONFLICT');}
+ const sql=await readFile(thirdMigration);await client.query(sql.toString('utf8'));const role=(await client.query('SELECT current_user AS name')).rows[0].name;
+ for(const table of extraTables)await client.query(`CREATE POLICY installer ON atlas_history.${table} TO ${identifier(role)} USING(true) WITH CHECK(true)`);
+ for(const reader of (await client.query('SELECT role_name FROM atlas_history.reader_grant')).rows)for(const table of extraTables){await client.query(`GRANT SELECT ON atlas_history.${table} TO ${identifier(reader.role_name)}`);await client.query(`CREATE POLICY ${identifier('app_'+digest(reader.role_name).slice(0,12)+'_s_'+table)} ON atlas_history.${table} FOR SELECT TO ${identifier(reader.role_name)} USING(true)`);}
+ for(const s of sources)await importDaily(client,registry,[s.projection]);
+ await client.query('INSERT INTO atlas_history.schema_version VALUES(3,$1,$2)',[Buffer.from(digest(sql),'hex'),Buffer.from(await structureHash(client,'atlas_history'),'hex')]);await verifyHistory(client);await verifySchema(client);return {state:'NORMALIZED',version:3,legacySnapshots:sources.length};
+});}

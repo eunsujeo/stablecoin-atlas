@@ -31,7 +31,7 @@
 
 ## 아직 구현하지 않은 것
 
-- 계정별 rate/credit 예산, 무제한 daemon/자동 재시작, 자동 재시도/backoff, 자동 공급자 전환. 수동·주기 수집 모두429를 기록하고 중단한다.
+- 공급자 계정의 실제 rate/credit 계약 확인, 보관기간 정책, 자동 재시도/backoff, 자동 공급자 전환. 앱의 날짜별 호출 상한과 재시작 가능한 worker는 ADR0048로 구현했다.
 - 다수 시리즈의 선택/페이지 조회·롤업/보관기간 정리·서비스 배포·공개 호스팅. 실제 Supabase 이전과 제한된5분 수집 저장은 완료했다.
 - 실제 안전성 점수/등급. Overview의 시나리오 통과 점수는 별도 집계다. 가상 `Market preview`의 점수는 제품 판정이 아니다.
 - 네이티브/브리지별 중복 제거, 서로 다른 공급자의 공급량 정의 통일, registry v2/기존 화면의 동일 coin/network 복수 deployment 매핑(DB schema는 허용).
@@ -40,7 +40,7 @@
 
 ## 다음 개발 단위
 
-[ADR0044](adr/0044-read-only-database-market-preview.md)의 DB 읽기 전용 시장 API/화면 연결을 구현했다. `npm run ui -- --database --database-env .state/market-db-secrets/reader.env`로 실행하며 화면에 PostgreSQL 조회 완료와 조회 기간/표본 여부를 표시한다. DB 조회와 수집 상태는 별도다. 기본 `npm run ui`는 기존 JSON 모드다. 다음 단계는 원격 서버 배포 설정과 제한 수집 실행/비공개 archive의 영속 보관이다. 계정 예산·보관 정책·24시리즈 초과 조회 확장도 남았다. 기본 수집12회/실패 중단은 유지하며 무제한 daemon이나 공개 배포를 자동 실행하지 않는다.
+[ADR0044](adr/0044-read-only-database-market-preview.md)의 DB 읽기 전용 시장 API/화면 연결을 구현했다. `npm run ui -- --database --database-env .state/market-db-secrets/reader.env`로 실행하며 화면에 PostgreSQL 조회 완료와 조회 기간/표본 여부를 표시한다. DB 조회와 수집 상태는 별도다. 기본 `npm run ui`는 기존 JSON 모드다. 다음 단계는 원격 서버 배포 설정과 제한 수집 실행/비공개 archive의 영속 보관이다. 계정 예산·보관 정책·24시리즈 초과 조회 확장도 남았다. 기존 market:watch의 프로세스12회 상한은 유지한다. 후속 ADR0048의 worker는 UTC 하루12회 상한과 DB 예약으로 계속 실행하며 공개 배포는 별도다.
 
 새 PC는 `npm ci` → `npm run setup` → `npm run doctor`로 준비한다. 과거 근거는 별도 이동 파일을 가져와 두 publisher로 복원한다. 시장 자료만 새로 받으려면 `.env.local`의 ARKM_API_KEY를 설정하고 `npm run market:collect`를 명시적으로1회 실행한다. 새 collected 이력은 기존14원본 이동 파일에 포함되지 않는다.
 
@@ -64,6 +64,8 @@ Overview 변경 후 전체 검사는241개 통과(실패·취소·skip0). Chrome
 
 Overview 공급량 차트는 토큰 선택 시 확보한 네트워크를 공통 시간·0 기준 공급량 축에 서로 다른 색으로 표시한다. 개별 네트워크 선택도 유지한다. 하단은 실제 관측 업데이트 시각만 표시하고 원본 수량은 hover/키보드 툴팁에 둔다.
 
-과거 일별 유통량은 [ADR0046](adr/0046-daily-network-circulation-history.md)으로 확장했다. 실제 Supabase의 private atlas_history에3자산·8네트워크·2928개 일별 값(2025-10-22~2026-10-22)을 별도 저장했다. 기존462시장/78네트워크 관측과8개 기본정보 및 두 schema fingerprint는 유지했다. Overview에서 DeFiLlama 일별 유통량1년/3개월과 Arkham 최근 총공급량을 구분해 선택한다. XRPL의 오늘 일별 값은 실시간 값이 아니다. 과거 자료는 이번 단발 import이며 자동 갱신을 추가하지 않았다.
+과거 일별 유통량은 [ADR0046](adr/0046-daily-network-circulation-history.md)으로 확장했다. 실제 Supabase의 private atlas_history에3자산·8네트워크·2928개 일별 값(2025-10-22~2026-10-22)을 별도 저장했다. 기존462시장/78네트워크 관측과8개 기본정보 및 두 schema fingerprint는 유지했다. Overview에서 DeFiLlama 일별 유통량1년/3개월과 Arkham 최근 총공급량을 구분해 선택한다. XRPL의 오늘 일별 값은 실시간 값이 아니다. 과거 자료는 이번 단발 import이며 이 단계에서는 자동 갱신을 추가하지 않았으며 후속 ADR0048로 일별 일정을 연결했다.
 
 후속 [ADR0047](adr/0047-daily-minted-and-relative-comparison.md)으로 일별 발행량을 별도 저장했다. history v2 명시 upgrade 후6snapshot/16개 지표·네트워크 시계열/5856개 일별 값이다. 기존 circulating payload3개와 core 데이터는 유지했다. Overview는 일별 유통량/발행량만 선택하고 기본 증감률(%)·공급량 규모 전환을 제공한다. 화면에 ‘과거’ 수식어와 최근 Arkham 공급량 선택은 두지 않는다.
+
+[ADR0048](adr/0048-durable-periodic-collection.md)은 history v3 정규화·DB 예약 기반 worker·최소 권한 writer·영속 원문/receipt 복구를 추가한다. 기존 불변 snapshot은 유지하고 같은 날짜/수량의 재저장을 방지한다. 기본 Arkham5분/UTC일12회, DeFiLlama UTC일1회이며 Linux 배포 파일과 운영 방법은 [수집 서비스](COLLECTOR_SERVICE.md)를 따른다. 원격 서버 배포와 로컬 가동은 구분하며 최신 실제 상태/검사 수는 인계문을 따른다.
