@@ -53,7 +53,7 @@ export function validateRegistry(registry) {
   return registry;
 }
 export function validateMarket(data) {
-  keys(data,['schemaVersion','kind','publishedAt','registry','observations','networks','omittedSupplyEntries','lastBuildState','collectionState','schedulerState','databaseState']);
+  keys(data,['schemaVersion','kind','publishedAt','registry','observations','networks','omittedSupplyEntries','lastBuildState','collectionState','schedulerState','databaseState','readState']);
   ensure(data?.schemaVersion === 1 && data.kind === 'STORED_PROVIDER_OBSERVATIONS_NOT_ASSESSMENT' && time(data.publishedAt));
   validateRegistry(data.registry); ensure(Array.isArray(data.observations) && data.observations.length <= 5000);
   const seen = new Set();
@@ -75,6 +75,13 @@ export function validateMarket(data) {
   if(data.collectionState!==undefined) validateCollectionState(data.collectionState);
   if(data.schedulerState!==undefined) validateSchedulerState(data.schedulerState);
   if(data.databaseState!==undefined) validateDatabaseState(data.databaseState);
+  if(data.readState!==undefined) {
+    const r=data.readState;
+    keys(r,['source','historyFrom','historyTo','pointsPerSeries','series','historyRows','sampled','latestRequestFailures','latestMissingFields']);
+    ensure(r.source==='POSTGRESQL' && time(r.historyFrom) && time(r.historyTo) && Date.parse(r.historyTo)-Date.parse(r.historyFrom)===30*86400000);
+    ensure(Number.isInteger(r.pointsPerSeries) && r.pointsPerSeries>=100 && r.pointsPerSeries<=200 && Number.isInteger(r.series) && r.series>=0 && r.series<=24 && typeof r.historyRows==='string' && /^\d{1,20}$/.test(r.historyRows) && typeof r.sampled==='boolean');
+    for(const value of [r.latestRequestFailures,r.latestMissingFields])ensure(Number.isInteger(value)&&value>=0);
+  }
   return data;
 }
 export function validateDatabaseState(row) {
@@ -118,5 +125,5 @@ export function rank(data, coinId = null) {
   return rows.sort((a,b) => units(a.amount)>units(b.amount)?-1:units(a.amount)<units(b.amount)?1:a.coinId.localeCompare(b.coinId)||String(a.deploymentId).localeCompare(String(b.deploymentId)));
 }
 export function series(data, observation) {
-  return data.observations.filter(o => ['coinId','deploymentId','metric','provider','endpoint','selector'].every(k=>o[k]===observation[k])).sort((a,b)=>a.observedAt.localeCompare(b.observedAt)||a.id.localeCompare(b.id));
+  return data.observations.filter(o => (!data.readState || Date.parse(o.observedAt)>=Date.parse(data.readState.historyFrom)&&Date.parse(o.observedAt)<Date.parse(data.readState.historyTo)) && ['coinId','deploymentId','metric','provider','endpoint','selector'].every(k=>o[k]===observation[k])).sort((a,b)=>a.observedAt.localeCompare(b.observedAt)||a.id.localeCompare(b.id));
 }

@@ -21,3 +21,10 @@ test('missing, single, flat, zero and descending histories never invent extra po
   const flat=chartGeometry([row('1',1),row('1',22)]);assert.equal(flat.points[0].y,flat.points[1].y);assert.equal(flat.direction,'flat');
   const down=chartGeometry([row('2',1),row('0',22)]);assert.equal(down.direction,'down');assert.ok(down.points[1].y>down.points[0].y);assert.equal(down.points.length,2);
 });
+test('DB history uses the declared query window and excludes old pinned latest values',()=>{
+  const old=row('1',1),recent=row('2',21),data={observations:[old,recent],readState:{historyFrom:'2026-10-10T00:00:00.000Z',historyTo:'2026-10-23T00:00:00.000Z'}};
+  assert.deepEqual(chartHistory(data,recent).map(o=>o.amount),['2']);
+  assert.deepEqual(chartHistory(data,recent,'24h'),[]);
+  assert.deepEqual(chartHistory(data,recent,'7d').map(o=>o.amount),['2']);
+  assert.deepEqual(chartHistory({...data,observations:[old]},old),[]);
+});

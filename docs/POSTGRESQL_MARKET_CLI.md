@@ -1,6 +1,6 @@
 # PostgreSQL 시장 자료 CLI
 
-[ADR0040](adr/0040-postgresql-market-import-and-query.md)의 서버 전용 도구다. PostgreSQL17+에 저장된 시장 자료를 명시적으로 이전·조회한다. 현재 웹 화면과 `market:collect`는 기존 JSON 경로를 사용한다. 명시 `market:watch --database`로 단발 결과를 자동 import할 수 있다. [Supabase 설정](SUPABASE_SETUP.md)을 따른다. 웹 DB API·롤업 작업·보관기간 삭제·운영 배포는 아직 없다.
+[ADR0040](adr/0040-postgresql-market-import-and-query.md)의 서버 전용 도구다. PostgreSQL17+에 저장된 시장 자료를 명시적으로 이전·조회한다. 기본 웹 화면과 `market:collect`는 기존 JSON 경로를 사용하고, 웹의 명시적 DB 모드는 reader로 조회한다. 명시 `market:watch --database`로 단발 결과를 자동 import할 수 있다. [Supabase 설정](SUPABASE_SETUP.md)을 따른다. 웹 DB 읽기 API는 [ADR0044](adr/0044-read-only-database-market-preview.md), 실행은 [Supabase 설정](SUPABASE_SETUP.md#4-ui와-실패-복구)을 따른다. 롤업·보관기간 삭제·운영 배포는 아직 없다.
 
 ## 환경과 연결
 
@@ -106,6 +106,6 @@ npm run check:db
 
 실제 비관리자 로그인으로 정확한 수량·0/누락·micro/nanosecond·과거/동일 시각 입력·중복·동시 이전·충돌 rollback·RLS/권한·원장 필수·최신 성공값·bounded cursor를 검사했다. 별도 로컬 검증에서는 저장된5원본+1collected의30관측/네트워크6행을 이전하고 기존30 legacy 연결과 재이전·원본 바이트 불변을 확인했다. 해당 fixture DB는 정리했고 private archive만 보존했다. Supabase나 물리적으로 다른 서버에서 실행한 검증은 아니다.
 
-DB schema는 복수 deployment를 허용하지만 현재 input registry v1의256개·coin/network당1개 제약은 유지한다. registry v2, DB 웹 조회 API/화면 전환, 수집기 DB 연결, 시간/일 집계, archive 복구·보관기간 정리·운영 배포는 후속이다. `DATABASE_URL`을 입력하거나 웹을 시작하는 것만으로 DB 초기화·이전·외부 수집이 실행되지 않는다.
+DB schema는 복수 deployment를 허용하지만 현재 input registry v1의256개·coin/network당1개 제약은 유지한다. registry v2, 24시리즈를 넘는 웹 선택/페이지 조회, 시간/일 집계, archive 복구·보관기간 정리·운영 배포는 후속이다. 수집기 DB 연결과 명시적 reader 웹 조회는 구현했다. `DATABASE_URL`을 입력하거나 웹을 시작하는 것만으로 DB 초기화·이전·외부 수집이 실행되지 않는다.
 
 기술 근거: [node-postgres 쿼리](https://node-postgres.com/features/queries), [transaction](https://node-postgres.com/features/transactions), [TLS](https://node-postgres.com/features/ssl), [Docker loopback publish](https://docs.docker.com/engine/network/port-publishing/).

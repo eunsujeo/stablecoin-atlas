@@ -19,10 +19,10 @@ export async function connectDatabase(env){
   try{await client.connect();return client;}catch{await client.end().catch(()=>{});fail('DATABASE_CONNECT_FAILED');}
 }
 const activeTransactions=new WeakSet();
-export async function transaction(client,operation,{readonly=false}={}){
+export async function transaction(client,operation,{readonly=false,repeatableRead=false}={}){
   if(activeTransactions.has(client))fail('DATABASE_CLIENT_BUSY');activeTransactions.add(client);let begun=false;
   try{
-    await client.query(readonly?'BEGIN READ ONLY':'BEGIN');begun=true;
+    await client.query(repeatableRead?'BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY':readonly?'BEGIN READ ONLY':'BEGIN');begun=true;
     const version=(await client.query("SELECT current_setting('server_version_num')::int AS version")).rows[0].version;
     if(version<170000)fail('DATABASE_VERSION_UNSUPPORTED');
     await client.query("SET LOCAL search_path=pg_catalog; SET LOCAL timezone='UTC'; SET LOCAL statement_timeout='10s'; SET LOCAL lock_timeout='3s'; SET LOCAL idle_in_transaction_session_timeout='15s'; SET LOCAL transaction_timeout='60s'");

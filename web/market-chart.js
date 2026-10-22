@@ -9,7 +9,7 @@ export function chartHistory(data,observation,period='all'){
   if(!observation)return [];
   const byTime=new Map();for(const row of series(data,observation))byTime.set(Date.parse(row.observedAt),row);
   const rows=[...byTime.values()];if(!rows.length||period==='all')return rows;
-  const span={'24h':86400000,'7d':7*86400000,'30d':30*86400000}[period],end=Date.parse(rows.at(-1).observedAt);
+  const span={'24h':86400000,'7d':7*86400000,'30d':30*86400000}[period],end=Date.parse(data.readState?.historyTo??rows.at(-1).observedAt);
   return rows.filter(row=>Date.parse(row.observedAt)>=end-span);
 }
 export function chartGeometry(rows,{left=32,right=870,top=28,bottom=280}={}){
@@ -29,7 +29,7 @@ export function sparkline(data,observation){
   figure.classList.add('trend-'+g.direction);const title=svg('title');title.textContent=`${rows.length}점 · ${rows.length?when(rows[0].observedAt)+' → '+when(rows.at(-1).observedAt):'관측 없음'} · ${observation.unit}`;figure.append(title);
   if(g.points.length>1)figure.append(svg('polyline',{points:g.points.map(p=>`${p.x},${p.y}`).join(' '),fill:'none',stroke:'currentColor','stroke-width':2}));
   if(g.points.length){const p=g.points.at(-1);figure.append(svg('circle',{cx:p.x,cy:p.y,r:2.5,fill:'currentColor'}));}
-  wrap.append(figure,el('small',rows.length<2?'1점 · 추세 미확보':`저장 이력 ${rows.length}점`));return wrap;
+  wrap.append(figure,el('small',rows.length===0?'조회 구간 관측 없음':rows.length===1?'1점 · 추세 미확보':`저장 이력 ${rows.length}점`));return wrap;
 }
 export function renderMarketChart(host,data,observation,{period='all',onDetail}={}){
   host.replaceChildren();const rows=chartHistory(data,observation,period);

@@ -1,6 +1,6 @@
 # 새 Supabase 프로젝트 연결
 
-2026-10-22 실제 연결 확인: PostgreSQL17.11, 인증서 검증 TLS·session pooler, schema v1 초기화·2026-10/11 파티션·writer/reader 로그인과 두 달의 읽기 전용 READY 점검을 완료했다. 현재 `.env.local`은 writer 계정이다. 후속 단계에서 기존18파일의246관측/42네트워크 이력을 이전하고 전체 재import 중복 방지·원본/시각 보존을 확인했다. DB 모드5분 수집도 실행 중이며 이후 누적 수량/실행 상태는 최신 인계문과 상태 파일을 따른다. 웹은 아직 JSON 조회다.
+2026-10-22 실제 연결 확인: PostgreSQL17.11, 인증서 검증 TLS·session pooler, schema v1 초기화·2026-10/11 파티션·writer/reader 로그인과 두 달의 읽기 전용 READY 점검을 완료했다. 현재 `.env.local`은 writer 계정이다. 후속 단계에서 기존18파일의246관측/42네트워크 이력을 이전하고 전체 재import 중복 방지·원본/시각 보존을 확인했다. DB 모드5분 수집도 실행 중이며 이후 누적 수량/실행 상태는 최신 인계문과 상태 파일을 따른다. 웹은 명시 DB 읽기 모드를 제공하며 아래 명령으로 실행한다.
 
 이번 관리 작업의 역할 비밀번호는 로컬에서 생성해 출력하지 않았으며, 관리자/수집/조회 접속 설정은 `.state/market-db-secrets/`의 `admin.env`/`writer.env`/`reader.env`에0600, 디렉터리는0700으로 보관했다. 이 경로와 `.env.local`은 Git에서 제외한다. 이후 init/partition/grant에는 보관한 관리자 설정을 별도로 사용하며 수집기에는 writer 설정을 유지한다. 이 일회성 관리 작업은 애플리케이션의 자동 계정 생성 기능이 아니다.
 
@@ -63,7 +63,13 @@ DB 모드의 Ctrl+C는 다음 실행을 막고 진행 중인 수집과 DB 저장
 
 ## 4. UI와 실패 복구
 
-`npm run ui`의 시장 화면은 아직 로컬 JSON을 읽는다. DB 저장 시도/완료 시각은 별도 기록으로 표시하므로 새 로컬 관측을 DB 최신값이라고 주장하지 않는다. DB 조회 화면 전환과 원격 공개 배포는 후속 작업이다.
+시장 화면을 실제 DB에서 읽으려면 준비한 reader 설정으로 실행한다. 기본 `npm run ui`는 로컬 JSON 모드다.
+
+```sh
+npm run ui -- --database --database-env .state/market-db-secrets/reader.env
+```
+
+`http://127.0.0.1:4173/#live`에서 ‘PostgreSQL 조회 완료’를 확인한다. env 파일을 지정하면 파일의 접속 설정만 사용한다. 파일 없이 `--database`만 쓰면 `.env.local`/상속 환경의 reader 설정이 필요하며 현재 writer 설정은 거부된다. `--port`도 함께 지정할 수 있다. 키/접속 URI는 브라우저에 전달하지 않는다. DB 오류는503이며 JSON으로 자동 전환하지 않는다. 화면의 이전 정상값·관측 시각은 유지한다. 그래프의 최근30일/실제 표본/한도는 [ADR0044](adr/0044-read-only-database-market-preview.md)를 따른다. 원격 공개 배포는 후속 작업이다.
 
 로컬 발행과 DB commit은 하나의 transaction이 아니다. 로컬 JSON 게시 이후 DB 실패가 나면 JSON·projection·시각을 보존하고 scheduler를 중단한다. `database-state.json`의 정확한 sourceName/hash를 확인하고 다음처럼 **이미 저장한 파일만** 명시적으로 import한다. 최신 파일 추측이나 공급자 재수집으로 복구하지 않는다.
 

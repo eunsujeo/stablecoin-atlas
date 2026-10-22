@@ -3,6 +3,8 @@ import { publishedIndex, publishedArtifact } from './evidence-store.mjs';
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
+import { workspaceEnvironment } from './workspace-env.mjs';
+import { databaseMarketReader } from './market-db/preview.mjs';
 
 const assets = new Map([
   ['/', ['../web/index.html', 'text/html; charset=utf-8']],
@@ -20,7 +22,7 @@ const assets = new Map([
   ['/mock-data.json', ['../docs/ui/mock-dashboard-data.json', 'application/json; charset=utf-8']],
 ]);
 const csp = "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; object-src 'none'";
-export function createPreviewServer({ evidenceDirectory, marketDirectory } = {}) {
+export function createPreviewServer({ evidenceDirectory, marketDirectory, marketReader } = {}) {
   const server = createServer(async (req, res) => {
     res.setHeader('Content-Security-Policy', csp);
     res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -37,7 +39,8 @@ export function createPreviewServer({ evidenceDirectory, marketDirectory } = {})
     if (req.method !== 'GET' && req.method !== 'HEAD') { res.setHeader('Allow', 'GET, HEAD'); fail(405, 'METHOD_NOT_ALLOWED'); return; }
     if (req.url === '/market-data.json') {
       try {
-        const bytes = Buffer.from(JSON.stringify(await publishedMarket(marketDirectory)));
+        const bytes = Buffer.from(JSON.stringify(await (marketReader ? marketReader() : publishedMarket(marketDirectory))));
+        if(bytes.length>2*1024*1024)throw new Error('MARKET_RESPONSE_LIMIT');
         res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Content-Length': bytes.length });
         res.end(req.method === 'HEAD' ? undefined : bytes);
       } catch { fail(503, 'MARKET_DATA_UNAVAILABLE'); }
@@ -69,12 +72,27 @@ export async function startPreviewServer(port = 4173, options = {}) {
   await new Promise((resolve, reject) => { server.once('error', reject); server.listen(port, '127.0.0.1', resolve); });
   return server;
 }
+export function parsePreviewArguments(args) {
+  const result={port:4173,database:false};
+  const seen=new Set();
+  for(let i=0;i<args.length;i++){
+    const flag=args[i];if(seen.has(flag))throw new Error('INVALID_ARGUMENTS');seen.add(flag);
+    if(flag==='--database')result.database=true;
+    else if(flag==='--port'&&/^\d{1,5}$/.test(args[i+1]??''))result.port=Number(args[++i]);
+    else if(flag==='--database-env'&&args[i+1]&&!args[i+1].startsWith('--'))result.envFile=args[++i];
+    else throw new Error('INVALID_ARGUMENTS');
+  }
+  if(result.port>65535||result.envFile&&!result.database)throw new Error('INVALID_ARGUMENTS');
+  return result;
+}
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
-    const args = process.argv.slice(2);
-    if (args.length && (args.length !== 2 || args[0] !== '--port' || !/^\d{1,5}$/.test(args[1]))) throw new Error('INVALID_ARGUMENTS');
-    const server = await startPreviewServer(args.length ? Number(args[1]) : 4173);
-    console.log(`Local preview: http://127.0.0.1:${server.address().port}`);
+    const args = parsePreviewArguments(process.argv.slice(2));
+    // An explicit file is authoritative; inherited writer credentials cannot override it.
+    const env=args.database?await workspaceEnvironment(args.envFile,args.envFile?{}:process.env):undefined;
+    if(args.database&&!env.DATABASE_URL)throw new Error('DATABASE_CONFIG_REQUIRED');
+    const server = await startPreviewServer(args.port,args.database?{marketReader:databaseMarketReader({env})}:{});
+    console.log(`Local preview: http://127.0.0.1:${server.address().port} (${args.database?'PostgreSQL read-only':'local JSON'})`);
     for (const signal of ['SIGINT', 'SIGTERM']) process.once(signal, () => { server.close(() => { process.exitCode = 0; }); server.closeIdleConnections(); });
   } catch { console.error('Preview could not start. Check the port or use --port 0.'); process.exitCode = 1; }
 }

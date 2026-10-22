@@ -28,6 +28,11 @@ export async function publishedMarket(directory = defaultMarketDirectory) {
   const snapshot = await boundedJson(join(root,`${index.hash}.json`));
   if (snapshot.hash !== index.hash) throw new Error('HASH_MISMATCH');
   const data = validateMarket(snapshot.value);
+  return {...data,...await publishedMarketStatus(directory)};
+}
+// Operational records are separate from the JSON mirror and from DB query success.
+export async function publishedMarketStatus(directory = defaultMarketDirectory) {
+  const root = directory instanceof URL ? fileURLToPath(directory) : String(directory);
   let lastBuildState = 'UNKNOWN';
   try { const build = (await boundedJson(join(root,'last-build.json'),1024)).value; if (['SUCCESS','FAILED'].includes(build.state)) lastBuildState = build.state; } catch {}
   let collectionState;
@@ -36,7 +41,7 @@ export async function publishedMarket(directory = defaultMarketDirectory) {
   try { schedulerState = validateSchedulerState((await boundedJson(join(root,'scheduler-state.json'),1024)).value); } catch {}
   let databaseState;
   try { databaseState = validateDatabaseState((await boundedJson(join(root,'database-state.json'),1024)).value); } catch {}
-  return {...data,lastBuildState,...(databaseState?{databaseState}:{}),...(collectionState?{collectionState}:{}),...(schedulerState?{schedulerState}:{})};
+  return {lastBuildState,...(databaseState?{databaseState}:{}),...(collectionState?{collectionState}:{}),...(schedulerState?{schedulerState}:{})};
 }
 export function normalizeSources(registry, sources, previous = null) {
   validateRegistry(registry); const observations = [];

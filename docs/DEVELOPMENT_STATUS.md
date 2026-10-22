@@ -23,12 +23,12 @@
 
 ## PostgreSQL 설계와 로컬 CLI
 
-사용자가 Supabase/PostgreSQL과 다수 스테이블코인·네트워크 확장을 전제로 설계를 요청했다. [ADR0039](adr/0039-postgresql-market-storage-design.md)의 후보 DDL·범위/지표별 시계열·공통 요청 근거·legacy 이전·용량/조회 설계를 작성했다. 로컬 격리 PostgreSQL17.11에서 제약 시험과 합성30코인×3지표×1440분의129,600관측을 측정했다. 메타데이터/인덱스 포함 약42MB/일이며 원문·backup은 별도다. 정본은 [저장 설계](design/POSTGRESQL_MARKET_STORAGE.md), 실제 수행/미검증 구분은 [검증 기록](design/POSTGRESQL_MARKET_VALIDATION.md)이다. [ADR0040](adr/0040-postgresql-market-import-and-query.md)의 명시적 init/partition/grant/import·저장/제한 조회 CLI와 서버 환경 연결을 구현했다. 격리 로컬 DB에서 기존30관측/네트워크6행 이전·legacy/바이트/시각 보존과 재이전, 실제 비관리자 역할/RLS·동시성·rollback을 검증했다. [실행 안내](POSTGRESQL_MARKET_CLI.md). 실제 Supabase PostgreSQL17.11에 인증서를 검증하는 TLS로 연결하여 초기화·2026-10/11 파티션·writer/reader 전용 로그인과 권한을 준비했다. 웹 DB 전환·배포는 아직 하지 않았다. ADR0042의 `market:watch --database`와 읽기 전용 `market:db:check`를 구현했으며, 소유 로컬 DB로 저장/접속 점검/복구를 검증했다. 실제 원격 writer/reader의 두 달 읽기 전용 READY 점검을 완료했고 .env.local은 writer로 전환했다. 관리자/reader 접속 정보는 Git 제외 비공개 설정으로 보관한다. 실제 원격으로 기존18파일의246관측/42네트워크 이력을 이전하고18파일 재이전이 모두 UNCHANGED임을 확인했다. 5분 수집은 명시 DB 모드로 전환해 새 projection/JSON과 DB의 원본 hash 및 행 수를 대조했다. 이후 누적 수량은 최신 실행 기록을 따른다. [새 프로젝트 설정](SUPABASE_SETUP.md).
+사용자가 Supabase/PostgreSQL과 다수 스테이블코인·네트워크 확장을 전제로 설계를 요청했다. [ADR0039](adr/0039-postgresql-market-storage-design.md)의 후보 DDL·범위/지표별 시계열·공통 요청 근거·legacy 이전·용량/조회 설계를 작성했다. 로컬 격리 PostgreSQL17.11에서 제약 시험과 합성30코인×3지표×1440분의129,600관측을 측정했다. 메타데이터/인덱스 포함 약42MB/일이며 원문·backup은 별도다. 정본은 [저장 설계](design/POSTGRESQL_MARKET_STORAGE.md), 실제 수행/미검증 구분은 [검증 기록](design/POSTGRESQL_MARKET_VALIDATION.md)이다. [ADR0040](adr/0040-postgresql-market-import-and-query.md)의 명시적 init/partition/grant/import·저장/제한 조회 CLI와 서버 환경 연결을 구현했다. 격리 로컬 DB에서 기존30관측/네트워크6행 이전·legacy/바이트/시각 보존과 재이전, 실제 비관리자 역할/RLS·동시성·rollback을 검증했다. [실행 안내](POSTGRESQL_MARKET_CLI.md). 실제 Supabase PostgreSQL17.11에 인증서를 검증하는 TLS로 연결하여 초기화·2026-10/11 파티션·writer/reader 전용 로그인과 권한을 준비했다. 명시적 웹 DB 읽기 모드는 ADR0044로 추가했으며 공개 배포는 아직 하지 않았다. ADR0042의 `market:watch --database`와 읽기 전용 `market:db:check`를 구현했으며, 소유 로컬 DB로 저장/접속 점검/복구를 검증했다. 실제 원격 writer/reader의 두 달 읽기 전용 READY 점검을 완료했고 .env.local은 writer로 전환했다. 관리자/reader 접속 정보는 Git 제외 비공개 설정으로 보관한다. 실제 원격으로 기존18파일의246관측/42네트워크 이력을 이전하고18파일 재이전이 모두 UNCHANGED임을 확인했다. 5분 수집은 명시 DB 모드로 전환해 새 projection/JSON과 DB의 원본 hash 및 행 수를 대조했다. 이후 누적 수량은 최신 실행 기록을 따른다. [새 프로젝트 설정](SUPABASE_SETUP.md).
 
 ## 아직 구현하지 않은 것
 
 - 계정별 rate/credit 예산, 무제한 daemon/자동 재시작, 자동 재시도/backoff, 자동 공급자 전환. 수동·주기 수집 모두429를 기록하고 중단한다.
-- DB 웹 조회 API/화면 전환·롤업/보관기간 정리·서비스 배포·공개 호스팅. 실제 Supabase 이전과 제한된5분 수집 저장은 완료했다.
+- 다수 시리즈의 선택/페이지 조회·롤업/보관기간 정리·서비스 배포·공개 호스팅. 실제 Supabase 이전과 제한된5분 수집 저장은 완료했다.
 - 실제 안전성 점수/등급. Overview의 시나리오 통과 점수는 별도 집계다. 가상 `Market preview`의 점수는 제품 판정이 아니다.
 - 네이티브/브리지별 중복 제거, 서로 다른 공급자의 공급량 정의 통일, registry v2/기존 화면의 동일 coin/network 복수 deployment 매핑(DB schema는 허용).
 - 거래량 순위: totalVolume 기간·단위 확인 전 비교를 보류한다.
@@ -36,7 +36,7 @@
 
 ## 다음 개발 단위
 
-다음 단계는 DB 읽기 전용 조회 API와 웹 화면의 DB 조회 전환이다. 기존 JSON 읽기 화면은 DB와 같은 단발 projection을 표시하지만 DB 조회 화면이라고 부르지 않는다. 웹의 DB API/화면 전환은 후속 구현이다. 수집기 DB 저장은 명시 `--database`로 선택한다. 소유 격리 로컬 DB 검증에 더해 실제 Supabase의 초기화/역할/파티션/읽기 점검까지 확인했다. 실제 원격 import와 공급자 수집의 DB 저장도 확인했다. 기본 실행 한도12회와 실패 중단은 유지하며 무제한 daemon으로 전환하지 않았다. 승인된5분 주기는 별도 CLI에서만 실행한다.
+[ADR0044](adr/0044-read-only-database-market-preview.md)의 DB 읽기 전용 시장 API/화면 연결을 구현했다. `npm run ui -- --database --database-env .state/market-db-secrets/reader.env`로 실행하며 화면에 PostgreSQL 조회 완료와 조회 기간/표본 여부를 표시한다. DB 조회와 수집 상태는 별도다. 기본 `npm run ui`는 기존 JSON 모드다. 다음 단계는 원격 서버 배포 설정과 제한 수집 실행/비공개 archive의 영속 보관이다. 계정 예산·보관 정책·24시리즈 초과 조회 확장도 남았다. 기본 수집12회/실패 중단은 유지하며 무제한 daemon이나 공개 배포를 자동 실행하지 않는다.
 
 새 PC는 `npm ci` → `npm run setup` → `npm run doctor`로 준비한다. 과거 근거는 별도 이동 파일을 가져와 두 publisher로 복원한다. 시장 자료만 새로 받으려면 `.env.local`의 ARKM_API_KEY를 설정하고 `npm run market:collect`를 명시적으로1회 실행한다. 새 collected 이력은 기존14원본 이동 파일에 포함되지 않는다.
 
