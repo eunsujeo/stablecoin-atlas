@@ -10,8 +10,9 @@ import {importSources} from '../../tools/market-db/repository.mjs';
 import {importPlan} from '../../tools/market-db/plan.mjs';
 import {initializeHistory,normalizeHistory,enableContinuousHistory,grantHistoryWriter,requireHistoryRuntime} from '../../tools/market-db/history.mjs';
 import {acquireWorker,releaseWorker} from '../../tools/market-db/scheduler.mjs';
+import {databaseRegistrationReader} from '../../tools/market-db/registration-preview.mjs';
 import {initializeRegistration,grantRegistrationReader} from '../../tools/market-db/registration-access.mjs';
-import {installRegistration,importRegistrationHistory,readRegistrationHistory} from '../../tools/market-db/registration.mjs';
+import {installRegistration,importRegistrationHistory,readRegistrationHistory,readRegistrationIndex} from '../../tools/market-db/registration.mjs';
 const metadata=JSON.parse(await readFile(new URL('../../data/market-registration.json',import.meta.url))),legacy=JSON.parse(await readFile(new URL('../../data/asset-registry.json',import.meta.url)));
 const bytes=value=>Buffer.from(JSON.stringify(value));
 const catalogue=()=>({peggedAssets:metadata.coins.map(c=>{
@@ -40,12 +41,21 @@ test('registration PG17: additive metadata, JPY units, dedupe, immutable source 
   await assert.rejects(read());await assert.rejects(initializeRegistration(writer),/DATABASE_OWNER_REQUIRED/);await assert.rejects(installRegistration(writer,metadata,legacy,cat,{fetchedAt:'2026-10-22T01:00:00.000Z'}),/DATABASE_OWNER_REQUIRED/);
   await assert.rejects(grantRegistrationReader(f.admin,'atlas_test_registrationwriter'),/REGISTRATION_DB_READER_REQUIRED/);
   assert.equal((await grantRegistrationReader(f.admin,'atlas_test_registrationreader')).state,'GRANTED');assert.equal((await grantRegistrationReader(f.admin,'atlas_test_registrationreader')).state,'UNCHANGED');
+  assert.equal((await readRegistrationIndex(reader)).selectionId,selectionId);
   assert.equal((await read()).state,'MISSING');
   const input={selectionId,coinId:'jpyc',bytes:detailed(),fetchedAt:'2026-10-22T02:00:00.000Z'},initial=await importRegistrationHistory(f.admin,input);
   assert.deepEqual(initial,{state:'IMPORTED',sourcesInserted:2,valuesInserted:24,coverageInserted:2,providerRequests:0});
+  assert.equal((await readRegistrationIndex(reader)).coins.find(c=>c.id==='jpyc').metrics.length,2);
+  await assert.rejects(readRegistrationIndex(writer));
   const original=await read();assert.equal(original.pegCurrency,'JPY');assert.equal(original.contract.unit,'token');assert.equal(original.selected[0].reportedUsdValue,'100');assert.equal(original.series.length,4);assert.equal(original.series[0].points[0].amount,'9007199254740993.123456789012345678901234567890123456');
   const again=await importRegistrationHistory(f.admin,{...input,fetchedAt:'2026-10-22T02:05:00.000Z'});assert.equal(again.sourcesInserted,0);assert.equal(again.valuesInserted,0);assert.equal((await read()).updatedAt,original.updatedAt);
   const corrected={...input,bytes:detailed({amount:'20',tag:2}),fetchedAt:'2026-10-22T03:00:00.000Z'};
+  // A newer import between index and history must not mix old scope with a new source.
+  let raced=false;const request=databaseRegistrationReader({connect:async()=>({end:async()=>{}}),
+   index:async()=>{const scope=await readRegistrationIndex(reader);await importRegistrationHistory(f.admin,{...input,bytes:detailed({amount:'55',tag:'index-race'}),fetchedAt:'2026-10-22T02:30:00.000Z'});raced=true;return scope;},
+   history:async(_client,filter)=>readRegistrationHistory(reader,filter)});
+  const pinned=await request('/registration-history.json?'+new URLSearchParams({selection:selectionId,coin:'jpyc',metric:'NETWORK_CIRCULATING'}));
+  assert.equal(raced,true);assert.equal(pinned.sourceId,original.sourceId);assert.equal(pinned.updatedAt,original.updatedAt);assert.deepEqual(pinned.series,original.series);
   const correctedStats=await importRegistrationHistory(f.admin,corrected);assert.equal(correctedStats.valuesInserted,12);const correction=await read();assert.equal(correction.series[0].points[0].amount,'20');
   assert.deepEqual((await read({sourceId:original.sourceId})).series,original.series);
   await importRegistrationHistory(f.admin,{...input,fetchedAt:'2026-10-22T04:00:00.000Z'});assert.equal((await read()).sourceId,correction.sourceId); // Replay does not become a new observation.
@@ -68,6 +78,7 @@ test('registration PG17: additive metadata, JPY units, dedupe, immutable source 
   const forged=JSON.parse(detailed().toString());forged.id='427';await assert.rejects(importRegistrationHistory(f.admin,{...input,bytes:bytes(forged)}),/REGISTRATION_ASSET_IDENTITY_MISMATCH/);
   const conflicting=structuredClone(metadata);conflicting.coins[0].notes.push('changed without a revision');await assert.rejects(installRegistration(f.admin,conflicting,legacy,cat,{fetchedAt:input.fetchedAt}),/REGISTRATION_DB_CONTENT_CONFLICT/);
   const nextMetadata=structuredClone(metadata);nextMetadata.revision=2;nextMetadata.coins[0].notes.push('new revision');const nextSelection=await installRegistration(f.admin,nextMetadata,legacy,cat,{fetchedAt:'2026-10-22T08:30:00.000Z'});
+  const freshIndex=await readRegistrationIndex(reader);assert.equal(freshIndex.selectionId,nextSelection.selectionId);assert.equal(freshIndex.coins.find(c=>c.id==='jpyc').metrics.length,0);
   assert.equal((await read({selectionId:nextSelection.selectionId})).state,'MISSING');assert.equal((await read()).series[0].points[0].amount,'99');
   const unsafeCatalogue=catalogue();unsafeCatalogue.peggedAssets.find(c=>c.id==='355').chains.push('Unreviewed Network');unsafeCatalogue.peggedAssets.find(c=>c.id==='355').chainCirculating['Unreviewed Network']={current:{peggedJPY:'999999'}};
   const unsafe=await installRegistration(f.admin,metadata,legacy,bytes(unsafeCatalogue),{fetchedAt:'2026-10-22T08:00:00.000Z'});await assert.rejects(importRegistrationHistory(f.admin,{...input,selectionId:unsafe.selectionId}),/REGISTRATION_DB_REVIEW_REQUIRED/);

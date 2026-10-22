@@ -44,4 +44,4 @@ USDC·RLUSD도 같은 방식이다. 코인 하나의 두 지표는 같은 transa
 
 실제 DB reader의 금액·날짜·네트워크·누락 목록·원문 hash·조회 시각을 원문 preview와 모두 대조했다. 코인별 재수입의 추가 행0, JPY source와 기존 이력 불변, 실제 저장 크기를 로컬 `.state/agent-logs/top10-backfill-live.json`에 기록했다. 원문·receipt·해당 실행 보고서를 웹이나 Git에 게시하지 않는다.
 
-다음은 새 등록 영역의 최소 권한 일별 자동수집과 UI 연결이다. 현재 대시보드는 기존 조회 경로이므로 이 백필만으로 추가 네트워크가 화면에 나타나지는 않는다.
+백필 이후 [ADR0054](adr/0054-registered-supply-overview.md)에서 별도 UI 조회를 연결했다. 새 서버를 실행하면 Overview에서 추가 네트워크를 확인할 수 있다. 새 등록 영역의 최소 권한 일별 자동수집은 후속이다.

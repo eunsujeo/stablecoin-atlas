@@ -76,7 +76,9 @@ npm run market:registration:db -- import --selection <설치결과_selectionId> 
 npm run market:registration:db -- read --selection <selectionId> --coin jpyc --metric NETWORK_CIRCULATING --from 2025-10-22 --to 2026-10-22 --env-file <reader.env>
 ```
 
-기본 raw archive는 Git 제외 `.state/registration-artifacts`다. `--archive-dir`로 비공개 영속 경로를 지정할 수 있다. metadata/legacy는 저장소의 검토된 파일을 사용하며 임의 plan 입력/HTTP 수집/활성화 옵션은 없다. 상세 코인은 `jpyc`/`jpysc` 등 metadata에 등록된 ID이고 지표는 `NETWORK_CIRCULATING` 또는 `NETWORK_MINTED`다. 후자는 발행 잔액이다. 최대1년/10개 네트워크를 조회하며, 조회 결과 `sourceId`를 `--source-id`로 지정하면 정정 전 원문에 해당하는 저장값을 확인한다. source가 없으면 MISSING이며0이나 이전 네트워크 값으로 채우지 않는다. 날짜 필터는 저장 자료를 좁힐 뿐 현재 외부 값을 수집하지 않는다. 대시보드 전환은 후속 단계다.
+기본 raw archive는 Git 제외 `.state/registration-artifacts`다. `--archive-dir`로 비공개 영속 경로를 지정할 수 있다. metadata/legacy는 저장소의 검토된 파일을 사용하며 임의 plan 입력/HTTP 수집/활성화 옵션은 없다. 상세 코인은 `jpyc`/`jpysc` 등 metadata에 등록된 ID이고 지표는 `NETWORK_CIRCULATING` 또는 `NETWORK_MINTED`다. 후자는 발행 잔액이다. 최대1년/10개 네트워크를 조회하며, 조회 결과 `sourceId`를 `--source-id`로 지정하면 정정 전 원문에 해당하는 저장값을 확인한다. source가 없으면 MISSING이며0이나 이전 네트워크 값으로 채우지 않는다. 날짜 필터는 저장 자료를 좁힐 뿐 현재 외부 값을 수집하지 않는다.
+
+Overview 그래프 연결은 [ADR0054](adr/0054-registered-supply-overview.md)를 따른다. 기존 `npm run ui -- --database --database-env <reader.env>`로 실행하면 별도 공급량 조회 endpoint를 사용해5코인을 선택할 수 있다. 실행 중인 이전 서버는 재시작해야 새 endpoint가 활성화된다. market 시세 랭킹·기술 검증과 별도이며 새 등록 영역의 일별 자동 갱신 연결은 후속이다. 화면 조회는 공급자 호출을 실행하지 않는다.
 
 2026-10-22 Supabase 초기 적용: metadata1/selection1, JPYC4네트워크804점×2지표와 JPYSC1네트워크93점×2지표, 총1,794개 값·4source·4coverage를 저장했다. 같은 원문 재수입은 세 종류 모두 추가0이다. 당시 새 schema의 table/index/TOAST 합계는896KiB(그중 index344KiB)였다. 초기 검증은 [인계문](handoff/2026-10-22-registration-db-history.md)을 따른다.
 

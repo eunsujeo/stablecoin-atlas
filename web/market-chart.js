@@ -90,7 +90,7 @@ const percentLabel=value=>{const [whole,tail]=value.split('.');return whole+(tai
 export function renderNetworkSupplyChart(host,data,coinId,options={}){
   host.replaceChildren();const groups=networkSupplySeries(data,coinId,options);
   if(!groups.length){host.append(el('p','선택한 구간의 공급량 자료가 없습니다.','empty-state'));return;}
-  const colors=['#36a9ef','#e59827','#a681ee','#20ad8b','#e57796','#8caa39'];
+  const colors=['#36a9ef','#e59827','#a681ee','#20ad8b','#e57796','#8caa39','#df6541','#707be5','#b08a54','#a351a5'];
   const compact=host.clientWidth<600,right=compact?430:870,bottom=compact?240:280,width=compact?600:1040,height=compact?310:350;
   const rows=groups.flatMap(s=>s.rows).sort((a,b)=>Date.parse(a.observedAt)-Date.parse(b.observedAt));
   const g=supplyComparisonGeometry(groups,{right,bottom,comparison:options.comparison}),points=new Map(g.points.map(p=>[p.row,p])),relative=options.comparison==='change';
@@ -103,8 +103,13 @@ export function renderNetworkSupplyChart(host,data,coinId,options={}){
   g.groups.forEach((group,i)=>{
     group.points=group.rows.map(row=>points.get(row));const color=colors[i%colors.length],item=el('div',undefined,'network-chart-key'),swatch=el('span',undefined,'network-chart-swatch');swatch.style.background=color;
     item.append(swatch,el('strong',group.network.name),el('span',displayAmount(group.rows.at(-1).amount)));
+    if(['history','minted'].includes(options.source))item.append(el('small',group.rows.length===1?'1점 · 추세 미확보':group.rows[0].observedAt.slice(0,10)+' ~ '+group.rows.at(-1).observedAt.slice(0,10)+' · '+group.rows.length+'점'));
     const info=options.profileButton?.(group.deploymentId);if(info)item.append(info);legend.append(item);
-    const path=svg('polyline',{points:group.points.map(p=>`${p.x},${p.y}`).join(' '),fill:'none',stroke:color,'stroke-width':2.5,'stroke-linejoin':'round','data-network':group.network.id});figure.append(path);
+    const segments=dailySupplySegments(group.points,['history','minted'].includes(options.source));
+    for(const segment of segments){
+      if(segment.length>1)figure.append(svg('polyline',{points:segment.map(p=>`${p.x},${p.y}`).join(' '),fill:'none',stroke:color,'stroke-width':2.5,'stroke-linejoin':'round','data-network':group.network.id}));
+      else figure.append(svg('circle',{cx:segment[0].x,cy:segment[0].y,r:3,fill:color,'data-network':group.network.id}));
+    }
     const last=group.points.at(-1);figure.append(svg('circle',{cx:last.x,cy:last.y,r:3,fill:color}));
   });
   for(const index of new Set([0,Math.floor((g.rows.length-1)/2),g.rows.length-1])){const p=points.get(g.rows[index]);if(!p)continue;if(index!==0&&index!==g.rows.length-1&&(p.x-g.points[0].x<120||g.points.at(-1).x-p.x<120))continue;const text=svg('text',{x:p.x,y:bottom+42,'text-anchor':index===0?'start':index===g.rows.length-1?'end':'middle',class:'trend-axis'});text.textContent=['history','minted'].includes(options.source)?p.row.observedAt.slice(0,10):new Date(p.row.observedAt).toLocaleString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false});figure.append(text);}
@@ -113,5 +118,9 @@ export function renderNetworkSupplyChart(host,data,coinId,options={}){
   function pointer(event){const origin=figure.createSVGPoint();origin.x=event.clientX;origin.y=event.clientY;const matrix=figure.getScreenCTM();if(!matrix)return;const q=origin.matrixTransform(matrix.inverse());let distance=Infinity;g.groups.forEach((group,i)=>group.points.forEach((p,j)=>{const d=(p.x-q.x)**2+(p.y-q.y)**2;if(d<distance){distance=d;groupIndex=i;pointIndex=j;}}));select();tip.hidden=false;}
   select();figure.addEventListener('pointermove',pointer);figure.addEventListener('pointerdown',pointer);figure.addEventListener('pointerleave',()=>tip.hidden=true);figure.addEventListener('focus',()=>tip.hidden=false);figure.addEventListener('blur',()=>tip.hidden=true);
   figure.addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End','Escape'].includes(event.key))return;event.preventDefault();if(event.key==='Escape'){tip.hidden=true;return;}if(event.key==='ArrowUp')groupIndex=(groupIndex+g.groups.length-1)%g.groups.length;if(event.key==='ArrowDown')groupIndex=(groupIndex+1)%g.groups.length;const last=g.groups[groupIndex].points.length-1;pointIndex=Math.min(pointIndex,last);if(event.key==='ArrowLeft')pointIndex=Math.max(0,pointIndex-1);if(event.key==='ArrowRight')pointIndex=Math.min(last,pointIndex+1);if(event.key==='Home')pointIndex=0;if(event.key==='End')pointIndex=last;select();tip.hidden=false;});
-  host.append(legend,figure,tip,el('p','업데이트 '+(['history','minted'].includes(options.source)?rows.at(-1).observedAt.slice(0,10)+' · 일별 자료':when(rows.at(-1).observedAt)),'chart-updated'));
+  host.append(legend,figure,tip,el('p','업데이트 '+(data.registeredSupply&&data.updatedAt?when(data.updatedAt):['history','minted'].includes(options.source)?rows.at(-1).observedAt.slice(0,10)+' · 일별 자료':when(rows.at(-1).observedAt)),'chart-updated'));
+}
+
+export function dailySupplySegments(points,daily=true){
+ const result=[];for(const p of points){const group=result.at(-1),last=group?.at(-1);if(!group||daily&&Date.parse(p.row.observedAt)-Date.parse(last.row.observedAt)>86400000)result.push([p]);else group.push(p);}return result;
 }

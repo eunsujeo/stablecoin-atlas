@@ -103,13 +103,33 @@ async function verifyValues(client,coverage){
  })}));
 }
 
-export async function readRegistrationHistory(client,input){
- const filter=registrationFilter(input);
- return transaction(client,async()=>{
+async function authorizeRegistrationReader(client){
   await runtimeRole(client);await verifyRuntimeAccess(client);await verifyRegistration(client);
   const role=(await client.query('SELECT current_user AS name')).rows[0].name;
   await readerPrivileges(client,role);
   requireValue((await client.query('SELECT 1 FROM atlas_registration.reader_grant WHERE role_name=current_user')).rowCount,'REGISTRATION_DB_ACCESS_DENIED');
+}
+export async function readRegistrationIndex(client){
+ return transaction(client,async()=>{
+  await authorizeRegistrationReader(client);
+  const latest=(await client.query(`SELECT encode(id,'hex') AS id FROM atlas_registration.selection
+   WHERE metadata_id=(SELECT id FROM atlas_registration.metadata_revision ORDER BY revision DESC LIMIT 1)
+   ORDER BY fetched_at DESC,id DESC LIMIT 1`)).rows[0];
+  requireValue(latest,'REGISTRATION_DB_SELECTION_REQUIRED');
+  const c=await selectionContext(client,latest.id);await registryMatches(client,c.legacy);
+  const sources=(await client.query(`SELECT DISTINCT ON (coin,metric) coin,metric,encode(id,'hex') AS "sourceId",to_char(window_from,'YYYY-MM-DD') AS "from",to_char(window_to,'YYYY-MM-DD') AS "to"
+   FROM atlas_registration.daily_source WHERE selection_id=$1 ORDER BY coin,metric,fetched_at DESC,id DESC LIMIT 11`,[hex(latest.id)])).rows;
+  requireValue(sources.length<=10,'REGISTRATION_DB_RESPONSE_LIMIT');
+  return {schemaVersion:1,kind:'REGISTERED_SUPPLY_INDEX',selectionId:latest.id,
+   coins:c.plan.coins.map(coin=>({id:coin.coinId,symbol:coin.symbol,name:coin.name,pegCurrency:coin.pegCurrency,notes:coin.notes,
+    metrics:sources.filter(s=>s.coin===coin.coinId).map(({metric,from,to,sourceId})=>({metric,from,to,sourceId}))})),
+   networks:c.metadata.networks.map(({id,name})=>({id,name}))};
+ },{repeatableRead:true});
+}
+export async function readRegistrationHistory(client,input){
+ const filter=registrationFilter(input);
+ return transaction(client,async()=>{
+  await authorizeRegistrationReader(client);
   const c=await selectionContext(client,filter.selectionId);await registryMatches(client,c.legacy);
   const coin=c.plan.coins.find(coin=>coin.coinId===filter.coinId);requireValue(coin,'REGISTRATION_DB_FILTER_INVALID');
   const base={schemaVersion:1,coinId:coin.coinId,symbol:coin.symbol,pegCurrency:coin.pegCurrency,notes:coin.notes,contract:metricContract(filter.metric),selectionId:filter.selectionId,selectionState:coin.selection.state,selected:coin.selection.selected,excluded:coin.selection.excluded,from:filter.from,to:filter.to,activeInDashboard:false};

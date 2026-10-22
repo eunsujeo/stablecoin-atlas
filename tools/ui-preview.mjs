@@ -5,6 +5,7 @@ import { readFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import { workspaceEnvironment } from './workspace-env.mjs';
 import { databaseMarketReader } from './market-db/preview.mjs';
+import {databaseRegistrationReader,registrationRequest} from './market-db/registration-preview.mjs';
 
 const assets = new Map([
   ['/', ['../web/index.html', 'text/html; charset=utf-8']],
@@ -18,6 +19,7 @@ const assets = new Map([
   ['/token-profile-model.js', ['../web/token-profile-model.js', 'text/javascript; charset=utf-8']],
   ['/loading.js', ['../web/loading.js', 'text/javascript; charset=utf-8']],
   ['/overview.js', ['../web/overview.js', 'text/javascript; charset=utf-8']],
+  ['/registration-model.js', ['../web/registration-model.js', 'text/javascript; charset=utf-8']],
   ['/overview-model.js', ['../web/overview-model.js', 'text/javascript; charset=utf-8']],
   ['/market-view.js', ['../web/market-view.js', 'text/javascript; charset=utf-8']],
   ['/market-chart.js', ['../web/market-chart.js', 'text/javascript; charset=utf-8']],
@@ -26,7 +28,7 @@ const assets = new Map([
   ['/mock-data.json', ['../docs/ui/mock-dashboard-data.json', 'application/json; charset=utf-8']],
 ]);
 const csp = "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; object-src 'none'";
-export function createPreviewServer({ evidenceDirectory, marketDirectory, marketReader } = {}) {
+export function createPreviewServer({ evidenceDirectory, marketDirectory, marketReader, registrationReader } = {}) {
   const server = createServer(async (req, res) => {
     res.setHeader('Content-Security-Policy', csp);
     res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -41,6 +43,19 @@ export function createPreviewServer({ evidenceDirectory, marketDirectory, market
     const origins = new Set([...hosts].map(host => `http://${host}`));
     if (!hosts.has(req.headers.host) || (req.headers.origin !== undefined && !origins.has(req.headers.origin)) || req.headers['sec-fetch-site'] === 'cross-site') { fail(403, 'FORBIDDEN'); return; }
     if (req.method !== 'GET' && req.method !== 'HEAD') { res.setHeader('Allow', 'GET, HEAD'); fail(405, 'METHOD_NOT_ALLOWED'); return; }
+    if((req.url??'').split('?')[0].startsWith('/registration-')){
+      if((req.url??'').split('?')[0]==='/registration-model.js'){ /* Fixed JavaScript asset below. */ }
+      else{
+        try{registrationRequest(req.url);}catch{fail(400,'INVALID_SUPPLY_QUERY');return;}
+        if(!registrationReader){fail(404,'REGISTRATION_DISABLED');return;}
+        try{
+          const bytes=Buffer.from(JSON.stringify(await registrationReader(req.url)));
+          if(bytes.length>2*1024*1024)throw Error('READ_LIMIT');
+          res.writeHead(200,{'Content-Type':'application/json; charset=utf-8','Content-Length':bytes.length});res.end(req.method==='HEAD'?undefined:bytes);
+        }catch{fail(503,'SUPPLY_DATA_UNAVAILABLE');}
+        return;
+      }
+    }
     if (req.url === '/market-data.json') {
       try {
         const bytes = Buffer.from(JSON.stringify(await (marketReader ? marketReader() : publishedMarket(marketDirectory))));
@@ -95,7 +110,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     // An explicit file is authoritative; inherited writer credentials cannot override it.
     const env=args.database?await workspaceEnvironment(args.envFile,args.envFile?{}:process.env):undefined;
     if(args.database&&!env.DATABASE_URL)throw new Error('DATABASE_CONFIG_REQUIRED');
-    const server = await startPreviewServer(args.port,args.database?{marketReader:databaseMarketReader({env})}:{});
+    const server = await startPreviewServer(args.port,args.database?{marketReader:databaseMarketReader({env}),registrationReader:databaseRegistrationReader({env})}:{});
     console.log(`Local preview: http://127.0.0.1:${server.address().port} (${args.database?'PostgreSQL read-only':'local JSON'})`);
     for (const signal of ['SIGINT', 'SIGTERM']) process.once(signal, () => { server.close(() => { process.exitCode = 0; }); server.closeIdleConnections(); });
   } catch { console.error('Preview could not start. Check the port or use --port 0.'); process.exitCode = 1; }
