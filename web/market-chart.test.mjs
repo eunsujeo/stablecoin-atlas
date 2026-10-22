@@ -28,3 +28,13 @@ test('DB history uses the declared query window and excludes old pinned latest v
   assert.deepEqual(chartHistory(data,recent,'7d').map(o=>o.amount),['2']);
   assert.deepEqual(chartHistory({...data,observations:[old]},old),[]);
 });
+
+test('supply charts use a zero baseline without exaggerating tiny source changes or altering exact values',()=>{
+  const values=['2356032947.1616707','2356032947.1616708'];
+  const rows=values.map((value,i)=>row(value,i+1));
+  const g=chartGeometry(rows,{zeroBaseline:true});
+  assert.equal(g.ticks[0].amount,'0');
+  assert.ok(g.points[0].y-g.points[1].y<0.000001);
+  assert.deepEqual(g.points.map(p=>p.row.amount),values);
+  assert.equal(g.direction,'up');
+});

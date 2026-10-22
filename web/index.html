@@ -14,8 +14,8 @@
     <a class="brand" href="#main"><span class="brand-mark">A</span><span>STABLECOIN<small>ATLAS / LAB</small></span></a>
     <p class="eyebrow">WORKSPACE</p>
     <nav>
-      <a class="nav-link active" href="#overview" data-screen="overview"><span aria-hidden="true">◈</span><span>Overview<small>종합 결과 · 순위</small></span></a>
-      <a class="nav-link" href="#validation" data-screen="validation"><span aria-hidden="true">✓</span><span>Validation<small>검증 항목 현황</small></span></a>
+      <a class="nav-link active" href="#overview" data-screen="overview"><span aria-hidden="true">◈</span><span>Overview<small>시장 흐름 · 공급량</small></span></a>
+      <a class="nav-link" href="#validation" data-screen="validation"><span aria-hidden="true">✓</span><span>Validation<small>전문가용 · 기술 검증</small></span></a>
       <a class="nav-link" href="#assets" data-screen="assets"><span aria-hidden="true">▤</span><span>Asset profiles<small>자산 프로필</small></span></a>
       <button class="nav-link" data-screen="compare"><span aria-hidden="true">⇄</span><span>Compare<small>자산 비교</small></span></button>
       <button class="nav-link" data-screen="reports"><span aria-hidden="true">▧</span><span>Evidence<small>근거 · 보고서</small></span></button>
@@ -25,10 +25,22 @@
     <div class="sidebar-bottom"><div class="preview-note"><span class="eyebrow">LOCAL PREVIEW</span><strong>저장 데이터 기반 웹</strong><small>검증 근거 / 실제 시장 / 목데이터</small></div><button class="primary-button" data-screen="reports">근거 · 보고서 보기 ↗</button><small class="muted">ATLAS / EVIDENCE LAB</small></div>
   </aside>
   <main id="main" tabindex="-1">
-    <section id="overview-screen" hidden aria-label="종합 결과와 자산·네트워크 검증 순위">
-      <header class="page-header"><div><p class="eyebrow">WORKSPACE / OVERVIEW</p><h1>전체 현황</h1><p class="muted">검증 결과와 스테이블코인 시장을 한눈에 봅니다.</p></div><div class="header-actions"><button id="overview-reload" class="quiet-button">전체 다시 읽기 ↻</button><button id="overview-theme" class="quiet-button">☀ 라이트</button></div></header>
+    <section id="overview-screen" hidden aria-label="스테이블코인 시장 흐름과 공급량 현황">
+      <header class="page-header"><div><p class="eyebrow">WORKSPACE / OVERVIEW</p><h1>전체 현황</h1><p class="muted">스테이블코인 유통량의 변화와 네트워크별 공급 현황을 살펴봅니다.</p></div><div class="header-actions"><button id="overview-reload" class="quiet-button">전체 다시 읽기 ↻</button><button id="overview-theme" class="quiet-button">☀ 라이트</button></div></header>
       <p id="overview-status" class="status" role="status">저장된 자료를 읽습니다.</p><p id="overview-error" class="error-message" role="alert" hidden></p>
-      <div class="section-toolbar overview-scope"><span class="muted">실제 자산의 검증 결과</span><input type="hidden" id="overview-scope" value="STORED_READ_ONLY"><a class="text-link" href="#validation">검증 항목 전체 보기 →</a></div>
+      <section class="panel overview-market-hero">
+        <div class="panel-heading"><div><p class="eyebrow">STABLECOIN SUPPLY</p><h2>유통량 추이</h2><p>선택한 코인의 전체 네트워크 유통량 · tokens</p></div><label class="market-select"><span class="sr-only">유통량을 볼 코인</span><select id="overview-trend-coin"></select></label></div>
+        <div id="overview-trend-period" class="chart-filters" aria-label="유통량 조회 기간"><button data-period="24h" aria-pressed="false">24H</button><button data-period="7d" aria-pressed="false">7D</button><button data-period="30d" aria-pressed="true">30D</button></div>
+        <div class="overview-market-grid"><div><div id="overview-market-trend"></div><p id="overview-trend-note" class="chart-note"></p></div><aside class="overview-chain-panel"><h3>네트워크별 공급량</h3><p class="muted">같은 코인의 체인별 총공급량 비교</p><div id="overview-chain-breakdown"></div><a href="#live" class="text-link">네트워크 · 원본 상세 →</a></aside></div>
+      </section>
+      <div class="panel-heading overview-market-heading"><div><h2>스테이블코인 시장</h2><p>등록된 스테이블코인 중 지표가 확인된 자료 · 서로 다른 지표는 합산하지 않습니다.</p></div><a href="#live" class="text-link">시장 상세 →</a></div>
+      <div class="overview-rankings">
+        <section class="panel"><div class="panel-heading"><div><h2>유통량 랭킹</h2><p>코인 전체 · circulatingSupply · tokens</p></div></div><ol id="overview-circulating" class="overview-ranking"></ol><p id="overview-circulating-note" class="chart-note"></p></section>
+        <section class="panel"><div class="panel-heading"><div><h2>거래량 랭킹</h2><p>집계 기간·단위 확인 후 비교합니다.</p></div></div><div id="overview-volume" class="overview-volume"></div></section>
+        <section class="panel"><div class="panel-heading"><div><h2>총공급량 랭킹</h2><p>현재 총공급량 · totalSupply · tokens</p></div></div><ol id="overview-total" class="overview-ranking"></ol><p id="overview-total-note" class="chart-note"></p></section>
+      </div>
+      <details id="overview-technical" class="overview-technical"><summary><span>기술 검증 현황</span><small>개발자 · 전문가용 · 검토 범위와 항목별 판정</small></summary>
+      <div class="section-toolbar overview-scope"><span id="overview-scope-summary" class="muted">검토한 자산 · 네트워크 범위</span><input type="hidden" id="overview-scope" value="STORED_READ_ONLY"><a class="text-link" href="#validation">검증 항목 전체 보기 →</a></div>
       <div id="overview-metrics" class="metrics overview-metrics"></div>
       <section class="panel overview-results"><div class="panel-heading"><div><h2>검증 결과</h2><p id="overview-result-note">범위별 최신 실행의 결과를 표시합니다.</p></div></div><div id="overview-verdicts" class="overview-verdicts"></div></section>
       <div class="panel-heading overview-validation-heading"><div><h2>자산 · 네트워크 검증 랭킹</h2><p>선택 범위의 최신 보고서 · 항목 수를 합산해 통과 점수와 판정 완료 비율을 계산합니다.</p></div><label>순위 기준<select id="overview-rank-metric"><option value="score">통과 점수 높은 순</option><option value="coverage">판정 완료 비율 높은 순</option></select></label></div>
@@ -37,13 +49,8 @@
         <section class="panel"><div class="panel-heading"><div><h2>네트워크별 랭킹</h2><p>같은 체인·네트워크 ID의 자산별 근거를 합산</p></div></div><div class="overview-evidence-columns" aria-hidden="true"><span>순위 · 네트워크</span><span>통과 점수</span><span>판정 완료</span></div><ol id="overview-network-ranking" class="overview-ranking"></ol></section>
       </div>
       <p class="chart-note overview-evidence-note">통과 점수 = PASS / (PASS + FAIL), 판정 완료 = (PASS + FAIL) / 비적용 제외 항목. 미산정은 순위를 부여하지 않으며 정확한 비율이 같으면 공동 순위입니다. 항목 구성과 표본 수가 서로 다릅니다. 행을 누르면 해당 근거를 봅니다.</p>
-      <div class="panel-heading overview-market-heading"><div><h2>시장 참고 지표</h2><p>등록된 스테이블코인 중 지표가 확인된 자료 · 서로 다른 지표는 합산하지 않습니다.</p></div><a href="#live" class="text-link">시장 상세 →</a></div>
-      <div class="overview-rankings">
-        <section class="panel"><div class="panel-heading"><div><h2>유통량 랭킹</h2><p>코인 전체 · circulatingSupply · tokens</p></div></div><ol id="overview-circulating" class="overview-ranking"></ol><p id="overview-circulating-note" class="chart-note"></p></section>
-        <section class="panel"><div class="panel-heading"><div><h2>거래량 랭킹</h2><p>집계 기간·단위 확인 후 비교합니다.</p></div></div><div id="overview-volume" class="overview-volume"></div></section>
-        <section class="panel"><div class="panel-heading"><div><h2>총발행량 랭킹</h2><p>현재 총공급량 · totalSupply · tokens</p></div></div><ol id="overview-total" class="overview-ranking"></ol><p id="overview-total-note" class="chart-note"></p></section>
-      </div>
-      <details class="panel overview-methods"><summary>점수·등급 산정 기준</summary><p>정책 SCENARIO_SUCCESS_V1 · 확정 판정 중 시나리오 통과 비율입니다. 자산 안전성·지원 등급을 뜻하지 않습니다.</p><p>통과 점수 = PASS ÷ (PASS + FAIL) × 100, 소수점 버림. 판정 완료 비율 = (PASS + FAIL) ÷ (NOT_APPLICABLE 제외 항목) × 100입니다. INCONCLUSIVE·NOT_TESTED·UNSUPPORTED는 통과로 취급하지 않으며 별도로 표시합니다. 판정 완료 항목이 없으면 점수·등급이 없습니다.</p><p>등급은 A ≥ 90, B ≥ 80, C ≥ 70, D ≥ 60, F &lt; 60입니다. 미확인·미실행 항목이 남으면 잠정 등급입니다. 같은 자산·체인 식별자의 최신 보고서만 집계합니다. 점수는 선택된 시나리오의 통과 비율이며 자산 안전성·신용도·금융기관 취급 승인이 아닙니다.</p><p>유통량, 현재 총공급량, 기간 중 신규 발행량은 다른 지표입니다. 이 화면의 총발행량은 공급자의 현재 totalSupply이며 기간 중 민팅·소각 흐름을 뜻하지 않습니다. XRPL obligations를 더하거나 차감하지 않습니다. totalVolume은 기간·단위가 확인되지 않아 순위를 만들지 않습니다.</p><h3>현재 집계한 최신 보고서</h3><ul id="overview-selected-reports"></ul></details>
+      <details class="panel overview-methods"><summary>점수·등급 산정 기준</summary><p>정책 SCENARIO_SUCCESS_V1 · 확정 판정 중 시나리오 통과 비율입니다. 자산 안전성·지원 등급을 뜻하지 않습니다.</p><p>통과 점수 = PASS ÷ (PASS + FAIL) × 100, 소수점 버림. 판정 완료 비율 = (PASS + FAIL) ÷ (NOT_APPLICABLE 제외 항목) × 100입니다. INCONCLUSIVE·NOT_TESTED·UNSUPPORTED는 통과로 취급하지 않으며 별도로 표시합니다. 판정 완료 항목이 없으면 점수·등급이 없습니다.</p><p>등급은 A ≥ 90, B ≥ 80, C ≥ 70, D ≥ 60, F &lt; 60입니다. 미확인·미실행 항목이 남으면 잠정 등급입니다. 같은 자산·체인 식별자의 최신 보고서만 집계합니다. 점수는 선택된 시나리오의 통과 비율이며 자산 안전성·신용도·금융기관 취급 승인이 아닙니다.</p><p>유통량, 현재 총공급량, 기간 중 신규 발행량은 다른 지표입니다. 이 화면의 총공급량은 공급자의 현재 totalSupply이며 기간 중 민팅·소각 흐름을 뜻하지 않습니다. XRPL obligations를 더하거나 차감하지 않습니다. totalVolume은 기간·단위가 확인되지 않아 순위를 만들지 않습니다.</p><h3>현재 집계한 최신 보고서</h3><ul id="overview-selected-reports"></ul></details>
+      </details>
     </section>
     <section id="evidence-workspace" aria-label="실제 저장된 검증 근거">
       <header class="page-header"><div><p class="eyebrow">WORKSPACE / VALIDATION EVIDENCE</p><h1 id="workspace-title">항목별 검증 근거</h1><p class="muted">로컬에서 검증하고, 문서로 보존하고, 항목별로 확인합니다.</p></div><div class="header-actions"><span class="evidence-badge">STORED EVIDENCE</span><button id="evidence-reload" class="quiet-button">근거 다시 읽기 ↻</button><button id="evidence-theme" class="quiet-button">☀ 라이트</button></div></header>

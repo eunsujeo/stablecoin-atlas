@@ -12,10 +12,10 @@ export function chartHistory(data,observation,period='all'){
   const span={'24h':86400000,'7d':7*86400000,'30d':30*86400000}[period],end=Date.parse(data.readState?.historyTo??rows.at(-1).observedAt);
   return rows.filter(row=>Date.parse(row.observedAt)>=end-span);
 }
-export function chartGeometry(rows,{left=32,right=870,top=28,bottom=280}={}){
+export function chartGeometry(rows,{left=32,right=870,top=28,bottom=280,zeroBaseline=false}={}){
   if(!rows.length)return {points:[],ticks:[],direction:'flat'};
   const amounts=rows.map(r=>units(r.amount)),low=amounts.reduce((a,b)=>a<b?a:b),high=amounts.reduce((a,b)=>a>b?a:b);
-  const padding=high===low?(high/10000n||1n):((high-low)/10n||1n),min=low>padding?low-padding:0n,max=high+padding,span=max-min||1n;
+  const padding=high===low?(high/10000n||1n):((high-low)/10n||1n),min=zeroBaseline?0n:low>padding?low-padding:0n,max=high+padding,span=max-min||1n;
   const start=Date.parse(rows[0].observedAt),end=Date.parse(rows.at(-1).observedAt);
   const points=rows.map((row,i)=>({row,x:start===end?(left+right)/2:left+(Date.parse(row.observedAt)-start)/(end-start)*(right-left),y:bottom-Number((amounts[i]-min)*1000000n/span)/1000000*(bottom-top)}));
   const ticks=Array.from({length:5},(_,i)=>({y:bottom-i*(bottom-top)/4,amount:decimalUnits(min+span*BigInt(i)/4n)}));
@@ -35,13 +35,13 @@ export function renderMarketChart(host,data,observation,{period='all',onDetail}=
   host.replaceChildren();const rows=chartHistory(data,observation,period);
   if(!rows.length){host.append(el('p','선택한 지표의 저장 이력이 없습니다.','empty-state'));return;}
   const compact=host.clientWidth<600,right=compact?430:870,bottom=compact?240:280,width=compact?600:1040,height=compact?310:350;
-  const g=chartGeometry(rows,{right,bottom}),unit=observation.unit,latest=rows.at(-1),heading=el('div',undefined,'trend-summary');
+  const unit=observation.unit,zeroBaseline=unit!=='USD',g=chartGeometry(rows,{right,bottom,zeroBaseline}),latest=rows.at(-1),heading=el('div',undefined,'trend-summary');
   heading.append(el('strong',valueLabel(latest.amount,unit),'trend-value'));
   if(rows.length>1){const delta=units(latest.amount)-units(rows[0].amount),absolute=decimalUnits(delta<0n?-delta:delta);heading.append(el('span',`관측 구간 ${delta>0n?'+':delta<0n?'−':''}${valueLabel(absolute,unit)}`,'trend-change trend-'+g.direction));}
   else heading.append(el('span','단일 관측 · 추세 미확보','trend-change'));
   heading.append(el('small','마지막 저장 '+when(latest.observedAt)));host.append(heading);
   const figure=svg('svg',{viewBox:`0 0 ${width} ${height}`,role:'group',tabindex:0,'aria-label':`${unit==='USD'?'가격':'공급량'} 저장 이력 ${rows.length}점. 좌우 화살표로 관측 선택, Home 처음, End 마지막.`});figure.classList.add('market-price-chart','trend-'+g.direction);
-  const id='market-trend-fill',defs=svg('defs'),gradient=svg('linearGradient',{id,x1:0,y1:0,x2:0,y2:1});gradient.append(svg('stop',{offset:'0%','stop-color':'currentColor','stop-opacity':'.23'}),svg('stop',{offset:'100%','stop-color':'currentColor','stop-opacity':'.01'}));defs.append(gradient);figure.append(defs);
+  const id=(host.id||'market')+'-trend-fill',defs=svg('defs'),gradient=svg('linearGradient',{id,x1:0,y1:0,x2:0,y2:1});gradient.append(svg('stop',{offset:'0%','stop-color':'currentColor','stop-opacity':'.23'}),svg('stop',{offset:'100%','stop-color':'currentColor','stop-opacity':'.01'}));defs.append(gradient);figure.append(defs);
   for(const tick of g.ticks){figure.append(svg('line',{x1:32,x2:right,y1:tick.y,y2:tick.y,class:'grid-line'}));const text=svg('text',{x:right+20,y:tick.y+4,class:'trend-axis'});const amount=displayAmount(tick.amount).replace(/(\.\d{6})\d+/, '$1…');text.textContent=(unit==='USD'?'$':'')+amount;figure.append(text);}
   const coordinates=g.points.map(p=>`${p.x},${p.y}`).join(' ');
   if(g.points.length>1){figure.append(svg('polygon',{points:`${g.points[0].x},${bottom} ${coordinates} ${g.points.at(-1).x},${bottom}`,fill:`url(#${id})`}));figure.append(svg('polyline',{points:coordinates,fill:'none',stroke:'currentColor','stroke-width':2.5,'stroke-linejoin':'round','stroke-linecap':'round'}));}
@@ -54,5 +54,5 @@ export function renderMarketChart(host,data,observation,{period='all',onDetail}=
   figure.addEventListener('keydown',event=>{const next={ArrowLeft:Math.max(0,selected-1),ArrowRight:Math.min(g.points.length-1,selected+1),Home:0,End:g.points.length-1}[event.key];if(next!==undefined){event.preventDefault();select(next);}});
   button.addEventListener('click',()=>onDetail?.(g.points[selected].row,button));
   host.append(figure,readout);if(onDetail)host.append(button);
-  host.append(el('p',`${rows.length}개 저장 관측 · 마지막 저장 관측 기준 구간 · 세로축 확대 (0 기준 아님). 선은 관측점 사이를 연결하며 중간 시세를 나타내지 않습니다. 마우스·터치 또는 키보드 ← →로 정확한 값을 확인하세요.`,'chart-note'));
+  host.append(el('p',`${rows.length}개 저장 관측 · ${data.readState?'DB 조회 시각 기준 구간':'마지막 저장 관측 기준 구간'} · ${zeroBaseline?'공급량 세로축은 0 기준':'가격 세로축 확대 (0 기준 아님)'}. 선은 관측점 사이를 연결하며 중간 시세를 나타내지 않습니다. 마우스·터치 또는 키보드 ← →로 정확한 값을 확인하세요.`,'chart-note'));
 }

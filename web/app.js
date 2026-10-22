@@ -1,3 +1,10 @@
+// Native selects may retain :focus-visible after a pointer opens their picker.
+// Keep keyboard focus visible without leaving a ring after mouse/touch selection.
+document.addEventListener('pointerdown', () => { document.documentElement.dataset.inputMode = 'pointer'; }, { capture: true });
+document.addEventListener('keydown', event => {
+  if (!event.metaKey && !event.ctrlKey && !event.altKey) document.documentElement.dataset.inputMode = 'keyboard';
+}, { capture: true });
+
 import { ASSETS, validateMock, sumSupply, sortSupply, selectRows, historyFor, percent, exact, compact, coordinate } from './model.js';
 const $ = selector => document.querySelector(selector);
 const state = { data: null, mode: 'coins', asset: 'all', focusAsset: 'USDT', ascending: false, search: '', loadedAt: null, loading: false };

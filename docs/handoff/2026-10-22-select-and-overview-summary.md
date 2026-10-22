@@ -1,0 +1,9 @@
+# 선택 상자와 전체 현황 요약 정리
+- 목표: 선택 상자 디자인/마우스 선택 뒤 보라색 테두리 제거, 사용자 후속 정정에 따라 Overview를 시장 흐름 중심으로 바꾸고 기술 검증을 전문가용 보조 영역으로 구분한다. 사용자 기존 지시에 따라 완료 후 push.
+- 끝난 것: 공통 native select에 테마 배경/10px 모서리/여백/화살표/hover 적용. pointerdown과 키보드 입력 방식을 구분해 마우스·터치 선택 후 테두리를 없애고 Tab 키보드 포커스는 teal2px 유지한다. blur 강제나 커스텀 목록은 추가하지 않았다. Overview 첫 화면은 코인별 유통량 차트(24H/7D/30D)·같은 요청 그룹의 네트워크별 총공급량 비교·시장 랭킹이다. 기술 검증은 기본 접힌 전문가용 영역으로 내리고 상세 메뉴를 유지한다. 기술 요약 첫 두 카드는 최신 실제 보고서 기준 자산3개/네트워크4개, 범위 문구는8개 프로필도 표시한다. 현재 총공급량을 신규 발행량으로 표시하지 않도록 명칭 정리. 거래량 정의와 발행/소각 수집은 미확보다. 차트 재사용 시 SVG gradient ID를 host별로 분리했다. 공급량 차트는0기준으로 미세한 수량 변화를 과장하지 않고 가격은 기존 확대 축을 유지한다.
+- 변경 파일: web/styles.css, web/app.js, web/index.html, web/overview.js, web/market-chart.js, web/market-chart.test.mjs, docs/MARKET_CHARTS.md, docs/DEVELOPMENT_STATUS.md, docs/adr/0043-overview-asset-network-rankings.md, docs/handoff/2026-10-22-select-and-overview-summary.md.
+- 검증: npm run check rc=0 tests263/pass263/fail0/cancelled0/skipped0(.state/agent-logs/select-overview-check.log). node .state/select-overview-browser-qa.mjs http://127.0.0.1:4173 rc=0 PASS: 시장 우선/기술 영역 기본 접힘/코인별 차트·네트워크 전환/다크/라이트의 선택 후 focus 유지+outline 없음/실제 Tab 왕복2px 키보드 표시/화살표·여백/3자산4네트워크8프로필·코인 전환·390px·조회 실패 유지·외부 페이지 요청0(.state/agent-logs/select-overview-browser.log). git diff --check rc=0.
+- 기다리는 것: 기존 DB 미리보기 PID96167/세션41199와 DB scheduler PID61634/세션14126은 유지하며 이 작업에서 수집을 재시작하지 않았다. scheduler는 기본12회 후 종료다. 기존 미추적 docs/handoff/2026-10-22-router-lead-review.md는 손대지 않았다. 신규 Lead/추가 agent 없음.
+- 다음 행동: 현재 화면에서 사용자가 검토. DB/배포 후속은 이전 인계문의 범위를 따른다. 기술 검증을 첫 화면의 핵심으로 되돌리지 않는다. 기본 ui는 JSON이며 현재4173은 명시 DB reader 모드다. 이후에도 사용자는 완료 후 검증/commit/push를 요청했다.
+- 사용자 확인 필요: 아니오
+- 읽을 파일: docs/adr/0043-overview-asset-network-rankings.md, docs/handoff/2026-10-22-database-market-preview.md, docs/SUPABASE_SETUP.md

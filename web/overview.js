@@ -1,10 +1,10 @@
-import {sparkline} from './market-chart.js';
+import {sparkline, renderMarketChart} from './market-chart.js';
 import { dashboardEvidence, VERDICTS, reportLinks } from './evidence-model.js';
-import { validateMarket, displayAmount, latest } from './market-model.js';
+import { validateMarket, displayAmount, latest, rank, ratio } from './market-model.js';
 import { overviewSummary, overviewRanking, overviewEvidenceRanking } from './overview-model.js';
 const $=selector=>document.querySelector(selector);
 const node=(tag,text,cls)=>{const el=document.createElement(tag);if(text!==undefined)el.textContent=String(text);if(cls)el.className=cls;return el;};
-const state={index:null,market:null,loading:false,loaded:false};
+const state={index:null,market:null,loading:false,loaded:false,period:'30d'};
 const when=value=>new Date(value).toLocaleString('ko-KR',{hour12:false});
 const labels={PASS:'통과',FAIL:'실패',INCONCLUSIVE:'판정 불충분',NOT_TESTED:'미검증',NOT_APPLICABLE:'비적용',UNSUPPORTED:'지원 범위 밖'};
 async function json(path){
@@ -16,15 +16,18 @@ async function json(path){
 }
 function renderEvidence(){
   const host=$('#overview-metrics'),verdicts=$('#overview-verdicts');host.replaceChildren();verdicts.replaceChildren();
-  if(!state.index){host.append(node('p','저장된 검증 근거가 없습니다. 점수와 등급을 산정하지 않습니다.','semantic-note'));return;}
+  if(!state.index){$('#overview-scope-summary').textContent='검토 범위 · 자료 미확보';host.append(node('p','저장된 검증 근거가 없습니다. 점수와 등급을 산정하지 않습니다.','semantic-note'));return;}
   const summary=overviewSummary(state.index,$('#overview-scope').value);
+  const assets=new Set(summary.reports.map(r=>r.asset).filter(Boolean));
+  const networks=new Set(summary.reports.filter(r=>r.chain&&r.identity?.networkId).map(r=>JSON.stringify([r.chain,r.identity.networkId])));
+  $('#overview-scope-summary').textContent=`검토 범위 · ${assets.size}개 자산 · ${networks.size}개 네트워크 · ${summary.reports.length}개 자산·네트워크 프로필`;
   const grade=summary.grade===null?'등급 없음':`${summary.provisional?'잠정 ':''}${summary.grade}`;
   for(const [label,value,note,cls] of [
-    ['확정 판정 중 통과 점수',summary.score===null?'미산정':`${summary.score} / 100`,`${grade} · PASS ${summary.counts.PASS} / 판정 완료 ${summary.decisive}`,'lead-purple'],
-    ['판정 완료 비율',summary.coverage===null?'미산정':`${summary.coverage}%`,`${summary.decisive} / 대상 ${summary.applicable}개 · 비적용 제외`,'lead-teal'],
-    ['실패 시나리오',summary.counts.FAIL,'자산 안전성 점수와 별도',''],
-    ['집계 보고서',summary.reports.length,`선택 ${summary.total} / 전체 ${state.index.items.length}개 항목`,''],
-  ]){const card=node('article',undefined,`metric-card ${cls}`),valueRow=node('div',undefined,'metric-value');valueRow.append(node('strong',value));if(cls==='lead-purple')valueRow.append(node('span',grade,'grade'));card.append(node('p',label),valueRow,node('p',note));host.append(card);}
+    ['검토한 자산',`${assets.size}개`,[...assets].join(' · ')||'자산 식별 정보 미확보','lead-purple'],
+    ['검토한 네트워크',`${networks.size}개`,`${summary.reports.length}개 자산·네트워크 프로필 · 저장된 조회 근거`,'lead-teal'],
+    ['판정 완료 비율',summary.coverage===null?'미산정':`${summary.coverage}%`,`${summary.decisive} / 대상 ${summary.applicable}개 · 비적용 제외`,''],
+    ['확정 판정 중 통과 점수',summary.score===null?'미산정':`${summary.score} / 100`,`${grade} · PASS ${summary.counts.PASS} / 판정 완료 ${summary.decisive}`,''],
+  ]){const card=node('article',undefined,`metric-card ${cls}`),valueRow=node('div',undefined,'metric-value');valueRow.append(node('strong',value));if(label==='확정 판정 중 통과 점수')valueRow.append(node('span',grade,'grade'));card.append(node('p',label),valueRow,node('p',note));host.append(card);}
   for(const verdict of VERDICTS){const button=node('button',undefined,`overview-verdict verdict-${verdict.toLowerCase()}`);button.append(node('span',labels[verdict]),node('strong',summary.counts[verdict]),node('small',verdict));button.addEventListener('click',()=>document.dispatchEvent(new CustomEvent('atlas:show-verdict',{detail:{scope:summary.scope,verdict,reportIds:summary.reports.map(r=>r.id)}})));verdicts.append(button);}
   $('#overview-result-note').textContent=`${summary.scope==='LOCAL_FIXTURE'?'로컬 테스트용 토큰 검사':'실제 자산의 저장된 읽기'} · ${summary.provisional?'미확인·미실행 항목이 남아 잠정 등급입니다.':'선택 범위의 판정 결과입니다.'} 실행 오류 ${summary.executionCounts.ERROR} · 미실행 ${summary.executionCounts.NOT_EXECUTED}건. ${summary.scope==='LOCAL_FIXTURE'?'의도적으로 실패하게 만든 검사도 FAIL로 표시합니다. 이는 검사 프로그램 자체의 오류와는 다릅니다. ':''}결과를 누르면 항목별 근거로 이동합니다.`;
   const reports=$('#overview-selected-reports');reports.replaceChildren();for(const report of summary.reports){const item=node('li'),link=node('a',report.label+' · '+when(report.completedAt));link.href=reportLinks(report.id).document;link.target='_blank';link.rel='noopener noreferrer';item.append(link);reports.append(item);}
@@ -48,7 +51,30 @@ function renderEvidenceRankings(){
     if(!rows.length)host.append(node('li','저장된 검증 근거 없음','overview-empty'));
   }
 }
+function renderMarketTrend(){
+  const host=$('#overview-market-trend'),chains=$('#overview-chain-breakdown'),note=$('#overview-trend-note');
+  host.replaceChildren();chains.replaceChildren();
+  if(!state.market){host.append(node('p','시장 자료를 읽으면 유통량 추이를 표시합니다.','empty-state'));note.textContent='시장 자료 미확보';return;}
+  const data=state.market,coinId=$('#overview-trend-coin').value;
+  const observation=latest(data,{coinId,metric:'CIRCULATING'})[0];
+  renderMarketChart(host,data,observation,{period:state.period});
+  const read=data.readState;
+  note.textContent=read?`PostgreSQL 조회 · ${when(read.historyFrom)} → ${when(read.historyTo)} · ${read.sampled?'실제 관측 표본':'저장 관측'} · 시리즈별 최대 ${read.pointsPerSeries}점`:'저장된 관측 시각 기준 · 확보한 이력만 표시합니다.';
+  const rows=rank(data,coinId);
+  for(const row of rows){
+    const network=data.registry.networks.find(n=>n.id===row.networkId),item=node('div',undefined,'overview-chain-item'),heading=node('div');
+    heading.append(node('strong',network.name),node('span',displayAmount(row.amount)));
+    const track=node('div',undefined,'track'),fill=node('span',undefined,'track-fill');fill.style.width=ratio(row.amount,rows[0].amount)+'%';track.append(fill);item.append(heading,track);chains.append(item);
+  }
+  if(!rows.length)chains.append(node('p','체인별 공급량 미확보','muted'));
+  chains.append(node('p','체인별 총공급량은 코인 전체 유통량과 별도 지표입니다. 확보한 네트워크만 표시합니다.','chart-note'));
+}
 function renderMarket(){
+  const select=$('#overview-trend-coin'),previous=select.value;select.replaceChildren();
+  for(const coin of state.market?.registry.coins??[]){const option=node('option',coin.symbol);option.value=coin.id;select.append(option);}
+  if(state.market?.registry.coins.some(c=>c.id===previous))select.value=previous;
+  select.disabled=!state.market;
+  renderMarketTrend();
   for(const [metric,target] of [['CIRCULATING','circulating'],['COIN_TOTAL','total']]){
     const host=$('#overview-'+target);host.replaceChildren();
     const rows=state.market?overviewRanking(state.market,metric):[];
@@ -88,3 +114,8 @@ const theme=()=>{$('#overview-theme').textContent=document.documentElement.datas
 new MutationObserver(theme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});theme();
 document.addEventListener('atlas:navigate',activate);activate();
 setInterval(()=>{if(!$('#overview-screen').hidden&&!document.hidden)load();},60000);
+
+$('#overview-trend-coin').addEventListener('change',renderMarketTrend);
+$('#overview-trend-period').addEventListener('click',event=>{const button=event.target.closest('button[data-period]');if(!button)return;state.period=button.dataset.period;for(const item of $('#overview-trend-period').querySelectorAll('button'))item.setAttribute('aria-pressed',String(item===button));renderMarketTrend();});
+let overviewTrendWidth=0;
+new ResizeObserver(entries=>{const width=Math.round(entries[0].contentRect.width);if(width>0&&width!==overviewTrendWidth){overviewTrendWidth=width;renderMarketTrend();}}).observe($('#overview-market-trend'));
