@@ -1,6 +1,6 @@
 # 새 Supabase 프로젝트 연결
 
-2026-10-22 실제 연결 확인: PostgreSQL17.11, 인증서 검증 TLS·session pooler, schema v1 초기화·2026-10/11 파티션·writer/reader 로그인과 두 달의 읽기 전용 READY 점검을 완료했다. 현재 `.env.local`은 writer 계정이다. 실제 시장 데이터 이전·DB 모드 자동 수집·웹의 DB 조회는 아직 실행하지 않았다.
+2026-10-22 실제 연결 확인: PostgreSQL17.11, 인증서 검증 TLS·session pooler, schema v1 초기화·2026-10/11 파티션·writer/reader 로그인과 두 달의 읽기 전용 READY 점검을 완료했다. 현재 `.env.local`은 writer 계정이다. 후속 단계에서 기존18파일의246관측/42네트워크 이력을 이전하고 전체 재import 중복 방지·원본/시각 보존을 확인했다. DB 모드5분 수집도 실행 중이며 이후 누적 수량/실행 상태는 최신 인계문과 상태 파일을 따른다. 웹은 아직 JSON 조회다.
 
 이번 관리 작업의 역할 비밀번호는 로컬에서 생성해 출력하지 않았으며, 관리자/수집/조회 접속 설정은 `.state/market-db-secrets/`의 `admin.env`/`writer.env`/`reader.env`에0600, 디렉터리는0700으로 보관했다. 이 경로와 `.env.local`은 Git에서 제외한다. 이후 init/partition/grant에는 보관한 관리자 설정을 별도로 사용하며 수집기에는 writer 설정을 유지한다. 이 일회성 관리 작업은 애플리케이션의 자동 계정 생성 기능이 아니다.
 
