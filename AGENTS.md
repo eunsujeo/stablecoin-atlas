@@ -51,3 +51,15 @@
 - 임시 Agent의 pane ID·terminal ID·이름·작업을 생성 즉시 기록한다. 결과/검증 상태를 먼저 회수하고 idle/done을 확인한 뒤 이번 작업에서 생성한 pane만 닫는다. 기존 구현 pane과 router-lead는 유지한다. blocked/unknown/오류/결과 미회수 상태에서는 닫지 않고 상태를 보고한다. worktree·브랜치·결과 파일을 함께 삭제하지 않는다.
 - `/new`는 횟수나 시간 기준으로 기계적으로 실행하지 않는다. 하나의 작업 완료·테스트 확인·미회수 Agent 없음 이후에 목표/변경 파일/검증/남은 문제/다음 행동을 짧은 인계문에 저장하고 새 작업 경계에서 사용한다. 진행 중 디버깅은 컨텍스트 유지가 필요하면 `/compact`를 고려한다. 작업 중인 자신에게 Herdr prompt로 `/new`를 보내지 않는다.
 - hook을 끄려면 로컬 `tools/intelligent-router/config/runtime.local.json`의 enabled를 false로 설정하거나 Codex `/hooks`에서 비활성화한다. 인증·유료 API·전역 모델 설정을 바꾸지 않는다.
+
+## Agent 세션 토큰 절약
+
+사용자 요청(2026-10-22)으로 모든 Agent 세션(router-impl·router-lead·임시 pane·Claude 세션)에 적용한다. 위 규칙과 부딪히면 위 규칙이 먼저다.
+
+- 시험 로그를 대화에 붙이지 않는다. `mkdir -p .state/agent-logs; npm run check > .state/agent-logs/check.log 2>&1; echo rc=$?; grep -E '^(#|ℹ) (tests|pass|fail|cancelled|skipped) ' .state/agent-logs/check.log`로 요약만 보고, 실패 시 해당 시험 부분만 읽는다. 문서만 바뀌어도 `npm run check`는 그대로 실행한다.
+- Lead 결과는 `lead.py result <id>`의 `action`·`summary`만 사용하고 요청 원문을 다시 붙이지 않는다. 대기는 기존 `--wait 45` 이내 한 번이며 짧은 간격으로 반복 확인하지 않는다. Lead 응답 summary는 600자 안팎으로 판단 한 줄과 검증 조건 목록만 쓴다(`lead.py` 상한 2000자). 응답 파일은 heredoc 대신 파일 작성 도구로 쓰고, `respond` 전에 JSON 파싱과 길이를 한 번 확인해 재시도를 만들지 않는다.
+- docs·ADR은 통째로 읽지 않는다. `grep -n '^#'`로 목차를 보고 필요한 절만 읽는다. 정본은 docs/STABLECOIN_COMPATIBILITY_MATRIX.md·ADR0026·docs/DEVELOPMENT_STATUS.md이며 같은 결정을 여러 문서에 다시 쓰지 않고 링크한다.
+- 코드·로그 원문 대신 `파일:줄`로 가리킨다. 사용자 보고는 결론 먼저 짧게, 진행 알림 답은 한두 줄이다. 질문은 선택지와 추천을 붙여 한 번에 묶는다.
+- 인계문은 저장소 `docs/handoff/YYYY-MM-DD-<주제>.md`에 쓴다(형식은 docs/handoff/README.md). 새 대화에서는 최신 인계문과 그 안의 경로만 읽는다. 검증 칸에는 실행 명령·rc·pass/fail 수를 직접 적고 "세션 응답 참조"로 미루지 않는다. 키·RPC URL·보고서 원문을 넣지 않는다.
+- 세션은 자기 대화를 스스로 비우지 못한다. 구현 세션은 작업 경계(작업 완료·테스트 확인·미회수 Agent 없음)마다 인계문을 쓰고 "새 대화 필요: <인계문 경로>"로 보고만 한다. `/new`는 조율 세션 `router-coord`(또는 사용자)가 `python3 tools/intelligent-router/adapters/renew.py router-impl --handoff <인계문>`으로 보낸다. 스크립트는 idle 확인·인계문이 직전 갱신보다 새로운지 확인·`/new`와 현재 worktree 선택·새 대화 확인 후 인계문 지시를 보내며, 불확실하면 재전송하지 않는다. `router-lead`는 `lead.py`가 요청 전달 직전 dispatch.lock 안에서 매번 새 대화로 바꾸므로 대화 맥락에 기대지 않고 요청 파일만 근거로 삼는다. 작업은 1시간 안팎 단위로 나눈다.
+- 이미 기록된 사용자 결정은 다시 설명하거나 재검토하지 않는다. 바꿀 이유가 생기면 이유만 짧게 묻는다.

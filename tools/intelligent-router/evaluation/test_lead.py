@@ -8,6 +8,7 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "adapters"))
 import lead
+import renew
 
 
 class BridgeTests(unittest.TestCase):
@@ -18,6 +19,9 @@ class BridgeTests(unittest.TestCase):
         replacement = patch.object(lead, "STATE", self.folder)
         replacement.start()
         self.addCleanup(replacement.stop)
+        renewal = patch.object(lead, "renew_lead")
+        self.renew_lead = renewal.start()
+        self.addCleanup(renewal.stop)
         self.row = {"id": "a" * 32, "created_at": 1, "state": "pending", "source": "router-impl",
                     "summary": "Review transaction ordering", "reason": "concurrency", "response": None}
         lead.write(lead.path_for(self.row["id"]), self.row)
@@ -37,6 +41,15 @@ class BridgeTests(unittest.TestCase):
             self.assertEqual(args[:3], ("agent", "prompt", "router-lead"))
             self.assertNotIn("--wait", args)
             self.assertIn(self.row["id"], args[3])
+            self.renew_lead.assert_called_once()
+
+    def test_failed_lead_renewal_sends_no_notice_and_is_not_retried(self):
+        self.renew_lead.side_effect = RuntimeError("renew_uncertain")
+        with patch.object(lead, "agent", return_value={"agent_status": "idle"}), patch.object(lead, "herdr") as send:
+            self.assertEqual(lead.pump(), "delivery_uncertain")
+            self.assertEqual(lead.pump(), "awaiting_response")
+            send.assert_not_called()
+            self.renew_lead.assert_called_once()
 
     def test_uncertain_delivery_is_not_retried(self):
         with patch.object(lead, "agent", return_value={"agent_status": "done"}), \
@@ -74,6 +87,31 @@ class BridgeTests(unittest.TestCase):
         with patch.object(request, "classify") as classify:
             self.assertIsNone(request.handle({"prompt": lead.NOTICE + self.row["id"] + "]"}))
             classify.assert_not_called()
+
+
+
+class RenewTests(unittest.TestCase):
+    idle = {"agent_status": "idle", "pane_id": "w0:p0"}
+
+    def test_new_then_accepts_current_worktree(self):
+        with patch.object(lead, "agent", return_value=self.idle), patch.object(lead, "herdr") as send, \
+                patch.object(renew, "wait_output", return_value=True) as seen:
+            renew.renew("router-lead")
+        self.assertEqual([c.args for c in send.call_args_list],
+                         [("agent", "prompt", "router-lead", "/new"), ("agent", "send-keys", "router-lead", "enter")])
+        self.assertEqual([c.args[1] for c in seen.call_args_list], [renew.CHOOSER, renew.BANNER])
+
+    def test_working_agent_is_not_renewed(self):
+        with patch.object(lead, "agent", return_value={"agent_status": "working", "pane_id": "w0:p0"}), \
+                patch.object(lead, "herdr") as send:
+            self.assertRaises(RuntimeError, renew.renew, "router-impl")
+        send.assert_not_called()
+
+    def test_missing_chooser_stops_without_enter(self):
+        with patch.object(lead, "agent", return_value=self.idle), patch.object(lead, "herdr") as send, \
+                patch.object(renew, "wait_output", return_value=False):
+            self.assertRaises(RuntimeError, renew.renew, "router-impl")
+        self.assertEqual(send.call_count, 1)
 
 
 if __name__ == "__main__":
