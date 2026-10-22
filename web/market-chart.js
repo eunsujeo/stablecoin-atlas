@@ -80,7 +80,18 @@ export function supplyComparisonGeometry(input,{comparison='amount',right=870,bo
   const groups=input.filter(s=>!unavailable.includes(s));
   const rows=groups.flatMap(s=>s.rows).sort((a,b)=>Date.parse(a.observedAt)-Date.parse(b.observedAt));
   const geometry=chartGeometry(rows,{right,bottom,zeroBaseline:true});
-  if(comparison==='amount'||!rows.length)return {...geometry,groups,unavailable,rows};
+  if(comparison==='amount'||!rows.length){
+    const positive=rows.map(r=>units(r.amount)).filter(n=>n>0n);
+    const low=positive.reduce((a,b)=>a<b?a:b,positive[0]??0n),high=positive.reduce((a,b)=>a>b?a:b,0n);
+    if(groups.length>1&&low>0n&&high>=low*100n){
+      const lower=String(low).length-1,ceiling=String(high).length-1+(high===10n**BigInt(String(high).length-1)?0:1),step=Math.max(1,Math.ceil((ceiling-lower)/4)),upper=ceiling,positiveBottom=bottom-20;
+      const exponents=Array.from({length:Math.floor((upper-lower)/step)+1},(_,i)=>lower+i*step);if(exponents.at(-1)!==upper)exponents.push(upper);
+      const log=n=>{const digits=String(n),head=digits.slice(0,15);return Math.log10(Number(head))+digits.length-head.length;};
+      return {...geometry,groups,unavailable,rows,axisScale:'log',points:geometry.points.map(p=>({...p,y:units(p.row.amount)===0n?bottom:Math.max(28,Math.min(positiveBottom,positiveBottom-(log(units(p.row.amount))-lower)/(upper-lower)*(positiveBottom-28)))})),
+        ticks:[{y:bottom,amount:'0'},...exponents.map(e=>({y:positiveBottom-(e-lower)/(upper-lower)*(positiveBottom-28),amount:decimalUnits(10n**BigInt(e)),exponent:e-36}))]};
+    }
+    return {...geometry,groups,unavailable,rows,axisScale:'linear'};
+  }
   const scale=10n**36n,values=new Map();for(const group of groups){const base=units(group.rows[0].amount);for(const row of group.rows)values.set(row,(units(row.amount)-base)*100n*scale/base);}
   const amounts=[...values.values()],low=amounts.reduce((a,b)=>a<b?a:b,0n),high=amounts.reduce((a,b)=>a>b?a:b,0n),padding=(high-low)/10n||scale/100n;
   const min=low<0n?low-padding:high===0n?-padding:0n,max=high>0n?high+padding:low===0n?padding:0n,span=max-min;
@@ -95,15 +106,16 @@ export function renderNetworkSupplyChart(host,data,coinId,options={}){
   const rows=groups.flatMap(s=>s.rows).sort((a,b)=>Date.parse(a.observedAt)-Date.parse(b.observedAt));
   const g=supplyComparisonGeometry(groups,{right,bottom,comparison:options.comparison}),points=new Map(g.points.map(p=>[p.row,p])),relative=options.comparison==='change';
   if(relative)host.append(el('p','네트워크별 증감률 (%)','chart-note'));
+  if(g.axisScale==='log')host.append(el('p','로그 눈금 · 0은 아래 기준선에 표시','chart-note'));
   if(g.unavailable.length)host.append(el('p',g.unavailable.map(s=>s.network.name).join(' · ')+' · 첫 관측이 0이어서 증감률을 계산할 수 없습니다. 공급량 규모로 확인하세요.','chart-note'));
   if(!g.groups.length){host.append(el('p','증감률을 계산할 기준값이 없습니다.','empty-state'));return;}
   const legend=el('div',undefined,'network-chart-legend');legend.setAttribute('aria-label','네트워크별 공급량 내림차순');
-  const figure=svg('svg',{viewBox:`0 0 ${width} ${height}`,role:'group',tabindex:0,'aria-label':`네트워크별 ${relative?'증감률 (%)':'공급량 규모 (tokens)'}. 좌우 화살표로 시각, 위아래 화살표로 네트워크 선택. Home 처음, End 마지막.`});figure.classList.add('market-price-chart');
-  for(const tick of g.ticks){figure.append(svg('line',{x1:32,x2:right,y1:tick.y,y2:tick.y,class:'grid-line'}));const text=svg('text',{x:right+20,y:tick.y+4,class:'trend-axis'});text.textContent=relative?percentLabel(tick.amount):displayAmount(tick.amount).replace(/(\.\d{4})\d+/, '$1…');figure.append(text);}
+  const figure=svg('svg',{viewBox:`0 0 ${width} ${height}`,role:'group',tabindex:0,'aria-label':`네트워크별 ${relative?'증감률 (%)':'공급량 규모 (tokens)'}. 좌우 화살표로 시각, 위아래 화살표로 네트워크 선택. Home 처음, End 마지막.`});figure.classList.add('market-price-chart');figure.dataset.scale=g.axisScale??'linear';
+  for(const tick of g.ticks){figure.append(svg('line',{x1:32,x2:right,y1:tick.y,y2:tick.y,class:'grid-line'}));const text=svg('text',{x:right+20,y:tick.y+4,class:'trend-axis'});text.textContent=relative?percentLabel(tick.amount):tick.exponent!==undefined&&(tick.exponent< -4||tick.exponent>15)?'10^'+tick.exponent:displayAmount(tick.amount).replace(/(\.\d{4})\d+/, '$1…');figure.append(text);}
   g.groups.forEach((group,i)=>{
     group.points=group.rows.map(row=>points.get(row));const color=colors[i%colors.length],item=el('div',undefined,'network-chart-key'),swatch=el('span',undefined,'network-chart-swatch');swatch.style.background=color;
     item.append(swatch,el('strong',group.network.name),el('span',displayAmount(group.rows.at(-1).amount)));
-    const info=options.profileButton?.(group.deploymentId);if(info)item.append(info);legend.append(item);
+    const info=options.profileButton?.(group.deploymentId,group.network.id);if(info)item.append(info);legend.append(item);
     const segments=dailySupplySegments(group.points,['history','minted'].includes(options.source));
     for(const segment of segments){
       if(segment.length>1)figure.append(svg('polyline',{points:segment.map(p=>`${p.x},${p.y}`).join(' '),fill:'none',stroke:color,'stroke-width':2.5,'stroke-linejoin':'round','data-network':group.network.id}));

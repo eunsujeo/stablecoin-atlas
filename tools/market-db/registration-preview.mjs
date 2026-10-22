@@ -10,38 +10,44 @@ export function registrationRequest(url){
  if(!hash(selectionId)||!['usdt','usdc','rlusd','jpyc','jpysc'].includes(coinId)||!['NETWORK_CIRCULATING','NETWORK_MINTED'].includes(metric))throw Error('INVALID_ARGUMENTS');
  return {kind:'history',selectionId,coinId,metric,key:[selectionId,coinId,metric].join(':')};
 }
-// One active connection, at most four distinct pending requests, 16 short-lived cached DTOs.
+// One connection, four pending keys; verified index 10s, immutable history 1h/10 entries/8MiB.
 export function databaseRegistrationReader({env,connect=connectDatabase,index=readRegistrationIndex,history=readRegistrationHistory,now=Date.now}={}){
- const pending=new Map(),cache=new Map();let tail=Promise.resolve();
+ const pending=new Map(),cache=new Map();let tail=Promise.resolve(),scope=null,bytesUsed=0;
+ const pin=(input,value)=>{
+  if(value.selectionId!==input.selectionId)throw Error('SELECTION_CHANGED');
+  const metric=value.coins.find(c=>c.id===input.coinId)?.metrics.find(m=>m.metric===input.metric);
+  if(!metric)throw Error('SUPPLY_UNAVAILABLE');
+  return {...metric,key:[input.key,metric.sourceId,metric.from,metric.to].join(':')};
+ };
+ const hit=p=>{const entry=cache.get(p.key);return entry&&entry.expires>now()?entry.value:null;};
+ const save=(p,value)=>{
+  const bytes=Buffer.byteLength(JSON.stringify(value));if(bytes>2*1024*1024)throw Error('READ_LIMIT');
+  for(const [key,entry]of cache)if(entry.expires<=now()||key===p.key){bytesUsed-=entry.bytes;cache.delete(key);}
+  cache.set(p.key,{value,bytes,expires:now()+3600000});bytesUsed+=bytes;
+  while(cache.size>10||bytesUsed>8*1024*1024){const key=cache.keys().next().value;bytesUsed-=cache.get(key).bytes;cache.delete(key);}
+ };
  function request(input){
-  const hit=cache.get(input.key),scope=cache.get('index');
-  const pinned=input.kind==='index'||scope?.expires>now()&&scope.value.selectionId===input.selectionId&&scope.value.coins.find(c=>c.id===input.coinId)?.metrics.find(m=>m.metric===input.metric)?.sourceId===hit?.value.sourceId;
-  if(hit&&hit.expires>now()&&pinned)return Promise.resolve(hit.value);
+  if(scope&&scope.expires>now()){
+   if(input.kind==='index')return Promise.resolve(scope.value);
+   try{const value=hit(pin(input,scope.value));if(value)return Promise.resolve(value);}catch(error){return Promise.reject(error);}
+  }
   if(pending.has(input.key))return pending.get(input.key);
   if(pending.size>=4)return Promise.reject(Error('READ_QUEUE_FULL'));
   const operation=tail.catch(()=>{}).then(async()=>{
-   let client;try{
-    client=await connect(env);let value;
-    if(input.kind==='index')value=await index(client);
-    else{
-     // Reuse the same short-lived index snapshot the browser just received.
-     // Its source ID pins history even if a newer import arrives meanwhile.
-     const snapshot=cache.get('index');
-     const scope=snapshot&&snapshot.expires>now()?snapshot.value:await index(client);
-     if(scope.selectionId!==input.selectionId)throw Error('SELECTION_CHANGED');
-     const metric=scope.coins.find(c=>c.id===input.coinId)?.metrics.find(m=>m.metric===input.metric);
-     if(!metric)throw Error('SUPPLY_UNAVAILABLE');
-     const result=await history(client,{selectionId:input.selectionId,coinId:input.coinId,metric:input.metric,from:metric.from,to:metric.to,sourceId:metric.sourceId});
-     value={schemaVersion:1,kind:'REGISTERED_SUPPLY_HISTORY',selectionId:input.selectionId,coinId:input.coinId,metric:input.metric,
+   let client;const connection=async()=>client??=await connect(env);
+   try{
+    if(!scope||scope.expires<=now()){
+     const value=await index(await connection());if(Buffer.byteLength(JSON.stringify(value))>2*1024*1024)throw Error('READ_LIMIT');
+     scope={value,expires:now()+10000};
+    }
+    if(input.kind==='index')return scope.value;
+    const p=pin(input,scope.value),cached=hit(p);if(cached)return cached;
+    const result=await history(await connection(),{selectionId:input.selectionId,coinId:input.coinId,metric:input.metric,from:p.from,to:p.to,sourceId:p.sourceId});
+    if(result.sourceId!==p.sourceId||result.selectionId!==input.selectionId||result.coinId!==input.coinId||result.contract.metric!==input.metric||result.from!==p.from||result.to!==p.to)throw Error('SOURCE_PIN_MISMATCH');
+    const value={schemaVersion:1,kind:'REGISTERED_SUPPLY_HISTORY',selectionId:input.selectionId,coinId:input.coinId,metric:input.metric,
       pegCurrency:result.pegCurrency,contract:result.contract,from:result.from,to:result.to,updatedAt:result.updatedAt,state:result.state,
       sourceId:result.sourceId??null,sourceHash:result.sourceHash??null,missingNetworks:result.missingNetworks??[],series:result.series};
-    }
-    if(Buffer.byteLength(JSON.stringify(value))>2*1024*1024)throw Error('READ_LIMIT');
-    // A fresh index can change source IDs before a history entry's own TTL expires.
-    if(input.kind==='index')for(const key of cache.keys())if(key!=='index')cache.delete(key);
-    cache.delete(input.key);cache.set(input.key,{value,expires:now()+10000});
-    while(cache.size>16)cache.delete(cache.keys().next().value);
-    return value;
+    save(p,value);return value;
    }finally{await client?.end().catch(()=>{});}
   });
   pending.set(input.key,operation);tail=operation;

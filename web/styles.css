@@ -197,6 +197,11 @@ select option{background:var(--panel);color:var(--ink);font-weight:400}
 .network-chart-legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px 24px}
 .network-chart-key{display:grid;grid-template-columns:10px minmax(0,1fr) auto;gap:8px;align-items:center}
 .network-chart-key>span:last-of-type{text-align:right;white-space:nowrap}
-.network-chart-key .token-profile-trigger{grid-column:4}
+.network-chart-key .token-info-trigger{grid-column:4}
 .network-chart-plot{position:relative;width:100%;min-width:0}
 .network-chart-tooltip{position:absolute;z-index:3;pointer-events:none;display:flex;flex-direction:column;gap:4px;max-width:min(340px,calc(100% - 16px));box-shadow:0 6px 24px #0003;overflow-wrap:anywhere}
+
+#overview-chain-breakdown{max-height:var(--supply-list-height,360px);overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable;padding-right:8px}
+#overview-chain-breakdown .overview-chain-item{margin:0;padding:12px 6px}
+#overview-chain-breakdown .chart-note{margin:12px 6px}
+@media(max-width:1000px){#overview-chain-breakdown{max-height:min(var(--supply-list-height,360px),280px)}}

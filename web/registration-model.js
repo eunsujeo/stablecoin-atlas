@@ -12,12 +12,17 @@ export function validateRegistrationIndex(x){
  for(const n of x.networks)requireValue(id(n.id)&&text(n.name,64));
  for(const c of x.coins){
   requireValue(['usdt','usdc','rlusd','jpyc','jpysc'].includes(c.id)&&text(c.symbol,16)&&text(c.name,64)&&['USD','JPY'].includes(c.pegCurrency)&&Array.isArray(c.notes)&&c.notes.length<=4&&c.notes.every(n=>text(n,400))&&Array.isArray(c.metrics)&&c.metrics.length<=2&&new Set(c.metrics.map(m=>m.metric)).size===c.metrics.length);
+  if(c.basicInfo!==undefined){
+   const b=c.basicInfo;requireValue(iso(b.reviewedAt)&&Array.isArray(b.networks)&&b.networks.length<=10&&new Set(b.networks).size===b.networks.length&&b.networks.every(id=>x.networks.some(n=>n.id===id))&&Array.isArray(b.sources)&&b.sources.length<=4&&b.sources.every(s=>text(s.title,120)&&registrationProfileUrl(s.url))&&Array.isArray(b.profiles)&&b.profiles.length<=8);
+   for(const p of b.profiles)requireValue(x.networks.some(n=>n.id===p.networkId)&&p.standard==='ERC-20'&&p.identity?.kind==='CONTRACT'&&/^0x[a-fA-F0-9]{40}$/.test(p.identity.address));
+  }
   for(const m of c.metrics)requireValue(metric(m.metric)&&hash(m.sourceId)&&day(m.from)&&day(m.to)&&m.to>=m.from&&Date.parse(m.to)-Date.parse(m.from)<=365*86400000);
  }
  bound(x);return x;
 }
 export function validateRegisteredHistory(x,index,{coinId,metric:expected}={}){
- const coin=index.coins.find(c=>c.id===coinId);
+ const coin=index.coins.find(c=>c.id===coinId),pin=coin?.metrics.find(m=>m.metric===expected);
+ requireValue(pin&&x?.sourceId===pin.sourceId&&x.from===pin.from&&x.to===pin.to);
  requireValue(coin&&x?.schemaVersion===1&&x.kind==='REGISTERED_SUPPLY_HISTORY'&&x.selectionId===index.selectionId&&x.coinId===coinId&&x.metric===expected&&metric(expected)&&x.pegCurrency===coin.pegCurrency&&day(x.from)&&day(x.to)&&x.to>=x.from&&Date.parse(x.to)-Date.parse(x.from)<=365*86400000);
  requireValue(x.contract?.metric===expected&&x.contract.unit==='token'&&x.contract.amountKind==='TOKEN_QUANTITY'&&x.contract.definition===(expected==='NETWORK_MINTED'?'DEFILLAMA_NATIVE_ISSUANCE_OUTSTANDING_V1':'DEFILLAMA_NETWORK_CIRCULATING_V1'));
  requireValue(['AVAILABLE','PARTIAL','MISSING'].includes(x.state)&&(x.updatedAt===null||iso(x.updatedAt))&&(x.sourceId===null||hash(x.sourceId))&&(x.sourceHash===null||hash(x.sourceHash))&&Array.isArray(x.series)&&x.series.length<=10&&new Set(x.series.map(n=>n.networkId)).size===x.series.length&&Array.isArray(x.missingNetworks)&&x.missingNetworks.length<=10&&new Set(x.missingNetworks).size===x.missingNetworks.length);
@@ -31,4 +36,13 @@ export function validateRegisteredHistory(x,index,{coinId,metric:expected}={}){
 // Chart-only view: no invented deployment, executable adapter or assessment result.
 export function registrationChartData(index,detail){
  return {registry:{coins:index.coins,networks:index.networks,deployments:[]},supplyHistory:detail?[{coinId:detail.coinId,metric:detail.metric,to:detail.to,networks:detail.series}]:[],registeredSupply:true,updatedAt:detail?.updatedAt};
+}
+
+export function sameRegisteredSource(detail,index,{coinId,metric:expected}={}){
+ const m=index?.coins.find(c=>c.id===coinId)?.metrics.find(m=>m.metric===expected);
+ return !!(m&&detail&&detail.selectionId===index.selectionId&&detail.coinId===coinId&&detail.metric===expected&&detail.sourceId===m.sourceId&&detail.from===m.from&&detail.to===m.to);
+}
+
+export function registrationProfileUrl(value){
+ try{const u=new URL(value);return typeof value==='string'&&value.length<=320&&u.protocol==='https:'&&!u.username&&!u.password&&!u.port&&!u.search&&!u.hash&&['developers.circle.com','tether.to','docs.ripple.com','github.com','www.startale.com'].includes(u.hostname)&&u.href===value;}catch{return false;}
 }

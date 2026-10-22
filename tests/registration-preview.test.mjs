@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {registrationRequest,databaseRegistrationReader} from '../tools/market-db/registration-preview.mjs';
-import {validateRegistrationIndex,validateRegisteredHistory,registrationChartData} from '../web/registration-model.js';
+import {validateRegistrationIndex,validateRegisteredHistory,registrationChartData,sameRegisteredSource} from '../web/registration-model.js';
 import {dailySupplySegments,networkSupplySeries,sortSupplyGroups,chartTooltipPosition} from '../web/market-chart.js';
 const selection='a'.repeat(64),query='/registration-history.json?'+new URLSearchParams({selection,coin:'jpyc',metric:'NETWORK_CIRCULATING'});
 const index={schemaVersion:1,kind:'REGISTERED_SUPPLY_INDEX',selectionId:selection,coins:[{id:'jpyc',name:'JPYC',symbol:'JPYC',pegCurrency:'JPY',notes:[],metrics:[{metric:'NETWORK_CIRCULATING',sourceId:'b'.repeat(64),from:'2025-10-22',to:'2026-10-22'}]}],networks:[{id:'ethereum',name:'Ethereum'}]};
@@ -18,7 +18,7 @@ test('supply request queue coalesces, serializes connections, caps queue, closes
  const second=reader(query),third=reader(query.replace('jpyc','usdc')),fourth=reader(query.replace('jpyc','usdt'));
  await assert.rejects(reader(query.replace('jpyc','rlusd')),/READ_QUEUE_FULL/);
  release();const outcomes=await Promise.allSettled([first,second,third,fourth]);assert.equal(outcomes[0].status,'fulfilled');assert.equal(outcomes[1].status,'fulfilled');assert.equal(outcomes[2].status,'rejected');assert.equal(maximum,1);assert.equal(closed,opened);
- assert.deepEqual(await reader(query),outcomes[1].value);assert.equal(opened,4);
+ assert.deepEqual(await reader(query),outcomes[1].value);assert.equal(opened,2);
  let calls=0;const fail=databaseRegistrationReader({connect:async()=>({end:async()=>{}}),index:async()=>{calls++;throw Error('password=secret');}});
  await assert.rejects(fail('/registration-index.json'));await assert.rejects(fail('/registration-index.json'));assert.equal(calls,2);
 });
@@ -35,7 +35,7 @@ test('chart reuses a live index source pin and refreshes an expired snapshot wit
  const reader=databaseRegistrationReader({now:()=>clock,connect:async()=>({end:async()=>{}}),index:async()=>{indexCalls++;if(fail)throw Error('unavailable');return index;},history:async(_c,filter)=>{pins.push(filter.sourceId);return detail;}});
  await reader('/registration-index.json');await reader(query);assert.equal(indexCalls,1);assert.deepEqual(pins,['b'.repeat(64)]);
  clock=10001;await reader(query);assert.equal(indexCalls,2);
- clock=20002;fail=true;await assert.rejects(reader(query),/unavailable/);assert.equal(pins.length,2);
+ clock=20002;fail=true;await assert.rejects(reader(query),/unavailable/);assert.equal(pins.length,1);
 });
 
 test('supply legend sorts exact quantities descending with stable ties and tooltip fits each plot edge',()=>{
@@ -46,10 +46,39 @@ test('supply legend sorts exact quantities descending with stable ties and toolt
  }
 });
 
-test('new index invalidates a still-live history cache and requests the new source ID',async()=>{
+test('new index chooses the new source instead of an old cached history and requests the new source ID',async()=>{
  let clock=0,version=0;const pins=[];
  const reader=databaseRegistrationReader({now:()=>clock,connect:async()=>({end:async()=>{}}),index:async()=>({...index,coins:[{...index.coins[0],metrics:[{...index.coins[0].metrics[0],sourceId:version?'d'.repeat(64):'b'.repeat(64)}]}]}),history:async(_c,filter)=>{pins.push(filter.sourceId);return {...detail,sourceId:filter.sourceId};}});
  await reader('/registration-index.json');clock=5000;await reader(query);
  clock=10001;version=1;await reader('/registration-index.json');const fresh=await reader(query);
  assert.equal(fresh.sourceId,'d'.repeat(64));assert.deepEqual(pins,['b'.repeat(64),'d'.repeat(64)]);
+});
+
+test('unchanged daily history survives index TTL, expires after one hour without sliding, and rejects pin mismatches',async()=>{
+ let clock=0,calls=0,window=false,bad=false;
+ const reader=databaseRegistrationReader({now:()=>clock,connect:async()=>({end:async()=>{}}),index:async()=>({...index,coins:[{...index.coins[0],metrics:[{...index.coins[0].metrics[0],from:window?'2026-01-01':index.coins[0].metrics[0].from}]}]}),history:async(_c,filter)=>{calls++;return {...detail,from:filter.from,sourceId:bad?'f'.repeat(64):filter.sourceId};}});
+ await reader(query);clock=20000;await reader(query);assert.equal(calls,1);clock=3599999;await reader(query);assert.equal(calls,1);clock=3600001;await reader(query);assert.equal(calls,2);
+ clock+=20000;window=true;await reader(query);assert.equal(calls,3);clock+=3600001;bad=true;await assert.rejects(reader(query),/SOURCE_PIN_MISMATCH/);await assert.rejects(reader(query),/SOURCE_PIN_MISMATCH/);assert.equal(calls,5);
+ assert.equal(sameRegisteredSource(detail,index,{coinId:'jpyc',metric:'NETWORK_CIRCULATING'}),true);
+ for(const change of [{sourceId:'d'.repeat(64)},{from:'2026-01-01'},{selectionId:'e'.repeat(64)},{coinId:'usdt'},{metric:'NETWORK_MINTED'}])assert.equal(sameRegisteredSource({...detail,...change},index,{coinId:'jpyc',metric:'NETWORK_CIRCULATING'}),false);
+});
+test('immutable history cache evicts by entry count and actual serialized bytes',async()=>{
+ for(const large of [false,true]){
+  let clock=0,version=1,calls=0;const source=()=>version.toString(16).padStart(64,'0');
+  const reader=databaseRegistrationReader({now:()=>clock,connect:async()=>({end:async()=>{}}),index:async()=>({...index,coins:[{...index.coins[0],metrics:[{...index.coins[0].metrics[0],sourceId:source()}]}]}),history:async(_c,filter)=>{calls++;return {...detail,sourceId:filter.sourceId,series:large?[{payload:'x'.repeat(1500000)}]:detail.series};}});
+  const count=large?7:11;for(version=1;version<=count;version++){clock+=10001;await reader(query);}
+  const before=calls;version=1;clock+=10001;await reader(query);assert.equal(calls,before+1);
+ }
+});
+
+test('registered basic information accepts only reviewed network/address shapes and safe official links',()=>{
+ const b={reviewedAt:'2026-10-22T06:00:00.000Z',networks:['ethereum'],sources:[{title:'JPYC',url:'https://github.com/jpycoin'}],profiles:[{networkId:'ethereum',standard:'ERC-20',identity:{kind:'CONTRACT',address:'0x'+'1'.repeat(40)}}]};
+ const value={...index,coins:[{...index.coins[0],basicInfo:b}]};assert.equal(validateRegistrationIndex(value),value);
+ for(const change of [{sources:[{title:'Unsafe',url:'javascript:alert(1)'}]},{sources:[{title:'Unsafe',url:'https://unknown.test/'}]},{profiles:[{...b.profiles[0],identity:{kind:'CONTRACT',address:'rounded'}}]},{networks:['unknown']}])assert.throws(()=>validateRegistrationIndex({...value,coins:[{...value.coins[0],basicInfo:{...b,...change}}]}));
+});
+
+test('browser rejects a source/window change between index and history instead of relabeling new data as old',()=>{
+ for(const change of [{sourceId:'d'.repeat(64)},{from:'2026-01-01'},{to:'2026-10-21'}])assert.throws(()=>validateRegisteredHistory({...detail,...change},index,{coinId:'jpyc',metric:'NETWORK_CIRCULATING'}));
+ const next={...index,coins:[{...index.coins[0],metrics:[{...index.coins[0].metrics[0],sourceId:'d'.repeat(64)}]}]};
+ const newer={...detail,sourceId:'d'.repeat(64)};assert.throws(()=>validateRegisteredHistory(newer,index,{coinId:'jpyc',metric:'NETWORK_CIRCULATING'}));assert.equal(validateRegisteredHistory(newer,next,{coinId:'jpyc',metric:'NETWORK_CIRCULATING'}),newer);
 });

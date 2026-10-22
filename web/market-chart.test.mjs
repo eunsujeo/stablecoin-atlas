@@ -65,3 +65,14 @@ test('zero baselines cannot be converted to percentages; flat, single and huge e
  const g=supplyComparisonGeometry([zero,flat,single],{comparison:'change'});assert.deepEqual(g.unavailable,[zero]);assert.equal(g.groups.length,2);assert.ok(g.points.every(p=>p.change==='0'&&Number.isFinite(p.y)));assert.equal(g.points.find(p=>p.row===single.rows[0]).row.amount,single.rows[0].amount);
  assert.equal(supplyComparisonGeometry([zero],{comparison:'change'}).points.length,0);assert.equal(supplyComparisonGeometry([zero],{comparison:'amount'}).points.length,2);
 });
+
+test('log amount axes separate tiny positives from real zero and preserve exact decimals, gaps and percent mode',()=>{
+ const group=(id,amounts)=>({network:{id},rows:amounts.map((a,i)=>row(a,i?22:1))});
+ const a=group('large',['10000000000','20000000000']),b=group('tiny',['0','0.000000000000000000000000000000000001']);
+ const g=supplyComparisonGeometry([a,b],{comparison:'amount'});assert.equal(g.axisScale,'log');
+ const zero=g.points.find(p=>p.row===b.rows[0]),tiny=g.points.find(p=>p.row===b.rows[1]);assert.equal(zero.y,280);assert(tiny.y<=260);assert.equal(tiny.row.amount,b.rows[1].amount);assert(g.points.every(p=>Number.isFinite(p.y)&&p.y>=28&&p.y<=280));assert.equal(g.ticks[0].amount,'0');
+ assert.equal(supplyComparisonGeometry([group('a',['1']),group('b',['99.999999999999999999999'])]).axisScale,'linear');
+ assert.equal(supplyComparisonGeometry([group('a',['1']),group('b',['100'])]).axisScale,'log');
+ assert.equal(supplyComparisonGeometry([group('a',['0']),group('b',['0'])]).axisScale,'linear');assert.equal(supplyComparisonGeometry([a]).axisScale,'linear');
+ const percentage=supplyComparisonGeometry([a,b],{comparison:'change'});assert.equal(percentage.unavailable.length,1);assert.equal(percentage.points.at(-1).change,'100');
+});

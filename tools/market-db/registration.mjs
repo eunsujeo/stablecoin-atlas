@@ -126,6 +126,7 @@ export async function readRegistrationIndex(client){
   requireValue(sources.length<=10,'REGISTRATION_DB_RESPONSE_LIMIT');
   return {schemaVersion:1,kind:'REGISTERED_SUPPLY_INDEX',selectionId:latest.id,
    coins:c.plan.coins.map(coin=>({id:coin.coinId,symbol:coin.symbol,name:coin.name,pegCurrency:coin.pegCurrency,notes:coin.notes,
+    basicInfo:{reviewedAt:c.metadata.reviewedAt,networks:coin.selection.selected.map(n=>n.networkId),sources:c.metadata.coins.find(m=>m.id===coin.coinId).sources.map(id=>{const s=c.metadata.sources.find(s=>s.id===id);return {title:s.title,url:s.url};}),profiles:c.metadata.newDeployments.filter(d=>d.coinId===coin.coinId).map(d=>({networkId:d.networkId,standard:d.standard,identity:d.identity}))},
     metrics:sources.filter(s=>s.coin===coin.coinId).map(({metric,from,to,sourceId})=>({metric,from,to,sourceId}))})),
    networks:c.metadata.networks.map(({id,name})=>({id,name}))};
  },{repeatableRead:true});

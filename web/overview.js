@@ -1,5 +1,5 @@
-import {validateRegistrationIndex,validateRegisteredHistory,registrationChartData} from './registration-model.js';
-import {tokenInfoButton} from './token-profile.js';
+import {validateRegistrationIndex,validateRegisteredHistory,registrationChartData,sameRegisteredSource} from './registration-model.js';
+import {tokenInfoButton,registeredCoinInfoButton} from './token-profile.js';
 import {beginLoading} from './loading.js';
 import {sparkline, renderNetworkSupplyChart, networkSupplySeries} from './market-chart.js';
 import { dashboardEvidence, VERDICTS, reportLinks } from './evidence-model.js';
@@ -7,13 +7,13 @@ import { validateMarket, displayAmount, ratio, units, latest } from './market-mo
 import { overviewSummary, overviewRanking, overviewEvidenceRanking } from './overview-model.js';
 const $=selector=>document.querySelector(selector);
 const node=(tag,text,cls)=>{const el=document.createElement(tag);if(text!==undefined)el.textContent=String(text);if(cls)el.className=cls;return el;};
-const state={index:null,market:null,loading:false,loaded:false,period:'30d',sourceInitialized:false,comparison:'change',registration:null,detail:null,trendLoading:false,trendError:false,registrationFailed:false};
+const state={index:null,market:null,loading:false,loaded:false,period:'30d',sourceInitialized:false,comparison:'amount',registration:null,detail:null,trendLoading:false,trendError:false,registrationFailed:false};
 let trendSequence=0,trendAbort,trendFinish;
 const trendData=()=>state.registration?registrationChartData(state.registration,state.detail):state.registrationFailed?null:state.market;
 const when=value=>new Date(value).toLocaleString('ko-KR',{hour12:false});
 const labels={PASS:'통과',FAIL:'실패',INCONCLUSIVE:'판정 불충분',NOT_TESTED:'미검증',NOT_APPLICABLE:'비적용',UNSUPPORTED:'지원 범위 밖'};
-async function json(path,{signal,optional=false}={}){
-  const response=await fetch(path,{cache:'no-store',signal:signal?AbortSignal.any([signal,AbortSignal.timeout(15000)]):AbortSignal.timeout(15000)});if(optional&&response.status===404)return null;if(!response.ok)throw new Error('READ_FAILED');
+async function json(path,{signal,optional=false,revalidate=false}={}){
+  const response=await fetch(path,{cache:revalidate?'no-cache':'no-store',signal:signal?AbortSignal.any([signal,AbortSignal.timeout(15000)]):AbortSignal.timeout(15000)});if(optional&&response.status===404)return null;if(!response.ok)throw new Error('READ_FAILED');
   let size=0;const chunks=[];
   for await(const chunk of response.body){size+=chunk.length;if(size>2*1024*1024)throw new Error('READ_LIMIT');chunks.push(chunk);}
   const bytes=new Uint8Array(size);let offset=0;for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.length;}
@@ -82,21 +82,23 @@ function populateTrendNetworks(){
 function renderMarketTrend(){
   if(state.trendLoading||state.loading&&!state.market&&!state.registration&&!state.registrationFailed)return;
   const host=$('#overview-market-trend'),chains=$('#overview-chain-breakdown'),note=$('#overview-trend-note');
-  host.replaceChildren();chains.replaceChildren();
+  const chainScroll=chains.scrollTop;host.replaceChildren();chains.replaceChildren();
   if(!trendData()){host.append(node('p',state.registrationFailed?'공급량 저장 자료를 읽지 못했습니다. 다시 읽어주세요.':'시장 자료를 읽으면 네트워크별 공급량 추이를 표시합니다.','empty-state'));note.textContent=state.registrationFailed?'공급량 조회 실패':'시장 자료 미확보';note.hidden=false;return;}
   const data=trendData(),coinId=$('#overview-trend-coin').value,networkId=$('#overview-trend-network').value,source=$('#overview-trend-source').value;
   const minted=source==='minted',metricLabel=minted?'발행 잔액':'유통량';
   const coin=data.registry.coins.find(c=>c.id===coinId),network=data.registry.networks.find(n=>n.id===networkId);
   const deployment=data.registry.deployments.find(d=>d.coinId===coinId&&d.networkId===networkId);
   const title=`${coin?.symbol??'토큰'} · ${networkId==='all'?'네트워크별':network?.name??'네트워크'} ${metricLabel} 추이`;
-  const info=deployment?tokenInfoButton(data,deployment.id,title+' ⓘ'):null;
+  const info=state.registration?registeredCoinInfoButton(state.registration,state.market,coinId,title+' ⓘ',networkId):deployment?tokenInfoButton(data,deployment.id,title+' ⓘ'):null;
   $('#overview-trend-title').replaceChildren(info??document.createTextNode(title));
-  $('#overview-trend-scope').textContent=`DeFiLlama · 네트워크별 일별 ${metricLabel} · ${state.comparison==='change'?'첫 관측 대비 증감률 (%)':'tokens'}${state.registration?' · '+coin.pegCurrency+' 연동':''}`;
-  $('.overview-chain-panel h3').textContent=`네트워크별 ${metricLabel}`;
-  $('.overview-chain-panel > .muted').textContent=`일별 ${metricLabel} 비교`;
-  renderNetworkSupplyChart(host,data,coinId,{period:state.period,networkId,comparison:state.comparison,source,profileButton:id=>tokenInfoButton(data,id)});
+  $('#overview-trend-scope').textContent=`일별 ${metricLabel}${state.registration?' · '+coin.pegCurrency+' 연동':''}`;
+  $('.overview-chain-panel h3').textContent='상위 최대 10개 네트워크';
+  $('.overview-chain-panel > .muted').textContent=`${metricLabel} (tokens)`;
+  $('.overview-chain-panel h3').title='네트워크 선정은 USD 환산 유통가치 기준이며, 아래 값은 토큰 수량입니다.';
+  renderNetworkSupplyChart(host,data,coinId,{period:state.period,networkId,comparison:state.comparison,source,profileButton:(id,network)=>state.registration?registeredCoinInfoButton(state.registration,state.market,coinId,'ⓘ',network):tokenInfoButton(data,id)});
   const coinNotes=state.registration?.coins.find(c=>c.id===coinId)?.notes??[];note.textContent=state.trendError?'공급량 자료를 읽지 못했습니다. 다시 읽어주세요.':coinNotes.join(' ');note.hidden=!note.textContent;
   const rows=networkSupplySeries(data,coinId,{source}).map(s=>({networkId:s.network.id,amount:s.rows.at(-1).amount})).sort((a,b)=>units(a.amount)>units(b.amount)?-1:units(a.amount)<units(b.amount)?1:0);
+  $('.overview-chain-panel > .muted').textContent=`${metricLabel} (tokens) · ${rows.length}개 표시`;
   for(const row of rows){
     const network=data.registry.networks.find(n=>n.id===row.networkId),item=node('button',undefined,'overview-chain-item'),heading=node('div');
     heading.append(node('strong',network.name),node('span',displayAmount(row.amount)));
@@ -104,7 +106,7 @@ function renderMarketTrend(){
     const track=node('div',undefined,'track'),fill=node('span',undefined,'track-fill');fill.style.width=ratio(row.amount,rows[0].amount)+'%';track.append(fill);item.append(heading,track);chains.append(item);
   }
   if(!rows.length)chains.append(node('p','체인별 공급량 미확보','muted'));
-  chains.append(node('p',`네트워크별 ${metricLabel}은 DeFiLlama 집계입니다.`,'chart-note'));
+  chains.scrollTop=chainScroll;
 }
 function renderMarket(){
   const select=$('#overview-trend-coin'),previous=select.value;select.replaceChildren();
@@ -134,6 +136,7 @@ async function loadTrend(){
   trendAbort=new AbortController();
   const coinId=$('#overview-trend-coin').value,metric=$('#overview-trend-source').value==='minted'?'NETWORK_MINTED':'NETWORK_CIRCULATING';
   if(!state.registration.coins.find(c=>c.id===coinId)?.metrics.some(m=>m.metric===metric)){state.detail=null;state.trendError=false;state.trendLoading=false;populateTrendNetworks();renderMarketTrend();return;}
+  if(sameRegisteredSource(state.detail,state.registration,{coinId,metric})){state.trendError=false;populateTrendNetworks();renderMarketTrend();return;}
   const previous=state.detail?.coinId===coinId&&state.detail?.metric===metric&&state.detail?.selectionId===state.registration.selectionId?state.detail:null;
   state.detail=previous;state.trendError=false;state.trendLoading=true;populateTrendNetworks();
   $('#overview-chain-breakdown').replaceChildren();
@@ -141,7 +144,7 @@ async function loadTrend(){
   const finish=beginLoading($('#overview-market-trend'),{ready:!!previous,targets:[[$('#overview-market-trend'),'chart']]});trendFinish=finish;
   try{
     const query=new URLSearchParams({selection:state.registration.selectionId,coin:coinId,metric});
-    const data=await json('/registration-history.json?'+query,{signal:trendAbort.signal});
+    const data=await json('/registration-history.json?'+query,{signal:trendAbort.signal,revalidate:true});
     if(sequence!==trendSequence)return;
     state.detail=validateRegisteredHistory(data,state.registration,{coinId,metric});
   }catch{if(sequence===trendSequence)state.trendError=true;}
@@ -177,7 +180,7 @@ $('#overview-trend-coin').addEventListener('change',()=>{$('#overview-trend-netw
 $('#overview-trend-network').addEventListener('change',renderMarketTrend);
 $('#overview-trend-period').addEventListener('click',event=>{const button=event.target.closest('button[data-period]');if(!button)return;state.period=button.dataset.period;for(const item of $('#overview-trend-period').querySelectorAll('button[data-period]'))item.setAttribute('aria-pressed',String(item===button));renderMarketTrend();});
 let overviewTrendWidth=0;
-new ResizeObserver(entries=>{const width=Math.round(entries[0].contentRect.width);if(width>0&&width!==overviewTrendWidth){overviewTrendWidth=width;renderMarketTrend();}}).observe($('#overview-market-trend'));
+new ResizeObserver(entries=>{const bounds=entries[0].contentRect;$('#overview-chain-breakdown').style.setProperty('--supply-list-height',Math.max(180,Math.round(bounds.height)-60)+'px');const width=Math.round(bounds.width);if(width>0&&width!==overviewTrendWidth){overviewTrendWidth=width;renderMarketTrend();}}).observe($('#overview-market-trend'));
 
 $('#overview-trend-source').addEventListener('change',()=>{state.period='1y';updateTrendPeriods();$('#overview-trend-network').value='all';loadTrend();});
 

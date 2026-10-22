@@ -1,3 +1,4 @@
+import {createHash} from 'node:crypto';
 import { publishedMarket } from './market-store.mjs';
 import { publishedIndex, publishedArtifact } from './evidence-store.mjs';
 import { createServer } from 'node:http';
@@ -51,6 +52,11 @@ export function createPreviewServer({ evidenceDirectory, marketDirectory, market
         try{
           const bytes=Buffer.from(JSON.stringify(await registrationReader(req.url)));
           if(bytes.length>2*1024*1024)throw Error('READ_LIMIT');
+          if(req.url.startsWith('/registration-history.json?')){
+            const etag='"'+createHash('sha256').update(bytes).digest('hex')+'"';
+            res.setHeader('Cache-Control','private, no-cache');res.setHeader('ETag',etag);
+            if(req.headers['if-none-match']===etag){res.writeHead(304);res.end();return;}
+          }
           res.writeHead(200,{'Content-Type':'application/json; charset=utf-8','Content-Length':bytes.length});res.end(req.method==='HEAD'?undefined:bytes);
         }catch{fail(503,'SUPPLY_DATA_UNAVAILABLE');}
         return;
