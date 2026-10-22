@@ -51,6 +51,7 @@
     "market:catalog:init": "node --use-env-proxy tools/market-db/catalog-cli.mjs init",
     "market:catalog:import": "node --use-env-proxy tools/market-db/catalog-cli.mjs import",
     "market:catalog:grant": "node --use-env-proxy tools/market-db/catalog-cli.mjs grant",
+    "market:history:upgrade": "node --use-env-proxy tools/market-db/history-cli.mjs upgrade",
     "market:history:init": "node --use-env-proxy tools/market-db/history-cli.mjs init",
     "market:history:grant": "node --use-env-proxy tools/market-db/history-cli.mjs grant",
     "market:history:collect": "node --use-env-proxy tools/market-db/history-cli.mjs collect",

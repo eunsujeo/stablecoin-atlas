@@ -189,3 +189,5 @@ select option{background:var(--panel);color:var(--ink);font-weight:400}
 .token-info-popover small{font-size:10px;color:var(--muted);margin-top:8px}
 
 .network-chart-legend{display:flex;gap:12px 24px;flex-wrap:wrap;margin:16px 0}.network-chart-key{display:flex;align-items:center;gap:8px;font-size:12px}.network-chart-key>span:last-of-type{color:var(--muted);font-variant-numeric:tabular-nums}.network-chart-swatch{width:10px;height:10px;border-radius:50%;flex-shrink:0}.chart-updated{font-size:11px;color:var(--muted);margin:8px 0}.chart-point-tooltip{padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel);display:flex;gap:8px 16px;flex-wrap:wrap;font-size:12px;box-shadow:0 4px 14px #0001}.chart-point-tooltip[hidden]{display:none}.chart-point-tooltip span,.chart-point-tooltip small{color:var(--muted)}
+
+#overview-trend-period{flex-wrap:wrap}.comparison-divider{padding:0 8px;color:var(--muted)}

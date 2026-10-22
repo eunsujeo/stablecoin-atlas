@@ -57,9 +57,9 @@ export function renderMarketChart(host,data,observation,{period='all',onDetail}=
 }
 
 export function networkSupplySeries(data,coinId,{period='all',networkId='all',source='recent'}={}){
-  if(source==='history'){
+  if(['history','minted'].includes(source)){
     if(!['all','24h','7d','30d','90d','1y'].includes(period))throw Error('INVALID_CHART_PERIOD');
-    const snapshot=data.supplyHistory?.find(s=>s.coinId===coinId);if(!snapshot)return [];
+    const snapshot=data.supplyHistory?.find(s=>s.coinId===coinId&&s.metric===(source==='minted'?'NETWORK_MINTED':'NETWORK_CIRCULATING'));if(!snapshot)return [];
     const end=Date.parse(snapshot.to+'T00:00:00.000Z'),days={'24h':1,'7d':7,'30d':30,'90d':90,'1y':365};
     return snapshot.networks.filter(n=>networkId==='all'||n.networkId===networkId).map(n=>({
       // Profile links describe the registered token; provider history aggregates the coin/network.
@@ -73,28 +73,45 @@ export function networkSupplySeries(data,coinId,{period='all',networkId='all',so
     return {deploymentId:d.id,network:data.registry.networks.find(n=>n.id===d.networkId),rows:chartHistory(data,observation,period)};
   }).filter(s=>s.rows.length);
 }
+// Percentages are derived with bigint; original amounts remain on each point.
+export function supplyComparisonGeometry(input,{comparison='amount',right=870,bottom=280}={}){
+  if(!['amount','change'].includes(comparison))throw Error('INVALID_CHART_COMPARISON');
+  const unavailable=comparison==='change'?input.filter(s=>units(s.rows[0].amount)===0n):[];
+  const groups=input.filter(s=>!unavailable.includes(s));
+  const rows=groups.flatMap(s=>s.rows).sort((a,b)=>Date.parse(a.observedAt)-Date.parse(b.observedAt));
+  const geometry=chartGeometry(rows,{right,bottom,zeroBaseline:true});
+  if(comparison==='amount'||!rows.length)return {...geometry,groups,unavailable,rows};
+  const scale=10n**36n,values=new Map();for(const group of groups){const base=units(group.rows[0].amount);for(const row of group.rows)values.set(row,(units(row.amount)-base)*100n*scale/base);}
+  const amounts=[...values.values()],low=amounts.reduce((a,b)=>a<b?a:b,0n),high=amounts.reduce((a,b)=>a>b?a:b,0n),padding=(high-low)/10n||scale/100n;
+  const min=low<0n?low-padding:high===0n?-padding:0n,max=high>0n?high+padding:low===0n?padding:0n,span=max-min;
+  return {...geometry,groups,unavailable,rows,points:geometry.points.map(p=>({...p,change:decimalUnits(values.get(p.row)),y:bottom-Number((values.get(p.row)-min)*1000000n/span)/1000000*(bottom-28)})),ticks:Array.from({length:5},(_,i)=>({y:bottom-i*(bottom-28)/4,amount:decimalUnits(min+span*BigInt(i)/4n)}))};
+}
+const percentLabel=value=>{const [whole,tail]=value.split('.');return whole+(tail?'.'+tail.slice(0,2):'')+'%';};
 export function renderNetworkSupplyChart(host,data,coinId,options={}){
   host.replaceChildren();const groups=networkSupplySeries(data,coinId,options);
   if(!groups.length){host.append(el('p','선택한 구간의 공급량 자료가 없습니다.','empty-state'));return;}
   const colors=['#36a9ef','#e59827','#a681ee','#20ad8b','#e57796','#8caa39'];
   const compact=host.clientWidth<600,right=compact?430:870,bottom=compact?240:280,width=compact?600:1040,height=compact?310:350;
   const rows=groups.flatMap(s=>s.rows).sort((a,b)=>Date.parse(a.observedAt)-Date.parse(b.observedAt));
-  const g=chartGeometry(rows,{right,bottom,zeroBaseline:true}),points=new Map(g.points.map(p=>[p.row,p]));
+  const g=supplyComparisonGeometry(groups,{right,bottom,comparison:options.comparison}),points=new Map(g.points.map(p=>[p.row,p])),relative=options.comparison==='change';
+  if(relative)host.append(el('p','선택 구간의 네트워크별 첫 관측 대비 증감률 (%)','chart-note'));
+  if(g.unavailable.length)host.append(el('p',g.unavailable.map(s=>s.network.name).join(' · ')+' · 첫 관측이 0이어서 증감률을 계산할 수 없습니다. 공급량 규모로 확인하세요.','chart-note'));
+  if(!g.groups.length){host.append(el('p','증감률을 계산할 기준값이 없습니다.','empty-state'));return;}
   const legend=el('div',undefined,'network-chart-legend');
-  const figure=svg('svg',{viewBox:`0 0 ${width} ${height}`,role:'group',tabindex:0,'aria-label':'네트워크별 총공급량. 좌우 화살표로 시각, 위아래 화살표로 네트워크 선택. Home 처음, End 마지막.'});figure.classList.add('market-price-chart');
-  for(const tick of g.ticks){figure.append(svg('line',{x1:32,x2:right,y1:tick.y,y2:tick.y,class:'grid-line'}));const text=svg('text',{x:right+20,y:tick.y+4,class:'trend-axis'});text.textContent=displayAmount(tick.amount).replace(/(\.\d{4})\d+/, '$1…');figure.append(text);}
-  groups.forEach((group,i)=>{
+  const figure=svg('svg',{viewBox:`0 0 ${width} ${height}`,role:'group',tabindex:0,'aria-label':`네트워크별 ${relative?'증감률 (%)':'공급량 규모 (tokens)'}. 좌우 화살표로 시각, 위아래 화살표로 네트워크 선택. Home 처음, End 마지막.`});figure.classList.add('market-price-chart');
+  for(const tick of g.ticks){figure.append(svg('line',{x1:32,x2:right,y1:tick.y,y2:tick.y,class:'grid-line'}));const text=svg('text',{x:right+20,y:tick.y+4,class:'trend-axis'});text.textContent=relative?percentLabel(tick.amount):displayAmount(tick.amount).replace(/(\.\d{4})\d+/, '$1…');figure.append(text);}
+  g.groups.forEach((group,i)=>{
     group.points=group.rows.map(row=>points.get(row));const color=colors[i%colors.length],item=el('div',undefined,'network-chart-key'),swatch=el('span',undefined,'network-chart-swatch');swatch.style.background=color;
     item.append(swatch,el('strong',group.network.name),el('span',displayAmount(group.rows.at(-1).amount)));
     const info=options.profileButton?.(group.deploymentId);if(info)item.append(info);legend.append(item);
     const path=svg('polyline',{points:group.points.map(p=>`${p.x},${p.y}`).join(' '),fill:'none',stroke:color,'stroke-width':2.5,'stroke-linejoin':'round','data-network':group.network.id});figure.append(path);
     const last=group.points.at(-1);figure.append(svg('circle',{cx:last.x,cy:last.y,r:3,fill:color}));
   });
-  for(const index of new Set([0,Math.floor((rows.length-1)/2),rows.length-1])){const p=points.get(rows[index]);if(index!==0&&index!==rows.length-1&&(p.x-g.points[0].x<120||g.points.at(-1).x-p.x<120))continue;const text=svg('text',{x:p.x,y:bottom+42,'text-anchor':index===0?'start':index===rows.length-1?'end':'middle',class:'trend-axis'});text.textContent=options.source==='history'?p.row.observedAt.slice(0,10):new Date(p.row.observedAt).toLocaleString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false});figure.append(text);}
-  const tip=el('div',undefined,'chart-point-tooltip'),guide=svg('line',{y1:28,y2:bottom,class:'trend-crosshair'}),dot=svg('circle',{r:5,stroke:'var(--panel)','stroke-width':2});tip.hidden=true;tip.setAttribute('aria-live','polite');figure.append(guide,dot);let groupIndex=0,pointIndex=groups[0].points.length-1;
-  function select(){const group=groups[groupIndex],p=group.points[pointIndex];guide.setAttribute('x1',p.x);guide.setAttribute('x2',p.x);dot.setAttribute('cx',p.x);dot.setAttribute('cy',p.y);dot.setAttribute('fill',colors[groupIndex%colors.length]);tip.replaceChildren(el('strong',group.network.name+' · '+exactDecimal(p.row.amount)+' tokens'),el('span',options.source==='history'?p.row.observedAt.slice(0,10)+' · 일별 기준':when(p.row.observedAt)));}
-  function pointer(event){const origin=figure.createSVGPoint();origin.x=event.clientX;origin.y=event.clientY;const matrix=figure.getScreenCTM();if(!matrix)return;const q=origin.matrixTransform(matrix.inverse());let distance=Infinity;groups.forEach((group,i)=>group.points.forEach((p,j)=>{const d=(p.x-q.x)**2+(p.y-q.y)**2;if(d<distance){distance=d;groupIndex=i;pointIndex=j;}}));select();tip.hidden=false;}
+  for(const index of new Set([0,Math.floor((g.rows.length-1)/2),g.rows.length-1])){const p=points.get(g.rows[index]);if(!p)continue;if(index!==0&&index!==g.rows.length-1&&(p.x-g.points[0].x<120||g.points.at(-1).x-p.x<120))continue;const text=svg('text',{x:p.x,y:bottom+42,'text-anchor':index===0?'start':index===g.rows.length-1?'end':'middle',class:'trend-axis'});text.textContent=['history','minted'].includes(options.source)?p.row.observedAt.slice(0,10):new Date(p.row.observedAt).toLocaleString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false});figure.append(text);}
+  const tip=el('div',undefined,'chart-point-tooltip'),guide=svg('line',{y1:28,y2:bottom,class:'trend-crosshair'}),dot=svg('circle',{r:5,stroke:'var(--panel)','stroke-width':2});tip.hidden=true;tip.setAttribute('aria-live','polite');figure.append(guide,dot);let groupIndex=0,pointIndex=g.groups[0].points.length-1;
+  function select(){const group=g.groups[groupIndex],p=group.points[pointIndex];guide.setAttribute('x1',p.x);guide.setAttribute('x2',p.x);dot.setAttribute('cx',p.x);dot.setAttribute('cy',p.y);dot.setAttribute('fill',colors[groupIndex%colors.length]);tip.replaceChildren(el('strong',group.network.name+' · '+exactDecimal(p.row.amount)+' tokens'),el('span',['history','minted'].includes(options.source)?p.row.observedAt.slice(0,10)+' · 일별 기준':when(p.row.observedAt)));if(relative)tip.append(el('span',percentLabel(p.change)+' · 기준 '+group.rows[0].observedAt.slice(0,10)));}
+  function pointer(event){const origin=figure.createSVGPoint();origin.x=event.clientX;origin.y=event.clientY;const matrix=figure.getScreenCTM();if(!matrix)return;const q=origin.matrixTransform(matrix.inverse());let distance=Infinity;g.groups.forEach((group,i)=>group.points.forEach((p,j)=>{const d=(p.x-q.x)**2+(p.y-q.y)**2;if(d<distance){distance=d;groupIndex=i;pointIndex=j;}}));select();tip.hidden=false;}
   select();figure.addEventListener('pointermove',pointer);figure.addEventListener('pointerdown',pointer);figure.addEventListener('pointerleave',()=>tip.hidden=true);figure.addEventListener('focus',()=>tip.hidden=false);figure.addEventListener('blur',()=>tip.hidden=true);
-  figure.addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End','Escape'].includes(event.key))return;event.preventDefault();if(event.key==='Escape'){tip.hidden=true;return;}if(event.key==='ArrowUp')groupIndex=(groupIndex+groups.length-1)%groups.length;if(event.key==='ArrowDown')groupIndex=(groupIndex+1)%groups.length;const last=groups[groupIndex].points.length-1;pointIndex=Math.min(pointIndex,last);if(event.key==='ArrowLeft')pointIndex=Math.max(0,pointIndex-1);if(event.key==='ArrowRight')pointIndex=Math.min(last,pointIndex+1);if(event.key==='Home')pointIndex=0;if(event.key==='End')pointIndex=last;select();tip.hidden=false;});
-  host.append(legend,figure,tip,el('p','업데이트 '+(options.source==='history'?rows.at(-1).observedAt.slice(0,10)+' · 일별 자료':when(rows.at(-1).observedAt)),'chart-updated'));
+  figure.addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End','Escape'].includes(event.key))return;event.preventDefault();if(event.key==='Escape'){tip.hidden=true;return;}if(event.key==='ArrowUp')groupIndex=(groupIndex+g.groups.length-1)%g.groups.length;if(event.key==='ArrowDown')groupIndex=(groupIndex+1)%g.groups.length;const last=g.groups[groupIndex].points.length-1;pointIndex=Math.min(pointIndex,last);if(event.key==='ArrowLeft')pointIndex=Math.max(0,pointIndex-1);if(event.key==='ArrowRight')pointIndex=Math.min(last,pointIndex+1);if(event.key==='Home')pointIndex=0;if(event.key==='End')pointIndex=last;select();tip.hidden=false;});
+  host.append(legend,figure,tip,el('p','업데이트 '+(['history','minted'].includes(options.source)?rows.at(-1).observedAt.slice(0,10)+' · 일별 자료':when(rows.at(-1).observedAt)),'chart-updated'));
 }

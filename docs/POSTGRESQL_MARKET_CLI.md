@@ -137,3 +137,13 @@ collect는 무료 공개 DeFiLlama 고정3개 endpoint를 한 번씩 읽는다. 
 오프라인 import는 `market:history:import -- --env-file <관리자파일> --manifest <비공개디렉터리>/manifest.json --archive-dir <비공개아카이브>`로 수행한다. manifest는 `{"schemaVersion":1,"sources":[{"coinId":"rlusd","fetchedAt":"2026-10-22T04:50:00.000Z"}]}` 형태이고 같은 디렉터리의 고정 `<coinId>.json` 원문을 읽는다. 실제 다운로드 완료시각을 보존한다. DTO 파일을 원문 대신 제출하거나 수량을 Number로 다시 직렬화하지 않는다. 동일 원문/기간은 unchanged, 원문 변경은 이전 snapshot을 유지하며 새 snapshot으로 추가한다.
 
 조회 응답의 supplyHistory는 NETWORK_CIRCULATING/DEFILLAMA를 별도 제공한다. market.observation/series_latest에 합치지 않으며 XRPL obligations와도 다르다. 주기 갱신은 이번에 추가하지 않았다.
+
+### 일별 발행량과 v2
+
+[ADR0047](adr/0047-daily-minted-and-relative-comparison.md)에 따라 신규 init은 v2까지 설치한다. 기존 v1 설치는 다음 명시 관리 명령으로 업그레이드한다.
+
+```sh
+npm run market:history:upgrade -- --env-file .state/market-db-secrets/admin.env
+```
+
+v1 SQL과 기존 유통량 payload는 보존한다. collect/import는 같은3개 원문에서 유통량·발행량을 별도 metric으로 저장하므로 호출 수는 여전히 최대3회다. v2가 아니면 import는 HISTORY_UPGRADE_REQUIRED다. 기존 manifest 재사용은 외부 요청0회이며 이번 PC에는 이미 적용했다. supplyHistory는 최대6개 coin/metric snapshot, 전체16개 네트워크 시계열이다. 자동 일별 실행 일정은 추가하지 않았다.

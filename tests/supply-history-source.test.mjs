@@ -27,3 +27,10 @@ test('fixed endpoint fetch is one read-only bounded request with no redirects, r
  let failures=0;await assert.rejects(fetchHistorySource('rlusd',async()=>{failures++;return new Response('',{status:429});}),/HISTORY_HTTP_FAILED/);assert.equal(failures,1);
  await assert.rejects(fetchHistorySource('rlusd',async()=>new Response(new ReadableStream({start(c){c.enqueue(new Uint8Array(sourceByteLimit+1));c.close();}}))),/HISTORY_RESPONSE_LIMIT/);
 });
+
+test('minted history is a separate metric from the same raw source; absent minted values never borrow circulating values',()=>{
+ const bytes=response('10'),raw=parseHistorySource(bytes);raw.chainBalances.Ethereum.tokens[0].minted={peggedUSD:'20'};
+ const source=Buffer.from(JSON.stringify(raw)),circulating=historyProjection(source,'rlusd',registry,at),minted=historyProjection(source,'rlusd',registry,at,{metric:'NETWORK_MINTED'});
+ assert.equal(minted.sourceHash,circulating.sourceHash);assert.equal(minted.metric,'NETWORK_MINTED');assert.deepEqual(minted.networks.map(n=>[n.networkId,n.points[0].amount]),[['ethereum','20']]);assert.equal(circulating.networks.length,2);assert.equal(validateSupplyHistory([circulating,minted],registry).length,2);
+ assert.throws(()=>validateSupplyHistory([minted,minted],registry));assert.throws(()=>historyProjection(source,'rlusd',registry,at,{metric:'OTHER'}));
+});

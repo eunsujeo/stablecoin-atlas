@@ -4,21 +4,21 @@ import {workspaceEnvironment} from '../workspace-env.mjs';
 import {boundedJson} from '../market-store.mjs';
 import {boundedRead} from '../evidence-store.mjs';
 import {connectDatabase} from './connection.mjs';
-import {initializeHistory,grantHistoryReader,importHistory,verifyHistoryWriter} from './history.mjs';
+import {initializeHistory,upgradeHistory,grantHistoryReader,importHistory,verifyHistoryWriter} from './history.mjs';
 import {fetchHistorySource,historyProjection,sourceByteLimit} from '../supply-history-source.mjs';
 import {historyAssets,validateSupplyHistory} from '../../web/supply-history-model.js';
 import {validateRegistry} from '../../web/market-model.js';
 import {archiveSources} from './files.mjs';
 import {safeErrorCode} from './errors.mjs';
 export async function main(args,env=process.env,{fetcher=fetch}={}){
- const command=args[0],options={};if(!['init','grant','collect','import'].includes(command))throw Error('INVALID_COMMAND');
+ const command=args[0],options={};if(!['init','upgrade','grant','collect','import'].includes(command))throw Error('INVALID_COMMAND');
  const allowed=['--env-file',...(command==='grant'?['--role']:['collect','import'].includes(command)?['--archive-dir',...(command==='import'?['--manifest']:[])]:[])];
  for(let i=1;i<args.length;i+=2){const flag=args[i];if(!allowed.includes(flag)||Object.hasOwn(options,flag)||!args[i+1]||args[i+1].startsWith('--'))throw Error('INVALID_ARGUMENTS');options[flag]=args[i+1];}
  if(command==='grant'&&!options['--role']||command==='import'&&!options['--manifest'])throw Error('MISSING_ARGUMENT');
  const registry=validateRegistry((await boundedJson(new URL('../../data/asset-registry.json',import.meta.url),128*1024)).value);
  const variables=await workspaceEnvironment(options['--env-file'],options['--env-file']?{}:env),client=await connectDatabase(variables);
  try{
-  if(command==='init')return await initializeHistory(client);if(command==='grant')return await grantHistoryReader(client,options['--role']);
+  if(command==='init')return await initializeHistory(client);if(command==='upgrade')return await upgradeHistory(client);if(command==='grant')return await grantHistoryReader(client,options['--role']);
   await verifyHistoryWriter(client);const sources=[],snapshots=[];
   let entries=Object.keys(historyAssets).map(coinId=>({coinId}));
   if(command==='import'){
@@ -29,7 +29,7 @@ export async function main(args,env=process.env,{fetcher=fetch}={}){
   }
   for(const entry of entries){
    const bytes=command==='collect'?await fetchHistorySource(entry.coinId,fetcher):await boundedRead(join(dirname(options['--manifest']),entry.coinId+'.json'),sourceByteLimit);
-   const p=historyProjection(bytes,entry.coinId,registry,command==='collect'?new Date().toISOString():entry.fetchedAt);snapshots.push(p);sources.push({hash:p.sourceHash,bytes});
+   const fetchedAt=command==='collect'?new Date().toISOString():entry.fetchedAt;const p=historyProjection(bytes,entry.coinId,registry,fetchedAt);snapshots.push(p,historyProjection(bytes,entry.coinId,registry,fetchedAt,{metric:'NETWORK_MINTED'}));sources.push({hash:p.sourceHash,bytes});
   }
   validateSupplyHistory(snapshots,registry);
   // All responses must validate before durable DB publication; file conflicts never overwrite bytes.

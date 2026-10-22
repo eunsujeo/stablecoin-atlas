@@ -1,0 +1,9 @@
+# 일별 발행량과 XRPL 비교 개선
+- 목표: XRPL의 작은 공급량을 읽을 수 있게 개선하고, Overview 최근 공급량 선택 제거 및 일별 발행량 추가. 화면에 ‘과거’ 수식어를 쓰지 않음.
+- 끝난 것: Overview 자료 선택은 일별 유통량/일별 발행량만, 기본 증감률(%)와 공급량 규모(tokens/0 기준) 전환. 구간별 최초 관측 대비 bigint 계산, 감소 음수/기준0 계산 불가 안내, 정확 수량·원본일·기준일 tooltip. 기존 공급자 원문 minted를 분리한 NETWORK_MINTED 추가. private history v2 명시 upgrade, 기존 v1 SQL/hash와3개 circulating payload 보존, 신규 minted3개로6snapshot/16개 지표·네트워크 시계열/5856일별 값. 기존 market462/network78 facts와 market/catalog fingerprint 유지. 추가 공급자 호출0. 일별 값은 오늘2026-10-22까지며 실시간/하루 최종 확정값은 아님. 자동 일별 일정은 미구현.
+- 변경 파일: db/history/002-supply-metric.sql, tools/market-db/history.mjs, tools/market-db/history-cli.mjs, tools/supply-history-source.mjs, web/supply-history-model.js, web/market-chart.js, web/overview.js, web/index.html, web/styles.css, tests/postgres/history.test.mjs, tests/supply-history-source.test.mjs, web/market-chart.test.mjs
+- 검증: npm run check rc0 tests273/pass273/fail0; npm run check:db rc0 tests14/pass14/fail0. targeted node --test 3개 파일 rc0 tests15/pass15/fail0. .state/supply-comparison-browser.mjs rc0(16시계열·정확 수량/기준일·증감률/규모·1Y/3M·XRPL·390px·기준0/미확보·초기 오류 없음·외부 요청0). .state/history-catalog-qa.mjs rc0. 실제 Supabase v2 upgrade/import/reimport 및 원 payload/facts 보존과 TLS 검증 완료. .state/agent-logs/supply-comparison-*.log, history-minted-live.json.
+- 기다리는 것: 구현 결과 없음. 기존 review a0cc1be5dd2e40efa8af95f5717244f0 delivery_uncertain은 사용자의 단독 검증 진행 승인으로 대기 생략, 재전송하지 않음. 읽기 UI PID2282/4173 유지. 수집기를 재시작하지 않음.
+- 다음 행동: 사용자 다음 요청. DB v1/v2 SQL을 이미 적용했으므로 수정하지 말고 새 migration 필요. 현재 기본 비교는 증감률이므로 실제 수량 축은 공급량 규모 버튼. UI에는 과거/최근 공급량 선택을 복원하지 않음. unrelated docs/handoff/2026-10-22-router-lead-review.md 유지.
+- 사용자 확인 필요: 아니오
+- 읽을 파일: docs/adr/0047-daily-minted-and-relative-comparison.md, docs/adr/0046-daily-network-circulation-history.md, docs/MARKET_CHARTS.md, docs/POSTGRESQL_MARKET_CLI.md, docs/DEVELOPMENT_STATUS.md

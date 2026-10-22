@@ -65,3 +65,5 @@ Overview 변경 후 전체 검사는241개 통과(실패·취소·skip0). Chrome
 Overview 공급량 차트는 토큰 선택 시 확보한 네트워크를 공통 시간·0 기준 공급량 축에 서로 다른 색으로 표시한다. 개별 네트워크 선택도 유지한다. 하단은 실제 관측 업데이트 시각만 표시하고 원본 수량은 hover/키보드 툴팁에 둔다.
 
 과거 일별 유통량은 [ADR0046](adr/0046-daily-network-circulation-history.md)으로 확장했다. 실제 Supabase의 private atlas_history에3자산·8네트워크·2928개 일별 값(2025-10-22~2026-10-22)을 별도 저장했다. 기존462시장/78네트워크 관측과8개 기본정보 및 두 schema fingerprint는 유지했다. Overview에서 DeFiLlama 일별 유통량1년/3개월과 Arkham 최근 총공급량을 구분해 선택한다. XRPL의 오늘 일별 값은 실시간 값이 아니다. 과거 자료는 이번 단발 import이며 자동 갱신을 추가하지 않았다.
+
+후속 [ADR0047](adr/0047-daily-minted-and-relative-comparison.md)으로 일별 발행량을 별도 저장했다. history v2 명시 upgrade 후6snapshot/16개 지표·네트워크 시계열/5856개 일별 값이다. 기존 circulating payload3개와 core 데이터는 유지했다. Overview는 일별 유통량/발행량만 선택하고 기본 증감률(%)·공급량 규모 전환을 제공한다. 화면에 ‘과거’ 수식어와 최근 Arkham 공급량 선택은 두지 않는다.

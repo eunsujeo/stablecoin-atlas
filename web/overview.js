@@ -2,11 +2,11 @@ import {tokenInfoButton} from './token-profile.js';
 import {beginLoading} from './loading.js';
 import {sparkline, renderNetworkSupplyChart, networkSupplySeries} from './market-chart.js';
 import { dashboardEvidence, VERDICTS, reportLinks } from './evidence-model.js';
-import { validateMarket, displayAmount, latest, rank, ratio, units } from './market-model.js';
+import { validateMarket, displayAmount, ratio, units, latest } from './market-model.js';
 import { overviewSummary, overviewRanking, overviewEvidenceRanking } from './overview-model.js';
 const $=selector=>document.querySelector(selector);
 const node=(tag,text,cls)=>{const el=document.createElement(tag);if(text!==undefined)el.textContent=String(text);if(cls)el.className=cls;return el;};
-const state={index:null,market:null,loading:false,loaded:false,period:'30d',sourceInitialized:false};
+const state={index:null,market:null,loading:false,loaded:false,period:'30d',sourceInitialized:false,comparison:'change'};
 const when=value=>new Date(value).toLocaleString('ko-KR',{hour12:false});
 const labels={PASS:'통과',FAIL:'실패',INCONCLUSIVE:'판정 불충분',NOT_TESTED:'미검증',NOT_APPLICABLE:'비적용',UNSUPPORTED:'지원 범위 밖'};
 async function json(path){
@@ -54,14 +54,18 @@ function renderEvidenceRankings(){
   }
 }
 function populateTrendSource(){
-  const select=$('#overview-trend-source'),previous=select.value,hasHistory=!!state.market?.supplyHistory?.length;select.replaceChildren();
-  if(hasHistory){const option=node('option','일별 유통량 · DeFiLlama');option.value='history';select.append(option);}
-  const recent=node('option','최근 총공급량 · Arkham');recent.value='recent';select.append(recent);
-  select.value=hasHistory&&(!state.sourceInitialized||previous==='history')?'history':'recent';
-  if(!state.sourceInitialized&&hasHistory)state.period='1y';state.sourceInitialized=!!state.market;
+  const select=$('#overview-trend-source'),previous=select.value;select.replaceChildren();
+  for(const [metric,value,label]of [['NETWORK_CIRCULATING','history','일별 유통량'],['NETWORK_MINTED','minted','일별 발행량']]){
+    if(state.market?.supplyHistory?.some(s=>s.metric===metric)){const option=node('option',label);option.value=value;select.append(option);}
+  }
+  const available=select.options.length>0;
+  if(!available){const option=node('option','일별 자료 미확보');option.value='history';select.append(option);}
+  select.disabled=!available;
+  if([...select.options].some(o=>o.value===previous))select.value=previous;
+  if(!state.sourceInitialized&&available)state.period='1y';state.sourceInitialized=!!state.market;
   updateTrendPeriods();
 }
-function updateTrendPeriods(){const historical=$('#overview-trend-source').value==='history';for(const b of $('#overview-trend-period').querySelectorAll('button')){b.hidden=historical?['24h','7d'].includes(b.dataset.period):['90d','1y'].includes(b.dataset.period);b.setAttribute('aria-pressed',String(b.dataset.period===state.period));}}
+function updateTrendPeriods(){for(const b of $('#overview-trend-period').querySelectorAll('button[data-period]')){b.hidden=['24h','7d'].includes(b.dataset.period);b.setAttribute('aria-pressed',String(b.dataset.period===state.period));}}
 function populateTrendNetworks(){
   const select=$('#overview-trend-network'),previous=select.value,data=state.market,coinId=$('#overview-trend-coin').value;
   select.replaceChildren();
@@ -81,28 +85,27 @@ function renderMarketTrend(){
   const host=$('#overview-market-trend'),chains=$('#overview-chain-breakdown'),note=$('#overview-trend-note');
   host.replaceChildren();chains.replaceChildren();
   if(!state.market){host.append(node('p','시장 자료를 읽으면 네트워크별 공급량 추이를 표시합니다.','empty-state'));note.textContent='시장 자료 미확보';return;}
-  const data=state.market,coinId=$('#overview-trend-coin').value,networkId=$('#overview-trend-network').value,historical=$('#overview-trend-source').value==='history';
+  const data=state.market,coinId=$('#overview-trend-coin').value,networkId=$('#overview-trend-network').value,source=$('#overview-trend-source').value;
+  const minted=source==='minted',metricLabel=minted?'발행량':'유통량';
   const coin=data.registry.coins.find(c=>c.id===coinId),network=data.registry.networks.find(n=>n.id===networkId);
   const deployment=data.registry.deployments.find(d=>d.coinId===coinId&&d.networkId===networkId);
-  const observation=deployment?latest(data,{coinId,deploymentId:deployment.id,metric:'CHAIN_TOTAL'})[0]:null;
-  const title=`${coin?.symbol??'토큰'} · ${networkId==='all'?'네트워크별':network?.name??'네트워크'} ${historical?'유통량':'공급량'} 추이`;
+  const title=`${coin?.symbol??'토큰'} · ${networkId==='all'?'네트워크별':network?.name??'네트워크'} ${metricLabel} 추이`;
   const info=deployment?tokenInfoButton(data,deployment.id,title+' ⓘ'):null;
   $('#overview-trend-title').replaceChildren(info??document.createTextNode(title));
-  $('#overview-trend-scope').textContent=historical?'DeFiLlama · 네트워크별 일별 유통량 · tokens':'Arkham · 네트워크별 총공급량 · tokens';
-  $('.overview-chain-panel h3').textContent=historical?'네트워크별 유통량':'네트워크별 공급량';
-  $('.overview-chain-panel > .muted').textContent=historical?'일별 유통량 비교 · 실시간 값과 다를 수 있습니다.':'같은 코인의 체인별 총공급량 비교';
-  if(historical||observation||networkId==='all')renderNetworkSupplyChart(host,data,coinId,{period:state.period,networkId,source:historical?'history':'recent',profileButton:id=>tokenInfoButton(data,id)});
-  else host.append(node('p',`${coin?.symbol??'선택한 토큰'} · ${network?.name??'선택한 네트워크'} 총공급량 자료가 없습니다.${networkId==='xrpl'?' XRPL obligations는 별도 지표이며 이 그래프에 합치지 않습니다.':''}`,'empty-state'));
+  $('#overview-trend-scope').textContent=`DeFiLlama · 네트워크별 일별 ${metricLabel} · ${state.comparison==='change'?'첫 관측 대비 증감률 (%)':'tokens'}`;
+  $('.overview-chain-panel h3').textContent=`네트워크별 ${metricLabel}`;
+  $('.overview-chain-panel > .muted').textContent=`일별 ${metricLabel} 비교`;
+  renderNetworkSupplyChart(host,data,coinId,{period:state.period,networkId,comparison:state.comparison,source,profileButton:id=>tokenInfoButton(data,id)});
   note.textContent='';note.hidden=true;
-  const rows=historical?networkSupplySeries(data,coinId,{source:'history'}).map(s=>({networkId:s.network.id,amount:s.rows.at(-1).amount})).sort((a,b)=>units(a.amount)>units(b.amount)?-1:units(a.amount)<units(b.amount)?1:0):rank(data,coinId);
+  const rows=networkSupplySeries(data,coinId,{source}).map(s=>({networkId:s.network.id,amount:s.rows.at(-1).amount})).sort((a,b)=>units(a.amount)>units(b.amount)?-1:units(a.amount)<units(b.amount)?1:0);
   for(const row of rows){
     const network=data.registry.networks.find(n=>n.id===row.networkId),item=node('button',undefined,'overview-chain-item'),heading=node('div');
     heading.append(node('strong',network.name),node('span',displayAmount(row.amount)));
-    item.type='button';item.dataset.network=row.networkId;item.setAttribute('aria-pressed',String(row.networkId===networkId));item.setAttribute('aria-label',`${coin.symbol} · ${network.name} ${historical?'유통량':'공급량'} 추이 보기`);item.addEventListener('click',()=>{$('#overview-trend-network').value=row.networkId;renderMarketTrend();$('#overview-chain-breakdown').querySelector(`[data-network="${row.networkId}"]`)?.focus({preventScroll:true});});
+    item.type='button';item.dataset.network=row.networkId;item.setAttribute('aria-pressed',String(row.networkId===networkId));item.setAttribute('aria-label',`${coin.symbol} · ${network.name} ${metricLabel} 추이 보기`);item.addEventListener('click',()=>{$('#overview-trend-network').value=row.networkId;renderMarketTrend();$('#overview-chain-breakdown').querySelector(`[data-network="${row.networkId}"]`)?.focus({preventScroll:true});});
     const track=node('div',undefined,'track'),fill=node('span',undefined,'track-fill');fill.style.width=ratio(row.amount,rows[0].amount)+'%';track.append(fill);item.append(heading,track);chains.append(item);
   }
   if(!rows.length)chains.append(node('p','체인별 공급량 미확보','muted'));
-  chains.append(node('p',historical?'네트워크별 유통량은 DeFiLlama 집계입니다. 총공급량과 구분해 표시합니다.':'체인별 총공급량은 코인 전체 유통량과 별도 지표입니다. 확보한 네트워크만 표시합니다.','chart-note'));
+  chains.append(node('p',`네트워크별 ${metricLabel}은 DeFiLlama 집계입니다.`,'chart-note'));
 }
 function renderMarket(){
   const select=$('#overview-trend-coin'),previous=select.value;select.replaceChildren();
@@ -152,8 +155,10 @@ setInterval(()=>{if(!$('#overview-screen').hidden&&!document.hidden)load();},600
 
 $('#overview-trend-coin').addEventListener('change',()=>{$('#overview-trend-network').value='all';populateTrendNetworks();renderMarketTrend();});
 $('#overview-trend-network').addEventListener('change',renderMarketTrend);
-$('#overview-trend-period').addEventListener('click',event=>{const button=event.target.closest('button[data-period]');if(!button)return;state.period=button.dataset.period;for(const item of $('#overview-trend-period').querySelectorAll('button'))item.setAttribute('aria-pressed',String(item===button));renderMarketTrend();});
+$('#overview-trend-period').addEventListener('click',event=>{const button=event.target.closest('button[data-period]');if(!button)return;state.period=button.dataset.period;for(const item of $('#overview-trend-period').querySelectorAll('button[data-period]'))item.setAttribute('aria-pressed',String(item===button));renderMarketTrend();});
 let overviewTrendWidth=0;
 new ResizeObserver(entries=>{const width=Math.round(entries[0].contentRect.width);if(width>0&&width!==overviewTrendWidth){overviewTrendWidth=width;renderMarketTrend();}}).observe($('#overview-market-trend'));
 
-$('#overview-trend-source').addEventListener('change',()=>{state.period=$('#overview-trend-source').value==='history'?'1y':'30d';updateTrendPeriods();$('#overview-trend-network').value='all';populateTrendNetworks();renderMarketTrend();});
+$('#overview-trend-source').addEventListener('change',()=>{state.period='1y';updateTrendPeriods();$('#overview-trend-network').value='all';populateTrendNetworks();renderMarketTrend();});
+
+$('#overview-trend-period').addEventListener('click',event=>{const button=event.target.closest('button[data-comparison]');if(!button)return;state.comparison=button.dataset.comparison;for(const item of $('#overview-trend-period').querySelectorAll('button[data-comparison]'))item.setAttribute('aria-pressed',String(item===button));renderMarketTrend();});

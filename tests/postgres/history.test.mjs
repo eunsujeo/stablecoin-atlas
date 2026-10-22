@@ -5,10 +5,10 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {fixture} from './fixture.mjs';
 import {connectDatabase} from '../../tools/market-db/connection.mjs';
-import {initialize,partition,grantAccess,verifySchema} from '../../tools/market-db/schema.mjs';
-import {initializeHistory,importHistory,grantHistoryReader} from '../../tools/market-db/history.mjs';
+import {initialize,partition,grantAccess,verifySchema,structureHash} from '../../tools/market-db/schema.mjs';
+import {initializeHistory,upgradeHistory,importHistory,grantHistoryReader} from '../../tools/market-db/history.mjs';
 import {importSources} from '../../tools/market-db/repository.mjs';
-import {importPlan} from '../../tools/market-db/plan.mjs';
+import {importPlan,canonical,digest} from '../../tools/market-db/plan.mjs';
 import {databaseMarket} from '../../tools/market-db/preview.mjs';
 import {historyProjection} from '../../tools/supply-history-source.mjs';
 const registry=JSON.parse(await readFile(new URL('../../data/asset-registry.json',import.meta.url)));
@@ -31,7 +31,23 @@ test('history PG17: isolated immutable snapshots, reader RLS, source/period idem
   await f.admin.query('GRANT UPDATE(projection) ON atlas_history.snapshot TO atlas_test_historyreader');await assert.rejects(read(),/HISTORY_PRIVILEGES_UNSAFE/);await f.admin.query('REVOKE UPDATE(projection) ON atlas_history.snapshot FROM atlas_test_historyreader');
   await f.admin.query('GRANT EXECUTE ON FUNCTION atlas_history.reject_mutation() TO PUBLIC');await assert.rejects(read(),/HISTORY_/);await f.admin.query('REVOKE ALL ON FUNCTION atlas_history.reject_mutation() FROM PUBLIC');
   await f.admin.query('ALTER TABLE atlas_history.snapshot DISABLE TRIGGER immutable_record');await assert.rejects(read(),/HISTORY_SCHEMA_MISMATCH/);await f.admin.query('ALTER TABLE atlas_history.snapshot ENABLE TRIGGER immutable_record');
-  const query=reader.query.bind(reader);let changed=false;const latest={...snapshot('rlusd','1600000000'),fetchedAt:'2026-10-22T05:20:00.000Z'};reader.query=async(...args)=>{if(typeof args[0]==='string'&&args[0].includes('SELECT DISTINCT ON (s.coin_id)')&&!changed){changed=true;await importHistory(f.admin,registry,[latest]);}return query(...args);};assert.deepEqual((await read()).supplyHistory,[newer]);reader.query=query;assert.deepEqual((await read()).supplyHistory,[latest]);
+  const query=reader.query.bind(reader);let changed=false;const latest={...snapshot('rlusd','1600000000'),fetchedAt:'2026-10-22T05:20:00.000Z'};reader.query=async(...args)=>{if(typeof args[0]==='string'&&args[0].includes('SELECT DISTINCT ON (s.coin_id')&&!changed){changed=true;await importHistory(f.admin,registry,[latest]);}return query(...args);};assert.deepEqual((await read()).supplyHistory,[newer]);reader.query=query;assert.deepEqual((await read()).supplyHistory,[latest]);
   assert.equal((await f.admin.query("SELECT encode(structure_hash,'hex') AS hash FROM atlas_market.schema_version")).rows[0].hash,fingerprint);await verifySchema(f.admin);
+ }finally{await reader?.end();await writer?.end();await second?.end();await f.stop();await rm(directory,{recursive:true,force:true});}
+});
+
+test('history v1 upgrade preserves existing immutable circulating payloads and enables distinct minted snapshots atomically',{timeout:120000},async()=>{
+ const f=await fixture(),directory=await mkdtemp(join(tmpdir(),'atlas-history-upgrade-'));let reader,writer,second;
+ try{
+  await initialize(f.admin);await partition(f.admin,'2026-10');
+  const readerUrl=await f.createUser('atlas_test_upgradereader'),writerUrl=await f.createUser('atlas_test_upgradewriter');await grantAccess(f.admin,'atlas_test_upgradereader','reader');await grantAccess(f.admin,'atlas_test_upgradewriter','writer');reader=await connectDatabase({DATABASE_URL:readerUrl});writer=await connectDatabase({DATABASE_URL:writerUrl});
+  await importSources(writer,{registry,sources:[importPlan(registry,Buffer.from(JSON.stringify({requests:[{endpoint:'/token/market/usd-coin',state:'SUCCESS',httpStatus:200,observedAt:'2026-10-22T00:00:00.000Z',data:{price:'1'}}]})))],archiveDirectory:join(directory,'core')});
+  const sql=await readFile(new URL('../../db/history/001-initial.sql',import.meta.url));await f.admin.query(sql.toString());for(const table of ['schema_version','reader_grant','snapshot'])await f.admin.query('CREATE POLICY installer ON atlas_history.'+table+' TO postgres USING(true) WITH CHECK(true)');
+  await f.admin.query('INSERT INTO atlas_history.schema_version VALUES(1,$1,$2)',[Buffer.from(digest(sql),'hex'),Buffer.from(await structureHash(f.admin,'atlas_history'),'hex')]);
+  const p=snapshot(),coin=(await f.admin.query("SELECT id FROM atlas_market.coin WHERE code='rlusd'")).rows[0].id;
+  await f.admin.query('INSERT INTO atlas_history.snapshot VALUES($1,$2,$3,$4,$5,$6)',[coin,Buffer.from(p.sourceHash,'hex'),p.to,p.fetchedAt,JSON.stringify(p),Buffer.from(digest(canonical(p)),'hex')]);await grantHistoryReader(f.admin,'atlas_test_upgradereader');
+  const read=()=>databaseMarket(reader,registry,{now:Date.parse('2026-10-22T06:00:00.000Z')});assert.deepEqual((await read()).supplyHistory,[p]);await assert.rejects(importHistory(f.admin,registry,[p]),/HISTORY_UPGRADE_REQUIRED/);
+  second=await connectDatabase({DATABASE_URL:f.url('postgres')});const upgrades=await Promise.all([upgradeHistory(f.admin),upgradeHistory(second)]);assert.equal(upgrades.filter(r=>r.state==='UPGRADED').length,1);assert.deepEqual((await read()).supplyHistory,[p]);
+  const minted={...structuredClone(p),metric:'NETWORK_MINTED'};minted.networks[0].points[0].amount='2000000000';assert.equal((await importHistory(f.admin,registry,[p,minted])).inserted,1);assert.deepEqual((await read()).supplyHistory,[p,minted]);assert.equal((await importHistory(f.admin,registry,[p,minted])).unchanged,2);await verifySchema(f.admin);
  }finally{await reader?.end();await writer?.end();await second?.end();await f.stop();await rm(directory,{recursive:true,force:true});}
 });
