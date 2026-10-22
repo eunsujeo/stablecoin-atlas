@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 """Start a fresh Codex conversation (/new) in a named Herdr agent pane.
 
-An agent cannot clear its own conversation, so the coordinator (router-coord) or the
-Lead bridge sends /new from outside. Never resends after an uncertain step.
+An agent cannot clear its own conversation. router-impl schedules its own renewal as the
+last step of a task; a detached watcher sends /new after the turn ends and the pane stays
+idle for a grace period. The Lead bridge renews router-lead per request. Never resends
+after an uncertain step.
 """
 import argparse
+import fcntl
+import os
 import json
 from pathlib import Path
 import subprocess
@@ -18,6 +22,15 @@ CHOOSER = "Where should the new conversation run"
 BANNER = "OpenAI Codex"
 HANDOFF = lead.REPO / "docs/handoff"
 RECORDS = lead.ROOT / ".state/renew"
+EMPTY_INPUT = "Ask Codex to do anything"
+GRACE_SECONDS = 120
+DEADLINE_SECONDS = 3600
+POLL_SECONDS = 5
+DAILY_LIMIT = 6
+CHAIN_LIMIT = 3
+BACKGROUND = "background terminal"
+HANDOFF_FIELDS = ("목표", "끝난 것", "변경 파일", "검증", "기다리는 것", "다음 행동", "사용자 확인 필요", "읽을 파일")
+HANDOFF_MAX_CHARS = 3000
 
 
 def wait_output(pane, text, timeout_ms=8000):
@@ -34,9 +47,8 @@ def renew(name):
         raise RuntimeError("agent_not_idle")
     pane = entry["pane_id"]
     lead.herdr("agent", "prompt", name, "/new")
-    if not wait_output(pane, CHOOSER):
-        raise RuntimeError("renew_uncertain: worktree chooser not shown")
-    lead.herdr("agent", "send-keys", name, "enter")
+    if wait_output(pane, CHOOSER):
+        lead.herdr("agent", "send-keys", name, "enter")
     if not wait_output(pane, BANNER):
         raise RuntimeError("renew_uncertain: new conversation banner not shown")
     entry = lead.agent(name)
@@ -52,10 +64,186 @@ def checked_handoff(name, value):
     record = RECORDS / (name + ".json")
     if record.exists() and path.stat().st_mtime <= json.loads(record.read_text())["renewed_at"]:
         raise ValueError("Handoff is not newer than the last renewal")
-    return path.relative_to(lead.REPO)
+    fields = handoff_fields(path.read_text())
+    missing = [field for field in HANDOFF_FIELDS if field not in fields]
+    if missing:
+        raise ValueError("Handoff misses fields (docs/handoff/README.md): " + ", ".join(missing))
+    if len(path.read_text()) > HANDOFF_MAX_CHARS:
+        raise ValueError("Handoff is too long; point to files instead of copying content")
+    return path.relative_to(lead.REPO), fields
+
+
+def handoff_fields(text):
+    fields = {}
+    for line in text.splitlines():
+        if line.startswith("- ") and ":" in line:
+            key, value = line[2:].split(":", 1)
+            fields[key.strip()] = value.strip()
+    return fields
+
+
+def needs_user(fields):
+    return not fields.get("사용자 확인 필요", "").startswith("아니오")
+
+
+def history(name):
+    path = RECORDS / (name + ".history.json")
+    return json.loads(path.read_text()) if path.exists() else {"renewals": [], "chain": 0}
+
+
+def limit_reason(name, now=time.time):
+    value = history(name)
+    if sum(1 for at in value["renewals"] if at > now() - 86400) >= DAILY_LIMIT:
+        return "stopped_daily_limit"
+    if value["chain"] >= CHAIN_LIMIT:
+        return "stopped_chain_limit"
+    return None
+
+
+def remember(name, state):
+    """Count automatic renewals; any human/other-session continuation resets the chain."""
+    value = history(name)
+    if state == "renewed":
+        value["renewals"] = [at for at in value["renewals"] if at > time.time() - 86400] + [time.time()]
+        value["chain"] += 1
+    elif state.startswith("cancelled"):
+        value["chain"] = 0
+    lead.write(RECORDS / (name + ".history.json"), value)
+
+
+def reset_chain(name):
+    value = history(name)
+    value["chain"] = 0
+    lead.write(RECORDS / (name + ".history.json"), value)
+
+
+def screen(name):
+    process = subprocess.run(["herdr", "agent", "read", name, "--source", "visible"],
+                             capture_output=True, text=True, timeout=10)
+    return process.stdout if process.returncode == 0 else ""
+
+
+def screen_reason(text):
+    """Return why the visible Codex screen forbids renewal, or None."""
+    if EMPTY_INPUT not in text:
+        return "cancelled_input_pending"
+    if BACKGROUND in text:
+        return "waiting_background"
+    body = text.split("\u203a " + EMPTY_INPUT)[0].splitlines()
+    tail = [line.strip() for line in body if line.strip()][-12:]
+    if any("?" in line or "\uff1f" in line for line in tail):
+        return "cancelled_question"
+    return None
+
+
+def open_lead_request(name):
+    return any(row.get("source") == name and row["state"] in {"pending", "dispatching", "delivered", "delivery_uncertain"}
+               for row in lead.entries())
+
+
+def renew_with_handoff(name, handoff):
+    renew(name)
+    lead.write(RECORDS / (name + ".json"), {"handoff": str(handoff), "renewed_at": time.time()})
+    lead.herdr("agent", "prompt", name,
+               f"새 대화입니다. 인계문 {handoff}을 읽고 '다음 행동'부터 이어서 진행하세요. "
+               "AGENTS.md 규칙을 따릅니다.")
+
+
+def wait_and_renew(name, handoff, now=time.time, sleep=time.sleep):
+    """Wait for the scheduling turn to end, then renew after GRACE_SECONDS of untouched idle.
+
+    Any status change after idle (a user, router-coord, or any other prompt) means the session
+    continued: cancel, because the handoff no longer describes it. Background terminals or an
+    open Lead request restart the grace period; a question or blocked UI cancels.
+    """
+    deadline = now() + DEADLINE_SECONDS
+    idle_since = idle_seq = None
+    while now() < deadline:
+        entry = lead.agent(name)
+        status, seq = entry.get("agent_status"), entry.get("state_change_seq")
+        if status == "blocked":
+            return "cancelled_blocked"
+        if status in {"idle", "done"}:
+            if idle_since is None:
+                idle_since, idle_seq = now(), seq
+            elif seq != idle_seq:
+                return "cancelled_user_continued"
+            elif now() - idle_since >= GRACE_SECONDS:
+                reason = screen_reason(screen(name))
+                if reason == "waiting_background" or (reason is None and open_lead_request(name)):
+                    idle_since = None
+                elif reason:
+                    return reason
+                else:
+                    try:
+                        renew_with_handoff(name, handoff)
+                    except (RuntimeError, ValueError, OSError, subprocess.SubprocessError):
+                        return "renew_uncertain"
+                    return "renewed"
+        elif idle_since is not None:
+            return "cancelled_user_continued"
+        sleep(POLL_SECONDS)
+    return "expired"
+
+
+def notify(name, state):
+    if state != "renewed":
+        subprocess.run(["herdr", "notification", "show", f"{name} 자동 새 대화 안 함",
+                        "--body", f"{state} (tools/intelligent-router/.state/renew)", "--sound", "request"],
+                       capture_output=True, timeout=10)
+
+
+def schedule(name, value):
+    handoff, fields = checked_handoff(name, value)
+    if needs_user(fields):
+        raise ValueError("다음 행동에 사용자 확인이 필요하므로 예약하지 않는다 (사용자 확인 필요: 아니오 일 때만)")
+    reason = limit_reason(name)
+    if reason:
+        notify(name, reason)
+        raise ValueError(reason + ": 사용자 확인 후 renew.py reset router-impl")
+    RECORDS.mkdir(parents=True, exist_ok=True, mode=0o700)
+    lead.write(RECORDS / (name + ".pending.json"),
+               {"handoff": str(handoff), "scheduled_at": time.time(), "state": "scheduled"})
+    with open(os.devnull, "wb") as sink:
+        subprocess.Popen([sys.executable, __file__, "watch", name], cwd=lead.REPO, stdin=subprocess.DEVNULL,
+                         stdout=sink, stderr=sink, start_new_session=True)
+    return handoff
+
+
+def watch(name):
+    with (RECORDS / (name + ".watch.lock")).open("a") as lock:
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            return "watcher_busy"
+        pending_path = RECORDS / (name + ".pending.json")
+        pending = json.loads(pending_path.read_text())
+        pending["state"] = wait_and_renew(name, pending["handoff"])
+        pending["finished_at"] = time.time()
+        lead.write(pending_path, pending)
+        remember(name, pending["state"])
+        notify(name, pending["state"])
+        return pending["state"]
 
 
 def main():
+    if sys.argv[1:2] == ["schedule"]:
+        parser = argparse.ArgumentParser(description="Renew router-impl after this turn ends")
+        parser.add_argument("command")
+        parser.add_argument("agent", choices=["router-impl"])
+        parser.add_argument("--handoff", required=True)
+        args = parser.parse_args()
+        handoff = schedule(args.agent, args.handoff)
+        print(json.dumps({"agent": args.agent, "state": "scheduled", "handoff": str(handoff),
+                          "grace_seconds": GRACE_SECONDS}, ensure_ascii=False))
+        return
+    if sys.argv[1:3] == ["reset", "router-impl"]:
+        reset_chain("router-impl")
+        print(json.dumps({"agent": "router-impl", "chain": 0}))
+        return
+    if sys.argv[1:2] == ["watch"]:
+        print(watch(sys.argv[2]))
+        return
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("agent", choices=["router-impl", "router-lead"])
     parser.add_argument("--handoff", help="docs/handoff/<file>.md (required for router-impl)")
@@ -72,12 +260,9 @@ def main():
         return
     if not args.handoff:
         raise SystemExit("--handoff docs/handoff/<file>.md is required for router-impl")
-    handoff = checked_handoff(args.agent, args.handoff)
-    renew(args.agent)
-    lead.write(RECORDS / (args.agent + ".json"), {"handoff": str(handoff), "renewed_at": time.time()})
-    lead.herdr("agent", "prompt", args.agent,
-               f"새 대화입니다. 인계문 {handoff}을 읽고 '다음 행동'부터 이어서 진행하세요. "
-               "AGENTS.md 규칙을 따릅니다.")
+    handoff, _ = checked_handoff(args.agent, args.handoff)
+    renew_with_handoff(args.agent, handoff)
+    reset_chain(args.agent)  # A manual renewal is a human checkpoint.
     print(json.dumps({"agent": args.agent, "state": "renewed", "handoff": str(handoff)}, ensure_ascii=False))
 
 
