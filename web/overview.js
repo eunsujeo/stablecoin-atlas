@@ -55,17 +55,13 @@ function renderEvidenceRankings(){
 function populateTrendNetworks(){
   const select=$('#overview-trend-network'),previous=select.value,data=state.market,coinId=$('#overview-trend-coin').value;
   select.replaceChildren();
-  const deployments=data?.registry.deployments.filter(d=>d.coinId===coinId)??[];
+  const deployments=data?.registry.deployments.filter(d=>d.coinId===coinId&&latest(data,{coinId,deploymentId:d.id,metric:'CHAIN_TOTAL'}).length>0)??[];
   for(const deployment of deployments){
     const network=data.registry.networks.find(n=>n.id===deployment.networkId);
-    const available=latest(data,{coinId,deploymentId:deployment.id,metric:'CHAIN_TOTAL'}).length>0;
-    const option=node('option',network.name+(available?'':' · 자료 미확보'));option.value=network.id;select.append(option);
+    const option=node('option',network.name);option.value=network.id;select.append(option);
   }
   if(deployments.some(d=>d.networkId===previous))select.value=previous;
-  else {
-    const available=deployments.find(d=>latest(data,{coinId,deploymentId:d.id,metric:'CHAIN_TOTAL'}).length);
-    if(available)select.value=available.networkId;
-  }
+  if(!deployments.length){const option=node('option','표시할 네트워크 없음');option.value='';select.append(option);}
   select.disabled=!deployments.length;
 }
 function renderMarketTrend(){
@@ -129,7 +125,6 @@ async function load(){
   const collectionFailed=state.market?.collectionState?.state==='FAILED'||state.market?.lastBuildState==='FAILED';
   $('#overview-error').hidden=!failed.length&&!collectionFailed;
   $('#overview-error').textContent=failed.length?`${failed.join(' · ')}를 읽지 못했습니다. 이전 정상 자료가 있으면 원래 시각을 유지해 표시합니다.`:'최근 시장 수집 또는 자료 생성 실패 · 마지막 정상 자료와 원본 관측 시각을 표시합니다.';
-  $('#overview-status').textContent=`화면 확인 ${when(new Date().toISOString())} · 근거 문서 ${state.index?when(state.index.generatedAt):'미확보'} · 시장 자료 ${state.market?when(state.market.publishedAt):'미확보'} · 60초마다 저장본 재독`;
   }catch{$('#overview-error').hidden=false;$('#overview-error').textContent='저장 자료를 표시하지 못했습니다. 다시 읽어주세요.';}
   finally {finish();state.loading=false;state.loaded=true;$('#overview-reload').disabled=false;}
 }
