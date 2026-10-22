@@ -23,9 +23,9 @@ BANNER = "OpenAI Codex"
 HANDOFF = lead.REPO / "docs/handoff"
 RECORDS = lead.ROOT / ".state/renew"
 EMPTY_INPUT = "Ask Codex to do anything"
-GRACE_SECONDS = 120
+GRACE_SECONDS = 5
 DEADLINE_SECONDS = 3600
-POLL_SECONDS = 5
+POLL_SECONDS = 1
 DAILY_LIMIT = 6
 CHAIN_LIMIT = 3
 BACKGROUND = "background terminal"
@@ -206,7 +206,16 @@ def notify(name, state):
                        capture_output=True, timeout=10)
 
 
+def unpushed_commits():
+    process = subprocess.run(["git", "rev-list", "--count", "@{upstream}..HEAD"], cwd=lead.REPO,
+                             capture_output=True, text=True, timeout=10)
+    return int(process.stdout.strip()) if process.returncode == 0 else -1
+
+
 def schedule(name, value):
+    # Renew only after a large unit of work: committed and pushed, not after each small step.
+    if unpushed_commits() != 0:
+        raise ValueError("큰 작업 단위가 끝나지 않았다(커밋이 push되지 않음). push 후 예약한다")
     handoff, fields = checked_handoff(name, value)
     if needs_user(fields):
         raise ValueError("다음 행동에 사용자 확인이 필요하므로 예약하지 않는다 (사용자 확인 필요: 아니오 일 때만)")

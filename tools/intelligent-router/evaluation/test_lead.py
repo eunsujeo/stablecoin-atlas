@@ -137,7 +137,9 @@ class ScheduledRenewTests(unittest.TestCase):
     def run_watch(self, statuses, screens=None, open_request=False):
         clock = [0.0]
         states = iter(statuses)
-        shown = iter(screens or [self.CLEAN] * 50)
+        screens = list(screens or [self.CLEAN])
+        def shown_next():  # Repeat the last screen once the scripted ones run out.
+            return screens.pop(0) if len(screens) > 1 else screens[0]
         def step(_):
             clock[0] += renew.POLL_SECONDS
         def entry(name):
@@ -145,7 +147,7 @@ class ScheduledRenewTests(unittest.TestCase):
             status, seq = value if isinstance(value, tuple) else (value, 1)
             return {"agent_status": status, "state_change_seq": seq}
         with patch.object(lead, "agent", side_effect=entry), \
-                patch.object(renew, "screen", side_effect=lambda name: next(shown)), \
+                patch.object(renew, "screen", side_effect=lambda name: shown_next()), \
                 patch.object(renew, "open_lead_request", return_value=open_request), \
                 patch.object(renew, "renew_with_handoff") as renewed:
             result = renew.wait_and_renew("router-impl", "docs/handoff/x.md", now=lambda: clock[0], sleep=step)
@@ -212,6 +214,9 @@ class ScheduleGateTests(unittest.TestCase):
             replacement.start()
             self.addCleanup(replacement.stop)
         self.folder = folder
+        pushed = patch.object(renew, "unpushed_commits", return_value=0)
+        self.unpushed = pushed.start()
+        self.addCleanup(pushed.stop)
 
     def handoff(self, confirm="아니오", drop=None):
         lines = [f"- {field}: x" for field in renew.HANDOFF_FIELDS if field not in ("사용자 확인 필요", drop)]
@@ -237,6 +242,12 @@ class ScheduleGateTests(unittest.TestCase):
         notice.assert_called_once_with("router-impl", "stopped_chain_limit")
         renew.remember("router-impl", "cancelled_user_continued")
         self.assertIsNone(renew.limit_reason("router-impl"))
+
+    def test_unpushed_work_is_not_scheduled(self):
+        self.unpushed.return_value = 2
+        with patch.object(renew.subprocess, "Popen") as spawn:
+            self.assertRaises(ValueError, renew.schedule, "router-impl", self.handoff())
+        spawn.assert_not_called()
 
     def test_valid_handoff_spawns_one_watcher(self):
         with patch.object(renew.subprocess, "Popen") as spawn:
