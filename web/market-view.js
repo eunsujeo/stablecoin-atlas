@@ -11,7 +11,7 @@ function detail(o,trigger){state.trigger=trigger;const d=state.data.registry.dep
   const identity=d?d.identity.kind==='ISSUED'?`${d.identity.issuer} / ${d.identity.currency}`:d.identity.address:'코인 전체 · 개별 컨트랙트 합계와 별도';
   for(const[k,v]of [['지표',METRICS[o.metric].label],['원본 수량',o.amount+' '+o.unit],['식별자',identity],['고유 ID',d?.id??o.coinId],['네트워크 ID',d?network(d.networkId).networkId:'전체 범위'],['발행 형태',d?.origin??'체인별 발행 형태 미확인'],['공급자',o.provider],['조회 경로',o.endpoint],['추출 위치',o.selector],['원본 관측',when(o.observedAt)],['관측시각 근거',o.observationClock==='REQUEST'?'개별 요청 시각':'상위 보고서 시각 대체'],['공급자 자료 시각',when(o.sourceAt)],['입력 SHA-256',o.sourceHash]]){list.append(node('dt',k),node('dd',v));}
   if(o.ledgerHash)list.append(node('dt','확정 원장'),node('dd',o.ledgerIndex+' / '+o.ledgerHash));
-  $('#dialog-title').textContent=label(o);$('#dialog-content').replaceChildren(node('p',o.metric==='OBLIGATIONS'?'범위가 제한된 gateway_balances.obligations입니다. 운영주소 제외 미적용 · 유통량 미확인 · 다른 공급량과 순위/합산하지 않습니다.':'공급자 관측값입니다. 네이티브·브리지 구분과 중복, 공급자 산정 방식·원본 반올림은 독립 검증하지 않았습니다.','semantic-note'),list);$('#detail-dialog').showModal();
+  $('#dialog-title').textContent=label(o);$('#dialog-content').replaceChildren(node('p',o.metric==='OBLIGATIONS'?'범위가 제한된 gateway_balances.obligations입니다. 운영주소 제외 미적용 · 유통량 미확인 · 다른 공급량과 순위/합산하지 않습니다.':'외부 서비스에서 받아 저장한 값입니다. 네이티브·브리지 구분과 중복, 공급자 산정 방식·원본 반올림은 독립 검증하지 않았습니다.','semantic-note'),list);$('#detail-dialog').showModal();
 }
 $('#detail-dialog').addEventListener('close',()=>{if(state.trigger&&location.hash==='#live'){state.trigger.focus();state.trigger=null;}});
 function chart(){const host=$('#live-history');host.replaceChildren();const selected=$('#live-coin').value;const rows=rank(state.data,selected);const groups=rows.map(o=>({o,points:series(state.data,o)}));
@@ -34,7 +34,7 @@ function chart(){const host=$('#live-history');host.replaceChildren();const sele
 function trend(){if(!state.data)return;const selected=$('#live-coin').value,metric=$('#live-trend-metric').value;
   const observation=latest(state.data,{coinId:selected,metric})[0];
   $('#live-trend-title').textContent=coin(selected).symbol+' · '+({PRICE:'가격',CIRCULATING:'유통량',COIN_TOTAL:'총공급량'}[metric]);
-  $('#live-trend-scope').textContent='코인 전체 · '+(metric==='PRICE'?'USD':'tokens')+' · 저장된 공급자 관측';
+  $('#live-trend-scope').textContent='코인 전체 · '+(metric==='PRICE'?'USD':'tokens')+' · 수집한 시장 데이터 · 출처: Arkham';
   renderMarketChart($('#live-trend'),state.data,observation,{period:state.period,onDetail:detail});
 }
 $('#live-trend-metric').addEventListener('change',trend);
@@ -69,7 +69,7 @@ function render(){if(!state.data)return;const data=state.data,selected=$('#live-
 async function load(){if(state.loading)return;state.loading=true;$('#live-reload').disabled=true;try{const res=await fetch('/market-data.json',{cache:'no-store',signal:AbortSignal.timeout(10000)});if(!res.ok)throw new Error();let size=0;const chunks=[];for await(const chunk of res.body){size+=chunk.length;if(size>2*1024*1024)throw new Error();chunks.push(chunk);}const bytes=new Uint8Array(size);let offset=0;for(const c of chunks){bytes.set(c,offset);offset+=c.length;}const data=validateMarket(JSON.parse(new TextDecoder().decode(bytes)));state.data=data;
     const select=$('#live-coin'),old=select.value;select.replaceChildren();for(const c of data.registry.coins){const option=node('option',c.symbol);option.value=c.id;select.append(option);}if(data.registry.coins.some(c=>c.id===old))select.value=old;
     const last=data.observations.reduce((t,o)=>o.observedAt>t?o.observedAt:t,'');const minutes=last?Math.max(0,Math.floor((Date.now()-Date.parse(last))/60000)):null;
-    $('#live-status').textContent=`최근 저장 관측 ${when(last)}${minutes===null?'':` · ${minutes}분 경과`}`;
+    $('#live-status').textContent=`최근 시장 데이터 수집 ${when(last)}${minutes===null?'':` · ${minutes}분 경과`}`;
     $('#live-provenance').textContent=`화면 확인 ${when(new Date().toISOString())} · 자료 묶음 생성 ${when(data.publishedAt)} · 등록 ${data.registry.coins.length}개 코인 / ${data.registry.networks.length}개 네트워크 / ${data.registry.deployments.length}개 자산. 등록 밖 체인 공급량 ${data.omittedSupplyEntries}건 미표시. 관측 시각과 공급자 자료 기준 시각은 상세에서 구분합니다. 등록은 Adapter 지원 인증이 아닙니다.`;
     const scheduler=data.schedulerState;
     if(scheduler){

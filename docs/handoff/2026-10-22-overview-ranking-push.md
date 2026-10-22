@@ -1,0 +1,9 @@
+# 실제 자산 대시보드와 검증 랭킹 UI
+- 목표: 사용자 UI push 지시와 후속 정정(개발용 토큰 제외·시장 코인 선택/설명 개선)을 함께 반영한다.
+- 끝난 것: Overview 자산3개/네트워크4개별 통과 점수·판정 완료 비율과 정렬/공동순위/근거 이동. 대시보드의 검증·프로필·비교·보고서 목록은 실제 자산8보고서/111항목만 표시한다. 원본15보고서/202항목과 개발 Fixture/CLI 검사는 그대로 보존했다. 시장 코인 선택을 요약/그래프 위로 옮기고 USDC/USDT/RLUSD 전환을 확인했다. “저장된 공급자 관측”은 “수집한 시장 데이터 · 출처: Arkham”으로 바꿨다. 사용자 명시 push 지시가 종전 검토 전달 미확인에 따른 공유 보류를 대체한다. 이 파일과 UI 변경은 같은 커밋의 main push 대상이다.
+- 변경 파일: web/evidence-model.js, web/evidence.js, web/index.html, web/market-view.js, web/overview-model.js, web/overview.js, web/overview.test.mjs, web/styles.css, docs/DEVELOPMENT_STATUS.md, docs/adr/0043-overview-asset-network-rankings.md, docs/handoff/2026-10-22-supabase-overview-rankings.md
+- 검증: npm run check rc=0 tests259/pass259/fail0/cancelled0/skipped0(.state/agent-logs/dashboard-business-check.log). node --test web/overview.test.mjs rc=0 tests8/pass8/fail0(.state/agent-logs/overview-business-test.log). node .state/dashboard-business-browser-qa.mjs 로컬 미리보기 rc=0 PASS1/fail0: 3자산/4네트워크·8보고서/111항목·그룹31항목 이동·개발 자료 제외·프로필8/비교/보고서8·코인3종 전환·dark/light/390px·읽기 실패 유지·외부 페이지 요청0. git diff --check rc=0.
+- 기다리는 것: 실제 Supabase DATABASE_URL/필요 CA 로컬 설정. DB 코드 d7fea8b는 이미 push했고 소유 PG 통합10검사가 통과했다. UI Lead39f4aa8b2236433b9b301fa56100c609는 delivery_uncertain/미응답 기록을 보존하며 자동 재전송하지 않았다. 사용자 UI push 지시로 재검토/추가 승인 질문 없이 공유한다. 로컬 UI PID64398(세션65448)와 JSON collector PID48600(세션89393·기본12회)을 유지한다. DB 모드는 미실행.
+- 다음 행동: main의 마지막 커밋과 origin 일치를 확인한다. 사용자가 DB 접속 정보를 로컬에 설정하면 docs/SUPABASE_SETUP.md에 따라 관리자 초기화/월 파티션/전용 로그인 후 writer 점검을 진행한다. 기존 JSON collector와 DB scheduler를 동시에 시작하지 않는다. router-lead-review 인계문은 다른 작업 파일이므로 포함하지 않는다.
+- 사용자 확인 필요: 예 — Supabase 실제 접속 설정(현재 UI push는 추가 승인 불필요)
+- 읽을 파일: docs/adr/0043-overview-asset-network-rankings.md, docs/SUPABASE_SETUP.md, docs/DEVELOPMENT_STATUS.md

@@ -1,7 +1,7 @@
 import {sparkline} from './market-chart.js';
-import { validateIndex, VERDICTS, reportLinks } from './evidence-model.js';
+import { dashboardEvidence, VERDICTS, reportLinks } from './evidence-model.js';
 import { validateMarket, displayAmount, latest } from './market-model.js';
-import { overviewSummary, overviewRanking } from './overview-model.js';
+import { overviewSummary, overviewRanking, overviewEvidenceRanking } from './overview-model.js';
 const $=selector=>document.querySelector(selector);
 const node=(tag,text,cls)=>{const el=document.createElement(tag);if(text!==undefined)el.textContent=String(text);if(cls)el.className=cls;return el;};
 const state={index:null,market:null,loading:false,loaded:false};
@@ -26,8 +26,27 @@ function renderEvidence(){
     ['집계 보고서',summary.reports.length,`선택 ${summary.total} / 전체 ${state.index.items.length}개 항목`,''],
   ]){const card=node('article',undefined,`metric-card ${cls}`),valueRow=node('div',undefined,'metric-value');valueRow.append(node('strong',value));if(cls==='lead-purple')valueRow.append(node('span',grade,'grade'));card.append(node('p',label),valueRow,node('p',note));host.append(card);}
   for(const verdict of VERDICTS){const button=node('button',undefined,`overview-verdict verdict-${verdict.toLowerCase()}`);button.append(node('span',labels[verdict]),node('strong',summary.counts[verdict]),node('small',verdict));button.addEventListener('click',()=>document.dispatchEvent(new CustomEvent('atlas:show-verdict',{detail:{scope:summary.scope,verdict,reportIds:summary.reports.map(r=>r.id)}})));verdicts.append(button);}
-  $('#overview-result-note').textContent=`${summary.scope==='LOCAL_FIXTURE'?'사설 Fixture 실행':'실제 자산의 저장된 읽기'} · ${summary.provisional?'미확인·미실행 항목이 남아 잠정 등급입니다.':'선택 범위의 판정 결과입니다.'} 실행 오류 ${summary.executionCounts.ERROR} · 미실행 ${summary.executionCounts.NOT_EXECUTED}건. ${summary.scope==='LOCAL_FIXTURE'?'예상 음성의 FAIL도 원시 판정 그대로 포함하며 자동 테스트 통과율과 다릅니다. ':''}결과를 누르면 항목별 근거로 이동합니다.`;
+  $('#overview-result-note').textContent=`${summary.scope==='LOCAL_FIXTURE'?'로컬 테스트용 토큰 검사':'실제 자산의 저장된 읽기'} · ${summary.provisional?'미확인·미실행 항목이 남아 잠정 등급입니다.':'선택 범위의 판정 결과입니다.'} 실행 오류 ${summary.executionCounts.ERROR} · 미실행 ${summary.executionCounts.NOT_EXECUTED}건. ${summary.scope==='LOCAL_FIXTURE'?'의도적으로 실패하게 만든 검사도 FAIL로 표시합니다. 이는 검사 프로그램 자체의 오류와는 다릅니다. ':''}결과를 누르면 항목별 근거로 이동합니다.`;
   const reports=$('#overview-selected-reports');reports.replaceChildren();for(const report of summary.reports){const item=node('li'),link=node('a',report.label+' · '+when(report.completedAt));link.href=reportLinks(report.id).document;link.target='_blank';link.rel='noopener noreferrer';item.append(link);reports.append(item);}
+}
+function renderEvidenceRankings(){
+  for(const groupBy of ['asset','network']){
+    const host=$('#overview-'+groupBy+'-ranking');host.replaceChildren();
+    const rows=state.index?overviewEvidenceRanking(state.index,{scope:$('#overview-scope').value,groupBy,metric:$('#overview-rank-metric').value}):[];
+    for(const row of rows){
+      const network=groupBy==='network'?state.market?.registry.networks.find(n=>n.family===row.chain&&n.networkId===row.networkId):null;
+      const label=network?.name??row.label,item=node('li'),button=node('button',undefined,'overview-evidence-row');
+      const identity=node('span',undefined,'overview-evidence-identity');identity.append(node('span',row.rank??'—','rank-number'),node('strong',label));
+      identity.append(node('small',`${row.reports.length}개 보고서`,'muted'));
+      if(groupBy==='asset')identity.append(node('small',`${row.networkCount}개 네트워크`,'muted'));
+      const score=node('span',undefined,'overview-evidence-stat');score.append(node('strong',row.score===null?'미산정':row.score+' / 100'),node('small',`PASS ${row.counts.PASS} / 확정 ${row.decisive}`));
+      const coverage=node('span',undefined,'overview-evidence-stat');coverage.append(node('strong',row.coverage===null?'미산정':row.coverage+'%'),node('small',`확정 ${row.decisive} / 대상 ${row.applicable}`));
+      button.append(identity,score,coverage);button.title=`${row.label} · NOT_APPLICABLE ${row.counts.NOT_APPLICABLE}개 제외 · 근거 보기`;
+      button.addEventListener('click',()=>document.dispatchEvent(new CustomEvent('atlas:show-verdict',{detail:{scope:row.scope,verdict:'',reportIds:row.reports.map(r=>r.id)}})));
+      item.append(button);host.append(item);
+    }
+    if(!rows.length)host.append(node('li','저장된 검증 근거 없음','overview-empty'));
+  }
 }
 function renderMarket(){
   for(const [metric,target] of [['CIRCULATING','circulating'],['COIN_TOTAL','total']]){
@@ -49,13 +68,13 @@ function renderMarket(){
 async function load(){
   if(state.loading)return;state.loading=true;$('#overview-reload').disabled=true;
   try {
-  const results=await Promise.allSettled([json('/evidence/index.json').then(validateIndex),json('/market-data.json').then(validateMarket)]);
+  const results=await Promise.allSettled([json('/evidence/index.json').then(dashboardEvidence),json('/market-data.json').then(validateMarket)]);
   const failed=[];
   for(const [index,key]of ['index','market'].entries()){
     if(results[index].status==='fulfilled')state[key]=results[index].value;
     else failed.push(index===0?'검증 근거':'시장 자료');
   }
-  renderEvidence();renderMarket();
+  renderEvidence();renderMarket();renderEvidenceRankings();
   const collectionFailed=state.market?.collectionState?.state==='FAILED'||state.market?.lastBuildState==='FAILED';
   $('#overview-error').hidden=!failed.length&&!collectionFailed;
   $('#overview-error').textContent=failed.length?`${failed.join(' · ')}를 읽지 못했습니다. 이전 정상 자료가 있으면 원래 시각을 유지해 표시합니다.`:'최근 시장 수집 또는 자료 생성 실패 · 마지막 정상 자료와 원본 관측 시각을 표시합니다.';
@@ -64,7 +83,7 @@ async function load(){
   finally {state.loading=false;state.loaded=true;$('#overview-reload').disabled=false;}
 }
 function activate(){if(!$('#overview-screen').hidden&&!state.loaded)load();}
-$('#overview-reload').addEventListener('click',load);$('#overview-scope').addEventListener('change',renderEvidence);$('#overview-theme').addEventListener('click',()=>$('#theme-toggle').click());
+$('#overview-reload').addEventListener('click',load);$('#overview-scope').addEventListener('change',()=>{renderEvidence();renderEvidenceRankings();});$('#overview-rank-metric').addEventListener('change',renderEvidenceRankings);$('#overview-theme').addEventListener('click',()=>$('#theme-toggle').click());
 const theme=()=>{$('#overview-theme').textContent=document.documentElement.dataset.theme==='light'?'☾ 다크':'☀ 라이트';};
 new MutationObserver(theme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});theme();
 document.addEventListener('atlas:navigate',activate);activate();

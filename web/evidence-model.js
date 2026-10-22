@@ -7,6 +7,13 @@ export function validateIndex(index) {
   for (const s of index.items) { if (!ids.has(s.reportId) || keys.has(s.key) || !VERDICTS.includes(s.verdict) || !['SUPPORTED','NOT_SUPPORTED','UNKNOWN'].includes(s.support) || !['COMPLETED','ERROR','NOT_EXECUTED'].includes(s.executionStatus)) throw new Error('INVALID_INDEX'); keys.add(s.key); }
   return index;
 }
+// Dashboard views show actual assets; development fixtures remain in the original evidence store.
+export function dashboardEvidence(index) {
+  validateIndex(index);
+  const reports = index.reports.filter(report => report.scope === 'STORED_READ_ONLY');
+  const ids = new Set(reports.map(report => report.id));
+  return { ...index, reports, items: index.items.filter(item => ids.has(item.reportId)) };
+}
 export function filterItems(index, { reportId='', capability='', verdict='', scope='', search='' } = {}) {
   const reports = new Map(index.reports.map(r=>[r.id,r]));
   return index.items.filter(s=>{ const r=reports.get(s.reportId); return (!reportId||r.id===reportId)&&(!capability||s.capability===capability)&&(!verdict||s.verdict===verdict)&&(!scope||r.scope===scope)&&(!search||`${r.label} ${s.scenarioId} ${s.capability} ${CAPABILITY_LABELS[s.capability]??''}`.toLowerCase().includes(search.toLowerCase())); });

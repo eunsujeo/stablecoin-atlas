@@ -4,7 +4,10 @@
 
 ## 완료 범위
 
-- 기본 Overview: 실제 자산/사설 Fixture를 분리한 시나리오 통과 점수·잠정 등급·판정 완료 범위·결과별 항목 이동, 유통량·현재 총공급량 순위. [ADR0038](adr/0038-overview-scenario-results.md).
+- 대시보드는 실제 자산의 저장 조회만 표시한다. 개발용 Fixture는 UI 집계/목록에서 제외하고 원본·CLI 검사는 보존한다. 이 PC의 UI는8보고서/111항목, 원본 저장소는15보고서/202항목이다.
+
+- Overview 자산별/네트워크별 검증 랭킹: SCENARIO_SUCCESS_V1의 통과 점수·판정 완료 비율을 항목 수로 합산하고 정렬 기준을 선택한다. 미산정은 순위 없음, 정확한 동점은 공동 순위다. 시장 지표와 분리한다. [ADR0043](adr/0043-overview-asset-network-rankings.md), 최종 검토 상태는 최신 인계문을 따른다.
+- 기본 Overview: 실제 자산의 시나리오 통과 점수·잠정 등급·판정 완료 범위·결과별 항목 이동, 유통량·현재 총공급량 참고 순위. 기존 집계 공식은 [ADR0038](adr/0038-overview-scenario-results.md), 현재 화면 범위는 ADR0043을 따른다.
 - EVM/ERC-20·TRON 읽기와 프로그램이 생성한 격리 사설 Fixture 검사.
 - Solana mint/명시 Token Account, XRPL issuer/명시 holder trust-line의 공통 읽기. 공개망 거래·서명·실제 관리자 권한 행사는 없다.
 - 로컬 저장 근거의 항목별 현황, 자산 프로필·비교, 보고서 문서. 소스 확인과 실제 실행 판정을 구분한다.
