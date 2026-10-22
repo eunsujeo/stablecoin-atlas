@@ -1,0 +1,9 @@
+# 과거 일별 네트워크 유통량
+- 목표: 과거3개월/1년 이력을 확보하고 DB/Overview 연결 후 push.
+- 끝난 것: DeFiLlama 고정3자산 자료를 실제 조회·정규화해 private atlas_history에3snapshot/8network/2928일별 값을 저장. 2025-10-22~2026-10-22 각366점, 재import3건 unchanged. 기존 market462/network78 facts, catalog8과 두 fingerprint 유지. 원문은 비공개 hash archive, DB에는 약124KiB 정규화 자료만 보관. Overview 기본 일별 유통량1년/3개월/30일과 최근 Arkham 총공급량을 별도 선택. XRPL USDC/RLUSD 일별 값 포함, 실시간 아님. 합산·보간·출처 접합 없음. 기존5분 collector를 재시작하지 않았고 history 자동 갱신도 추가하지 않음.
+- 변경 파일: db/history/001-initial.sql, tools/supply-history-source.mjs, tools/market-db/history.mjs, tools/market-db/history-cli.mjs, tools/market-db/files.mjs, tools/market-db/preview.mjs, tools/market-db/schema.mjs, web/supply-history-model.js, web/market-model.js, web/market-chart.js, web/overview.js, web/index.html, tests/supply-history-source.test.mjs, tests/postgres/history.test.mjs, web/market-chart.test.mjs
+- 검증: npm run check rc0 tests270/pass270/fail0; npm run check:db rc0 tests13/pass13/fail0. .state/history-browser-qa.mjs rc0(8시계열·2928점·1Y/3M·정확 수량·날짜·XRPL·390px·실패 보존), .state/history-regression-qa.mjs rc0, .state/history-catalog-qa.mjs rc0(pointer/keyboard/mobile/XSS). 브라우저 외부 요청0. 실제 Supabase verified TLS, 추가 API 호출 없는 import, 원 schema/facts 불변 확인. 상세 로그 .state/agent-logs/history-*.log.
+- 기다리는 것: 검토요청 a0cc1be5dd2e40efa8af95f5717244f0은 delivery_uncertain이며 자동 재전송하지 않음. 사용자가 이후 이번 작업의 단독 검증·DB 적용·push를 승인해 해당 대기를 생략함. 새 Agent/미회수 구현 결과 없음. 읽기 UI PID92861/4173 유지.
+- 다음 행동: 다음 사용자 요청. 자동 일별 갱신·XRPL 분 단위 수집·다년 보존/일별 행 확장은 이번 범위에 넣지 않음. unrelated docs/handoff/2026-10-22-router-lead-review.md 유지. `.state/history-import/manifest.json`과 원문은 비공개. DB SQL hash를 이미 적용했으므로 SQL 변경 시 별도 migration 필요.
+- 사용자 확인 필요: 아니오
+- 읽을 파일: docs/adr/0046-daily-network-circulation-history.md, docs/research/defillama-network-supply-history.md, docs/MARKET_CHARTS.md, docs/POSTGRESQL_MARKET_CLI.md, docs/DEVELOPMENT_STATUS.md

@@ -22,10 +22,11 @@ export async function loadSources({reportsDirectory,registryPath,names}){
   if(sources.reduce((n,p)=>n+p.observationCount+p.networkCount,0)>5000)fail('INPUT_OBSERVATION_LIMIT');
   return {registry,sources};
 }
-export async function archiveSources(plans,root){
+export async function archiveSources(plans,root,{byteLimit=2*1024*1024}={}){
+  if(!Number.isInteger(byteLimit)||byteLimit<1||byteLimit>32*1024*1024)fail('INVALID_ARTIFACT');
   const directoryPath=await directory(resolve(root),{create:true,privateMode:true});
   for(const plan of plans){
-    if(!Buffer.isBuffer(plan.bytes)||plan.bytes.length>2*1024*1024||!/^[a-f0-9]{64}$/.test(plan.hash)||digest(plan.bytes)!==plan.hash)fail('INVALID_ARTIFACT');
+    if(!Buffer.isBuffer(plan.bytes)||plan.bytes.length>byteLimit||!/^[a-f0-9]{64}$/.test(plan.hash)||digest(plan.bytes)!==plan.hash)fail('INVALID_ARTIFACT');
     const relative=`${plan.hash.slice(0,2)}/${plan.hash}.json`,path=join(directoryPath,relative);
     await directory(dirname(path),{create:true,privateMode:true});let handle;const temporary=path+'.'+randomUUID()+'.tmp';
     try{
@@ -35,7 +36,7 @@ export async function archiveSources(plans,root){
     }finally{await handle?.close();await unlink(temporary).catch(()=>{});}
     await syncDirectory(dirname(path));
     const stat=await lstat(path);if(!stat.isFile()||stat.isSymbolicLink()||(process.platform!=='win32'&&(stat.mode&0o077)!==0))fail('ARTIFACT_COLLISION');
-    const existing=await boundedRead(path,2*1024*1024);if(existing.length!==plan.bytes.length||digest(existing)!==plan.hash||!existing.equals(plan.bytes))fail('ARTIFACT_COLLISION');
+    const existing=await boundedRead(path,byteLimit);if(existing.length!==plan.bytes.length||digest(existing)!==plan.hash||!existing.equals(plan.bytes))fail('ARTIFACT_COLLISION');
   }
   return directoryPath;
 }

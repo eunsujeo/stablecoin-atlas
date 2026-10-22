@@ -7,7 +7,7 @@ test('history windows anchor to the last stored observation, exclude other sourc
   const first=row('1',1),last=row('2',22),data={observations:[last,{...last,id:'z',amount:'3'},row('1.5',21),first,{...last,id:'x',provider:'OTHER'},{...last,id:'y',selector:'data.other'},{...last,id:'w',metric:'CIRCULATING'},{...last,id:'v',coinId:'usdt'},{...last,id:'u',deploymentId:'usdc-ethereum'},{...last,id:'t',endpoint:'/other'}]};
   assert.deepEqual(chartHistory(data,last,'24h').map(o=>o.amount),['1.5','3']);
   assert.equal(chartHistory(data,last,'7d').length,2);assert.equal(chartHistory(data,last,'30d').length,3);assert.equal(chartHistory(data,last).length,3);
-  assert.deepEqual(chartHistory(data,null),[]);assert.throws(()=>chartHistory(data,last,'1y'));
+  assert.deepEqual(chartHistory(data,null),[]);assert.throws(()=>chartHistory(data,last,'5y'));
 });
 test('geometry preserves tiny differences on huge decimal amounts and derives only bounded numeric coordinates',()=>{
   const a='900719925474099300000.000000000000000000000000000000000001',b='900719925474099300000.000000000000000000000000000000000003';
@@ -46,4 +46,10 @@ test('network overlay keeps separate deployment histories, excludes missing and 
   const groups=networkSupplySeries(data,'usdc');assert.deepEqual(groups.map(s=>s.network.id),['ethereum','solana']);assert.deepEqual(groups.map(s=>s.rows.map(r=>r.amount)),[['100','101'],['25']]);
   assert.equal(networkSupplySeries(data,'usdc',{networkId:'solana'})[0].rows[0],c);assert.deepEqual(networkSupplySeries(data,'usdt'),[]);
   const geometry=chartGeometry(groups.flatMap(s=>s.rows).sort((a,b)=>a.observedAt.localeCompare(b.observedAt)),{zeroBaseline:true});assert.equal(geometry.ticks[0].amount,'0');assert.ok(geometry.points[1].x>geometry.points[0].x&&geometry.points[1].x<geometry.points[2].x);assert.ok(geometry.points[1].y>geometry.points[0].y);
+});
+
+test('daily history plots its own network circulating metric and calendar dates without joining Arkham totals',()=>{
+ const data={registry:{networks:[{id:'ethereum',name:'Ethereum'},{id:'xrpl',name:'XRPL'}],deployments:[{id:'rlusd-ethereum',coinId:'rlusd',networkId:'ethereum'},{id:'rlusd-xrpl',coinId:'rlusd',networkId:'xrpl'}]},observations:[{...row('999',22),coinId:'rlusd',deploymentId:'rlusd-ethereum',metric:'CHAIN_TOTAL'}],supplyHistory:[{coinId:'rlusd',to:'2026-10-22',networks:[{networkId:'ethereum',points:[{day:'2025-10-22',amount:'10'},{day:'2026-07-24',amount:'15'},{day:'2026-10-22',amount:'20'}]},{networkId:'xrpl',points:[{day:'2026-10-22',amount:'5'}]}]}]};
+ const year=networkSupplySeries(data,'rlusd',{source:'history',period:'1y'});assert.deepEqual(year.map(n=>n.rows.map(r=>r.amount)),[['10','15','20'],['5']]);assert.equal(year[0].rows[0].observedAt,'2025-10-22T00:00:00.000Z');
+ assert.deepEqual(networkSupplySeries(data,'rlusd',{source:'history',period:'90d'})[0].rows.map(r=>r.amount),['15','20']);assert.deepEqual(networkSupplySeries(data,'rlusd',{source:'recent'})[0].rows.map(r=>r.amount),['999']);assert.equal(networkSupplySeries(data,'usdt',{source:'history'}).length,0);
 });

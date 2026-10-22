@@ -1,3 +1,4 @@
+import {readHistory} from './history.mjs';
 import {readCatalog} from './catalog.mjs';
 import { connectDatabase, transaction, runtimeRole } from './connection.mjs';
 import { verifySchema, verifyRuntimeAccess } from './schema.mjs';
@@ -83,7 +84,7 @@ export async function databaseMarket(client, registry, { now = Date.now() } = {}
       ORDER BY d.provider_id,d.endpoint_path,d.target_subject_id,q.observed_at DESC,q.id DESC
     ) SELECT (SELECT count(*)::int FROM latest WHERE state NOT IN ('SUCCESS','RECORDED')) AS failures,
       (SELECT count(*)::int FROM latest q JOIN atlas_market.observation o ON o.request_id=q.id AND o.observed_at=q.observed_at WHERE o.state='MISSING') AS missing`);
-    const data = validateMarket({ schemaVersion:1,kind:'STORED_PROVIDER_OBSERVATIONS_NOT_ASSESSMENT',publishedAt:to,registry,observations,networks,omittedSupplyEntries:0,tokenProfiles:await readCatalog(client,registry),
+    const data = validateMarket({ schemaVersion:1,kind:'STORED_PROVIDER_OBSERVATIONS_NOT_ASSESSMENT',publishedAt:to,registry,observations,networks,omittedSupplyEntries:0,tokenProfiles:await readCatalog(client,registry),supplyHistory:await readHistory(client,registry),
       readState:{source:'POSTGRESQL',historyFrom:from,historyTo:to,pointsPerSeries,series:counts.length,historyRows:counts.reduce((n,c)=>n+BigInt(c.count),0n).toString(),
         sampled:counts.some(c=>BigInt(c.count)>BigInt(pointsPerSeries)),latestRequestFailures:health.failures,latestMissingFields:health.missing} });
     if (Buffer.byteLength(JSON.stringify(data)) > byteLimit) fail('QUERY_RESPONSE_LIMIT');

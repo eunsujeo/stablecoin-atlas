@@ -1,2 +1,3 @@
 db/market/*.sql text eol=lf
 db/catalog/*.sql text eol=lf
+db/history/*.sql text eol=lf

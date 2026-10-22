@@ -13,6 +13,7 @@ const assets = new Map([
   ['/app.js', ['../web/app.js', 'text/javascript; charset=utf-8']],
   ['/evidence.js', ['../web/evidence.js', 'text/javascript; charset=utf-8']],
   ['/evidence-model.js', ['../web/evidence-model.js', 'text/javascript; charset=utf-8']],
+  ['/supply-history-model.js', ['../web/supply-history-model.js', 'text/javascript; charset=utf-8']],
   ['/token-profile.js', ['../web/token-profile.js', 'text/javascript; charset=utf-8']],
   ['/token-profile-model.js', ['../web/token-profile-model.js', 'text/javascript; charset=utf-8']],
   ['/loading.js', ['../web/loading.js', 'text/javascript; charset=utf-8']],

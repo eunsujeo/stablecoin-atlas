@@ -121,3 +121,19 @@ npm run market:catalog:grant -- --env-file .state/market-db-secrets/admin.env --
 ```
 
 env 파일은 비공개 관리자 설정이며 이름은 이 PC의 예시다. 서버별 실제 안전한 reader role을 지정한다. `import --file`로 다른 검토 JSON도 지정할 수 있으나 고정 registry/공식 URL/동일 revision 충돌 검사를 통과해야 한다. 새 설명은 revision을 올려 저장하며 과거 버전은 보존한다. reader/collector가 자동으로 변경하지 않는다. `npm run ui -- --database --database-env .state/market-db-secrets/reader.env`에서 DB 프로필을 읽어 정보 툴팁을 제공한다.
+
+## 과거 일별 유통량
+
+[ADR0046](adr/0046-daily-network-circulation-history.md)의 별도 private schema다. 관리자 환경은 기존 writer 환경과 분리한다.
+
+```sh
+npm run market:history:init -- --env-file .state/market-db-secrets/admin.env
+npm run market:history:grant -- --env-file .state/market-db-secrets/admin.env --role atlas_app_reader
+npm run market:history:collect -- --env-file .state/market-db-secrets/admin.env --archive-dir .state/supply-history-artifacts
+```
+
+collect는 무료 공개 DeFiLlama 고정3개 endpoint를 한 번씩 읽는다. 키/자동 반복/재시도/공급자 전환은 없다. 원문은32MiB/30초/깊이32, UI는 기존 읽기 전용이며 수집을 실행하지 않는다. 부분 응답 실패는 DB 최신 snapshot을 바꾸지 않는다. 현재 작업은 이미 다운로드한 자료를 재사용했으므로 위 collect를 추가 실행할 필요가 없다.
+
+오프라인 import는 `market:history:import -- --env-file <관리자파일> --manifest <비공개디렉터리>/manifest.json --archive-dir <비공개아카이브>`로 수행한다. manifest는 `{"schemaVersion":1,"sources":[{"coinId":"rlusd","fetchedAt":"2026-10-22T04:50:00.000Z"}]}` 형태이고 같은 디렉터리의 고정 `<coinId>.json` 원문을 읽는다. 실제 다운로드 완료시각을 보존한다. DTO 파일을 원문 대신 제출하거나 수량을 Number로 다시 직렬화하지 않는다. 동일 원문/기간은 unchanged, 원문 변경은 이전 snapshot을 유지하며 새 snapshot으로 추가한다.
+
+조회 응답의 supplyHistory는 NETWORK_CIRCULATING/DEFILLAMA를 별도 제공한다. market.observation/series_latest에 합치지 않으며 XRPL obligations와도 다르다. 주기 갱신은 이번에 추가하지 않았다.
