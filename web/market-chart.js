@@ -37,8 +37,7 @@ export function renderMarketChart(host,data,observation,{period='all',onDetail}=
   const compact=host.clientWidth<600,right=compact?430:870,bottom=compact?240:280,width=compact?600:1040,height=compact?310:350;
   const unit=observation.unit,zeroBaseline=unit!=='USD',g=chartGeometry(rows,{right,bottom,zeroBaseline}),latest=rows.at(-1),heading=el('div',undefined,'trend-summary');
   heading.append(el('strong',valueLabel(latest.amount,unit),'trend-value'));
-  if(rows.length>1){const delta=units(latest.amount)-units(rows[0].amount),absolute=decimalUnits(delta<0n?-delta:delta);heading.append(el('span',`관측 구간 ${delta>0n?'+':delta<0n?'−':''}${valueLabel(absolute,unit)}`,'trend-change trend-'+g.direction));}
-  else heading.append(el('span','단일 관측 · 추세 미확보','trend-change'));
+  if(rows.length===1)heading.append(el('span','단일 관측 · 추세 미확보','trend-change'));
   heading.append(el('small','마지막 저장 '+when(latest.observedAt)));host.append(heading);
   const figure=svg('svg',{viewBox:`0 0 ${width} ${height}`,role:'group',tabindex:0,'aria-label':`${unit==='USD'?'가격':'공급량'} 저장 이력 ${rows.length}점. 좌우 화살표로 관측 선택, Home 처음, End 마지막.`});figure.classList.add('market-price-chart','trend-'+g.direction);
   const id=(host.id||'market')+'-trend-fill',defs=svg('defs'),gradient=svg('linearGradient',{id,x1:0,y1:0,x2:0,y2:1});gradient.append(svg('stop',{offset:'0%','stop-color':'currentColor','stop-opacity':'.23'}),svg('stop',{offset:'100%','stop-color':'currentColor','stop-opacity':'.01'}));defs.append(gradient);figure.append(defs);

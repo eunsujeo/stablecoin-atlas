@@ -13,6 +13,7 @@ const assets = new Map([
   ['/app.js', ['../web/app.js', 'text/javascript; charset=utf-8']],
   ['/evidence.js', ['../web/evidence.js', 'text/javascript; charset=utf-8']],
   ['/evidence-model.js', ['../web/evidence-model.js', 'text/javascript; charset=utf-8']],
+  ['/loading.js', ['../web/loading.js', 'text/javascript; charset=utf-8']],
   ['/overview.js', ['../web/overview.js', 'text/javascript; charset=utf-8']],
   ['/overview-model.js', ['../web/overview-model.js', 'text/javascript; charset=utf-8']],
   ['/market-view.js', ['../web/market-view.js', 'text/javascript; charset=utf-8']],

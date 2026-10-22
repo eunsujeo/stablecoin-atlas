@@ -1,3 +1,4 @@
+import {beginLoading} from './loading.js';
 // Native selects may retain :focus-visible after a pointer opens their picker.
 // Keep keyboard focus visible without leaving a ring after mouse/touch selection.
 document.addEventListener('pointerdown', () => { document.documentElement.dataset.inputMode = 'pointer'; }, { capture: true });
@@ -143,6 +144,7 @@ function applyTheme(theme) {
 async function load() {
   if (state.loading) return;
   state.loading = true; $('#reload').disabled = true; $('#error').hidden = true;
+  const finish=beginLoading($('#dashboard'),{ready:!!state.data,targets:[['#history','chart'],['#ranking','rows'],['#chains','rows']]});
   try {
     const response = await fetch('/mock-data.json', { cache: 'no-store', signal: AbortSignal.timeout(10000), credentials: 'omit' });
     if (!response.ok) throw new Error('MOCK_READ_FAILED');
@@ -152,7 +154,7 @@ async function load() {
   } catch {
     setText('#error', state.data ? '목데이터를 다시 읽지 못했습니다. 마지막으로 읽은 자료와 시각을 유지합니다.' : '목데이터를 읽지 못했습니다. 로컬 미리보기 서버가 실행 중인지 확인한 뒤 다시 읽기를 눌러주세요.'); $('#error').hidden = false; $('#dashboard').setAttribute('aria-busy', 'false');
     if (!state.data) setText('#status', '자료 없음 · 미확인 수량을 0으로 채우지 않습니다.');
-  } finally { state.loading = false; $('#reload').disabled = false; }
+  } finally { finish(); state.loading = false; $('#reload').disabled = false; }
 }
 for (const button of document.querySelectorAll('[data-mode]')) button.addEventListener('click', () => { state.mode = button.dataset.mode; render(); });
 for (const button of document.querySelectorAll('[data-asset]')) button.addEventListener('click', () => { state.asset = button.dataset.asset; if (state.asset !== 'all') state.focusAsset = state.asset; render(); });

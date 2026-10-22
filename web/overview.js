@@ -1,3 +1,4 @@
+import {beginLoading} from './loading.js';
 import {sparkline, renderMarketChart} from './market-chart.js';
 import { dashboardEvidence, VERDICTS, reportLinks } from './evidence-model.js';
 import { validateMarket, displayAmount, latest, rank, ratio } from './market-model.js';
@@ -68,6 +69,7 @@ function populateTrendNetworks(){
   select.disabled=!deployments.length;
 }
 function renderMarketTrend(){
+  if(state.loading&&!state.market)return;
   const host=$('#overview-market-trend'),chains=$('#overview-chain-breakdown'),note=$('#overview-trend-note');
   host.replaceChildren();chains.replaceChildren();
   if(!state.market){host.append(node('p','시장 자료를 읽으면 네트워크별 공급량 추이를 표시합니다.','empty-state'));note.textContent='시장 자료 미확보';return;}
@@ -115,6 +117,7 @@ function renderMarket(){
 }
 async function load(){
   if(state.loading)return;state.loading=true;$('#overview-reload').disabled=true;
+  const finish=beginLoading($('#overview-screen'),{ready:!!(state.index||state.market),targets:[['#overview-market-trend','chart'],['#overview-chain-breakdown','rows'],['#overview-circulating','rows'],['#overview-total','rows'],['#overview-volume','rows'],['#overview-metrics','cards']]});
   try {
   const results=await Promise.allSettled([json('/evidence/index.json').then(dashboardEvidence),json('/market-data.json').then(validateMarket)]);
   const failed=[];
@@ -128,7 +131,7 @@ async function load(){
   $('#overview-error').textContent=failed.length?`${failed.join(' · ')}를 읽지 못했습니다. 이전 정상 자료가 있으면 원래 시각을 유지해 표시합니다.`:'최근 시장 수집 또는 자료 생성 실패 · 마지막 정상 자료와 원본 관측 시각을 표시합니다.';
   $('#overview-status').textContent=`화면 확인 ${when(new Date().toISOString())} · 근거 문서 ${state.index?when(state.index.generatedAt):'미확보'} · 시장 자료 ${state.market?when(state.market.publishedAt):'미확보'} · 60초마다 저장본 재독`;
   }catch{$('#overview-error').hidden=false;$('#overview-error').textContent='저장 자료를 표시하지 못했습니다. 다시 읽어주세요.';}
-  finally {state.loading=false;state.loaded=true;$('#overview-reload').disabled=false;}
+  finally {finish();state.loading=false;state.loaded=true;$('#overview-reload').disabled=false;}
 }
 function activate(){if(!$('#overview-screen').hidden&&!state.loaded)load();}
 $('#overview-reload').addEventListener('click',load);$('#overview-scope').addEventListener('change',()=>{renderEvidence();renderEvidenceRankings();});$('#overview-rank-metric').addEventListener('change',renderEvidenceRankings);$('#overview-theme').addEventListener('click',()=>$('#theme-toggle').click());
