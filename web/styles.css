@@ -174,3 +174,18 @@ select option{background:var(--panel);color:var(--ink);font-weight:400}
 @media(max-width:1000px){.skeleton-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.skeleton-plot{height:210px}.skeleton-cards{gap:10px}.skeleton-card{padding:18px 12px}}
 @media(prefers-reduced-motion:reduce){.skeleton-block{animation:none}}
+
+.token-info-trigger{display:inline-flex;align-items:center;gap:6px;padding:2px 0;background:none;color:inherit;font:inherit;text-align:left;border-bottom:1px dotted color-mix(in srgb,var(--muted) 60%,transparent);border-radius:2px;cursor:help}
+.token-info-trigger:hover{color:var(--teal)}
+.token-info-popover{position:fixed;z-index:30;width:min(380px,calc(100vw - 24px));max-height:calc(100dvh - 24px);overflow:auto;padding:20px;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);font-size:12px;line-height:1.75}
+.token-info-popover h3{font-size:16px;margin:0 0 8px}
+.token-info-standard{display:inline-block;background:var(--control);color:var(--teal);border:1px solid var(--line);border-radius:5px;padding:2px 8px;margin-bottom:10px;font-size:11px;font-weight:650}
+.token-info-popover p{margin-bottom:10px}
+.token-info-popover dl{margin:14px 0;border-top:1px solid var(--line);padding-top:12px}
+.token-info-popover dt{color:var(--muted);font-size:10px;margin-top:7px}
+.token-info-popover dd{margin:2px 0 8px;overflow-wrap:anywhere;font-family:ui-monospace,Menlo,monospace;font-size:11px}
+.token-info-sources{display:grid;gap:5px;padding:10px 0;border-top:1px solid var(--line)}
+.token-info-sources a{color:var(--teal);text-decoration:underline}
+.token-info-popover small{font-size:10px;color:var(--muted);margin-top:8px}
+
+.network-chart-legend{display:flex;gap:12px 24px;flex-wrap:wrap;margin:16px 0}.network-chart-key{display:flex;align-items:center;gap:8px;font-size:12px}.network-chart-key>span:last-of-type{color:var(--muted);font-variant-numeric:tabular-nums}.network-chart-swatch{width:10px;height:10px;border-radius:50%;flex-shrink:0}.chart-updated{font-size:11px;color:var(--muted);margin:8px 0}.chart-point-tooltip{padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel);display:flex;gap:8px 16px;flex-wrap:wrap;font-size:12px;box-shadow:0 4px 14px #0001}.chart-point-tooltip[hidden]{display:none}.chart-point-tooltip span,.chart-point-tooltip small{color:var(--muted)}

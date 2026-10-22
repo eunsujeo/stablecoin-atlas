@@ -9,23 +9,24 @@ const insertTables=[...metadataTables,'collection_run','collection_request','obs
 const columnsUpdate={collection_run:['state','finished_at'],series_latest:['observed_at','request_id']};
 const identifier=name=>{if(typeof name!=='string'||!/[a-z]/.test(name)||!/^[a-z][a-z0-9_]{0,62}$/.test(name))fail('INVALID_IDENTIFIER');return '"'+name+'"';};
 export async function lock(client){await client.query('SELECT pg_advisory_xact_lock(18471234,401)');}
-export async function structureHash(client){
+export async function structureHash(client,namespace=schema){
+  if(![schema,'atlas_catalog'].includes(namespace))fail('INVALID_IDENTIFIER');
   await client.query('SET LOCAL search_path=pg_catalog');
   const {rows}=await client.query(`WITH core AS (SELECT c.oid,c.relname,c.relrowsecurity,c.relforcerowsecurity FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
-    WHERE n.nspname='atlas_market' AND c.relkind IN ('r','p','v','m','f') AND c.relname !~ '^(observation|network_observation)_[0-9]{4}_[0-9]{2}$')
+    WHERE n.nspname=$1 AND c.relkind IN ('r','p','v','m','f') AND c.relname !~ '^(observation|network_observation)_[0-9]{4}_[0-9]{2}$')
     SELECT 'table:'||relname AS key, relrowsecurity::text||':'||relforcerowsecurity::text AS value FROM core
     UNION ALL SELECT 'column:'||c.relname||':'||a.attnum, a.attname||':'||format_type(a.atttypid,a.atttypmod)||':'||a.attnotnull::text||':'||a.attidentity::text
       FROM core c JOIN pg_attribute a ON a.attrelid=c.oid WHERE a.attnum>0 AND NOT a.attisdropped
     UNION ALL SELECT 'constraint:'||coalesce(c.relname,t.typname)||':'||con.conname,pg_get_constraintdef(con.oid,true)
       FROM pg_constraint con LEFT JOIN core c ON c.oid=con.conrelid LEFT JOIN pg_type t ON t.oid=con.contypid
-      WHERE con.connamespace='atlas_market'::regnamespace AND con.conparentid=0 AND (c.oid IS NOT NULL OR t.oid IS NOT NULL)
-    UNION ALL SELECT 'function:'||p.proname,pg_get_functiondef(p.oid) FROM pg_proc p WHERE p.pronamespace='atlas_market'::regnamespace
+      WHERE con.connamespace=$1::regnamespace AND con.conparentid=0 AND (c.oid IS NOT NULL OR t.oid IS NOT NULL)
+    UNION ALL SELECT 'function:'||p.proname,pg_get_functiondef(p.oid) FROM pg_proc p WHERE p.pronamespace=$1::regnamespace
     UNION ALL SELECT 'trigger:'||c.relname||':'||t.tgname,pg_get_triggerdef(t.oid,true) FROM pg_trigger t JOIN core c ON c.oid=t.tgrelid WHERE NOT t.tgisinternal
-    UNION ALL SELECT 'enum:'||t.typname||':'||e.enumsortorder,e.enumlabel FROM pg_enum e JOIN pg_type t ON t.oid=e.enumtypid WHERE t.typnamespace='atlas_market'::regnamespace
-    UNION ALL SELECT 'sequence:'||c.relname,concat_ws(':',q.seqtypid::regtype::text,q.seqstart,q.seqincrement,q.seqmax,q.seqmin,q.seqcache,q.seqcycle) FROM pg_sequence q JOIN pg_class c ON c.oid=q.seqrelid WHERE c.relnamespace='atlas_market'::regnamespace
+    UNION ALL SELECT 'enum:'||t.typname||':'||e.enumsortorder,e.enumlabel FROM pg_enum e JOIN pg_type t ON t.oid=e.enumtypid WHERE t.typnamespace=$1::regnamespace
+    UNION ALL SELECT 'sequence:'||c.relname,concat_ws(':',q.seqtypid::regtype::text,q.seqstart,q.seqincrement,q.seqmax,q.seqmin,q.seqcache,q.seqcycle) FROM pg_sequence q JOIN pg_class c ON c.oid=q.seqrelid WHERE c.relnamespace=$1::regnamespace
     UNION ALL SELECT 'index:'||c.relname||':'||i.indexrelid::regclass::text,pg_get_indexdef(i.indexrelid) FROM pg_index i JOIN core c ON c.oid=i.indrelid
       WHERE NOT EXISTS(SELECT 1 FROM pg_constraint co WHERE co.conindid=i.indexrelid)
-    ORDER BY key`);
+    ORDER BY key`,[namespace]);
   return digest(canonical(rows));
 }
 async function verifyPolicies(client){

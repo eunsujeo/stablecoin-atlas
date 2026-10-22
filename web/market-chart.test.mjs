@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {chartHistory,chartGeometry,decimalUnits} from './market-chart.js';
+import {chartHistory,chartGeometry,decimalUnits,networkSupplySeries} from './market-chart.js';
 import {units} from './market-model.js';
 const row=(amount,day,id='a')=>({id,amount,coinId:'usdc',deploymentId:null,metric:'PRICE',provider:'ARKHAM',endpoint:'/token/market/usd-coin',selector:'data.price',observedAt:`2026-10-${String(day).padStart(2,'0')}T00:00:00.000Z`,unit:'USD'});
 test('history windows anchor to the last stored observation, exclude other sources and resolve duplicate times deterministically',()=>{
@@ -37,4 +37,13 @@ test('supply charts use a zero baseline without exaggerating tiny source changes
   assert.ok(g.points[0].y-g.points[1].y<0.000001);
   assert.deepEqual(g.points.map(p=>p.row.amount),values);
   assert.equal(g.direction,'up');
+});
+
+test('network overlay keeps separate deployment histories, excludes missing and obligations, and shares true time and zero supply axes',()=>{
+  const chain=(amount,day,networkId)=>({...row(amount,day,networkId+day),deploymentId:'usdc-'+networkId,networkId,metric:'CHAIN_TOTAL',unit:'token'});
+  const a=chain('100',1,'ethereum'),b=chain('101',22,'ethereum'),c=chain('25',21,'solana');
+  const data={registry:{networks:['ethereum','solana','xrpl'].map(id=>({id,name:id})),deployments:['ethereum','solana','xrpl'].map(networkId=>({id:'usdc-'+networkId,coinId:'usdc',networkId}))},observations:[b,a,c,{...chain('90',22,'xrpl'),metric:'OBLIGATIONS'}]};
+  const groups=networkSupplySeries(data,'usdc');assert.deepEqual(groups.map(s=>s.network.id),['ethereum','solana']);assert.deepEqual(groups.map(s=>s.rows.map(r=>r.amount)),[['100','101'],['25']]);
+  assert.equal(networkSupplySeries(data,'usdc',{networkId:'solana'})[0].rows[0],c);assert.deepEqual(networkSupplySeries(data,'usdt'),[]);
+  const geometry=chartGeometry(groups.flatMap(s=>s.rows).sort((a,b)=>a.observedAt.localeCompare(b.observedAt)),{zeroBaseline:true});assert.equal(geometry.ticks[0].amount,'0');assert.ok(geometry.points[1].x>geometry.points[0].x&&geometry.points[1].x<geometry.points[2].x);assert.ok(geometry.points[1].y>geometry.points[0].y);
 });

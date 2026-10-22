@@ -109,3 +109,15 @@ npm run check:db
 DB schema는 복수 deployment를 허용하지만 현재 input registry v1의256개·coin/network당1개 제약은 유지한다. registry v2, 24시리즈를 넘는 웹 선택/페이지 조회, 시간/일 집계, archive 복구·보관기간 정리·운영 배포는 후속이다. 수집기 DB 연결과 명시적 reader 웹 조회는 구현했다. `DATABASE_URL`을 입력하거나 웹을 시작하는 것만으로 DB 초기화·이전·외부 수집이 실행되지 않는다.
 
 기술 근거: [node-postgres 쿼리](https://node-postgres.com/features/queries), [transaction](https://node-postgres.com/features/transactions), [TLS](https://node-postgres.com/features/ssl), [Docker loopback publish](https://docs.docker.com/engine/network/port-publishing/).
+
+## 토큰·네트워크 기본정보
+
+[ADR0045](adr/0045-token-profile-catalog-and-popovers.md)의 별도 private catalog를 명시적으로 관리한다. 현재 데이터의 식별자·표준·출처는 `data/token-profiles.json`에서 검토한다. 설치 전에 기존 market schema/배포 등록이 있어야 한다.
+
+```sh
+npm run market:catalog:init -- --env-file .state/market-db-secrets/admin.env
+npm run market:catalog:import -- --env-file .state/market-db-secrets/admin.env
+npm run market:catalog:grant -- --env-file .state/market-db-secrets/admin.env --role atlas_app_reader
+```
+
+env 파일은 비공개 관리자 설정이며 이름은 이 PC의 예시다. 서버별 실제 안전한 reader role을 지정한다. `import --file`로 다른 검토 JSON도 지정할 수 있으나 고정 registry/공식 URL/동일 revision 충돌 검사를 통과해야 한다. 새 설명은 revision을 올려 저장하며 과거 버전은 보존한다. reader/collector가 자동으로 변경하지 않는다. `npm run ui -- --database --database-env .state/market-db-secrets/reader.env`에서 DB 프로필을 읽어 정보 툴팁을 제공한다.

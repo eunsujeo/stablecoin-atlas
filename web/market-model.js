@@ -1,3 +1,4 @@
+import {validateTokenProfiles} from './token-profile-model.js';
 // Provider observations remain separate from compatibility assessments and mock data.
 export const METRICS = {
   CIRCULATING: { label: '코인 전체 · 공급자 유통량', unit: 'token', scope: 'COIN' },
@@ -53,7 +54,7 @@ export function validateRegistry(registry) {
   return registry;
 }
 export function validateMarket(data) {
-  keys(data,['schemaVersion','kind','publishedAt','registry','observations','networks','omittedSupplyEntries','lastBuildState','collectionState','schedulerState','databaseState','readState']);
+  keys(data,['schemaVersion','kind','publishedAt','registry','observations','networks','omittedSupplyEntries','lastBuildState','collectionState','schedulerState','databaseState','readState','tokenProfiles']);
   ensure(data?.schemaVersion === 1 && data.kind === 'STORED_PROVIDER_OBSERVATIONS_NOT_ASSESSMENT' && time(data.publishedAt));
   validateRegistry(data.registry); ensure(Array.isArray(data.observations) && data.observations.length <= 5000);
   const seen = new Set();
@@ -74,6 +75,7 @@ export function validateMarket(data) {
   ensure(data.lastBuildState === undefined || ['SUCCESS','FAILED','UNKNOWN'].includes(data.lastBuildState));
   if(data.collectionState!==undefined) validateCollectionState(data.collectionState);
   if(data.schedulerState!==undefined) validateSchedulerState(data.schedulerState);
+  if(data.tokenProfiles!==undefined)validateTokenProfiles(data.tokenProfiles,data.registry);
   if(data.databaseState!==undefined) validateDatabaseState(data.databaseState);
   if(data.readState!==undefined) {
     const r=data.readState;

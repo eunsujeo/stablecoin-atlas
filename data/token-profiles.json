@@ -1,0 +1,159 @@
+{
+  "schemaVersion": 1,
+  "profiles": [
+    {
+      "deploymentId": "usdc-ethereum",
+      "revision": 1,
+      "standard": "ERC-20",
+      "assetDescription": "Circle이 발행하는 미국 달러 스테이블코인입니다. 여러 네트워크에서 발행됩니다.",
+      "networkDescription": "Ethereum의 ERC-20 토큰입니다. 스마트컨트랙트 주소로 식별합니다.",
+      "identity": {
+        "kind": "CONTRACT",
+        "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+      },
+      "sources": [
+        {
+          "title": "Circle · USDC contract addresses",
+          "url": "https://developers.circle.com/stablecoins/usdc-contract-addresses"
+        }
+      ],
+      "reviewedAt": "2026-10-22T04:28:21.997Z"
+    },
+    {
+      "deploymentId": "usdt-ethereum",
+      "revision": 1,
+      "standard": "ERC-20",
+      "assetDescription": "Tether가 발행하는 미국 달러 스테이블코인입니다. 여러 네트워크에서 발행됩니다.",
+      "networkDescription": "Ethereum의 ERC-20 토큰입니다. 스마트컨트랙트 주소로 식별합니다.",
+      "identity": {
+        "kind": "CONTRACT",
+        "address": "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+      },
+      "sources": [
+        {
+          "title": "Tether · Supported protocols",
+          "url": "https://tether.to/en/supported-protocols/"
+        }
+      ],
+      "reviewedAt": "2026-10-22T04:28:21.997Z"
+    },
+    {
+      "deploymentId": "rlusd-ethereum",
+      "revision": 1,
+      "standard": "ERC-20",
+      "assetDescription": "Ripple의 미국 달러 스테이블코인입니다. XRP와 다른 자산이며 Ethereum과 XRP Ledger 등에서 발행됩니다.",
+      "networkDescription": "Ethereum의 ERC-20 토큰입니다. 스마트컨트랙트 주소로 식별합니다.",
+      "identity": {
+        "kind": "CONTRACT",
+        "address": "0x8292Bb45bf1Ee4d140127049757C2E0fF06317eD"
+      },
+      "sources": [
+        {
+          "title": "Ripple · RLUSD token addresses",
+          "url": "https://docs.ripple.com/products/stablecoin/overview/token-addresses"
+        },
+        {
+          "title": "Ripple · RLUSD chains and networks",
+          "url": "https://docs.ripple.com/products/stablecoin/overview/supported-chains-and-networks"
+        }
+      ],
+      "reviewedAt": "2026-10-22T04:28:21.997Z"
+    },
+    {
+      "deploymentId": "usdt-tron",
+      "revision": 1,
+      "standard": "TRC-20",
+      "assetDescription": "Tether가 발행하는 미국 달러 스테이블코인입니다. 여러 네트워크에서 발행됩니다.",
+      "networkDescription": "TRON의 TRC-20 토큰입니다. 스마트컨트랙트 주소로 식별합니다.",
+      "identity": {
+        "kind": "CONTRACT",
+        "address": "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
+      },
+      "sources": [
+        {
+          "title": "Tether · Supported protocols",
+          "url": "https://tether.to/en/supported-protocols/"
+        }
+      ],
+      "reviewedAt": "2026-10-22T04:28:21.997Z"
+    },
+    {
+      "deploymentId": "usdc-solana",
+      "revision": 1,
+      "standard": "SPL Token",
+      "assetDescription": "Circle이 발행하는 미국 달러 스테이블코인입니다. 여러 네트워크에서 발행됩니다.",
+      "networkDescription": "Solana의 SPL 토큰입니다. Mint 주소로 식별합니다.",
+      "identity": {
+        "kind": "MINT",
+        "address": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+      },
+      "sources": [
+        {
+          "title": "Circle · USDC contract addresses",
+          "url": "https://developers.circle.com/stablecoins/usdc-contract-addresses"
+        }
+      ],
+      "reviewedAt": "2026-10-22T04:28:21.997Z"
+    },
+    {
+      "deploymentId": "usdt-solana",
+      "revision": 1,
+      "standard": "SPL Token",
+      "assetDescription": "Tether가 발행하는 미국 달러 스테이블코인입니다. 여러 네트워크에서 발행됩니다.",
+      "networkDescription": "Solana의 SPL 토큰입니다. Mint 주소로 식별합니다.",
+      "identity": {
+        "kind": "MINT",
+        "address": "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"
+      },
+      "sources": [
+        {
+          "title": "Tether · Supported protocols",
+          "url": "https://tether.to/en/supported-protocols/"
+        }
+      ],
+      "reviewedAt": "2026-10-22T04:28:21.997Z"
+    },
+    {
+      "deploymentId": "usdc-xrpl",
+      "revision": 1,
+      "standard": "XRPL Issued Token",
+      "assetDescription": "Circle이 발행하는 미국 달러 스테이블코인입니다. 여러 네트워크에서 발행됩니다.",
+      "networkDescription": "XRP Ledger의 발행 토큰입니다. ERC-20 컨트랙트가 아닌 발행자 주소와 통화 코드로 식별합니다.",
+      "identity": {
+        "kind": "ISSUED",
+        "issuer": "rGm7WCVp9gb4jZHWTEtGUr4dd74z2XuWhE",
+        "currency": "5553444300000000000000000000000000000000"
+      },
+      "sources": [
+        {
+          "title": "Circle · USDC contract addresses",
+          "url": "https://developers.circle.com/stablecoins/usdc-contract-addresses"
+        }
+      ],
+      "reviewedAt": "2026-10-22T04:28:21.997Z"
+    },
+    {
+      "deploymentId": "rlusd-xrpl",
+      "revision": 1,
+      "standard": "XRPL Issued Token",
+      "assetDescription": "Ripple의 미국 달러 스테이블코인입니다. XRP와 다른 자산이며 Ethereum과 XRP Ledger 등에서 발행됩니다.",
+      "networkDescription": "XRP Ledger의 발행 토큰입니다. ERC-20 컨트랙트가 아닌 발행자 주소와 통화 코드로 식별합니다.",
+      "identity": {
+        "kind": "ISSUED",
+        "issuer": "rMxCKbEDwqr76QuheSUMdEGf4B9xJ8m5De",
+        "currency": "524C555344000000000000000000000000000000"
+      },
+      "sources": [
+        {
+          "title": "Ripple · RLUSD token addresses",
+          "url": "https://docs.ripple.com/products/stablecoin/overview/token-addresses"
+        },
+        {
+          "title": "Ripple · RLUSD chains and networks",
+          "url": "https://docs.ripple.com/products/stablecoin/overview/supported-chains-and-networks"
+        }
+      ],
+      "reviewedAt": "2026-10-22T04:28:21.997Z"
+    }
+  ]
+}

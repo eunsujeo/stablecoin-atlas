@@ -1,1 +1,2 @@
 db/market/*.sql text eol=lf
+db/catalog/*.sql text eol=lf

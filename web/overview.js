@@ -1,5 +1,6 @@
+import {tokenInfoButton} from './token-profile.js';
 import {beginLoading} from './loading.js';
-import {sparkline, renderMarketChart} from './market-chart.js';
+import {sparkline, renderNetworkSupplyChart} from './market-chart.js';
 import { dashboardEvidence, VERDICTS, reportLinks } from './evidence-model.js';
 import { validateMarket, displayAmount, latest, rank, ratio } from './market-model.js';
 import { overviewSummary, overviewRanking, overviewEvidenceRanking } from './overview-model.js';
@@ -55,13 +56,14 @@ function renderEvidenceRankings(){
 function populateTrendNetworks(){
   const select=$('#overview-trend-network'),previous=select.value,data=state.market,coinId=$('#overview-trend-coin').value;
   select.replaceChildren();
+  const all=node('option','모든 네트워크');all.value='all';select.append(all);
   const deployments=data?.registry.deployments.filter(d=>d.coinId===coinId&&latest(data,{coinId,deploymentId:d.id,metric:'CHAIN_TOTAL'}).length>0)??[];
   for(const deployment of deployments){
     const network=data.registry.networks.find(n=>n.id===deployment.networkId);
     const option=node('option',network.name);option.value=network.id;select.append(option);
   }
-  if(deployments.some(d=>d.networkId===previous))select.value=previous;
-  if(!deployments.length){const option=node('option','표시할 네트워크 없음');option.value='';select.append(option);}
+  if(deployments.some(d=>d.networkId===previous))select.value=previous;else select.value='all';
+  if(!deployments.length){select.replaceChildren();const option=node('option','표시할 네트워크 없음');option.value='';select.append(option);}
   select.disabled=!deployments.length;
 }
 function renderMarketTrend(){
@@ -73,12 +75,13 @@ function renderMarketTrend(){
   const coin=data.registry.coins.find(c=>c.id===coinId),network=data.registry.networks.find(n=>n.id===networkId);
   const deployment=data.registry.deployments.find(d=>d.coinId===coinId&&d.networkId===networkId);
   const observation=deployment?latest(data,{coinId,deploymentId:deployment.id,metric:'CHAIN_TOTAL'})[0]:null;
-  $('#overview-trend-title').textContent=`${coin?.symbol??'토큰'} · ${network?.name??'네트워크'} 공급량 추이`;
-  $('#overview-trend-scope').textContent='선택한 토큰·네트워크의 공급자 총공급량 · tokens';
-  if(observation)renderMarketChart(host,data,observation,{period:state.period});
+  const title=`${coin?.symbol??'토큰'} · ${networkId==='all'?'네트워크별':network?.name??'네트워크'} 공급량 추이`;
+  const info=deployment?tokenInfoButton(data,deployment.id,title+' ⓘ'):null;
+  $('#overview-trend-title').replaceChildren(info??document.createTextNode(title));
+  $('#overview-trend-scope').textContent='네트워크별 총공급량 · tokens';
+  if(observation||networkId==='all')renderNetworkSupplyChart(host,data,coinId,{period:state.period,networkId,profileButton:id=>tokenInfoButton(data,id)});
   else host.append(node('p',`${coin?.symbol??'선택한 토큰'} · ${network?.name??'선택한 네트워크'} 총공급량 자료가 없습니다.${networkId==='xrpl'?' XRPL obligations는 별도 지표이며 이 그래프에 합치지 않습니다.':''}`,'empty-state'));
-  const read=data.readState;
-  note.textContent=read?`PostgreSQL 조회 · ${when(read.historyFrom)} → ${when(read.historyTo)} · ${read.sampled?'실제 관측 표본':'저장 관측'} · 시리즈별 최대 ${read.pointsPerSeries}점`:'저장된 관측 시각 기준 · 확보한 이력만 표시합니다.';
+  note.textContent='';note.hidden=true;
   const rows=rank(data,coinId);
   for(const row of rows){
     const network=data.registry.networks.find(n=>n.id===row.networkId),item=node('button',undefined,'overview-chain-item'),heading=node('div');
@@ -135,7 +138,7 @@ new MutationObserver(theme).observe(document.documentElement,{attributes:true,at
 document.addEventListener('atlas:navigate',activate);activate();
 setInterval(()=>{if(!$('#overview-screen').hidden&&!document.hidden)load();},60000);
 
-$('#overview-trend-coin').addEventListener('change',()=>{populateTrendNetworks();renderMarketTrend();});
+$('#overview-trend-coin').addEventListener('change',()=>{$('#overview-trend-network').value='all';populateTrendNetworks();renderMarketTrend();});
 $('#overview-trend-network').addEventListener('change',renderMarketTrend);
 $('#overview-trend-period').addEventListener('click',event=>{const button=event.target.closest('button[data-period]');if(!button)return;state.period=button.dataset.period;for(const item of $('#overview-trend-period').querySelectorAll('button'))item.setAttribute('aria-pressed',String(item===button));renderMarketTrend();});
 let overviewTrendWidth=0;
