@@ -1,0 +1,9 @@
+# 추가 네트워크 일별 자료 백필
+- 목표: 기존 USDT/USDC/RLUSD의 코인별 최대10 네트워크를 백필하고 commit/push한다. 중간 요청에 따라 기존 로컬 웹도 브라우저에서 연다.
+- 끝난 것: 기존 수입 API로 USDT10/USDC10/RLUSD2 조합에13,206개 값을 저장했다. 유통량/발행 잔액 점은 USDT3660/1835, USDC3330/2917, RLUSD732/732다. 기존 JPY1794개를 포함한 총계는 metadata1/selection1/source10/coverage10/value15000이다. 재수입 source/value/coverage 추가0, reader의 금액·날짜·누락·hash·REQUEST 시각과 preview의 완전 일치를 확인했다. sparse minted는 보간하지 않았다. 백필 원문은 기존 receipt/압축 archive로 확보해 외부 요청0회였다. 기존 schema hash·JPY source·legacy 공급 이력을 보존했다. 측정 크기는4296KiB(그중 index1328KiB)다.
+- 변경 파일: docs/TOP10_NETWORK_BACKFILL.md, docs/MARKET_REGISTRATION.md, docs/DEVELOPMENT_STATUS.md, docs/handoff/2026-10-23-top10-network-backfill.md. 기존 코드/DDL로 작업했으며 원문·운영 script/report는 Git 제외다.
+- 검증: npm run check rc0 tests291/pass291/fail0(.state/agent-logs/top10-backfill-check.log); npm run check:db rc0 tests18/pass18/fail0(top10-backfill-db-check.log). docs 내부 링크 확인 통과. 실제 수입/재수입/대조/크기는 .state/agent-logs/top10-backfill-live.json, 원문별 점/범위는 top10-backfill-preview.json. 웹4173 HTTP200, open 명령 성공.
+- 기다리는 것: 미회수 Lead 없음. 120f2b5d9fc6426284aaa5857a7121ca answered/proceed(tools/intelligent-router/.state/lead). 기존 수집기51718은 종료되어 있었고 periodic-state는2026-10-22T08:30:18.029Z FAILED였다. 원인 상세는 확보하지 못했다. 같은288/UTC일 설정으로 재시작한 worker exec session15840이22:40/22:45UTC ARKHAM STORED·WAITING/다음22:50UTC, lock405 한 개임을 확인했다. 별도 기록은 .state/agent-logs/top10-worker-resumed.json. UI PID51717/4173은 유지했다. 이번 백필 검증은 재시작 전 수행했으며 이후 정상 수집으로 legacy 관측이 증가할 수 있다. 미추적 docs/handoff/2026-10-22-router-lead-review.md는 건드리지 않았다.
+- 다음 행동: 새 atlas_registration의 최소 권한 일별 writer/예약·실패 격리와 UI 필터 조회 연결을 진행한다. 새27개 코인×네트워크 조합은 아직 legacy3코인 대시보드와 별도다. UI에서는 단일 점/짧은 발행 잔액 이력과 구간 완전성을 구분한다. 원격 서비스 자동 재시작/보관 정책은 후속이며 로컬 프로세스가 영구 운영된다고 간주하지 않는다. 새 수집기에 owner 설정을 사용하지 않는다.
+- 사용자 확인 필요: 아니오
+- 읽을 파일: docs/TOP10_NETWORK_BACKFILL.md, docs/MARKET_REGISTRATION.md, docs/adr/0053-registration-database-and-filtered-history.md

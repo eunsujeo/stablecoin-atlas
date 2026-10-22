@@ -78,4 +78,6 @@ npm run market:registration:db -- read --selection <selectionId> --coin jpyc --m
 
 기본 raw archive는 Git 제외 `.state/registration-artifacts`다. `--archive-dir`로 비공개 영속 경로를 지정할 수 있다. metadata/legacy는 저장소의 검토된 파일을 사용하며 임의 plan 입력/HTTP 수집/활성화 옵션은 없다. 상세 코인은 `jpyc`/`jpysc` 등 metadata에 등록된 ID이고 지표는 `NETWORK_CIRCULATING` 또는 `NETWORK_MINTED`다. 후자는 발행 잔액이다. 최대1년/10개 네트워크를 조회하며, 조회 결과 `sourceId`를 `--source-id`로 지정하면 정정 전 원문에 해당하는 저장값을 확인한다. source가 없으면 MISSING이며0이나 이전 네트워크 값으로 채우지 않는다. 날짜 필터는 저장 자료를 좁힐 뿐 현재 외부 값을 수집하지 않는다. 대시보드 전환은 후속 단계다.
 
-2026-10-22 Supabase 적용: metadata1/selection1, JPYC4네트워크804점×2지표와 JPYSC1네트워크93점×2지표, 총1,794개 값·4source·4coverage를 저장했다. 같은 원문 재수입은 세 종류 모두 추가0이다. 새 schema의 table/index/TOAST 합계는896KiB(그중 index344KiB)였다. 기존 시장 schema/권한을 유지한 채 기존 reader와 worker 지속 동작을 확인했다. 측정 시점·Lead/검사 결과와 다음 작업은 [인계문](handoff/2026-10-22-registration-db-history.md)을 따른다. 이 수량으로 앞으로의 무료 용량이 충분하다고 단정하지 않는다.
+2026-10-22 Supabase 초기 적용: metadata1/selection1, JPYC4네트워크804점×2지표와 JPYSC1네트워크93점×2지표, 총1,794개 값·4source·4coverage를 저장했다. 같은 원문 재수입은 세 종류 모두 추가0이다. 당시 새 schema의 table/index/TOAST 합계는896KiB(그중 index344KiB)였다. 초기 검증은 [인계문](handoff/2026-10-22-registration-db-history.md)을 따른다.
+
+2026-10-23 [추가 네트워크 백필](TOP10_NETWORK_BACKFILL.md)로 USDT10/USDC10/RLUSD2 조합의13,206개 값을 더해 총15,000개 값·10source·10coverage를 저장했다. 재수입 추가0과 원문별 정확한 날짜/금액 대조를 확인했다. 일부 발행 잔액 이력은 한 점만 있으므로 일별 완전성과 구분한다. 당시 총 크기는4,296KiB(그중 index1,328KiB)였으며, 이 수량으로 앞으로의 무료 용량이 충분하다고 단정하지 않는다.
