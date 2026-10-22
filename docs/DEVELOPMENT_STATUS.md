@@ -71,3 +71,5 @@ Overview 공급량 차트는 토큰 선택 시 확보한 네트워크를 공통 
 [ADR0048](adr/0048-durable-periodic-collection.md)은 history v3 정규화·DB 예약 기반 worker·최소 권한 writer·영속 원문/receipt 복구를 추가한다. 기존 불변 snapshot은 유지하고 같은 날짜/수량의 재저장을 방지한다. 후속 ADR0049에 따라 기본 Arkham5분/UTC일288회, DeFiLlama UTC일1회이며 Linux 배포 파일과 운영 방법은 [수집 서비스](COLLECTOR_SERVICE.md)를 따른다. 원격 서버 배포와 로컬 가동은 구분하며 최신 실제 상태/검사 수는 인계문을 따른다.
 
 [ADR0049](adr/0049-continuous-five-minute-collection.md)은 사용자 요청대로 worker/서버 기본값을288회/UTC일로 변경한다. 명시 owner history v4 전환은 오늘의 기존12회 상한을 올리며 사용 횟수·슬롯·원문과 시장/일별 값은 유지한다.
+
+[ADR0050](adr/0050-yen-and-top-ten-network-design.md)의 JPYC·JPYSC/기존3코인별 최대10개 네트워크 수집은 검토·설계 단계다. 공식 식별자·공급자 coverage와 USD 환산액/수량 차이를 확인했으며 [설계 정본](design/YEN_AND_TOP10_NETWORK_COLLECTION.md)에 구현 순서·DB/조회/예약 확장 조건을 정리했다. 실제 registry·수집기·DB 등록은 아직 하지 않았다.
