@@ -149,3 +149,10 @@ select option{background:var(--panel);color:var(--ink);font-weight:400}
 .overview-technical>summary>small{display:inline;margin-left:14px;font-size:11px}
 @media(max-width:1000px){.overview-market-grid{grid-template-columns:1fr}.overview-chain-panel{border-left:0;border-top:1px solid var(--line);padding:20px 0 0}}
 @media(max-width:700px){.overview-market-hero{padding:18px}.overview-technical>summary>small{display:block;margin:8px 0 0}.overview-market-hero .panel-heading{align-items:center}}
+
+.overview-trend-selectors{display:flex;gap:12px;flex-wrap:wrap;justify-content:flex-end}
+.overview-trend-selectors label{display:grid;gap:5px;color:var(--muted);font-size:11px}
+.overview-chain-item{display:block;width:100%;background:transparent;color:var(--ink);text-align:left;padding:10px 0;border-bottom:1px solid var(--line);border-radius:6px}
+.overview-chain-item[aria-pressed=true]>div:first-child strong{color:var(--teal)}
+.overview-chain-item:hover{background:var(--control)}
+@media(max-width:700px){.overview-market-hero>.panel-heading{flex-direction:column;align-items:stretch}.overview-trend-selectors{justify-content:flex-start}.overview-trend-selectors label{min-width:0;max-width:100%}}
