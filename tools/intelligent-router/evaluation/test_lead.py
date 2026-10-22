@@ -95,11 +95,25 @@ class RenewTests(unittest.TestCase):
 
     def test_new_then_accepts_current_worktree(self):
         with patch.object(lead, "agent", return_value=self.idle), patch.object(lead, "herdr") as send, \
-                patch.object(renew, "wait_output", return_value=True) as seen:
+                patch.object(renew, "wait_output", return_value=True) as seen, \
+                patch.object(renew, "ready_for_input", return_value=True), \
+                patch.object(renew.subprocess, "run") as settled:
             renew.renew("router-lead")
+        self.assertEqual(settled.call_args.args[0][:4], ["herdr", "agent", "wait", "router-lead"])
         self.assertEqual([c.args for c in send.call_args_list],
                          [("agent", "prompt", "router-lead", "/new"), ("agent", "send-keys", "router-lead", "enter")])
-        self.assertEqual([c.args[1] for c in seen.call_args_list], [renew.CHOOSER, renew.BANNER])
+        self.assertEqual([c.args[1] for c in seen.call_args_list], [renew.CHOOSER])
+
+    def test_stale_banner_with_open_chooser_is_not_ready(self):
+        chooser = "OpenAI Codex\n" + renew.CHOOSER + "\n\u203a 1. Use current Git worktree"
+        fresh = "OpenAI Codex\n\u203a " + renew.EMPTY_INPUT
+        clock = [0.0]
+        def step(seconds):
+            clock[0] += seconds
+        with patch.object(renew, "screen", return_value=chooser):
+            self.assertFalse(renew.ready_for_input("router-lead", now=lambda: clock[0], sleep=step))
+        with patch.object(renew, "screen", side_effect=[chooser, fresh]):
+            self.assertTrue(renew.ready_for_input("router-lead", now=lambda: clock[0], sleep=step))
 
     def test_working_agent_is_not_renewed(self):
         with patch.object(lead, "agent", return_value={"agent_status": "working", "pane_id": "w0:p0"}), \
@@ -107,9 +121,10 @@ class RenewTests(unittest.TestCase):
             self.assertRaises(RuntimeError, renew.renew, "router-impl")
         send.assert_not_called()
 
-    def test_missing_chooser_stops_without_enter(self):
+    def test_missing_chooser_and_unready_input_stops_without_enter(self):
         with patch.object(lead, "agent", return_value=self.idle), patch.object(lead, "herdr") as send, \
-                patch.object(renew, "wait_output", return_value=False):
+                patch.object(renew, "wait_output", return_value=False), \
+                patch.object(renew, "ready_for_input", return_value=False):
             self.assertRaises(RuntimeError, renew.renew, "router-impl")
         self.assertEqual(send.call_count, 1)
 

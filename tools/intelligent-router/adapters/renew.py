@@ -40,6 +40,16 @@ def wait_output(pane, text, timeout_ms=8000):
     return process.returncode == 0
 
 
+def ready_for_input(name, timeout=15, now=time.time, sleep=time.sleep):
+    deadline = now() + timeout
+    while now() < deadline:
+        text = screen(name)
+        if CHOOSER not in text and EMPTY_INPUT in text and BANNER in text:
+            return True
+        sleep(0.5)
+    return False
+
+
 def renew(name):
     """Send /new, accept the current-worktree default, and confirm a fresh idle session."""
     entry = lead.agent(name)
@@ -49,8 +59,11 @@ def renew(name):
     lead.herdr("agent", "prompt", name, "/new")
     if wait_output(pane, CHOOSER):
         lead.herdr("agent", "send-keys", name, "enter")
-    if not wait_output(pane, BANNER):
-        raise RuntimeError("renew_uncertain: new conversation banner not shown")
+    # An old banner can still be on screen, so require the chooser gone and an empty input box.
+    if not ready_for_input(name):
+        raise RuntimeError("renew_uncertain: input box not ready after /new")
+    # Herdr may report a brief non-idle state right after /new; wait for it to settle.
+    subprocess.run(["herdr", "agent", "wait", name, "--timeout", "15000"], capture_output=True, timeout=20)
     entry = lead.agent(name)
     if entry.get("agent_status") not in {"idle", "done"}:
         raise RuntimeError("renew_uncertain: agent not idle after /new")
