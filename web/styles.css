@@ -192,3 +192,11 @@ select option{background:var(--panel);color:var(--ink);font-weight:400}
 
 #overview-trend-period{flex-wrap:wrap}.comparison-divider{padding:0 8px;color:var(--muted)}
 .network-chart-key{flex-wrap:wrap;max-width:100%}.network-chart-key small{flex-basis:100%;margin-left:18px;color:var(--muted);font-size:10px}.network-chart-key strong{overflow-wrap:anywhere}
+
+/* Compact supply legend and tooltip anchored inside the chart. */
+.network-chart-legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px 24px}
+.network-chart-key{display:grid;grid-template-columns:10px minmax(0,1fr) auto;gap:8px;align-items:center}
+.network-chart-key>span:last-of-type{text-align:right;white-space:nowrap}
+.network-chart-key .token-profile-trigger{grid-column:4}
+.network-chart-plot{position:relative;width:100%;min-width:0}
+.network-chart-tooltip{position:absolute;z-index:3;pointer-events:none;display:flex;flex-direction:column;gap:4px;max-width:min(340px,calc(100% - 16px));box-shadow:0 6px 24px #0003;overflow-wrap:anywhere}

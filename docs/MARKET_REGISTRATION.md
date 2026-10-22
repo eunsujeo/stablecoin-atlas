@@ -78,8 +78,22 @@ npm run market:registration:db -- read --selection <selectionId> --coin jpyc --m
 
 기본 raw archive는 Git 제외 `.state/registration-artifacts`다. `--archive-dir`로 비공개 영속 경로를 지정할 수 있다. metadata/legacy는 저장소의 검토된 파일을 사용하며 임의 plan 입력/HTTP 수집/활성화 옵션은 없다. 상세 코인은 `jpyc`/`jpysc` 등 metadata에 등록된 ID이고 지표는 `NETWORK_CIRCULATING` 또는 `NETWORK_MINTED`다. 후자는 발행 잔액이다. 최대1년/10개 네트워크를 조회하며, 조회 결과 `sourceId`를 `--source-id`로 지정하면 정정 전 원문에 해당하는 저장값을 확인한다. source가 없으면 MISSING이며0이나 이전 네트워크 값으로 채우지 않는다. 날짜 필터는 저장 자료를 좁힐 뿐 현재 외부 값을 수집하지 않는다.
 
-Overview 그래프 연결은 [ADR0054](adr/0054-registered-supply-overview.md)를 따른다. 기존 `npm run ui -- --database --database-env <reader.env>`로 실행하면 별도 공급량 조회 endpoint를 사용해5코인을 선택할 수 있다. 실행 중인 이전 서버는 재시작해야 새 endpoint가 활성화된다. market 시세 랭킹·기술 검증과 별도이며 새 등록 영역의 일별 자동 갱신 연결은 후속이다. 화면 조회는 공급자 호출을 실행하지 않는다.
+Overview 그래프 연결은 [ADR0054](adr/0054-registered-supply-overview.md)를 따른다. 기존 `npm run ui -- --database --database-env <reader.env>`로 실행하면 별도 공급량 조회 endpoint를 사용해5코인을 선택할 수 있다. 실행 중인 이전 서버는 재시작해야 새 endpoint가 활성화된다. market 시세 랭킹·기술 검증과 별도이며 새 등록 영역의 일별 자동 갱신은 아래 ADR0055 절을 따른다. 화면 조회는 공급자 호출을 실행하지 않는다.
 
 2026-10-22 Supabase 초기 적용: metadata1/selection1, JPYC4네트워크804점×2지표와 JPYSC1네트워크93점×2지표, 총1,794개 값·4source·4coverage를 저장했다. 같은 원문 재수입은 세 종류 모두 추가0이다. 당시 새 schema의 table/index/TOAST 합계는896KiB(그중 index344KiB)였다. 초기 검증은 [인계문](handoff/2026-10-22-registration-db-history.md)을 따른다.
 
 2026-10-23 [추가 네트워크 백필](TOP10_NETWORK_BACKFILL.md)로 USDT10/USDC10/RLUSD2 조합의13,206개 값을 더해 총15,000개 값·10source·10coverage를 저장했다. 재수입 추가0과 원문별 정확한 날짜/금액 대조를 확인했다. 일부 발행 잔액 이력은 한 점만 있으므로 일별 완전성과 구분한다. 당시 총 크기는4,296KiB(그중 index1,328KiB)였으며, 이 수량으로 앞으로의 무료 용량이 충분하다고 단정하지 않는다.
+
+## 검토된 선정의 일별 자동 갱신
+
+[ADR0055](adr/0055-registered-daily-collection.md)의 v2 migration과 최소 권한 writer로5코인을 매 UTC일 한 번 갱신한다. 현재 검토된27개 조합에 고정하며 매일 상위10 구성을 재선정하지 않는다. 상세5 GET/일이고 기존3코인 history도 같은 원문을 재사용한다.
+
+```sh
+npm run market:registration:db -- upgrade --env-file <admin.env>
+npm run market:registration:db -- grant-writer --role atlas_app_writer --env-file <admin.env>
+# 기존 worker를 정상 종료하고 진행 요청/lock405 해제를 확인한 뒤 실행한다.
+npm run collector:run -- --env-file <writer.env> --skip-daily-history
+npm run collector:registered -- run --env-file <writer.env> --selection <검토된-selection-id>
+```
+
+`--once`는 같은 예약 규칙으로 단발 실행한다. 재실행해도 같은 UTC일의 성공/실패 예약을 재조회하지 않는다. 원문이 있는 미종료 예약은 API 없이 재수입한다. 원문 없는 미종료 예약은 UNCONFIRMED로 보존하고 다음 코인을 진행한다. 실패 코인의 이전 성공 자료/시각은 유지한다. metadata/selection 변경 시 명시 설정을 바꿔야 하며 하루 예약은 초기화되지 않는다. private archive/receipt를 영속 보관하고 owner env를 runtime에 주지 않는다. v2 설치 후 기존 history collect는 HTTP 전에 차단된다. 5분 Arkham 수집은 별도 유지한다.

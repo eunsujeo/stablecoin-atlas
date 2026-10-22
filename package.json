@@ -63,7 +63,8 @@
     "market:history:continuous": "node --use-env-proxy tools/market-db/history-cli.mjs continuous",
     "market:registration:plan": "node tools/market-registration/cli.mjs plan",
     "market:registration:detail": "node tools/market-registration/cli.mjs detail",
-    "market:registration:db": "node --use-env-proxy tools/market-db/registration-cli.mjs"
+    "market:registration:db": "node --use-env-proxy tools/market-db/registration-cli.mjs",
+    "collector:registered": "node --use-env-proxy tools/registered-collector.mjs"
   },
   "dependencies": {
     "ajv": "8.20.0",

@@ -1,3 +1,4 @@
+import {requireLegacyHistoryCollection} from './registration-scheduler.mjs';
 import {pathToFileURL} from 'node:url';
 import {dirname,join} from 'node:path';
 import {workspaceEnvironment} from '../workspace-env.mjs';
@@ -19,7 +20,7 @@ export async function main(args,env=process.env,{fetcher=fetch}={}){
  const variables=await workspaceEnvironment(options['--env-file'],options['--env-file']?{}:env),client=await connectDatabase(variables);
  try{
   if(command==='continuous')return await enableContinuousHistory(client);if(command==='init')return await initializeHistory(client);if(command==='upgrade')return await upgradeHistory(client);if(command==='normalize')return await normalizeHistory(client,registry);if(command==='grant-writer')return await grantHistoryWriter(client,options['--role']);if(command==='grant')return await grantHistoryReader(client,options['--role']);
-  await verifyHistoryWriter(client);const sources=[],snapshots=[];
+  await verifyHistoryWriter(client);if(command==='collect')await requireLegacyHistoryCollection(client);const sources=[],snapshots=[];
   let entries=Object.keys(historyAssets).map(coinId=>({coinId}));
   if(command==='import'){
    const manifest=(await boundedJson(options['--manifest'],16384)).value;

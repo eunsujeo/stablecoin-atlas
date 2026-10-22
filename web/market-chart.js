@@ -88,22 +88,21 @@ export function supplyComparisonGeometry(input,{comparison='amount',right=870,bo
 }
 const percentLabel=value=>{const [whole,tail]=value.split('.');return whole+(tail?'.'+tail.slice(0,2):'')+'%';};
 export function renderNetworkSupplyChart(host,data,coinId,options={}){
-  host.replaceChildren();const groups=networkSupplySeries(data,coinId,options);
+  host.replaceChildren();const groups=sortSupplyGroups(networkSupplySeries(data,coinId,options));
   if(!groups.length){host.append(el('p','선택한 구간의 공급량 자료가 없습니다.','empty-state'));return;}
   const colors=['#36a9ef','#e59827','#a681ee','#20ad8b','#e57796','#8caa39','#df6541','#707be5','#b08a54','#a351a5'];
   const compact=host.clientWidth<600,right=compact?430:870,bottom=compact?240:280,width=compact?600:1040,height=compact?310:350;
   const rows=groups.flatMap(s=>s.rows).sort((a,b)=>Date.parse(a.observedAt)-Date.parse(b.observedAt));
   const g=supplyComparisonGeometry(groups,{right,bottom,comparison:options.comparison}),points=new Map(g.points.map(p=>[p.row,p])),relative=options.comparison==='change';
-  if(relative)host.append(el('p','선택 구간의 네트워크별 첫 관측 대비 증감률 (%)','chart-note'));
+  if(relative)host.append(el('p','네트워크별 증감률 (%)','chart-note'));
   if(g.unavailable.length)host.append(el('p',g.unavailable.map(s=>s.network.name).join(' · ')+' · 첫 관측이 0이어서 증감률을 계산할 수 없습니다. 공급량 규모로 확인하세요.','chart-note'));
   if(!g.groups.length){host.append(el('p','증감률을 계산할 기준값이 없습니다.','empty-state'));return;}
-  const legend=el('div',undefined,'network-chart-legend');
+  const legend=el('div',undefined,'network-chart-legend');legend.setAttribute('aria-label','네트워크별 공급량 내림차순');
   const figure=svg('svg',{viewBox:`0 0 ${width} ${height}`,role:'group',tabindex:0,'aria-label':`네트워크별 ${relative?'증감률 (%)':'공급량 규모 (tokens)'}. 좌우 화살표로 시각, 위아래 화살표로 네트워크 선택. Home 처음, End 마지막.`});figure.classList.add('market-price-chart');
   for(const tick of g.ticks){figure.append(svg('line',{x1:32,x2:right,y1:tick.y,y2:tick.y,class:'grid-line'}));const text=svg('text',{x:right+20,y:tick.y+4,class:'trend-axis'});text.textContent=relative?percentLabel(tick.amount):displayAmount(tick.amount).replace(/(\.\d{4})\d+/, '$1…');figure.append(text);}
   g.groups.forEach((group,i)=>{
     group.points=group.rows.map(row=>points.get(row));const color=colors[i%colors.length],item=el('div',undefined,'network-chart-key'),swatch=el('span',undefined,'network-chart-swatch');swatch.style.background=color;
     item.append(swatch,el('strong',group.network.name),el('span',displayAmount(group.rows.at(-1).amount)));
-    if(['history','minted'].includes(options.source))item.append(el('small',group.rows.length===1?'1점 · 추세 미확보':group.rows[0].observedAt.slice(0,10)+' ~ '+group.rows.at(-1).observedAt.slice(0,10)+' · '+group.rows.length+'점'));
     const info=options.profileButton?.(group.deploymentId);if(info)item.append(info);legend.append(item);
     const segments=dailySupplySegments(group.points,['history','minted'].includes(options.source));
     for(const segment of segments){
@@ -113,14 +112,34 @@ export function renderNetworkSupplyChart(host,data,coinId,options={}){
     const last=group.points.at(-1);figure.append(svg('circle',{cx:last.x,cy:last.y,r:3,fill:color}));
   });
   for(const index of new Set([0,Math.floor((g.rows.length-1)/2),g.rows.length-1])){const p=points.get(g.rows[index]);if(!p)continue;if(index!==0&&index!==g.rows.length-1&&(p.x-g.points[0].x<120||g.points.at(-1).x-p.x<120))continue;const text=svg('text',{x:p.x,y:bottom+42,'text-anchor':index===0?'start':index===g.rows.length-1?'end':'middle',class:'trend-axis'});text.textContent=['history','minted'].includes(options.source)?p.row.observedAt.slice(0,10):new Date(p.row.observedAt).toLocaleString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false});figure.append(text);}
-  const tip=el('div',undefined,'chart-point-tooltip'),guide=svg('line',{y1:28,y2:bottom,class:'trend-crosshair'}),dot=svg('circle',{r:5,stroke:'var(--panel)','stroke-width':2});tip.hidden=true;tip.setAttribute('aria-live','polite');figure.append(guide,dot);let groupIndex=0,pointIndex=g.groups[0].points.length-1;
+  const plot=el('div',undefined,'network-chart-plot');
+  const tip=el('div',undefined,'chart-point-tooltip network-chart-tooltip'),guide=svg('line',{y1:28,y2:bottom,class:'trend-crosshair'}),dot=svg('circle',{r:5,stroke:'var(--panel)','stroke-width':2});tip.hidden=true;tip.setAttribute('aria-live','polite');tip.setAttribute('role','tooltip');figure.append(guide,dot);plot.append(figure,tip);let groupIndex=0,pointIndex=g.groups[0].points.length-1;
   function select(){const group=g.groups[groupIndex],p=group.points[pointIndex];guide.setAttribute('x1',p.x);guide.setAttribute('x2',p.x);dot.setAttribute('cx',p.x);dot.setAttribute('cy',p.y);dot.setAttribute('fill',colors[groupIndex%colors.length]);tip.replaceChildren(el('strong',group.network.name+' · '+exactDecimal(p.row.amount)+' tokens'),el('span',['history','minted'].includes(options.source)?p.row.observedAt.slice(0,10)+' · 일별 기준':when(p.row.observedAt)));if(relative)tip.append(el('span',percentLabel(p.change)+' · 기준 '+group.rows[0].observedAt.slice(0,10)));}
-  function pointer(event){const origin=figure.createSVGPoint();origin.x=event.clientX;origin.y=event.clientY;const matrix=figure.getScreenCTM();if(!matrix)return;const q=origin.matrixTransform(matrix.inverse());let distance=Infinity;g.groups.forEach((group,i)=>group.points.forEach((p,j)=>{const d=(p.x-q.x)**2+(p.y-q.y)**2;if(d<distance){distance=d;groupIndex=i;pointIndex=j;}}));select();tip.hidden=false;}
-  select();figure.addEventListener('pointermove',pointer);figure.addEventListener('pointerdown',pointer);figure.addEventListener('pointerleave',()=>tip.hidden=true);figure.addEventListener('focus',()=>tip.hidden=false);figure.addEventListener('blur',()=>tip.hidden=true);
-  figure.addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End','Escape'].includes(event.key))return;event.preventDefault();if(event.key==='Escape'){tip.hidden=true;return;}if(event.key==='ArrowUp')groupIndex=(groupIndex+g.groups.length-1)%g.groups.length;if(event.key==='ArrowDown')groupIndex=(groupIndex+1)%g.groups.length;const last=g.groups[groupIndex].points.length-1;pointIndex=Math.min(pointIndex,last);if(event.key==='ArrowLeft')pointIndex=Math.max(0,pointIndex-1);if(event.key==='ArrowRight')pointIndex=Math.min(last,pointIndex+1);if(event.key==='Home')pointIndex=0;if(event.key==='End')pointIndex=last;select();tip.hidden=false;});
-  host.append(legend,figure,tip,el('p','업데이트 '+(data.registeredSupply&&data.updatedAt?when(data.updatedAt):['history','minted'].includes(options.source)?rows.at(-1).observedAt.slice(0,10)+' · 일별 자료':when(rows.at(-1).observedAt)),'chart-updated'));
+  function pointer(event){const origin=figure.createSVGPoint();origin.x=event.clientX;origin.y=event.clientY;const matrix=figure.getScreenCTM();if(!matrix)return;const q=origin.matrixTransform(matrix.inverse());let distance=Infinity;g.groups.forEach((group,i)=>group.points.forEach((p,j)=>{const d=(p.x-q.x)**2+(p.y-q.y)**2;if(d<distance){distance=d;groupIndex=i;pointIndex=j;}}));select();showAt(event.clientX,event.clientY);}
+  function hide(){tip.hidden=true;guide.setAttribute('visibility','hidden');dot.setAttribute('visibility','hidden');}
+  function showAt(clientX,clientY){
+    tip.hidden=false;guide.removeAttribute('visibility');dot.removeAttribute('visibility');
+    const bounds=plot.getBoundingClientRect(),position=chartTooltipPosition({x:clientX-bounds.left,y:clientY-bounds.top,width:bounds.width,height:bounds.height,tipWidth:tip.offsetWidth,tipHeight:tip.offsetHeight});
+    tip.style.left=position.left+'px';tip.style.top=position.top+'px';
+  }
+  function showPoint(){const p=g.groups[groupIndex].points[pointIndex],matrix=figure.getScreenCTM();if(!matrix)return;const origin=figure.createSVGPoint();origin.x=p.x;origin.y=p.y;const screen=origin.matrixTransform(matrix);showAt(screen.x,screen.y);}
+  select();hide();figure.addEventListener('pointermove',pointer);figure.addEventListener('pointerdown',pointer);figure.addEventListener('pointerleave',event=>{if(event.pointerType!=='touch')hide();});figure.addEventListener('focus',showPoint);figure.addEventListener('blur',hide);
+  figure.addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End','Escape'].includes(event.key))return;event.preventDefault();if(event.key==='Escape'){hide();return;}if(event.key==='ArrowUp')groupIndex=(groupIndex+g.groups.length-1)%g.groups.length;if(event.key==='ArrowDown')groupIndex=(groupIndex+1)%g.groups.length;const last=g.groups[groupIndex].points.length-1;pointIndex=Math.min(pointIndex,last);if(event.key==='ArrowLeft')pointIndex=Math.max(0,pointIndex-1);if(event.key==='ArrowRight')pointIndex=Math.min(last,pointIndex+1);if(event.key==='Home')pointIndex=0;if(event.key==='End')pointIndex=last;select();showPoint();});
+  host.append(legend,plot,el('p','업데이트 '+(data.registeredSupply&&data.updatedAt?when(data.updatedAt):['history','minted'].includes(options.source)?rows.at(-1).observedAt.slice(0,10)+' · 일별 자료':when(rows.at(-1).observedAt)),'chart-updated'));
 }
 
 export function dailySupplySegments(points,daily=true){
  const result=[];for(const p of points){const group=result.at(-1),last=group?.at(-1);if(!group||daily&&Date.parse(p.row.observedAt)-Date.parse(last.row.observedAt)>86400000)result.push([p]);else group.push(p);}return result;
+}
+
+// Amount comparison stays exact even above Number.MAX_SAFE_INTEGER.
+export function sortSupplyGroups(groups){return [...groups].sort((a,b)=>{
+ const av=units(a.rows.at(-1).amount),bv=units(b.rows.at(-1).amount);
+ return av===bv?a.network.id.localeCompare(b.network.id):av>bv?-1:1;
+});}
+export function chartTooltipPosition({x,y,width,height,tipWidth,tipHeight}){
+ const gap=14,pad=8,maxLeft=Math.max(pad,width-tipWidth-pad),maxTop=Math.max(pad,height-tipHeight-pad);
+ const left=x+gap+tipWidth<=width-pad?x+gap:x-gap-tipWidth;
+ const top=y-gap-tipHeight>=pad?y-gap-tipHeight:y+gap;
+ return {left:Math.max(pad,Math.min(maxLeft,left)),top:Math.max(pad,Math.min(maxTop,top))};
 }

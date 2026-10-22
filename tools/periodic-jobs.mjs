@@ -1,3 +1,4 @@
+import {requireLegacyHistoryCollection} from './market-db/registration-scheduler.mjs';
 import {join,dirname,resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {mkdir,lstat,realpath,open,link,unlink} from 'node:fs/promises';
@@ -29,11 +30,13 @@ export function validateReceipt(receipt,job,slot){
  else if(job==='DEFILLAMA'){
   if(!Array.isArray(p)||p.length!==3||new Set(p.map(s=>s?.coinId)).size!==3)invalid();
   for(const source of p)if(!exact(source,['coinId','sourceHash','fetchedAt'])||!Object.hasOwn(historyAssets,source.coinId)||!hash(source.sourceHash)||typeof source.fetchedAt!=='string'||!Number.isFinite(Date.parse(source.fetchedAt))||new Date(source.fetchedAt).toISOString()!==source.fetchedAt)invalid();
+ }else if(/^REGISTERED_(USDT|USDC|RLUSD|JPYC|JPYSC)$/.test(job)){
+  if(!exact(p,['coinId','metadataId','selectionId','sourceHash','fetchedAt'])||p.coinId!==job.slice(11).toLowerCase()||![p.metadataId,p.selectionId,p.sourceHash].every(hash)||typeof p.fetchedAt!=='string'||!Number.isFinite(Date.parse(p.fetchedAt))||new Date(p.fetchedAt).toISOString()!==p.fetchedAt||!slot.endsWith('T00:00:00.000Z'))invalid();
  }else invalid();return receipt;
 }
 export async function receiptStore(root){
  await mkdir(root,{recursive:true,mode:0o700});const s=await lstat(root);if(!s.isDirectory()||s.isSymbolicLink()||process.platform!=='win32'&&((s.mode&0o077)!==0||s.uid!==process.getuid()))invalid();const base=await realpath(root);
- const path=(job,slot)=>{if(!['ARKHAM','DEFILLAMA'].includes(job)||typeof slot!=='string'||!/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.000Z$/.test(slot))invalid();return join(base,job.toLowerCase()+'-'+slot.replace(/\D/g,'')+'.json');};
+ const path=(job,slot)=>{if(!['ARKHAM','DEFILLAMA'].includes(job)&&!/^REGISTERED_(USDT|USDC|RLUSD|JPYC|JPYSC)$/.test(job)||typeof slot!=='string'||!/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.000Z$/.test(slot))invalid();return join(base,job.toLowerCase()+'-'+slot.replace(/\D/g,'')+'.json');};
  return {async read(job,slot){try{const file=path(job,slot),s=await lstat(file);if(!s.isFile()||s.isSymbolicLink()||process.platform!=='win32'&&((s.mode&0o077)!==0||s.uid!==process.getuid()))invalid();return validateReceipt((await boundedJson(file,8192)).value,job,slot);}catch(e){if(e.code==='ENOENT')return null;throw e;}},async save(job,slot,payload){
   const r=validateReceipt({schemaVersion:1,job,slot,payload},job,slot),file=path(job,slot),temporary=file+'.'+randomUUID()+'.tmp';let f;
   try{f=await open(temporary,constants.O_WRONLY|constants.O_CREAT|constants.O_EXCL|constants.O_NOFOLLOW,0o600);await f.writeFile(JSON.stringify(r));await f.sync();await f.close();f=null;try{await link(temporary,file);}catch(e){if(e.code!=='EEXIST')throw e;}}
@@ -46,7 +49,7 @@ export function periodicJobs({env,receipts,archiveRoot='.state/collector-archive
  const guardedFetch=async(url,options)=>{signal?.throwIfAborted();return fetcher(url,{...options,signal:signal?AbortSignal.any([signal,options.signal].filter(Boolean)):options.signal});};
  async function history(job,slot,receipt){
   const client=await connect(env);try{
-   await verifyHistoryWriter(client);const registry=validateRegistry((await boundedJson(registryPath,128*1024)).value),sources=[],snapshots=[],proof=[];
+   await verifyHistoryWriter(client);if(!receipt)await requireLegacyHistoryCollection(client);const registry=validateRegistry((await boundedJson(registryPath,128*1024)).value),sources=[],snapshots=[],proof=[];
    for(const coinId of Object.keys(historyAssets)){
     signal?.throwIfAborted();const saved=receipt?.payload.find(s=>s.coinId===coinId),bytes=saved?await readCompressedSource(compressed,saved.sourceHash):await fetchHistorySource(coinId,guardedFetch),fetchedAt=saved?.fetchedAt??new Date().toISOString();
     const circulating=historyProjection(bytes,coinId,registry,fetchedAt),minted=historyProjection(bytes,coinId,registry,fetchedAt,{metric:'NETWORK_MINTED'});if(saved&&saved.sourceHash!==circulating.sourceHash)invalid();snapshots.push(circulating,minted);sources.push({hash:circulating.sourceHash,bytes});proof.push({coinId,sourceHash:circulating.sourceHash,fetchedAt});

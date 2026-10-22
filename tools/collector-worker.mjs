@@ -12,7 +12,8 @@ import {safeErrorCode} from './market-db/errors.mjs';
 export function parseCollectorArguments(args){
  const result={command:args[0],once:false,arkhamRunsPerDay:288,stateDirectory:'.state/collector-state',archiveRoot:'.state/collector-archive'};if(!['run','status'].includes(result.command))throw Error('INVALID_COMMAND');const seen=new Set();
  for(let i=1;i<args.length;i++){const flag=args[i];if(seen.has(flag))throw Error('INVALID_ARGUMENTS');seen.add(flag);
-  if(flag==='--once'&&result.command==='run')result.once=true;
+  if(flag==='--skip-daily-history'&&result.command==='run')result.skipDailyHistory=true;
+  else if(flag==='--once'&&result.command==='run')result.once=true;
   else if(flag==='--arkham-runs-per-day'&&result.command==='run'&&/^\d{1,3}$/.test(args[i+1]??''))result.arkhamRunsPerDay=Number(args[++i]);
   else if(['--env-file',...(result.command==='run'?['--state-dir','--archive-dir']:[])].includes(flag)&&args[i+1]&&!args[i+1].startsWith('--'))result[{'--env-file':'envFile','--state-dir':'stateDirectory','--archive-dir':'archiveRoot'}[flag]]=args[++i];
   else throw Error('INVALID_ARGUMENTS');
@@ -38,9 +39,9 @@ export async function runCollector({env,options,signal,connect=connectDatabase,j
  try{
   const pid=await acquireWorker(client);locked=true;await onState({state:'STARTING'});const receipts=await receiptStore(options.stateDirectory),jobs=jobsFactory({env,receipts,archiveRoot:options.archiveRoot,signal:combined});
   do{
-   for(const reservation of await pendingScheduled(client)){if(combined.aborted)break;const result=await processScheduledJob({reservation,jobs,receipts,finish:(...args)=>finishScheduled(client,...args),signal:combined});await onState(result);if(result.state==='UNCONFIRMED'&&result.recoverable!==false)throw Error('SCHEDULER_RECONCILE_REQUIRED');}
+   for(const reservation of await pendingScheduled(client)){if(options.skipDailyHistory&&reservation.job==='DEFILLAMA')throw Error('SCHEDULER_RECONCILE_REQUIRED');if(combined.aborted)break;const result=await processScheduledJob({reservation,jobs,receipts,finish:(...args)=>finishScheduled(client,...args),signal:combined});await onState(result);if(result.state==='UNCONFIRMED'&&result.recoverable!==false)throw Error('SCHEDULER_RECONCILE_REQUIRED');}
    let now=Date.now(),arkhamExhausted=options.arkhamRunsPerDay===0,failed=false;
-   for(const [job,budget]of [['DEFILLAMA',1],...(options.arkhamRunsPerDay?[['ARKHAM',options.arkhamRunsPerDay]]:[])]){
+   for(const [job,budget]of [...(options.skipDailyHistory?[]:[['DEFILLAMA',1]]),...(options.arkhamRunsPerDay?[['ARKHAM',options.arkhamRunsPerDay]]:[])]){
     if(combined.aborted)break;
     if((await client.query('SELECT pg_backend_pid() AS pid')).rows[0].pid!==pid)throw Error('SCHEDULER_SESSION_CHANGED');
     const reservation=await claimScheduled(client,job,budget);now=reservation.now;if(job==='ARKHAM'&&reservation.used>=budget)arkhamExhausted=true;const result=await processScheduledJob({reservation,jobs,receipts,finish:(...args)=>finishScheduled(client,...args),signal:combined});await onState(result);if(['FAILED','UNCONFIRMED'].includes(result.state))failed=true;

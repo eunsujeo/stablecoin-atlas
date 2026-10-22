@@ -14,7 +14,9 @@ export function registrationRequest(url){
 export function databaseRegistrationReader({env,connect=connectDatabase,index=readRegistrationIndex,history=readRegistrationHistory,now=Date.now}={}){
  const pending=new Map(),cache=new Map();let tail=Promise.resolve();
  function request(input){
-  const hit=cache.get(input.key);if(hit&&hit.expires>now())return Promise.resolve(hit.value);
+  const hit=cache.get(input.key),scope=cache.get('index');
+  const pinned=input.kind==='index'||scope?.expires>now()&&scope.value.selectionId===input.selectionId&&scope.value.coins.find(c=>c.id===input.coinId)?.metrics.find(m=>m.metric===input.metric)?.sourceId===hit?.value.sourceId;
+  if(hit&&hit.expires>now()&&pinned)return Promise.resolve(hit.value);
   if(pending.has(input.key))return pending.get(input.key);
   if(pending.size>=4)return Promise.reject(Error('READ_QUEUE_FULL'));
   const operation=tail.catch(()=>{}).then(async()=>{
@@ -22,7 +24,10 @@ export function databaseRegistrationReader({env,connect=connectDatabase,index=re
     client=await connect(env);let value;
     if(input.kind==='index')value=await index(client);
     else{
-     const scope=await index(client);
+     // Reuse the same short-lived index snapshot the browser just received.
+     // Its source ID pins history even if a newer import arrives meanwhile.
+     const snapshot=cache.get('index');
+     const scope=snapshot&&snapshot.expires>now()?snapshot.value:await index(client);
      if(scope.selectionId!==input.selectionId)throw Error('SELECTION_CHANGED');
      const metric=scope.coins.find(c=>c.id===input.coinId)?.metrics.find(m=>m.metric===input.metric);
      if(!metric)throw Error('SUPPLY_UNAVAILABLE');
@@ -32,6 +37,8 @@ export function databaseRegistrationReader({env,connect=connectDatabase,index=re
       sourceId:result.sourceId??null,sourceHash:result.sourceHash??null,missingNetworks:result.missingNetworks??[],series:result.series};
     }
     if(Buffer.byteLength(JSON.stringify(value))>2*1024*1024)throw Error('READ_LIMIT');
+    // A fresh index can change source IDs before a history entry's own TTL expires.
+    if(input.kind==='index')for(const key of cache.keys())if(key!=='index')cache.delete(key);
     cache.delete(input.key);cache.set(input.key,{value,expires:now()+10000});
     while(cache.size>16)cache.delete(cache.keys().next().value);
     return value;

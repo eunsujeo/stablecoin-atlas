@@ -3,7 +3,7 @@ import {createHash} from 'node:crypto';
 import {transaction,runtimeRole} from './connection.mjs';
 import {verifyRuntimeAccess} from './schema.mjs';
 import {registryMatches} from './preview.mjs';
-import {verifyRegistration,owner,readerPrivileges,lock} from './registration-access.mjs';
+import {verifyRegistration,owner,readerPrivileges,lock,requireRegistrationWriter} from './registration-access.mjs';
 import {validateRegistration,measurementContracts,isoTime} from '../market-registration/metadata.mjs';
 import {registrationPlan,registrationHash,verifyRegistrationPlanHash} from '../market-registration/planner.mjs';
 import {registrationHistory} from '../market-registration/history.mjs';
@@ -25,7 +25,7 @@ export function registrationFilter(input){
  return input;
 }
 
-async function selectionContext(client,id){
+export async function selectionContext(client,id){
  const r=(await client.query(`SELECT encode(s.id,'hex') AS id,encode(s.metadata_id,'hex') AS metadata_id,encode(s.source_hash,'hex') AS source_hash,${stamp('s.fetched_at')} AS fetched,
  s.document AS plan,m.document AS metadata,m.legacy_document AS legacy,m.contracts,encode(m.legacy_hash,'hex') AS legacy_hash,m.revision
  FROM atlas_registration.selection s JOIN atlas_registration.metadata_revision m ON m.id=s.metadata_id WHERE s.id=$1`,[hex(id)])).rows[0];
@@ -61,7 +61,11 @@ export async function installRegistration(client,metadata,legacy,bytes,{fetchedA
 export async function importRegistrationHistory(client,{selectionId,coinId,bytes,fetchedAt}){
  requireValue(isHash(selectionId)&&typeof coinId==='string'&&Buffer.isBuffer(bytes)&&bytes.length<=32*1024*1024&&isoTime(fetchedAt),'REGISTRATION_SOURCE_INVALID');
  return transaction(client,async()=>{
-  await lock(client);await owner(client);await verifyRegistration(client);
+  await lock(client);
+  if(!(await client.query("SELECT has_schema_privilege(current_user,'atlas_registration','USAGE') AS allowed")).rows[0].allowed)await owner(client);
+  const version=await verifyRegistration(client);
+  const installer=(await client.query("SELECT current_user=pg_get_userbyid(nspowner) AS owner FROM pg_namespace WHERE nspname='atlas_registration'")).rows[0].owner;
+  if(installer||version===1)await owner(client);else {await requireRegistrationWriter(client);await requireCurrentRegistrationSelection(client,selectionId);}
   const c=await selectionContext(client,selectionId);await registryMatches(client,c.legacy);
   const coin=c.plan.coins.find(coin=>coin.coinId===coinId),networks=coin?.selection?.selected.map(n=>n.networkId);
   requireValue(networks?.length>0&&networks.length<=10&&['READY','PARTIAL'].includes(coin.selection.state),'REGISTRATION_DB_REVIEW_REQUIRED');
@@ -145,4 +149,12 @@ export async function readRegistrationHistory(client,input){
   const result={...base,state:series.length?coverage.state:'MISSING',updatedAt:s.fetched,sourceId:s.id,sourceHash:s.source_hash,mapperVersion,missingNetworks:coverage.missingNetworks,series};
   requireValue(Buffer.byteLength(JSON.stringify(result))<=2*1024*1024,'REGISTRATION_DB_RESPONSE_LIMIT');return result;
  },{repeatableRead:true});
+}
+
+export async function requireCurrentRegistrationSelection(client,selectionId){
+ const latest=(await client.query(`SELECT encode(id,'hex') AS id FROM atlas_registration.selection
+ WHERE metadata_id=(SELECT id FROM atlas_registration.metadata_revision ORDER BY revision DESC LIMIT 1)
+ ORDER BY fetched_at DESC,id DESC LIMIT 1`)).rows[0];
+ requireValue(latest?.id===selectionId,'REGISTRATION_DB_SELECTION_CHANGED');
+ const c=await selectionContext(client,selectionId);await registryMatches(client,c.legacy);return c;
 }

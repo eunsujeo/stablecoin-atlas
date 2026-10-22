@@ -23,7 +23,14 @@ export function historyProjection(bytes,coinId,registry,fetchedAt,{metric='NETWO
  const snapshot={coinId,provider:'DEFILLAMA',metric,unit:'token',fetchedAt,sourceHash:hashHistory(bytes),endpoint:'/stablecoin/'+asset.id,from,to,networks};validateSupplyHistory([snapshot],registry);return snapshot;
 }
 export async function fetchHistorySource(coinId,fetcher=fetch){
- if(!Object.hasOwn(historyAssets,coinId))fail();const response=await fetcher('https://stablecoins.llama.fi/stablecoin/'+historyAssets[coinId].id,{redirect:'error',signal:AbortSignal.timeout(30000),headers:{Accept:'application/json'}});
+ if(!Object.hasOwn(historyAssets,coinId))fail();return fetchAssetSource(historyAssets[coinId].id,fetcher);
+}
+const registeredAssets=Object.freeze({usdt:'1',usdc:'2',rlusd:'250',jpyc:'355',jpysc:'427'});
+export async function fetchRegisteredHistorySource(coinId,fetcher=fetch){
+ if(!Object.hasOwn(registeredAssets,coinId))fail();return fetchAssetSource(registeredAssets[coinId],fetcher);
+}
+async function fetchAssetSource(id,fetcher){
+ const response=await fetcher('https://stablecoins.llama.fi/stablecoin/'+id,{redirect:'error',signal:AbortSignal.timeout(30000),headers:{Accept:'application/json'}});
  if(response.status!==200){await response.body?.cancel();throw Error('HISTORY_HTTP_FAILED');}let size=0;const chunks=[];
  for await(const chunk of response.body){size+=chunk.length;if(size>sourceByteLimit)throw Error('HISTORY_RESPONSE_LIMIT');chunks.push(chunk);}return Buffer.concat(chunks);
 }
