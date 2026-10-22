@@ -8,7 +8,7 @@
 
 원격 연결은 항상 인증서를 검증한다. URL query는 `sslmode=require` 또는 `sslmode=verify-full`만 허용하며 둘 다 이 구현에서는 인증서 검증을 수행한다. URL의 TLS 우회/CA/호스트/실행 옵션은 거부한다. 별도 신뢰 CA가 필요하면 `DATABASE_CA_FILE`에 로컬 일반 PEM 파일 경로를 지정한다. CA 파일은1MiB 이내이며 symlink는 거부한다. URI는 driver에 분해 전달하여 URL 옵션이 SSL 설정을 덮어쓰지 못하게 한다.
 
-실제 실행 검증은 이번 프로그램이 생성한 loopback DB만 사용했다. Supabase 프로젝트·원격 TLS·pooler·서버 네트워크 연결은 미검증이다. pg는 native PostgreSQL 프로토콜이며 HTTP proxy 지원을 뜻하지 않는다. 관리형 네트워크 설정은 변경하지 않으며 승인된 원격 서버의 연결 경로는 해당 운영 환경에서 별도로 확인한다. endpoint 재시도/전환이나 TLS 검증 완화는 없다.
+프로그램이 생성한 loopback DB의 저장/복구 검사 외에 실제 Supabase PostgreSQL17.11의 인증서 검증 TLS·session pooler 접속·초기화·역할/파티션 READY 점검을 확인했다. 실제 원격 데이터 이전/수집 저장·부하·장애 복구는 아직 미검증이다. pg는 native PostgreSQL 프로토콜이며 HTTP proxy 지원을 뜻하지 않는다. 관리형 네트워크 설정은 변경하지 않으며 승인된 원격 서버의 연결 경로는 해당 운영 환경에서 별도로 확인한다. endpoint 재시도/전환이나 TLS 검증 완화는 없다.
 
 지속 서버에서는 direct/session 연결을 우선 검토한다. pooler는 실제 `current_user=session_user`와 앱 역할·TLS·PostgreSQL17+ 조건을 만족하는지 먼저 확인한다. 관리자 로그인 뒤 SET ROLE로 앱을 흉내 내는 연결은 거부한다.
 

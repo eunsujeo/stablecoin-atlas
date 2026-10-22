@@ -1,0 +1,9 @@
+# Supabase 실제 연결과 초기화 완료
+- 목표: 사용자 입력 DATABASE_URL/서버 인증서로 단계1 실제 Supabase 연결·스키마·월별 파티션·전용 로그인 준비를 완료한다.
+- 끝난 것: 인증서를 검증하는 TLS/session pooler로 PostgreSQL17.11 접속. atlas_market schema v1 초기화와2026-10/11 수량/네트워크 파티션 준비. 새 atlas_app_writer/atlas_app_reader 역할 생성·최소 권한/RLS 점검. 실제 두 역할로 두 달 모두 READY. .env.local은 writer로 전환했다. 관리자/reader/writer 설정은 .state/market-db-secrets/ 내0600 파일/0700 디렉터리이며 Git 제외다. 비밀번호/접속 주소는 출력하거나 문서에 기록하지 않았다. DB 관측0/네트워크0이며 import/DB 수집은 미실행이다. 웹은 계속 JSON 조회다.
+- 변경 파일: docs/DEVELOPMENT_STATUS.md, docs/POSTGRESQL_MARKET_CLI.md, docs/SUPABASE_SETUP.md, docs/handoff/2026-10-22-supabase-live-initialization.md. 로컬 비공개 설정과 일회성 .state/supabase-provision-roles.mjs는 Git에 포함하지 않는다.
+- 검증: npm run market:db:init rc=0 INITIALIZED/version1. npm run market:db:partition -- --month 2026-10 및2026-11 각각rc=0 PARTITION_READY. node --use-env-proxy .state/supabase-provision-roles.mjs rc=0 역할2개 생성/권한 부여/READY4건. npm run market:db:check rc=0 writer READY. 실제 재접속 감사 rc=0 READY4건·certificateVerified/tls/runtimeWriterConfigured=true·관측0/네트워크0·setupProviderCalls0(.state/agent-logs/supabase-live-setup.json). npm run check rc=0 tests259/pass259/fail0/cancelled0/skipped0(.state/agent-logs/supabase-live-setup-check.log). git diff --check rc=0.
+- 기다리는 것: 현재 DB 준비 작업에 필요한 입력/검토는 없다. 과거 UI Lead39f4aa8b2236433b9b301fa56100c609의 delivery_uncertain 기록은 유지하며 자동 재전송하지 않았다(사용자가 UI push를 명시 지시해 공유 보류는 이미 종료). 로컬 UI/이전 JSON collector는 사용자가 확인 중인 기존 프로세스이며 이번 설정에서 재시작/종료하지 않았다.
+- 다음 행동: 단계2에서 기존 저장 projection/연구 근거를 명시 import하고 중복 방지·시각/원본 보존을 확인한 후 DB 모드5분 수집으로 전환한다. 현재 .env.local의 앱 계정으로 init/partition/grant를 실행하지 않는다. 관리 작업에는 비공개 admin.env를 별도로 사용한다. 일회성 역할 생성 스크립트는 재실행하지 않는다. 원본 archive의 영속 보관을 유지한다. 웹 DB 조회는 후속 단계다.
+- 사용자 확인 필요: 아니오
+- 읽을 파일: docs/SUPABASE_SETUP.md, docs/POSTGRESQL_MARKET_CLI.md, docs/adr/0042-supabase-collector-persistence.md, docs/DEVELOPMENT_STATUS.md
