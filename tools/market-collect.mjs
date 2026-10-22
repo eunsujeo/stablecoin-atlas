@@ -7,7 +7,7 @@ import { workspaceEnvironment } from './workspace-env.mjs';
 import { atomic, boundedJson, defaultMarketDirectory, normalizeSources, withMarketWriter } from './market-store.mjs';
 import { decimal, validateRegistry } from '../web/market-model.js';
 
-// This is an explicit seven-request run, never a scheduler or a browser action.
+// One bounded seven-request run; market-watch may schedule it, browser actions never do.
 export const collectionEndpoints = Object.freeze(['usd-coin','tether','ripple-usd'].flatMap(id=>[
   `/token/market/${id}`,`/token/holders/${id}`,
 ]).concat('/networks/status'));

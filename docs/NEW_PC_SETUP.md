@@ -90,3 +90,7 @@ TRON 컴파일 검사는 별도로 고정한0.8.26 compiler가 필요하다. `co
 DB 도구는 [실행 안내](POSTGRESQL_MARKET_CLI.md)를 따른다. DATABASE_URL은 서버 비밀이며 .env.local 또는 shell에서만 전달한다. 원격 TLS CA가 필요하면 DATABASE_CA_FILE을 지정한다. 일반 import/read는 전용 비관리자 로그인만 허용하며 init/partition/grant와 분리한다. UI/doctor/market:collect는 DB를 초기화하거나 이전하지 않는다.
 
 npm run check:db는 Docker28+·캐시된 postgres:17-alpine으로 새 소유 loopback fixture를 만들어 실제 역할/저장을 검증하는 별도 검사다. Supabase/운영 DB에는 접속하지 않는다. 일반 npm run check도 그대로 실행한다. 기본 DB archive .state/market-db-artifacts는 원문이므로 별도 안전한 보관/이동이 필요하며 기존14보고서 export에 포함되지 않는다.
+
+## 5분 자동 수집
+
+사용자 승인된 제한 실행은 `npm run market:watch`이다. 기본12회 후 종료하며 오류 시 중단한다. 실행·중지·UI 확인은 [자동 수집 안내](MARKET_AUTO_COLLECTION.md)를 따른다. DB 자동 이전은 연결하지 않는다.

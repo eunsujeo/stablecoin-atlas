@@ -71,10 +71,16 @@ async function load(){if(state.loading)return;state.loading=true;$('#live-reload
     const last=data.observations.reduce((t,o)=>o.observedAt>t?o.observedAt:t,'');const minutes=last?Math.max(0,Math.floor((Date.now()-Date.parse(last))/60000)):null;
     $('#live-status').textContent=`최근 저장 관측 ${when(last)}${minutes===null?'':` · ${minutes}분 경과`}`;
     $('#live-provenance').textContent=`화면 확인 ${when(new Date().toISOString())} · 자료 묶음 생성 ${when(data.publishedAt)} · 등록 ${data.registry.coins.length}개 코인 / ${data.registry.networks.length}개 네트워크 / ${data.registry.deployments.length}개 자산. 등록 밖 체인 공급량 ${data.omittedSupplyEntries}건 미표시. 관측 시각과 공급자 자료 기준 시각은 상세에서 구분합니다. 등록은 Adapter 지원 인증이 아닙니다.`;
+    const scheduler=data.schedulerState;
+    if(scheduler){
+      const labels={COLLECTING:'수집 시작 기록',WAITING:'5분 주기 대기',STOPPED:'중지',FAILED:'오류로 중단',LIMIT_REACHED:'실행 한도 도달'};
+      const overdue=scheduler.nextAt&&Date.now()>Date.parse(scheduler.nextAt)+60000||scheduler.state==='COLLECTING'&&Date.now()>Date.parse(scheduler.updatedAt)+180000;
+      $('#live-status').textContent+=` · 자동 수집 ${overdue?'실행 상태 확인 필요':labels[scheduler.state]} ${scheduler.runs}/${scheduler.maxRuns}회${scheduler.nextAt?' · 다음 예정 '+when(scheduler.nextAt):''} (저장된 실행 기록)`;
+    }else $('#live-status').textContent+=' · 자동 수집 실행 기록 없음';
     const collection=data.collectionState;
     if(collection)$('#live-status').textContent+=` · 수집 ${collection.state==='SUCCESS'?'완료':collection.state==='RUNNING'?'시작 기록 (완료 미확인)':'실패'} ${when(collection.attemptedAt)}`;
-    $('#live-error').hidden=data.lastBuildState!=='FAILED'&&collection?.state!=='FAILED';
-    $('#live-error').textContent=(collection?.state==='FAILED'&&collection.published?'자료는 발행되었으나 완료 상태 기록 중 오류가 발생했습니다.': '최근 수집 또는 자료 묶음 생성에 실패했습니다. 이전 정상 저장본과 원본 관측 시각을 유지합니다.')+(collection?.httpStatus?` HTTP ${collection.httpStatus}.`:'')+(collection?.retryAfterSeconds?` 공급자 재시도 대기 ${collection.retryAfterSeconds}초 (자동 재시도 없음).`:'');render();
+    $('#live-error').hidden=data.lastBuildState!=='FAILED'&&collection?.state!=='FAILED'&&scheduler?.state!=='FAILED';
+    $('#live-error').textContent=(collection?.state==='FAILED'&&collection.published?'자료는 발행되었으나 완료 상태 기록 중 오류가 발생했습니다.': scheduler?.state==='FAILED'&&collection?.state==='SUCCESS'?'자동 수집을 중단했습니다. 마지막으로 발행된 정상 자료와 원본 관측 시각을 표시합니다.': '최근 수집 또는 자료 묶음 생성에 실패했습니다. 이전 정상 저장본과 원본 관측 시각을 유지합니다.')+(collection?.httpStatus?` HTTP ${collection.httpStatus}.`:'')+(collection?.retryAfterSeconds?` 공급자 재시도 대기 ${collection.retryAfterSeconds}초 (자동 재시도 없음).`:'');render();
   }catch{$('#live-error').hidden=false;$('#live-error').textContent=state.data?'저장 자료를 다시 읽지 못했습니다. 이전 자료와 원본 시각을 유지합니다.':'저장된 시장 자료가 없습니다. 로컬에서 시장 자료 묶음을 생성해야 합니다.';}finally{state.loading=false;$('#live-reload').disabled=false;}}
 $('#live-reload').addEventListener('click',load);$('#live-mode').addEventListener('change',render);$('#live-coin').addEventListener('change',render);$('#live-theme').addEventListener('click',()=>$('#theme-toggle').click());
 const theme=()=>{$('#live-theme').textContent=document.documentElement.dataset.theme==='light'?'☾ 다크':'☀ 라이트';};new MutationObserver(theme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});theme();
