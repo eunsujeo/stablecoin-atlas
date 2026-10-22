@@ -77,6 +77,11 @@ async function load(){if(state.loading)return;state.loading=true;$('#live-reload
       const overdue=scheduler.nextAt&&Date.now()>Date.parse(scheduler.nextAt)+60000||scheduler.state==='COLLECTING'&&Date.now()>Date.parse(scheduler.updatedAt)+180000;
       $('#live-status').textContent+=` · 자동 수집 ${overdue?'실행 상태 확인 필요':labels[scheduler.state]} ${scheduler.runs}/${scheduler.maxRuns}회${scheduler.nextAt?' · 다음 예정 '+when(scheduler.nextAt):''} (저장된 실행 기록)`;
     }else $('#live-status').textContent+=' · 자동 수집 실행 기록 없음';
+    const database=data.databaseState;
+    if(database){
+      const labels={CHECKING:'사전 점검',COLLECTING:'공급자 수집 중',IMPORTING:'저장 시도 · 완료 미확인',STORED:'저장 완료',FAILED:'실패',UNCONFIRMED:'저장 결과 미확인 · 명시 재이전 필요'};
+      $('#live-status').textContent+=` · DB 기록 ${labels[database.state]} ${when(database.updatedAt)}${database.errorCode?' ('+database.errorCode+')':''}`;
+    }
     const collection=data.collectionState;
     if(collection)$('#live-status').textContent+=` · 수집 ${collection.state==='SUCCESS'?'완료':collection.state==='RUNNING'?'시작 기록 (완료 미확인)':'실패'} ${when(collection.attemptedAt)}`;
     $('#live-error').hidden=data.lastBuildState!=='FAILED'&&collection?.state!=='FAILED'&&scheduler?.state!=='FAILED';

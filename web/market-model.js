@@ -53,7 +53,7 @@ export function validateRegistry(registry) {
   return registry;
 }
 export function validateMarket(data) {
-  keys(data,['schemaVersion','kind','publishedAt','registry','observations','networks','omittedSupplyEntries','lastBuildState','collectionState','schedulerState']);
+  keys(data,['schemaVersion','kind','publishedAt','registry','observations','networks','omittedSupplyEntries','lastBuildState','collectionState','schedulerState','databaseState']);
   ensure(data?.schemaVersion === 1 && data.kind === 'STORED_PROVIDER_OBSERVATIONS_NOT_ASSESSMENT' && time(data.publishedAt));
   validateRegistry(data.registry); ensure(Array.isArray(data.observations) && data.observations.length <= 5000);
   const seen = new Set();
@@ -74,7 +74,16 @@ export function validateMarket(data) {
   ensure(data.lastBuildState === undefined || ['SUCCESS','FAILED','UNKNOWN'].includes(data.lastBuildState));
   if(data.collectionState!==undefined) validateCollectionState(data.collectionState);
   if(data.schedulerState!==undefined) validateSchedulerState(data.schedulerState);
+  if(data.databaseState!==undefined) validateDatabaseState(data.databaseState);
   return data;
+}
+export function validateDatabaseState(row) {
+  keys(row,['state','updatedAt','localPublished','sourceName','sourceHash','errorCode']);
+  ensure(['CHECKING','COLLECTING','IMPORTING','STORED','FAILED','UNCONFIRMED'].includes(row.state) && time(row.updatedAt));
+  ensure(typeof row.localPublished==='boolean' && (row.sourceName===null || /^[a-f0-9-]{36}\.json$/.test(row.sourceName)));
+  ensure(row.sourceHash===null || hash(row.sourceHash));
+  ensure(row.errorCode===null || typeof row.errorCode==='string' && /^[A-Z_]{1,64}$/.test(row.errorCode));
+  return row;
 }
 export function validateSchedulerState(row) {
   keys(row,['state','updatedAt','nextAt','intervalSeconds','runs','maxRuns','requestLimit']);

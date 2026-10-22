@@ -93,4 +93,4 @@ npm run check:db는 Docker28+·캐시된 postgres:17-alpine으로 새 소유 loo
 
 ## 5분 자동 수집
 
-사용자 승인된 제한 실행은 `npm run market:watch`이다. 기본12회 후 종료하며 오류 시 중단한다. 실행·중지·UI 확인은 [자동 수집 안내](MARKET_AUTO_COLLECTION.md)를 따른다. DB 자동 이전은 연결하지 않는다.
+사용자 승인된 제한 실행은 `npm run market:watch`이다. 기본12회 후 종료하며 오류 시 중단한다. 실행·중지·UI 확인은 [자동 수집 안내](MARKET_AUTO_COLLECTION.md)를 따른다. 명시 `--database` 저장은 [Supabase 설정](SUPABASE_SETUP.md)을 먼저 완료한다. 웹 조회는 JSON을 유지한다.

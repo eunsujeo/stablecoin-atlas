@@ -1,7 +1,7 @@
 import { mkdir, open } from 'node:fs/promises';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { randomUUID } from 'node:crypto';
+import { randomUUID, createHash } from 'node:crypto';
 import { setTimeout as pause } from 'node:timers/promises';
 import { workspaceEnvironment } from './workspace-env.mjs';
 import { atomic, boundedJson, defaultMarketDirectory, normalizeSources, withMarketWriter } from './market-store.mjs';
@@ -65,7 +65,7 @@ export async function collectMarket({key,registryPath=new URL('../data/asset-reg
   return withMarketWriter(directory,async(publish,root)=>{
     const status={state:'RUNNING',attemptedAt:now(),requests:0,completedRequests:0,published:false,httpStatus:null,retryAfterSeconds:null};
     await atomic(join(root,'last-collection.json'),status);
-    const deadline=Date.now()+120000;
+    const deadline=Date.now()+120000;let savedSource;
     try {
       if(typeof key!=='string'||!key.trim())throw new Error('KEY_MISSING');
       const registry=validateRegistry((await boundedJson(registryPath,128*1024)).value);
@@ -81,19 +81,21 @@ export async function collectMarket({key,registryPath=new URL('../data/asset-reg
       // Reject malformed groups before saving or changing the published pointer.
       normalizeSources(registry,[{value:report,hash:'0'.repeat(64)}]);
       const archive=join(root,'collected');await mkdir(archive,{recursive:true,mode:0o700});
-      const path=join(archive,randomUUID()+'.json');
+      const sourceName=randomUUID()+'.json',path=join(archive,sourceName);
+      const bytes=Buffer.from(JSON.stringify(report)+'\n'),sourceHash=createHash('sha256').update(bytes).digest('hex');
       const handle=await open(path,'wx',0o600);
-      try {await handle.writeFile(JSON.stringify(report)+'\n');}finally{await handle.close();}
+      try {await handle.writeFile(bytes);}finally{await handle.close();}
+      savedSource={sourceName,sourceHash};
       const data=await publish({registryPath,sourcePaths:[path]});
       status.published=true;status.state='SUCCESS';await atomic(join(root,'last-collection.json'),status);
-      return {state:status.state,requests:status.requests,observations:data.observations.length};
+      return {state:status.state,requests:status.requests,observations:data.observations.length,sourceName,sourceHash};
     } catch(error) {
       status.state='FAILED';
       status.httpStatus=Number.isInteger(error.httpStatus)&&error.httpStatus>=100&&error.httpStatus<=599?error.httpStatus:null;
       status.retryAfterSeconds=error.retryAfterSeconds??null;
       await atomic(join(root,'last-collection.json'),status);
       // Never echo fetch exceptions, response bodies, credentials or environment.
-      return {state:status.state,requests:status.requests,published:status.published,httpStatus:status.httpStatus,retryAfterSeconds:status.retryAfterSeconds};
+      return {state:status.state,requests:status.requests,published:status.published,httpStatus:status.httpStatus,retryAfterSeconds:status.retryAfterSeconds,...savedSource};
     }
   });
 }

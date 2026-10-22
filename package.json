@@ -36,6 +36,7 @@
     "workspace:import": "node --import tsx tools/workspace-transfer.mjs import",
     "check:ui": "node --use-env-proxy --import tsx --test --test-concurrency=2 web/*.test.mjs",
     "compiler:prepare": "node --use-env-proxy --import tsx tools/prepare-tron-compiler.ts",
+    "market:db:check": "node --use-env-proxy tools/market-db/cli.mjs check",
     "market:db:init": "node --use-env-proxy tools/market-db/cli.mjs init",
     "market:db:partition": "node --use-env-proxy tools/market-db/cli.mjs partition",
     "market:db:grant": "node --use-env-proxy tools/market-db/cli.mjs grant",

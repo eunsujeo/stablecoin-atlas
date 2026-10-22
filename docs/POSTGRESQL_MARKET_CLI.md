@@ -1,6 +1,6 @@
 # PostgreSQL 시장 자료 CLI
 
-[ADR0040](adr/0040-postgresql-market-import-and-query.md)의 서버 전용 도구다. PostgreSQL17+에 저장된 시장 자료를 명시적으로 이전·조회한다. 현재 웹 화면과 `market:collect`는 기존 JSON 경로를 사용한다. DB 수집기·웹 API·롤업 작업·보관기간 삭제·운영 배포는 아직 없다.
+[ADR0040](adr/0040-postgresql-market-import-and-query.md)의 서버 전용 도구다. PostgreSQL17+에 저장된 시장 자료를 명시적으로 이전·조회한다. 현재 웹 화면과 `market:collect`는 기존 JSON 경로를 사용한다. 명시 `market:watch --database`로 단발 결과를 자동 import할 수 있다. [Supabase 설정](SUPABASE_SETUP.md)을 따른다. 웹 DB API·롤업 작업·보관기간 삭제·운영 배포는 아직 없다.
 
 ## 환경과 연결
 
@@ -11,6 +11,10 @@
 실제 실행 검증은 이번 프로그램이 생성한 loopback DB만 사용했다. Supabase 프로젝트·원격 TLS·pooler·서버 네트워크 연결은 미검증이다. pg는 native PostgreSQL 프로토콜이며 HTTP proxy 지원을 뜻하지 않는다. 관리형 네트워크 설정은 변경하지 않으며 승인된 원격 서버의 연결 경로는 해당 운영 환경에서 별도로 확인한다. endpoint 재시도/전환이나 TLS 검증 완화는 없다.
 
 지속 서버에서는 direct/session 연결을 우선 검토한다. pooler는 실제 `current_user=session_user`와 앱 역할·TLS·PostgreSQL17+ 조건을 만족하는지 먼저 확인한다. 관리자 로그인 뒤 SET ROLE로 앱을 흉내 내는 연결은 거부한다.
+
+## 읽기 전용 접속 점검
+
+전용 writer URI로 `npm run market:db:check`를 실행한다. READY는 현재 UTC 월의 두 파티션·스키마/정책·로그인/권한을 읽기 전용으로 확인한 결과다. reader는 `--access reader`, 특정 월은 `--month YYYY-MM`을 지정한다. 관리자 계정은 이 런타임 점검에서 거부한다. 관리자 초기화에는 아래 별도 명령을 사용한다.
 
 ## 관리자 단계
 

@@ -8,6 +8,20 @@ import { atomic, boundedJson, defaultMarketDirectory } from './market-store.mjs'
 import { workspaceEnvironment } from './workspace-env.mjs';
 
 export const intervalMs = 300000;
+export function parseWatchArguments(args) {
+  const result = { maxRuns: 12, database: false };
+  const seen = new Set();
+  for (let i = 0; i < args.length; i++) {
+    const flag = args[i];
+    if (seen.has(flag)) throw Error('INVALID_ARGUMENTS'); seen.add(flag);
+    if (flag === '--database') result.database = true;
+    else if (flag === '--max-runs' && /^\d{1,3}$/.test(args[i + 1] ?? '')) result.maxRuns = Number(args[++i]);
+    else if (flag === '--archive-dir' && args[i + 1] && !args[i + 1].startsWith('--')) result.archiveDirectory = args[++i];
+    else throw Error('INVALID_ARGUMENTS');
+  }
+  if (result.maxRuns < 1 || result.maxRuns > 288 || result.archiveDirectory && !result.database) throw Error('INVALID_ARGUMENTS');
+  return result;
+}
 // No catch-up runs, endpoint retries, credential output or automatic restarts.
 export async function watchMarket({ directory = defaultMarketDirectory, key, maxRuns = 12,
   signal, collect = collectMarket, clock = () => performance.now(), now = () => Date.now(),
@@ -56,11 +70,11 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   const stop = () => controller.abort();
   for (const signal of ['SIGINT', 'SIGTERM']) process.once(signal, stop);
   try {
-    const args = process.argv.slice(2);
-    if (args.length && (args.length !== 2 || args[0] !== '--max-runs' || !/^\d{1,3}$/.test(args[1]))) throw new Error();
-    const { ARKM_API_KEY: key } = await workspaceEnvironment();
+    const options = parseWatchArguments(process.argv.slice(2));
+    const env = await workspaceEnvironment(), { ARKM_API_KEY: key } = env;
     if (!key?.trim()) throw new Error();
-    const result = await watchMarket({ key, maxRuns: args.length ? Number(args[1]) : 12,
+    const collect = options.database ? (await import('./market-db/collect.mjs')).databaseCollector({ env, archiveDirectory: options.archiveDirectory }) : collectMarket;
+    const result = await watchMarket({ key, maxRuns: options.maxRuns, collect,
       signal: controller.signal, onState: state => console.log(JSON.stringify(state)) });
     if (result.state === 'FAILED') process.exitCode = 1;
   } catch {

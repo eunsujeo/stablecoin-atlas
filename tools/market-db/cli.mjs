@@ -2,6 +2,7 @@ import {safeErrorCode} from './errors.mjs';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import {resolve} from 'node:path';
 import {workspaceEnvironment} from '../workspace-env.mjs';
+import {checkDatabase} from './health.mjs';
 import {connectDatabase} from './connection.mjs';
 import {initialize,partition,grantAccess} from './schema.mjs';
 import {loadSources} from './files.mjs';
@@ -9,7 +10,7 @@ import {importSources,listSeries,latestValues,history,networkHistory,latestNetwo
 import {fail} from './plan.mjs';
 const root=fileURLToPath(new URL('../../',import.meta.url));
 export function parseArguments(argv){
-  const [command,...args]=argv,allowed={init:[],partition:['month'],grant:['role','access'],plan:['source','reports-dir','registry'],import:['source','reports-dir','registry','archive-dir'],series:['coin','after','limit'],latest:['coin','after','limit'],history:['series','from','to','cursor','limit'],networks:['provider','after','limit'],'network-history':['network','provider','from','to','cursor','limit']};
+  const [command,...args]=argv,allowed={check:['month','access'],init:[],partition:['month'],grant:['role','access'],plan:['source','reports-dir','registry'],import:['source','reports-dir','registry','archive-dir'],series:['coin','after','limit'],latest:['coin','after','limit'],history:['series','from','to','cursor','limit'],networks:['provider','after','limit'],'network-history':['network','provider','from','to','cursor','limit']};
   if(!Object.hasOwn(allowed,command??''))fail('INVALID_COMMAND');const options={};
   for(let i=0;i<args.length;i+=2){const flag=args[i];if(!/^--[a-z-]+$/.test(flag??'')||!allowed[command].includes(flag.slice(2))||!args[i+1]||args[i+1].startsWith('--'))fail('INVALID_ARGUMENTS');
     const key=flag.slice(2);if(key==='source')(options.source??=[]).push(args[i+1]);else{if(Object.hasOwn(options,key))fail('INVALID_ARGUMENTS');options[key]=args[i+1];}}
@@ -22,6 +23,7 @@ export async function main(argv,env=process.env){
   if(command==='plan')return {state:'PLANNED',sources:input.sources.length,observations:input.sources.reduce((n,p)=>n+p.observationCount,0),networks:input.sources.reduce((n,p)=>n+p.networkCount,0),omittedUnits:input.sources.reduce((n,p)=>n+p.omittedUnits,0),networkCalls:0};
   const variables=await workspaceEnvironment(undefined,env),client=await connectDatabase(variables);
   try{
+    if(command==='check'){if(o.month&&!/^(20[2-9][0-9]|2100)-(0[1-9]|1[0-2])$/.test(o.month))fail('INVALID_PARTITION_MONTH');return await checkDatabase(client,{access:o.access??'writer',at:o.month?o.month+'-01T00:00:00Z':new Date()});}
     if(command==='init')return await initialize(client);
     if(command==='partition')return await partition(client,o.month);
     if(command==='grant')return await grantAccess(client,o.role,o.access);

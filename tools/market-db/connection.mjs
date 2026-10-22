@@ -23,6 +23,8 @@ export async function transaction(client,operation,{readonly=false}={}){
   if(activeTransactions.has(client))fail('DATABASE_CLIENT_BUSY');activeTransactions.add(client);let begun=false;
   try{
     await client.query(readonly?'BEGIN READ ONLY':'BEGIN');begun=true;
+    const version=(await client.query("SELECT current_setting('server_version_num')::int AS version")).rows[0].version;
+    if(version<170000)fail('DATABASE_VERSION_UNSUPPORTED');
     await client.query("SET LOCAL search_path=pg_catalog; SET LOCAL timezone='UTC'; SET LOCAL statement_timeout='10s'; SET LOCAL lock_timeout='3s'; SET LOCAL idle_in_transaction_session_timeout='15s'; SET LOCAL transaction_timeout='60s'");
     const result=await operation();await client.query('COMMIT');begun=false;return result;
   }catch(error){if(begun)await client.query('ROLLBACK').catch(()=>{});throw error;}

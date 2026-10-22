@@ -4,13 +4,21 @@ import {readFile,writeFile,mkdtemp,rm,readdir} from 'node:fs/promises';
 import {join} from 'node:path';
 import {tmpdir} from 'node:os';
 import {collectMarket,collectionEndpoints,readProvider} from '../tools/market-collect.mjs';
-import {buildMarket,publishedMarket,withMarketWriter} from '../tools/market-store.mjs';
+import {buildMarket,publishedMarket,withMarketWriter,boundedJson} from '../tools/market-store.mjs';
 import {rank,latest,series} from './market-model.js';
 const registryPath=new URL('../data/asset-registry.json',import.meta.url);
 const secret='test-credential-never-persist';
 const makeResponse=endpoint=>new Response(endpoint.includes('/market/')?'{"circulatingSupply":999999999999999999.123456789,"price":1.00001,"account":"omit"}':endpoint.includes('/holders/')?'{"totalSupply":{"ethereum":999999999999999999.123456789,"solana":0},"addressTopHolders":[{"secret":"omit"}]}':'{"ethereum":{"active":true,"tip":12345678,"asOf":{"tip":"2026-10-22T00:00:00.000Z"},"price":999}}');
 async function temporary(run){const directory=await mkdtemp(join(tmpdir(),'atlas collect '));try{await run(directory);}finally{await rm(directory,{recursive:true,force:true});}}
 const at='2026-10-22T01:00:00.000Z',later='2026-10-22T02:00:00.000Z';
+test('publication failure retains the exact saved projection name/hash for explicit recovery',async()=>temporary(async directory=>{
+  const index=join(directory,'index.json');await writeFile(index,'{}');
+  const result=await collectMarket({directory,registryPath,key:secret,fetcher:async url=>makeResponse(new URL(url).pathname),wait:async()=>{},now:()=>at});
+  assert.equal(result.state,'FAILED');assert.equal(result.published,false);assert.equal(result.requests,7);
+  assert.match(result.sourceName,/^[a-f0-9-]{36}\.json$/);
+  assert.equal((await boundedJson(join(directory,'collected',result.sourceName))).hash,result.sourceHash);
+  assert.equal(await readFile(index,'utf8'),'{}');
+}));
 test('collector bounds seven sequential GETs, preserves numeric lexemes and stable history, excludes account data',async()=>temporary(async directory=>{
   const calls=[],waits=[];
   const fetcher=async(url,options)=>{assert.equal(options.method,'GET');assert.equal(options.redirect,'error');assert.equal(options.headers['API-Key'],secret);assert.ok(options.signal);const endpoint=new URL(url).pathname;calls.push(endpoint);return makeResponse(endpoint);};
