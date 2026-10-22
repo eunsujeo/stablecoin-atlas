@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "tsc --noEmit",
-    "test": "node --use-env-proxy --import tsx --test --test-concurrency=2 tests/*.test.ts web/*.test.mjs",
+    "test": "node --use-env-proxy --import tsx --test --test-concurrency=2 tests/*.test.ts tests/*.test.mjs web/*.test.mjs",
     "test:unit": "node --use-env-proxy --import tsx --test tests/domain.test.ts",
     "lab": "node --use-env-proxy --import tsx src/cli.ts lab",
     "assess": "node --use-env-proxy --import tsx src/cli.ts assess",
@@ -34,13 +34,25 @@
     "workspace:export": "node --import tsx tools/workspace-transfer.mjs export",
     "workspace:import": "node --import tsx tools/workspace-transfer.mjs import",
     "check:ui": "node --use-env-proxy --import tsx --test --test-concurrency=2 web/*.test.mjs",
-    "compiler:prepare": "node --use-env-proxy --import tsx tools/prepare-tron-compiler.ts"
+    "compiler:prepare": "node --use-env-proxy --import tsx tools/prepare-tron-compiler.ts",
+    "market:db:init": "node --use-env-proxy tools/market-db/cli.mjs init",
+    "market:db:partition": "node --use-env-proxy tools/market-db/cli.mjs partition",
+    "market:db:grant": "node --use-env-proxy tools/market-db/cli.mjs grant",
+    "market:db:plan": "node --use-env-proxy tools/market-db/cli.mjs plan",
+    "market:db:import": "node --use-env-proxy tools/market-db/cli.mjs import",
+    "market:db:series": "node --use-env-proxy tools/market-db/cli.mjs series",
+    "market:db:latest": "node --use-env-proxy tools/market-db/cli.mjs latest",
+    "market:db:history": "node --use-env-proxy tools/market-db/cli.mjs history",
+    "check:db": "node --use-env-proxy --test --test-concurrency=1 tests/postgres/*.test.mjs",
+    "market:db:networks": "node --use-env-proxy tools/market-db/cli.mjs networks",
+    "market:db:network-history": "node --use-env-proxy tools/market-db/cli.mjs network-history"
   },
   "dependencies": {
+    "ajv": "8.20.0",
+    "pg": "8.23.1",
     "solc": "0.8.37",
     "tronweb": "6.5.1",
-    "viem": "2.57.7",
-    "ajv": "8.20.0"
+    "viem": "2.57.7"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

@@ -54,7 +54,7 @@ npm run ui
 
 `npm run setup`은 빈 `.env.example`로부터 `.env.local`을 새로 만들고, 기존 파일은 읽거나 덮어쓰지 않는다. 필요할 때 각 PC에서 자신의 키·읽기 전용 RPC를 입력한다. UI와 사설 Fixture 검사에는 이 설정이 없어도 된다.
 
-허용 변수는 `RPC_URL`, `TRON_RPC_URL`, `SOLANA_RPC_URL`, `XRPL_RPC_URL`, `ARKM_API_KEY` 다섯 개다. shell의 기존 변수가 파일보다 우선하며, 다른 이름은 wrapper가 거부한다. 셸 명령이나 변수 확장은 실행하지 않는다. PATH와 관리형 proxy/NO_PROXY 등 상속 환경은 그대로 유지한다.
+허용 변수는 `RPC_URL`, `TRON_RPC_URL`, `SOLANA_RPC_URL`, `XRPL_RPC_URL`, `ARKM_API_KEY`, `DATABASE_URL`, `DATABASE_CA_FILE` 일곱 개다. shell의 기존 변수가 파일보다 우선하며, 다른 이름은 wrapper가 거부한다. 셸 명령이나 변수 확장은 실행하지 않는다. PATH와 관리형 proxy/NO_PROXY 등 상속 환경은 그대로 유지한다.
 
 ```sh
 npm run with-env -- assess --network 1 --token 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48 --out reports/usdc-readonly.json
@@ -84,3 +84,9 @@ TRON 컴파일 검사는 별도로 고정한0.8.26 compiler가 필요하다. `co
 ## 시장 자료의 수동 갱신
 
 과거 연구 파일 없이도 `.env.local`의 `ARKM_API_KEY`를 설정하고 `npm run market:collect`를 실행하면3코인의 시장 자료를 한 번 수집할 수 있다. 최대7회 읽기이며 반복 수집은 시작하지 않는다. 완료 후 `npm run ui`로 `#live`를 확인한다. 기존14원본 이동 파일에는 새 `market-store/collected` 이력이 포함되지 않는다. 수집 중 다른 `market:collect`/`market:build`는 즉시 거부된다. 비정상 종료로 `.writer-lock`이 남으면 모든 writer가 종료되었는지 확인한 뒤 그 잠금만 수동 복구한다. 잠금을 시간만으로 지우지 않는다. [ADR0037](adr/0037-manual-market-collector.md).
+
+## PostgreSQL 서버 CLI
+
+DB 도구는 [실행 안내](POSTGRESQL_MARKET_CLI.md)를 따른다. DATABASE_URL은 서버 비밀이며 .env.local 또는 shell에서만 전달한다. 원격 TLS CA가 필요하면 DATABASE_CA_FILE을 지정한다. 일반 import/read는 전용 비관리자 로그인만 허용하며 init/partition/grant와 분리한다. UI/doctor/market:collect는 DB를 초기화하거나 이전하지 않는다.
+
+npm run check:db는 Docker28+·캐시된 postgres:17-alpine으로 새 소유 loopback fixture를 만들어 실제 역할/저장을 검증하는 별도 검사다. Supabase/운영 DB에는 접속하지 않는다. 일반 npm run check도 그대로 실행한다. 기본 DB archive .state/market-db-artifacts는 원문이므로 별도 안전한 보관/이동이 필요하며 기존14보고서 export에 포함되지 않는다.

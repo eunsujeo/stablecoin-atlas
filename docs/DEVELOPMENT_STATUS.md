@@ -17,22 +17,22 @@
 
 원본 집합을 가진 PC에서는15보고서/202항목을 복원할 수 있다. ADR0038 이후 원본5개 시장 입력의 기초 관측은18개이며, 이 PC는 단발 수집 자료와 합쳐30개를 보존한다. 과거 입력의 시각과 기존 XRPL의2개 관측은 그대로다. 새 PC에서의 새 관측·새 실행으로 해석하지 않는다. 원본 집합은 Git에서 제외한다. 웹60초 갱신은 저장본만 읽는다.
 
-## PostgreSQL 확장 설계
+## PostgreSQL 설계와 로컬 CLI
 
-사용자가 Supabase/PostgreSQL과 다수 스테이블코인·네트워크 확장을 전제로 설계를 요청했다. [ADR0039](adr/0039-postgresql-market-storage-design.md)의 후보 DDL·범위/지표별 시계열·공통 요청 근거·legacy 이전·용량/조회 설계를 작성했다. 로컬 격리 PostgreSQL17.11에서 제약 시험과 합성30코인×3지표×1440분의129,600관측을 측정했다. 메타데이터/인덱스 포함 약42MB/일이며 원문·backup은 별도다. 정본은 [저장 설계](design/POSTGRESQL_MARKET_STORAGE.md), 실제 수행/미검증 구분은 [검증 기록](design/POSTGRESQL_MARKET_VALIDATION.md)이다. 제품 DB 연결·실제 이전·자동 수집·배포는 아직 하지 않았다.
+사용자가 Supabase/PostgreSQL과 다수 스테이블코인·네트워크 확장을 전제로 설계를 요청했다. [ADR0039](adr/0039-postgresql-market-storage-design.md)의 후보 DDL·범위/지표별 시계열·공통 요청 근거·legacy 이전·용량/조회 설계를 작성했다. 로컬 격리 PostgreSQL17.11에서 제약 시험과 합성30코인×3지표×1440분의129,600관측을 측정했다. 메타데이터/인덱스 포함 약42MB/일이며 원문·backup은 별도다. 정본은 [저장 설계](design/POSTGRESQL_MARKET_STORAGE.md), 실제 수행/미검증 구분은 [검증 기록](design/POSTGRESQL_MARKET_VALIDATION.md)이다. [ADR0040](adr/0040-postgresql-market-import-and-query.md)의 명시적 init/partition/grant/import·저장/제한 조회 CLI와 서버 환경 연결을 구현했다. 격리 로컬 DB에서 기존30관측/네트워크6행 이전·legacy/바이트/시각 보존과 재이전, 실제 비관리자 역할/RLS·동시성·rollback을 검증했다. [실행 안내](POSTGRESQL_MARKET_CLI.md). 실제 Supabase/운영 DB 연결·웹 DB 전환·자동 수집·배포는 아직 하지 않았다.
 
 ## 아직 구현하지 않은 것
 
 - 서버의 주기적 외부 수집, 계정별 rate/credit 예산, 자동 재시도/backoff, 자동 공급자 전환. 수동 수집은429를 기록하고 중단한다.
-- 운영 DB·보존기간 정리·서비스 배포·공개 호스팅.
+- 실제 Supabase/운영 DB 적용·DB 웹 조회 API/화면 전환·롤업/보관기간 정리·서비스 배포·공개 호스팅.
 - 실제 안전성 점수/등급. Overview의 시나리오 통과 점수는 별도 집계다. 가상 `Market preview`의 점수는 제품 판정이 아니다.
-- 네이티브/브리지별 중복 제거, 서로 다른 공급자의 공급량 정의 통일, 동일 coin/network의 복수 deployment 매핑.
+- 네이티브/브리지별 중복 제거, 서로 다른 공급자의 공급량 정의 통일, registry v2/기존 화면의 동일 coin/network 복수 deployment 매핑(DB schema는 허용).
 - 거래량 순위: totalVolume 기간·단위 확인 전 비교를 보류한다.
 - Arkham WebSocket. 현재 목표에는 도입하지 않기로 했다.
 
 ## 다음 개발 단위
 
-다음 DB 구현은 ADR0039의 명시적 import/writer·읽기 repository·bounded API와 서버 역할/secret 연결이다. 현재는 설계와 로컬 합성 검증까지이며 운영 Supabase 접속이나 수집 주기를 바꾸지 않는다.
+다음 연결 단계는 Supabase 프로젝트와 앱 전용 로그인·서버 TLS/secret/접속 경로를 준비하고, CLI 안내에 따라 명시적으로 적용하는 것이다. 웹의 DB API/화면 전환과 수집기 DB 연결은 후속 구현이다. 현재 검증은 소유한 격리 로컬 DB이며 운영 Supabase 접속이나 수집 주기를 바꾸지 않는다.
 
 새 PC는 `npm ci` → `npm run setup` → `npm run doctor`로 준비한다. 과거 근거는 별도 이동 파일을 가져와 두 publisher로 복원한다. 시장 자료만 새로 받으려면 `.env.local`의 ARKM_API_KEY를 설정하고 `npm run market:collect`를 명시적으로1회 실행한다. 새 collected 이력은 기존14원본 이동 파일에 포함되지 않는다.
 

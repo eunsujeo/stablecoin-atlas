@@ -2,7 +2,7 @@ import { boundedRead } from './evidence-store.mjs';
 import { parseEnv } from 'node:util';
 import { spawn } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
-export const environmentKeys = ['RPC_URL','TRON_RPC_URL','SOLANA_RPC_URL','XRPL_RPC_URL','ARKM_API_KEY'];
+export const environmentKeys = ['RPC_URL','TRON_RPC_URL','SOLANA_RPC_URL','XRPL_RPC_URL','ARKM_API_KEY','DATABASE_URL','DATABASE_CA_FILE'];
 export async function workspaceEnvironment(path = new URL('../.env.local',import.meta.url), inherited = process.env) {
   const env = {...inherited};
   try {
