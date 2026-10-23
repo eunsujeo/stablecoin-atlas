@@ -1,5 +1,7 @@
 # ADR0060 — Allium 지원 조사와 일별 수집 계획
 
+후속: [ADR0061](0061-bounded-allium-survey-executor.md)이 단발 실행기·영속 예약·비공개 영수증을 구현한다. 아래의 “아직 없다”는 이 ADR의 오프라인 계획 구현 당시 범위이며, 실제 조사 실행/공급량 전환/일별 자동 수집은 후속에서도 미완료다.
+
 ## 결정과 구현 범위
 
 [ADR0059](0059-allium-primary-and-daily-transfers.md)의 후속 전제인 지원 조사와 일별 수집 설계를 구체화한다. `allium:plan`은 네트워크·DB·스케줄을 실행하지 않는 오프라인 도구다. 등록된 13개 배포의 network identity와 배포 식별자를 고정하고, 주소형 11개에 대해 registry/supply/volume SELECT 세 개를 만든다. 기존 등록 자료는 조사 대상을 정하는 근거이며 현재 공식 주소 인증이나 Allium 지원 증거로 바꾸지 않는다. 목록의 주소를 새로 인증하거나 확장하지 않는다.
