@@ -1,4 +1,6 @@
 import {validateStoredSurvey,storedSurveyChoice} from './survey-model.js';
+import {validateGeography,geographyChoice} from './geography-model.js';
+import {renderGeography,initializeGeographyFilters} from './geography.js';
 import {renderSurvey,initializeSurveyFilters} from './survey.js';
 import {validateReviewedSupply,reviewedSupplyChoice} from './reviewed-supply-model.js';
 import {renderReviewedSupply} from './reviewed-supply.js';
@@ -19,6 +21,8 @@ const savedChart=readChartURL(location.href)??readChartPreferences();
 const state={currency:readCurrency(location.href),fx:null,selectedCoin:savedChart?.coinId??'usdc',selectedSource:savedChart?.source??'history',selectedNetwork:savedChart?.networkId??'all',marketFailed:false,index:null,market:null,loading:false,loaded:false,period:savedChart?.period??'30d',sourceInitialized:!!savedChart,comparison:savedChart?.comparison??'amount',registration:null,detail:null,trendLoading:false,trendError:false,registrationFailed:false};
 let trendSequence=0,trendAbort,trendFinish;
 let survey={data:null,state:'MISSING'};
+let geography={data:null,state:'MISSING'};
+initializeGeographyFilters($('#overview-geography'),()=>renderGeography($('#overview-geography'),geography));
 const renderStoredSurvey=()=>renderSurvey($('#overview-survey'),survey);
 initializeSurveyFilters($('#overview-survey'),renderStoredSurvey);
 let reviewedSupply={data:null,state:'MISSING'};
@@ -204,7 +208,7 @@ async function load(){
   if(state.loading)return;state.loading=true;$('#overview-reload').disabled=true;
   const finish=beginLoading($('#overview-screen'),{ready:!!(state.index||state.market),targets:[['#overview-market-trend','chart'],['#overview-chain-breakdown','rows'],['#overview-market-rows','rows'],['#overview-activity-rows','rows'],['#overview-reviewed-rows','rows'],['#overview-survey-rows','rows'],['#overview-metrics','cards']]});
   try {
-  const results=await Promise.allSettled([json('/evidence/index.json').then(dashboardEvidence),json('/market-data.json').then(validateMarket),json('/registration-index.json',{optional:true}).then(x=>x===null?null:validateRegistrationIndex(x)),json('/fx-data.json').then(validateFX),json('/activity-data.json',{optional:true}).then(x=>x===null?null:validateActivity(x)),json('/reviewed-supply-data.json',{optional:true}).then(x=>x===null?null:validateReviewedSupply(x)),json('/survey-data.json',{optional:true}).then(x=>x===null?null:validateStoredSurvey(x))]);
+  const results=await Promise.allSettled([json('/evidence/index.json').then(dashboardEvidence),json('/market-data.json').then(validateMarket),json('/registration-index.json',{optional:true}).then(x=>x===null?null:validateRegistrationIndex(x)),json('/fx-data.json').then(validateFX),json('/activity-data.json',{optional:true}).then(x=>x===null?null:validateActivity(x)),json('/reviewed-supply-data.json',{optional:true}).then(x=>x===null?null:validateReviewedSupply(x)),json('/survey-data.json',{optional:true}).then(x=>x===null?null:validateStoredSurvey(x)),json('/geography-data.json').then(validateGeography)]);
   const failed=[];
   for(const [index,key]of ['index','market'].entries()){
     if(results[index].status==='fulfilled')state[key]=results[index].value;
@@ -215,8 +219,9 @@ async function load(){
   const selected=providerChoice({primary:results[4].status==='fulfilled'?results[4].value:null,lastGood:activity,failed:results[4].status==='rejected'});activity=selected.data;activityState=selected.state;
   reviewedSupply=reviewedSupplyChoice(reviewedSupply.data,results[5]);
   survey=storedSurveyChoice(survey.data,results[6]);
+  geography=geographyChoice(geography.data,results[7]);
   state.marketFailed=results[1].status!=='fulfilled';
-  renderEvidence();renderMarket();renderEvidenceRankings();renderActivity();renderSupply();renderStoredSurvey();
+  renderEvidence();renderMarket();renderEvidenceRankings();renderActivity();renderSupply();renderStoredSurvey();renderGeography($('#overview-geography'),geography);
   if(state.registration)await loadTrend();
   const collectionFailed=state.market?.collectionState?.state==='FAILED'||state.market?.lastBuildState==='FAILED';
   $('#overview-error').hidden=!failed.length&&!collectionFailed;

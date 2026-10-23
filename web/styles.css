@@ -213,5 +213,7 @@ select option{background:var(--panel);color:var(--ink);font-weight:400}
 #overview-reviewed-supply .table-scroll{max-height:420px}#overview-reviewed-supply tbody th{min-width:70px}#overview-reviewed-supply details{max-width:290px;white-space:normal;text-align:left;font-size:11px}#overview-reviewed-supply details p{margin:8px 0;line-height:1.6}.reviewed-source-hash{overflow-wrap:anywhere}#overview-reviewed-supply summary{cursor:pointer;color:var(--purple)}#overview-reviewed-supply [role=status]{margin-bottom:12px}
 
 .survey-table-scroll { max-height: 34rem; }
+#overview-geography table{min-width:0;table-layout:fixed;white-space:normal}#overview-geography th,#overview-geography td{min-width:0;white-space:normal;text-align:left;padding:12px 8px;overflow-wrap:anywhere;line-height:1.6}#overview-geography th:first-child{padding-left:0;width:44%}#overview-geography th:last-child{width:20%}#overview-geography td{font-size:11px}
+#overview-geography .geography-balance-scroll{max-height:34rem}#overview-geography .geography-balance-scroll table{min-width:56rem;table-layout:auto}#overview-geography .geography-balance-scroll th{width:auto}#overview-geography [data-geography-balances] .panel-heading{flex-wrap:wrap;margin-top:20px}#overview-geography [data-geography-balances][hidden]{display:none}
 #overview-survey .panel-heading { flex-wrap: wrap; }
 #overview-survey .overview-market-table { min-width: 76rem; }

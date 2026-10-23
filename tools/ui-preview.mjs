@@ -1,4 +1,6 @@
 import {validateStoredSurvey} from '../web/survey-model.js';
+import {validateGeography} from '../web/geography-model.js';
+import {geographyReader as storedGeographyReader} from './allium-geography-preview.mjs';
 import {databaseSurveyReader} from './market-db/survey-preview.mjs';
 import {databaseReviewedSupplyReader} from './market-db/allium-supply-preview.mjs';
 import {validateReviewedSupply} from '../web/reviewed-supply-model.js';
@@ -29,6 +31,8 @@ const assets = new Map([
   ['/reviewed-supply-model.js', ['../web/reviewed-supply-model.js', 'text/javascript; charset=utf-8']],
   ['/survey-model.js', ['../web/survey-model.js', 'text/javascript; charset=utf-8']],
   ['/survey.js', ['../web/survey.js', 'text/javascript; charset=utf-8']],
+  ['/geography-model.js', ['../web/geography-model.js', 'text/javascript; charset=utf-8']],
+  ['/geography.js', ['../web/geography.js', 'text/javascript; charset=utf-8']],
   ['/reviewed-supply.js', ['../web/reviewed-supply.js', 'text/javascript; charset=utf-8']],
   ['/activity-model.js', ['../web/activity-model.js', 'text/javascript; charset=utf-8']],
   ['/overview-market-model.js', ['../web/overview-market-model.js', 'text/javascript; charset=utf-8']],
@@ -43,7 +47,7 @@ const assets = new Map([
   ['/mock-data.json', ['../docs/ui/mock-dashboard-data.json', 'application/json; charset=utf-8']],
 ]);
 const csp = "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; object-src 'none'";
-export function createPreviewServer({ evidenceDirectory, marketDirectory, marketReader, registrationReader, fxDirectory, activityReader, reviewedSupplyReader, surveyReader } = {}) {
+export function createPreviewServer({ evidenceDirectory, marketDirectory, marketReader, registrationReader, fxDirectory, activityReader, reviewedSupplyReader, surveyReader, geographyReader=storedGeographyReader() } = {}) {
   const server = createServer(async (req, res) => {
     res.setHeader('Content-Security-Policy', csp);
     res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -75,6 +79,9 @@ export function createPreviewServer({ evidenceDirectory, marketDirectory, market
         }catch{fail(503,'SUPPLY_DATA_UNAVAILABLE');}
         return;
       }
+    }
+    if(req.url==='/geography-data.json'){
+      try{const bytes=Buffer.from(JSON.stringify(validateGeography(await geographyReader())));if(bytes.length>2097152)throw Error('READ_LIMIT');res.writeHead(200,{'Content-Type':'application/json; charset=utf-8','Content-Length':bytes.length});res.end(req.method==='HEAD'?undefined:bytes);}catch{fail(503,'GEOGRAPHY_UNAVAILABLE');}return;
     }
     if(req.url==='/survey-data.json'){
       if(!surveyReader){fail(404,'SURVEY_DISABLED');return;}

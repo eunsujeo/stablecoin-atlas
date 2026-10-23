@@ -43,6 +43,9 @@
 
 ## 개발용 Router와 Herdr 작업 흐름
 
+- 사용자 지리 자료 진행 요청(2026-10-23): ADR0080의 지원된 Allium 지리 자료 확인·단발 수집·로컬 UI 연결을 진행한다. 고정 메타데이터1run/13HTTP·15분·재시도0과 같은 legacy root/송신 lock의 별도 영속 소비를 사용하며 기존 live-once를 재사용하지 않는다. 국가 귀속 추정·잔액·결제량·국가간 흐름을 구분하고 미확보를 보존한다. 실제 데이터 SQL은 계정 스키마 확인 후 고정하며 자동 반복·usage·공급자 전환·주소 열거는 추가하지 않는다.
+- 사용자 지리 자료 후속 직접 호출 지시(2026-10-23~24): 문서 로그인과 API 권한을 분리해 공개 공식 스키마의 geo_balances_daily를 직접1회 확인한다. ADR0080의 고정11배포·UTC2026-10-22 하루·3300행+sentinel/2MiB/1페이지·1run/13HTTP·15분·재시도0을 따른다. 기존 metadata 실패/UNKNOWN·소비와 원문을 보존하며 별도 balances 슬롯만 사용한다. 두 슬롯 합계최대2run/26HTTP이고 기존 live-once/usage/메타데이터 재시도·추측 국가간 흐름 SQL은 추가하지 않는다.
+
 - 사용자 실제 Allium 호출·수집 승인(2026-10-23): ADR0076의 비용 통제 미확인 로컬 수동1회 supply/volume 실제 수집을 허용한다. 동일 legacy root의 공통 송신 잠금·영속 live-once 소비·2run/26HTTP/재시도0/15분·기존 원문/UNKNOWN 보존을 유지한다. 개별 echo 검토 checkpoint는 같은 lease·미전송 job에 한정하며 기존 SQL을 반복하거나 lease를 연장하지 않는다. 조직/타PC 배타성 UNKNOWN은 로컬 실행의 새 완료조건으로 요구하지 않으며 글로벌 한도는 보장하지 않는다. 실제 비용 대사·claim/차감·조직 예산 전환·새 usage·자동 예약·DB/UI 전환은 포함하지 않는다.
 - 사용자 실제 수집 후속 진행(2026-10-23): ADR0077의 저장된 live 두 원문·개별 검토·원래 UNKNOWN receipt·authorization/승인의 오프라인 검증과 기존 atlas_survey/로컬 표 연결을 허용한다. 같은 고정11배포·기간의 새 snapshot만 append하며 원래 시각·기존 자료·누락·비용 미확인을 유지한다. 현재 실행 lease나 새 키를 요구하거나 재소비하지 않는다. 새 API/usage·자동 예약·migration/grant·기본 공급자 전환·실제 비용 대사는 포함하지 않는다.
 - 사용자 기간 지원 후속 진행(2026-10-23): ADR0078의 날짜별7일 snapshot·명시 비파괴 atlas_survey v2 upgrade·CLI/로컬 표 기간 표시를 허용한다. 기존 v1/4source/version1·원문·권한을 보존하고 새 소유 PG17에서 정본 DDL의 예상 구조를 pin하여 검증한 뒤 기존 개발 DB에 적용한다. 가상 새 날짜 자료를 실제 DB에 입력하지 않는다. 새 공급자/usage/키·승인 재소비·반복 수집·스케줄·기본 공급자 전환은 포함하지 않는다.

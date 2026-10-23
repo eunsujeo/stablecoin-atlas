@@ -60,6 +60,8 @@ Allium은 [Explorer 표본](research/allium-samples/README.md)에 이어 [최근
 
 ## 다음 개발 단위
 
+[ADR0080](adr/0080-bounded-allium-geographic-data.md)의 Allium 지리 자료 수집/UI 요청과 후속 직접 호출 지시를 진행했다. 브라우저 HTML에서 Geo 링크를 확보했지만 문서 로그인이 필요했다. 계정 지리 메타데이터와 공개 공식 geo_balances_daily를 각각 직접1회 조회했으며 합계2run/6HTTP는 HTTP200 뒤 provider `failed`·UNKNOWN으로 종료됐다. 상세 사유는 미확인이다. UI에는 직접 조회한 잔액 INCONCLUSIVE/미확보·사용량/국가간 흐름 NOT_TESTED를 연결했다. 검토된 잔액 집계 표/필터 경로는 가상 자료로만 확인했으며 실제 국가별 숫자는 **미확보**다. 두 슬롯을 재소비하지 않으며 기존 live-once·원문·공급량/전송량을 보존했다. 근거는 [조사 결과](research/allium-geography-availability-2026-10-24.md)를 따른다.
+
 [ADR0078](adr/0078-windowed-survey-storage.md)의 동적7일 기간 저장·조회·표시를 완료했다. 개발 DB의 비파괴 v2 upgrade 후 기존4source/version1·137관측·6schema 보존을 확인했다. 후속 [ADR0079](adr/0079-finite-offline-schedule-simulation.md)는 가상 자료·새 소유 PG17에서 유한 UTC tick 반복 실행과 중복/재시작·ACK 유실·누적 예산·시간 경계를 검증한다. 실제 timer/스케줄·새 공급자/usage 호출·기존 DB 변경은 없다. 실제 반복 실행·비용·예약 범위는 별도 사용자 확인이 필요하며 소비된 live-once를 재사용하지 않는다.
 
 [ADR0077](adr/0077-offline-live-survey-storage.md)로 실제 수집 저장본의 오프라인 입력·기존 표 연결을 완료했다. [저장 현황](ALLIUM_SURVEY_DATA.md)의 source2→4·최신137관측·원래 시각/미일치/누락 보존·기존6schema 불변을 확인했다. 새 Allium 호출·DB schema/권한 변경·일별 자동 수집은 없다. 다음 동적 기간/자동 수집 범위는 사용자 확인 후 결정한다.
