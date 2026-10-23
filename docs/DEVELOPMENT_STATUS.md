@@ -39,6 +39,8 @@ Allium 중심 조회는 [공개 문서 조사·연결 순서](research/allium-da
 
 ## 토큰 기본정보
 
+- 공급량 차트는 축 눈금에 `눈금 (tokens)`를 표시하고 `1,000억`처럼 정리한다. 가장 큰 네트워크의 최신 실제 값은 선 끝에 별도 색상으로 표시하며 hover/키보드 tooltip 중에는 숨겨 겹침을 줄인다. 로그 축·원본 공급량·증감률 계산은 유지한다.
+
 [ADR0045](adr/0045-token-profile-catalog-and-popovers.md)의 별도 private DB catalog에8개 deployment의 표준·설명·식별자·공식 출처/확인시각을 revision으로 저장하고 reader API로 조회한다. Overview와 시장에서 마우스·키보드·모바일 정보 패널을 제공한다. 실제 Supabase8개 등록/재등록/조회와 기존462관측/78네트워크 이력 보존을 확인했다. 이는 기본정보이며 지원/검증 PASS와 별도다.
 
 ## 아직 구현하지 않은 것
