@@ -29,3 +29,5 @@ history HTTP는 `private, no-cache`와 실제 DTO bytes SHA256 ETag를 사용한
 ## 새로고침 선택 유지
 
 브라우저의 versioned `atlas-overview-chart-v1`에 coin/network/source/period/comparison UI 선택만 저장한다. 금액·원문·인증정보는 저장하지 않는다. 허용값/길이/JSON 버전을 검사하고 저장소 읽기·쓰기 거부는 화면 실행을 막지 않는다. 첫 index와 history가 로딩되기 전의 빈 선택 목록이나 실패 응답으로 저장 네트워크를 지우지 않는다. 정상 source pin에 맞는 history를 확보한 후 가용 네트워크를 확인해 복원하거나 모든 네트워크로 되돌린다. 사용자 변경은 단일 선택 state에 즉시 반영하며 과거 복원이 새 선택을 덮지 않는다. 토큰/source의 정상 옵션 제거 시에는 가용 항목으로 되돌린다. F5·전체 다시 읽기·60초 갱신·순위 목록 직접 선택 모두 같은 상태를 사용한다.
+
+공유 URL은 `?coin=jpyc&network=polygon&source=minted&period=90d&comparison=change#overview` 형태다. 선택 query가 있으면 URL을 우선하고, 없으면 브라우저 저장값을 복원한다. 일부 query만 있는 링크의 나머지는 수신자의 저장값이 아닌 고정 기본값(USDC/all/history/1y/amount)으로 채운다. 잘못된 값·중복 query도 고정 기본값으로 처리한다. 선택 변경 시 `history.replaceState`로 현재 주소만 갱신하며 기존 화면 hash·다른 query·history state를 보존한다. 데이터 미확보/실패 중에는 기존 복원 규칙을 유지하고 정상 자료로 가용성이 확인된 뒤에만 fallback 주소를 저장한다. URL은 UI 식별자만 담으며 조회는 기존 DB 읽기 경로를 사용한다.

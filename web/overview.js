@@ -1,4 +1,4 @@
-import {readChartPreferences,saveChartPreferences} from './overview-preferences.js';
+import {readChartPreferences,saveChartPreferences,readChartURL,syncChartURL} from './overview-preferences.js';
 import {validateRegistrationIndex,validateRegisteredHistory,registrationChartData,sameRegisteredSource} from './registration-model.js';
 import {tokenInfoButton,registeredCoinInfoButton} from './token-profile.js';
 import {beginLoading} from './loading.js';
@@ -8,12 +8,15 @@ import { validateMarket, displayAmount, ratio, units, latest } from './market-mo
 import { overviewSummary, overviewRanking, overviewEvidenceRanking } from './overview-model.js';
 const $=selector=>document.querySelector(selector);
 const node=(tag,text,cls)=>{const el=document.createElement(tag);if(text!==undefined)el.textContent=String(text);if(cls)el.className=cls;return el;};
-const savedChart=readChartPreferences();
+const savedChart=readChartURL(location.href)??readChartPreferences();
 const state={selectedCoin:savedChart?.coinId??'usdc',selectedSource:savedChart?.source??'history',selectedNetwork:savedChart?.networkId??'all',marketFailed:false,index:null,market:null,loading:false,loaded:false,period:savedChart?.period??'30d',sourceInitialized:!!savedChart,comparison:savedChart?.comparison??'amount',registration:null,detail:null,trendLoading:false,trendError:false,registrationFailed:false};
 let trendSequence=0,trendAbort,trendFinish;
 const trendData=()=>state.registration?registrationChartData(state.registration,state.detail):state.registrationFailed?null:state.market;
 const scopeReady=()=>!state.registrationFailed&&(!!state.registration||!!state.market&&!state.marketFailed);
-const rememberTrend=()=>saveChartPreferences({version:1,coinId:state.selectedCoin,networkId:state.selectedNetwork,source:state.selectedSource,period:state.period,comparison:state.comparison});
+const rememberTrend=()=>{
+ const choice={version:1,coinId:state.selectedCoin,networkId:state.selectedNetwork,source:state.selectedSource,period:state.period,comparison:state.comparison};
+ saveChartPreferences(choice);syncChartURL(choice);
+};
 const when=value=>new Date(value).toLocaleString('ko-KR',{hour12:false});
 const labels={PASS:'통과',FAIL:'실패',INCONCLUSIVE:'판정 불충분',NOT_TESTED:'미검증',NOT_APPLICABLE:'비적용',UNSUPPORTED:'지원 범위 밖'};
 async function json(path,{signal,optional=false,revalidate=false}={}){

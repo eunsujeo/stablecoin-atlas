@@ -81,7 +81,10 @@ export function createPreviewServer({ evidenceDirectory, marketDirectory, market
       } catch { fail(503, 'EVIDENCE_UNAVAILABLE'); }
       return;
     }
-    const asset = assets.get(req.url);
+    // Only the fixed document accepts UI query parameters. API and asset paths
+    // retain their existing exact allowlists; query values never become paths.
+    const assetPath=typeof req.url==='string'&&req.url.length<=2048&&req.url.startsWith('/?')?'/':req.url;
+    const asset = assets.get(assetPath);
     if (!asset) { fail(404, 'NOT_FOUND'); return; }
     try {
       const bytes = await readFile(new URL(asset[0], import.meta.url));

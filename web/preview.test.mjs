@@ -19,6 +19,10 @@ test('preview binds loopback and serves only fixed assets; HEAD, CSP and same-or
       assert.equal(get.headers['x-content-type-options'], 'nosniff'); assert.match(get.headers['content-security-policy'], /connect-src 'self'/); assert.match(get.headers['content-security-policy'], /frame-ancestors 'none'/);
     }
     const data = JSON.parse((await read(port, '/mock-data.json')).body); assert.equal(data.allValuesAreFictional, true);
+    const shared='/?coin=jpyc&network=polygon&source=minted&period=90d&comparison=change';
+    const document=await read(port,'/'),link=await read(port,shared),linkHead=await read(port,shared,{method:'HEAD'});
+    assert.equal(link.status,200);assert.equal(link.body,document.body);assert.equal(linkHead.status,200);assert.equal(linkHead.body,'');assert.equal(linkHead.headers['content-length'],link.headers['content-length']);
+    assert.equal((await read(port,'/?coin='+ 'x'.repeat(2048))).status,404);
     for (const path of ['/../.env', '/%2e%2e/.env', '/docs/ui/mock-dashboard-data.json', '/package.json', '/mock-data.json?url=other', '/app.js/../index.html', '/styles.css?x=1', '/.git/config']) { const response = await read(port, path); assert.equal(response.status, 404); assert.equal(response.body, 'NOT_FOUND'); }
     for (const headers of [{ host: 'evil.example' }, { host: `127.0.0.1:${port + 1}` }, { origin: 'null' }, { origin: 'https://evil.example' }, { 'sec-fetch-site': 'cross-site' }]) assert.equal((await read(port, '/', { headers })).status, 403);
     assert.equal((await read(port, '/', { headers: { origin: `http://127.0.0.1:${port}` } })).status, 200);
