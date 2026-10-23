@@ -253,12 +253,30 @@ class ScheduledRenewTests(unittest.TestCase):
     def test_renews_after_grace_once_turn_has_ended(self):
         result, renewed = self.run_watch(["working", "working"] + ["idle"] * self.IDLE)
         self.assertEqual(result, "renewed")
-        renewed.assert_called_once_with("router-impl", "docs/handoff/x.md")
+        renewed.assert_called_once_with("router-impl", "docs/handoff/x.md", wait=False)
+
+    def test_handoff_needing_user_renews_into_a_waiting_session(self):
+        clock = [0.0]
+        with patch.object(lead, "agent", return_value={"agent_status": "idle", "state_change_seq": 1}), \
+                patch.object(renew, "screen", return_value=self.CLEAN), \
+                patch.object(renew, "open_lead_request", return_value=False), \
+                patch.object(renew, "renew_with_handoff") as renewed:
+            result = renew.wait_and_renew("router-impl", "docs/handoff/x.md", wait=True,
+                                          now=lambda: clock[0], sleep=lambda s: clock.__setitem__(0, clock[0] + s))
+        self.assertEqual(result, "renewed_waiting")
+        renewed.assert_called_once_with("router-impl", "docs/handoff/x.md", wait=True)
 
     def test_renewed_session_is_told_to_continue_next_action(self):
         with patch.object(renew, "renew"), patch.object(lead, "herdr") as send, patch.object(lead, "write"):
             renew.renew_with_handoff("router-impl", "docs/handoff/x.md")
         self.assertIn("'다음 행동'부터 이어서 진행", send.call_args.args[3])
+
+    def test_waiting_session_is_told_not_to_start_work(self):
+        with patch.object(renew, "renew"), patch.object(lead, "herdr") as send, patch.object(lead, "write"):
+            renew.renew_with_handoff("router-impl", "docs/handoff/x.md", wait=True)
+        text = send.call_args.args[3]
+        self.assertIn("시작하지 말고", text)
+        self.assertNotIn("이어서 진행", text)
 
     def test_user_continuing_during_grace_cancels(self):
         result, renewed = self.run_watch(["working", "idle", "idle", "working"])
@@ -343,10 +361,16 @@ class ScheduleGateTests(unittest.TestCase):
     def test_missing_field_is_rejected(self):
         self.assertRaises(ValueError, renew.schedule, "router-impl", self.handoff(drop="기다리는 것"))
 
-    def test_user_confirmation_is_not_scheduled(self):
+    def test_user_confirmation_is_still_scheduled(self):
         with patch.object(renew.subprocess, "Popen") as spawn:
-            self.assertRaises(ValueError, renew.schedule, "router-impl", self.handoff(confirm="예 — 원격 DB 접속"))
-        spawn.assert_not_called()
+            renew.schedule("router-impl", self.handoff(confirm="예 — 원격 DB 접속"))
+        spawn.assert_called_once()
+
+    def test_waiting_renewal_counts_daily_and_ends_the_chain(self):
+        renew.remember("router-impl", "renewed")
+        renew.remember("router-impl", "renewed_waiting")
+        value = renew.history("router-impl")
+        self.assertEqual((len(value["renewals"]), value["chain"]), (2, 0))
 
     def test_chain_limit_stops_until_a_human_continues(self):
         for _ in range(renew.CHAIN_LIMIT):
