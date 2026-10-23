@@ -35,7 +35,7 @@
 
 - 원화 가격·시장표 밀도: [ADR0058](adr/0058-reference-krw-prices.md)에 따라 USD/KRW 선택·ECB 기준일 표시·BigInt 참고 환산을 추가한다. 토큰 정보를 한 줄로 묶고 미확인 거래량 열을 숨겨 여백을 줄인다. 환율은 private 일별 snapshot이며 웹 요청이 수집하지 않는다. 실제 원격 FX timer 설치는 미실행이다.
 
-Allium 중심 조회는 [공개 문서 조사·연결 순서](research/allium-data-plan-2026-10-23.md)를 작성했다. 사용자 키로 Ethereum USDC Realtime 가격 통계 1회 HTTP 200을 확인했다. SQL·공급량/전송량·다른 코인/체인·요금 한도는 미확인이며 기존 공급자를 교체하지 않았다.
+Allium은 USDC Realtime 인증 후 [실제 Explorer 표본·비교 결과](research/allium-samples/README.md)를 확보했다. 고정 5코인 Ethereum의 등록부·공급량은 각 5행, 발행·소각은 5표본, 전송량은 0행이며 누락을 0으로 바꾸지 않았다. USDC·USDT 유통량은 기존 저장본과 차이가 커 자동 대체하지 않는다. 다른 체인·전송량 최신 제공일·일 마감/정밀도·요금 한도는 추가 확인 대상이다. 자동 수집/DB/대시보드는 변경하지 않았다.
 
 ## 토큰 기본정보
 

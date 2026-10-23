@@ -1,0 +1,385 @@
+{
+  "schemaVersion": 1,
+  "kind": "ALLIUM_READONLY_RESEARCH",
+  "scope": {
+    "date": "2026-10-22",
+    "networkId": "ethereum",
+    "coins": [
+      "jpyc",
+      "jpysc",
+      "rlusd",
+      "usdc",
+      "usdt"
+    ],
+    "savedQueryCount": 4,
+    "executionCount": 4,
+    "automaticRetries": 0,
+    "databaseWrites": 0,
+    "dashboardChanged": false
+  },
+  "evidence": [
+    {
+      "query": "registry",
+      "httpStatus": 200,
+      "state": "SUCCESS",
+      "rowCount": 5,
+      "queriedAt": "2026-10-23T03:17:52.465933Z",
+      "rawResponseSHA256": "6c047f78c85b5c67b05435ea8041cf6edf100d758a867445fb1c6f0a5433632e",
+      "executedSQLSHA256": "9c3c25c438d2b62e14eac30f56064c6e1772d739a84a3dbe6ad08162747ef748",
+      "reportedExplorerUnits": "0.04703333333333333"
+    },
+    {
+      "query": "supply-daily",
+      "httpStatus": 200,
+      "state": "SUCCESS",
+      "rowCount": 5,
+      "queriedAt": "2026-10-23T03:18:12.931966Z",
+      "rawResponseSHA256": "1929e3d03cf97740043c26b5c7f877d19a92360755c814896eefb6bbc5b06993",
+      "executedSQLSHA256": "ed5396a50b3bd9b2bd745dee2ab4160cffa35737a6a839622f8a9c4d8569023f",
+      "reportedExplorerUnits": "0.03165"
+    },
+    {
+      "query": "volume-daily",
+      "httpStatus": 200,
+      "state": "SUCCESS",
+      "rowCount": 0,
+      "queriedAt": "2026-10-23T03:18:27.943540Z",
+      "rawResponseSHA256": "2402ff28279d7f5b4931848038cfd40a49a33f74dc94202dad9a2d8e8e5a8827",
+      "executedSQLSHA256": "68087fae1483291cf03fda06f2dee406c5b85602a7a323ad8a9453144bcecc12",
+      "reportedExplorerUnits": "0.029649999999999996"
+    },
+    {
+      "query": "supply-change",
+      "httpStatus": 200,
+      "state": "SUCCESS",
+      "rowCount": 5,
+      "queriedAt": "2026-10-23T03:18:43.865531Z",
+      "rawResponseSHA256": "e00f3aee3d0cc5d0ba31317bef1fc25cf6deb05836ea99707e029325d5a006f5",
+      "executedSQLSHA256": "e42dd4208c34bfc28f2642ec51596d003a37a037eefa93878c46cf4085d44ce5",
+      "reportedExplorerUnits": "0.08681666666666665"
+    }
+  ],
+  "registry": [
+    {
+      "coin_id": "jpyc",
+      "chain": "ethereum",
+      "address": "0xe7c3d8c9a439fede00d2600032d5db0be71c3c29",
+      "product_id": "jpyc",
+      "product_symbol": "JPYC",
+      "is_native": true,
+      "is_verified": false,
+      "decimals": 18,
+      "currency": "jpy",
+      "status": "active"
+    },
+    {
+      "coin_id": "jpysc",
+      "chain": "ethereum",
+      "address": "0x6781d5631bfe47432b089e64e3eab3b6edd26177",
+      "product_id": "jpysc",
+      "product_symbol": "JPYSC",
+      "is_native": true,
+      "is_verified": false,
+      "decimals": 18,
+      "currency": "jpy",
+      "status": "active"
+    },
+    {
+      "coin_id": "rlusd",
+      "chain": "ethereum",
+      "address": "0x8292bb45bf1ee4d140127049757c2e0ff06317ed",
+      "product_id": "rlusd",
+      "product_symbol": "RLUSD",
+      "is_native": true,
+      "is_verified": true,
+      "decimals": 18,
+      "currency": "usd",
+      "status": "active"
+    },
+    {
+      "coin_id": "usdc",
+      "chain": "ethereum",
+      "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      "product_id": "usdc",
+      "product_symbol": "USDC",
+      "is_native": true,
+      "is_verified": true,
+      "decimals": 6,
+      "currency": "usd",
+      "status": "active"
+    },
+    {
+      "coin_id": "usdt",
+      "chain": "ethereum",
+      "address": "0xdac17f958d2ee523a2206206994597c13d831ec7",
+      "product_id": "usdt",
+      "product_symbol": "USDT",
+      "is_native": true,
+      "is_verified": true,
+      "decimals": 6,
+      "currency": "usd",
+      "status": "active"
+    }
+  ],
+  "supply": [
+    {
+      "coin_id": "jpyc",
+      "date": "2026-10-22T00:00:00",
+      "chain": "ethereum",
+      "token_address": "0xe7c3d8c9a439fede00d2600032d5db0be71c3c29",
+      "is_native": true,
+      "total_supply_str": "4803038691.18467",
+      "circulating_supply_str": "733774595.349465",
+      "adjusted_circulating_supply_str": "733763230.803589",
+      "_metadata": {
+        "integration_status": "prod",
+        "price_source": "market_aggregated",
+        "supply_source": "state"
+      }
+    },
+    {
+      "coin_id": "jpysc",
+      "date": "2026-10-22T00:00:00",
+      "chain": "ethereum",
+      "token_address": "0x6781d5631bfe47432b089e64e3eab3b6edd26177",
+      "is_native": true,
+      "total_supply_str": "20351335969",
+      "circulating_supply_str": "20351335969",
+      "adjusted_circulating_supply_str": "20351335969",
+      "_metadata": {
+        "integration_status": "prod_ncs_unverified",
+        "price_source": "market_aggregated",
+        "supply_source": "state"
+      }
+    },
+    {
+      "coin_id": "rlusd",
+      "date": "2026-10-22T00:00:00",
+      "chain": "ethereum",
+      "token_address": "0x8292bb45bf1ee4d140127049757c2e0ff06317ed",
+      "is_native": true,
+      "total_supply_str": "1448674399.08547",
+      "circulating_supply_str": "1448674399.08547",
+      "adjusted_circulating_supply_str": "1448674375.82614",
+      "_metadata": {
+        "integration_status": "prod",
+        "price_source": "market_aggregated",
+        "supply_source": "state"
+      }
+    },
+    {
+      "coin_id": "usdc",
+      "date": "2026-10-22T00:00:00",
+      "chain": "ethereum",
+      "token_address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      "is_native": true,
+      "total_supply_str": "48211882264.292",
+      "circulating_supply_str": "48211882264.292",
+      "adjusted_circulating_supply_str": "42054607048.7722",
+      "_metadata": {
+        "integration_status": "prod",
+        "price_source": "market_aggregated",
+        "supply_source": "state"
+      }
+    },
+    {
+      "coin_id": "usdt",
+      "date": "2026-10-22T00:00:00",
+      "chain": "ethereum",
+      "token_address": "0xdac17f958d2ee523a2206206994597c13d831ec7",
+      "is_native": true,
+      "total_supply_str": "88301265725.9705",
+      "circulating_supply_str": "85385480654.6647",
+      "adjusted_circulating_supply_str": "81663237264.3137",
+      "_metadata": {
+        "integration_status": "prod",
+        "price_source": "market_aggregated",
+        "supply_source": "state"
+      }
+    }
+  ],
+  "mintBurnSamples": [
+    {
+      "coin_id": "jpysc",
+      "chain": "ethereum",
+      "token_address": "0x6781d5631bfe47432b089e64e3eab3b6edd26177",
+      "block_timestamp": "2026-10-22T03:21:23",
+      "unique_id": "txn-0x7767d1369df13c7eb6183583cc9e6b2607c72c90348388db72a0e756d2b2c79e_log_index-59",
+      "is_mint": false,
+      "is_burn": true,
+      "raw_amount_str": "5568219000000000000000000",
+      "amount_str": "5568219"
+    },
+    {
+      "coin_id": "rlusd",
+      "chain": "ethereum",
+      "token_address": "0x8292bb45bf1ee4d140127049757c2e0ff06317ed",
+      "block_timestamp": "2026-10-22T08:17:23",
+      "unique_id": "txn-0xa377fcb3852918eb17657ed6814eb2232bc5abce8c726fffb9b68af2a0a1e1c7_log_index-657",
+      "is_mint": false,
+      "is_burn": true,
+      "raw_amount_str": "1000000000000000000000",
+      "amount_str": "1000"
+    },
+    {
+      "coin_id": "rlusd",
+      "chain": "ethereum",
+      "token_address": "0x8292bb45bf1ee4d140127049757c2e0ff06317ed",
+      "block_timestamp": "2026-10-22T08:58:23",
+      "unique_id": "txn-0x2f9fe4114c5054c31152f15835a481e875883c82a0f5e321d02265949ee5efd3_log_index-427",
+      "is_mint": false,
+      "is_burn": true,
+      "raw_amount_str": "2099000000000000000000000",
+      "amount_str": "2099000"
+    },
+    {
+      "coin_id": "usdc",
+      "chain": "ethereum",
+      "token_address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      "block_timestamp": "2026-10-22T00:00:23",
+      "unique_id": "txn-0x82a31cf88059d348452dd62d12951d86708bac074aeb276a9c2c8a519e5b5fe6_log_index-1908",
+      "is_mint": false,
+      "is_burn": true,
+      "raw_amount_str": "64998341390",
+      "amount_str": "64998.34139"
+    },
+    {
+      "coin_id": "usdc",
+      "chain": "ethereum",
+      "token_address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      "block_timestamp": "2026-10-22T00:00:35",
+      "unique_id": "txn-0xebf01df0f4490aba0251291ba3dedea204c66f3e41fcfca068c54047999c173d_log_index-729",
+      "is_mint": true,
+      "is_burn": false,
+      "raw_amount_str": "1655244312",
+      "amount_str": "1655.244312"
+    }
+  ],
+  "coverage": [
+    {
+      "coinId": "jpyc",
+      "networkId": "ethereum",
+      "identityMatched": true,
+      "providerVerified": false,
+      "dailySupply": "OBSERVED",
+      "mintBurnSampleCount": 0,
+      "mintBurnCompleteness": "CAPPED_AT_TWO_PER_COIN_NOT_DAILY_TOTAL",
+      "dailyTransferVolume": "NO_ROWS_NOT_ZERO",
+      "otherNetworks": "NOT_QUERIED"
+    },
+    {
+      "coinId": "jpysc",
+      "networkId": "ethereum",
+      "identityMatched": true,
+      "providerVerified": false,
+      "dailySupply": "OBSERVED",
+      "mintBurnSampleCount": 1,
+      "mintBurnCompleteness": "CAPPED_AT_TWO_PER_COIN_NOT_DAILY_TOTAL",
+      "dailyTransferVolume": "NO_ROWS_NOT_ZERO",
+      "otherNetworks": "NOT_QUERIED"
+    },
+    {
+      "coinId": "rlusd",
+      "networkId": "ethereum",
+      "identityMatched": true,
+      "providerVerified": true,
+      "dailySupply": "OBSERVED",
+      "mintBurnSampleCount": 2,
+      "mintBurnCompleteness": "CAPPED_AT_TWO_PER_COIN_NOT_DAILY_TOTAL",
+      "dailyTransferVolume": "NO_ROWS_NOT_ZERO",
+      "otherNetworks": "NOT_QUERIED"
+    },
+    {
+      "coinId": "usdc",
+      "networkId": "ethereum",
+      "identityMatched": true,
+      "providerVerified": true,
+      "dailySupply": "OBSERVED",
+      "mintBurnSampleCount": 2,
+      "mintBurnCompleteness": "CAPPED_AT_TWO_PER_COIN_NOT_DAILY_TOTAL",
+      "dailyTransferVolume": "NO_ROWS_NOT_ZERO",
+      "otherNetworks": "NOT_QUERIED"
+    },
+    {
+      "coinId": "usdt",
+      "networkId": "ethereum",
+      "identityMatched": true,
+      "providerVerified": true,
+      "dailySupply": "OBSERVED",
+      "mintBurnSampleCount": 0,
+      "mintBurnCompleteness": "CAPPED_AT_TWO_PER_COIN_NOT_DAILY_TOTAL",
+      "dailyTransferVolume": "NO_ROWS_NOT_ZERO",
+      "otherNetworks": "NOT_QUERIED"
+    }
+  ],
+  "comparisons": [
+    {
+      "coinId": "jpyc",
+      "date": "2026-10-22",
+      "networkId": "ethereum",
+      "unit": "token",
+      "existingProvider": "DEFILLAMA",
+      "existingCirculating": "734567923.3494639",
+      "alliumCirculating": "733774595.349465",
+      "difference": "-793327.9999989",
+      "differencePercent": "-0.1080",
+      "interpretation": "DATE_LABEL_ONLY_METHOD_AND_CUTOFF_NOT_RECONCILED"
+    },
+    {
+      "coinId": "jpysc",
+      "date": "2026-10-22",
+      "networkId": "ethereum",
+      "unit": "token",
+      "existingProvider": "DEFILLAMA",
+      "existingCirculating": "20351335969",
+      "alliumCirculating": "20351335969",
+      "difference": "0",
+      "differencePercent": "0.0000",
+      "interpretation": "DATE_LABEL_ONLY_METHOD_AND_CUTOFF_NOT_RECONCILED"
+    },
+    {
+      "coinId": "rlusd",
+      "date": "2026-10-22",
+      "networkId": "ethereum",
+      "unit": "token",
+      "existingProvider": "DEFILLAMA",
+      "existingCirculating": "1448674399.0854678",
+      "alliumCirculating": "1448674399.08547",
+      "difference": "0.0000022",
+      "differencePercent": "0.0000",
+      "interpretation": "DATE_LABEL_ONLY_METHOD_AND_CUTOFF_NOT_RECONCILED"
+    },
+    {
+      "coinId": "usdc",
+      "date": "2026-10-22",
+      "networkId": "ethereum",
+      "unit": "token",
+      "existingProvider": "DEFILLAMA",
+      "existingCirculating": "44826418472.31008",
+      "alliumCirculating": "48211882264.292",
+      "difference": "3385463791.98192",
+      "differencePercent": "7.5524",
+      "interpretation": "DATE_LABEL_ONLY_METHOD_AND_CUTOFF_NOT_RECONCILED"
+    },
+    {
+      "coinId": "usdt",
+      "date": "2026-10-22",
+      "networkId": "ethereum",
+      "unit": "token",
+      "existingProvider": "DEFILLAMA",
+      "existingCirculating": "72556900577.738",
+      "alliumCirculating": "85385480654.6647",
+      "difference": "12828580076.9267",
+      "differencePercent": "17.6807",
+      "interpretation": "DATE_LABEL_ONLY_METHOD_AND_CUTOFF_NOT_RECONCILED"
+    }
+  ],
+  "validation": {
+    "validatedRows": 15,
+    "identityAndDuplicateCheck": "PASS",
+    "amountStrings": "PASS",
+    "eventRawNormalization": "PASS",
+    "sourceSupplyNumericType": "NOT_QUERIED",
+    "cutoffTimezone": "NOT_RECONCILED"
+  }
+}
