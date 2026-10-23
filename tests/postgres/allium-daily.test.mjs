@@ -5,6 +5,10 @@ import {dailyLab,initializeDailyLab,dailyEntryHash} from '../../tools/market-db/
 import {dailyHash,dailyPlan} from '../../tools/allium-daily-plan.mjs';
 import {simulation,simulationOrg as org,dailyResponse} from '../allium-daily-fixture.mjs';
 import {canonical} from '../../tools/market-db/plan.mjs';
+import {mkdtemp,realpath,chmod,rm,unlink} from 'node:fs/promises';
+import {tmpdir} from 'node:os';import {join} from 'node:path';
+import {createCheckpointStore,checkpointPublisher} from '../../tools/allium-checkpoint.mjs';
+import {checkpointDailyLab} from '../../tools/market-db/allium-daily-lab.mjs';
 const exec=promisify(execFile),zero='0'.repeat(64),blocked=p=>assert.rejects(p,/ALLIUM_DAILY_OFFLINE_BLOCKED/);
 async function lab(t){
  const f=await fixture(),clients=[],fixtureHash=dailyHash(randomBytes(32)),name='atlas_daily_fixture_'+randomBytes(8).toString('hex');
@@ -26,6 +30,13 @@ async function seed(l,{organization=org}={}){
  const f=await l.clocked();if(organization!==org){f.authorization.organizationHash=organization;f.usage.organizationHash=organization;}
  await l.ledger.claimWorker(organization);const intent=await l.ledger.usageIntent(organization);
  await l.ledger.usageResponse(organization,intent.id,f.usage);return f;
+}
+async function publishedLab(t,l,{fault}={}){
+ const root=await mkdtemp(join(await realpath(tmpdir()),'allium-pg-checkpoint-'));await chmod(root,0o700);
+ t.after(()=>rm(root,{recursive:true,force:true}));const path=join(root,'checkpoint');
+ const setup=await createCheckpointStore(path,{fixtureHash:l.fixtureHash,organizationHash:org});
+ const publisher=await checkpointPublisher(path,{...setup,fault});t.after(()=>publisher.close().catch(()=>{}));
+ l.ledger=await checkpointDailyLab(l.writer,{fixtureHash:l.fixtureHash,publisher});return {root,path,setup,publisher};
 }
 const ok=JSON.stringify({state:'OK',referenceHash:dailyHash('SIMULATED REFERENCE')});
 async function send(l,reservationId,job,operation,body){
@@ -137,5 +148,83 @@ test('daily PG17 failed usage consumes the day; actual DB time expiry, overrun a
    const i=await l.ledger.intent(organization,r.id,'supply',op);await l.ledger.fakeSend(organization,r.id,i.id);await l.ledger.response(organization,r.id,i.id,body);
   }
   assert.equal((await l.ledger.read(organization)).reservations[0].state,'UNKNOWN');await blocked(l.ledger.intent(organization,r.id,'volume','create'));
+ }
+});
+test('checkpoint PG17 publication gates each fake send and duplicate publication never rearms intent',{timeout:120000},async t=>{
+ const l=await lab(t),raw=l.writer;let duringSend=false;
+ l.writer={connectionParameters:raw.connectionParameters,query:async(...args)=>{
+  const value=await raw.query(...args);
+  if(duringSend&&String(args[0]).startsWith('SELECT count(*)::text')){duringSend=false;await blocked(l.ledger.releaseWorker(org));}
+  return value;
+ }};
+ const p=await publishedLab(t,l),f=await seed(l),r=await l.ledger.reserve(org,f.plan,f.authorization);
+ const i=await l.ledger.intent(org,r.id,'supply','create'),published=await l.ledger.publishCheckpoint(org);
+ assert.equal(published.checkpoint.count,5);assert.equal((await l.ledger.publishCheckpoint(org)).duplicate,true);
+ duringSend=true;await l.ledger.fakeSend(org,r.id,i.id);assert.equal(duringSend,false);await l.ledger.response(org,r.id,i.id,ok);
+ await l.ledger.publishCheckpoint(org);await blocked(l.ledger.fakeSend(org,r.id,i.id));
+ const v=await dailyLab(l.reader,{fixtureHash:l.fixtureHash}).read(org);assert.equal(v.reservations[0].fakeSends,1);
+ assert.equal(v.executionEnabled,false);assert.equal(v.providerRequests,0);
+ // Poisoned session cannot rearm even through inspect; a fresh handle cannot recover old acknowledgements.
+ await blocked(p.publisher.inspect());
+});
+test('checkpoint PG17 unposted intent and write/fsync/publication ACK loss retain UNKNOWN and zero fake sends',{timeout:120000},async t=>{
+ for(const scenario of ['unposted','record-write','file-sync','directory-sync','publication-ack']){
+  const l=await lab(t),p=await publishedLab(t,l,{fault:async where=>{if(scenario===where)throw Error('FAKE_PUBLICATION_FAILURE');}});
+  const f=await seed(l),r=await l.ledger.reserve(org,f.plan,f.authorization),i=await l.ledger.intent(org,r.id,'supply','create');
+  if(scenario!=='unposted')await blocked(l.ledger.publishCheckpoint(org));
+  await blocked(l.ledger.fakeSend(org,r.id,i.id));
+  const v=await dailyLab(l.reader,{fixtureHash:l.fixtureHash}).read(org);assert.equal(v.reservations[0].fakeSends,0);assert.equal(v.reservations[0].state,'UNKNOWN');
+  await p.publisher.close();await unlink(join(p.path,'publisher.lock')); // explicit owned-harness recovery only
+  const recovered=await checkpointPublisher(p.path,p.setup);t.after(()=>recovered.close().catch(()=>{}));
+  const fresh=await checkpointDailyLab(await l.connect(),{fixtureHash:l.fixtureHash,publisher:recovered});
+  await l.ledger.releaseWorker(org);await fresh.claimWorker(org);
+  await blocked(fresh.fakeSend(org,r.id,i.id));assert.equal((await fresh.read(org)).reservations[0].fakeSends,0);
+ }
+});
+test('checkpoint PG17 DB-only, checkpoint-only and joint rollback block with separately retained latest trust; absent trust stays blocked',{timeout:120000},async t=>{
+ const l=await lab(t),p=await publishedLab(t,l),f=await seed(l),r=await l.ledger.reserve(org,f.plan,f.authorization);
+ const a=await l.ledger.publishCheckpoint(org);await l.ledger.intent(org,r.id,'supply','create');const b=await l.ledger.publishCheckpoint(org);
+ await p.publisher.close();
+ const rows=(await l.admin.query('SELECT * FROM atlas_allium_daily_lab.entry WHERE organization_hash=$1 ORDER BY ordinal',[org])).rows;
+ const trim=async()=>{await l.admin.query('ALTER TABLE atlas_allium_daily_lab.entry DISABLE TRIGGER immutable_record');await l.admin.query('DELETE FROM atlas_allium_daily_lab.entry WHERE ordinal>4');await l.admin.query('ALTER TABLE atlas_allium_daily_lab.entry ENABLE TRIGGER immutable_record');};
+ // Restore only DB: trusted publication is ahead and replay refuses the shorter ledger.
+ await trim();const q=await checkpointPublisher(p.path,{...p.setup,trusted:b.trusted});
+ const restored=await checkpointDailyLab(l.reader,{fixtureHash:l.fixtureHash,publisher:q});await blocked(restored.read(org));await q.close();
+ const tail=rows.at(-1);await l.writer.query('INSERT INTO atlas_allium_daily_lab.entry VALUES($1,$2,$3,$4,$5)',[org,tail.ordinal,tail.previous_hash,tail.event_hash,tail.payload]);
+ // Restore only checkpoint: independently retained B refuses old A, even though DB is current.
+ await unlink(join(p.path,'00000002.json'));await blocked(checkpointPublisher(p.path,{...p.setup,trusted:b.trusted}));await unlink(join(p.path,'publisher.lock'));
+ // Joint restore to A cannot satisfy B; with no outside reference the state is UNKNOWN and no gate opens.
+ await trim();await blocked(checkpointPublisher(p.path,{...p.setup,trusted:b.trusted}));await unlink(join(p.path,'publisher.lock'));
+ await blocked(checkpointPublisher(p.path,{identity:p.setup.identity}));
+ // An explicitly old reference cannot prove joint rollback: demonstrate the limit, but old intent has no handle.
+ const old=await checkpointPublisher(p.path,{...p.setup,trusted:a.trusted});t.after(()=>old.close().catch(()=>{}));
+ const unknowable=await checkpointDailyLab(await l.connect(),{fixtureHash:l.fixtureHash,publisher:old});
+ assert.equal((await unknowable.read(org)).checkpoint.count,4);await unknowable.claimWorker(org).then(()=>assert.fail('old worker still holds lock'),()=>{});
+ assert.equal((await unknowable.read(org)).reservations[0].fakeSends,0);
+});
+test('checkpoint PG17 publication does not extend a DB lease or release budget',{timeout:120000},async t=>{
+ const l=await lab(t),p=await publishedLab(t,l),f=await seed(l);
+ f.authorization.expiresAt=new Date(Date.parse(f.authorization.reviewedAt)+5000).toISOString();
+ const r=await l.ledger.reserve(org,f.plan,f.authorization),i=await l.ledger.intent(org,r.id,'supply','create');await l.ledger.publishCheckpoint(org);
+ await l.admin.query('SELECT pg_sleep(GREATEST(0,extract(epoch FROM ($1::timestamptz-clock_timestamp())))+0.02)',[f.authorization.expiresAt]);
+ await blocked(l.ledger.fakeSend(org,r.id,i.id));const v=await dailyLab(l.reader,{fixtureHash:l.fixtureHash}).read(org);
+ assert.equal(v.reservations[0].fakeSends,0);assert.equal(v.reservations[0].state,'UNKNOWN');assert.equal(v.reservations[0].reservedUnits,'0.5');
+ await blocked(p.publisher.inspect());
+});
+test('checkpoint PG17 intent/send commit ACK loss and post-publication worker lock loss forbid repeat sends',{timeout:120000},async t=>{
+ for(const scenario of ['intent-commit','send-commit','worker-lock']){
+  const l=await lab(t),raw=l.writer;let lose=false;
+  l.writer={connectionParameters:raw.connectionParameters,query:async(...args)=>{const value=await raw.query(...args);if(lose&&String(args[0])==='COMMIT'){lose=false;throw Error('FAKE_COMMIT_ACK_LOSS');}return value;}};
+  await publishedLab(t,l);const f=await seed(l),r=await l.ledger.reserve(org,f.plan,f.authorization);
+  let id;
+  if(scenario==='intent-commit'){
+   lose=true;await blocked(l.ledger.intent(org,r.id,'supply','create'));id=dailyHash({reservationId:r.id,ordinal:0});
+  }else id=(await l.ledger.intent(org,r.id,'supply','create')).id;
+  await l.ledger.publishCheckpoint(org);
+  if(scenario==='worker-lock')await raw.query('SELECT pg_advisory_unlock_all()');
+  if(scenario==='send-commit')lose=true;
+  await blocked(l.ledger.fakeSend(org,r.id,id));await blocked(l.ledger.fakeSend(org,r.id,id));
+  const v=await dailyLab(l.reader,{fixtureHash:l.fixtureHash}).read(org);
+  assert.equal(v.reservations[0].fakeSends,scenario==='send-commit'?1:0);assert.equal(v.reservations[0].state,'UNKNOWN');assert.equal(v.reservations[0].reservedUnits,'0.5');
  }
 });

@@ -69,7 +69,14 @@ export async function initializeDailyLab(c,{fixtureHash,writer,reader}){
  });}catch{dailyFail();}
 }
 // No environment reader, connection factory, provider client, activation path, or CLI is exposed.
-export function dailyLab(c,{fixtureHash,checkpoints={}}){
+export async function checkpointDailyLab(c,{fixtureHash,publisher}){
+ try{
+  const identity=publisher.identity();if(identity.fixtureHash!==fixtureHash||identity.dbEpoch!==fixtureHash)dailyFail();
+  const published=await publisher.inspect();
+  return dailyLab(c,{fixtureHash,checkpoints:{[identity.organizationHash]:published.checkpoint},checkpointPublisher:publisher});
+ }catch{dailyFail();}
+}
+export function dailyLab(c,{fixtureHash,checkpoints={},checkpointPublisher}){
  const anchors=new Map(Object.entries(structuredClone(checkpoints))),workers=new Map(),confirmedReservations=new Map(),confirmedIntents=new Set();
  async function lock(org){if(!hashValue(org))dailyFail();await c.query('SELECT pg_advisory_xact_lock(18471236,hashtext($1))',[org]);}
  async function worker(org,pid){
@@ -92,13 +99,16 @@ export function dailyLab(c,{fixtureHash,checkpoints={}}){
   }
   return {s,head:{count:rows.length,hash:previous},bytes:BigInt(totals.bytes)};
  }
- async function run(org,build,{readonly=false,needsWorker=false}={}){
+ async function run(org,build,{readonly=false,needsWorker=false,gate}={}){
   let next;
   try{
    const result=await transaction(c,async()=>{
     const pid=await verify(c,fixtureHash,!readonly);if(!readonly)await lock(org);
     const w=needsWorker?await worker(org,pid):undefined;
     const {s,head,bytes}=await replay(org);
+    if(checkpointPublisher&&checkpointPublisher.identity().organizationHash!==org)dailyFail();
+    if(gate)await gate(head);
+    if(gate&&needsWorker)await worker(org,pid);
     const at=instant((await c.query("SELECT to_char(clock_timestamp() AT TIME ZONE 'UTC','YYYY-MM-DD\"T\"HH24:MI:SS.US\"Z\"') AS at")).rows[0].at);
     const e=build?.(s,at,w);
     if(e){
@@ -115,6 +125,13 @@ export function dailyLab(c,{fixtureHash,checkpoints={}}){
  }
  return {
   read:org=>run(org,null,{readonly:true}),
+  async publishCheckpoint(org){
+   if(!checkpointPublisher)dailyFail();
+   try{
+    const previous=await checkpointPublisher.inspect(),v=await run(org,null,{readonly:true});
+    return await checkpointPublisher.publish(v.checkpoint,previous.trusted);
+   }catch{confirmedIntents.clear();confirmedReservations.clear();dailyFail();}
+  },
   async claimWorker(org){
    try{return await transaction(c,async()=>{
     const pid=await verify(c,fixtureHash,true);if(workers.has(org)){await worker(org,pid);return {state:'SIMULATION_WORKER_CLAIMED'};}
@@ -122,7 +139,7 @@ export function dailyLab(c,{fixtureHash,checkpoints={}}){
     const w={pid,token:dailyHash(randomBytes(32))};workers.set(org,w);return {state:'SIMULATION_WORKER_CLAIMED'};
    });}catch{workers.delete(org);dailyFail();}
   },
-  async releaseWorker(org){try{const pid=await verify(c,fixtureHash,true);await worker(org,pid);await c.query('SELECT pg_advisory_unlock(18471237,hashtext($1))',[org]);workers.delete(org);}catch{dailyFail();}},
+  async releaseWorker(org){try{return await transaction(c,async()=>{const pid=await verify(c,fixtureHash,true);await worker(org,pid);await c.query('SELECT pg_advisory_unlock(18471237,hashtext($1))',[org]);workers.delete(org);});}catch{dailyFail();}},
   usageIntent:org=>run(org,(_s,_at,w)=>({type:'USAGE_INTENT',id:dailyHash({organizationHash:org,day:_at.slice(0,10),kind:'usage'}),workerToken:w.token}),{needsWorker:true}),
   usageResponse:(org,intentId,body)=>run(org,()=>({type:'USAGE_RESPONSE',intentId,body})),
   async reserve(org,plan,authorization,kind='daily'){
@@ -136,10 +153,15 @@ export function dailyLab(c,{fixtureHash,checkpoints={}}){
    if(confirmedReservations.get(reservationId)!==r.ackHash)dailyFail();
    return {type:'INTENT',id:dailyHash({reservationId,ordinal:r.intents.length}),reservationId,job,operation,workerToken:w.token};
   },{needsWorker:true});confirmedIntents.add(result.id);return result;},
-  fakeSend:(org,reservationId,intentId)=>run(org,(s,_at,w)=>{
+  async fakeSend(org,reservationId,intentId){
+   const send=gate=>run(org,(s,_at,w)=>{
    const original=s.events.find(e=>e.type==='INTENT'&&e.id===intentId);
-   if(original?.workerToken!==w.token||!confirmedIntents.has(intentId))dailyFail();return {type:'FAKE_SEND',reservationId,intentId};
-  },{needsWorker:true}),
+   if(original?.workerToken!==w.token||!confirmedIntents.has(intentId))dailyFail();
+   confirmedIntents.delete(intentId);return {type:'FAKE_SEND',reservationId,intentId};
+  },{needsWorker:true,gate});
+   try{return checkpointPublisher?await checkpointPublisher.withGate(send):await send();}
+   catch{confirmedIntents.delete(intentId);dailyFail();}
+  },
   response:(org,reservationId,intentId,body)=>run(org,()=>({type:'RESPONSE',reservationId,intentId,body})),
  };
 }

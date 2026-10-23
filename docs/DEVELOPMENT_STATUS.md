@@ -66,6 +66,8 @@ Allium 일별 수집의 [설계·비용 통제 검토](adr/0068-daily-allium-des
 
 [ADR0070의 전환·영속 checkpoint/대사 검토](adr/0070-legacy-allium-transition-and-checkpoint-review.md)에서 기존 로컬18개 intent/response·3개 UNKNOWN/검토 연결과 전후 원본 무변경을 읽기 확인했다. 실제 전환은 TRANSITION_BLOCKED다. 저장 usage는 run 전 자료이며 할당기간·안정 조직 연결·비용 상한/귀속이 미확인이다. 별도 비공개 검토 JSON만 보존했고 새 호출/예약·운영DB 변경은 없다. 다음 권고는 가상 자료/새 소유 PG Fixture의 영속 checkpoint publisher·복원 대사 검증이며 실제 비용 차감/legacy 이관은 포함하지 않는다.
 
+후속 사용자 승인으로 [ADR0071의 영속 publisher Fixture](adr/0071-offline-durable-checkpoint-fixture.md)를 구현했다. 불변 record·exclusive publisher/CAS·별도 trusted head·pin된 가상 송신 gate와 DB/저장소/공동복원·ACK/commit 유실·옛 intent 차단을 검증한다. 기준까지 함께 복원되는 경우의 freshness는 인증하지 않는다. 실제 legacy는 계속 TRANSITION_BLOCKED·P UNKNOWN·b_i null·c_i=0이며 운영 연결/호출/스케줄은 추가하지 않았다. 최신 시험 결과는 이번 인계문을 따른다.
+
 [ADR0044](adr/0044-read-only-database-market-preview.md)의 DB 읽기 전용 시장 API/화면 연결을 구현했다. `npm run ui -- --database --database-env .state/market-db-secrets/reader.env`로 실행하며 화면에 PostgreSQL 조회 완료와 조회 기간/표본 여부를 표시한다. DB 조회와 수집 상태는 별도다. 기본 `npm run ui`는 기존 JSON 모드다. `collector:registered -- status`로 reader 또는 최소 권한 writer가 일별5코인의 UTC 당일 결과·전체 미종료 예약 수·선정별 마지막 저장 시각·잠금407 관측을 읽기 전용으로 확인한다. 잠금은 건강 보장이 아니며 조회가 수집을 실행하지 않는다. Linux용 두 수집 서비스·코드 밖 영속 경로·로컬 구성 doctor·전환/백업/롤백 절차는 [수집 운영](COLLECTOR_SERVICE.md)에 준비했다. 실제 원격 설치·부팅/재시작·백업 복원 검증은 다음 단계다. 계정 예산·보관 정책·24시리즈 초과 조회 확장도 남았다. 기존 market:watch의 프로세스12회 상한은 유지한다. 후속 ADR0048/0049의 worker는 UTC 하루288회 상한과 DB 예약으로 계속 실행하며 공개 배포는 별도다.
 
 새 PC는 `npm ci` → `npm run setup` → `npm run doctor`로 준비한다. 과거 근거는 별도 이동 파일을 가져와 두 publisher로 복원한다. 시장 자료만 새로 받으려면 `.env.local`의 ARKM_API_KEY를 설정하고 `npm run market:collect`를 명시적으로1회 실행한다. 새 collected 이력은 기존14원본 이동 파일에 포함되지 않는다.

@@ -4,7 +4,9 @@
 
 [ADR0069의 오프라인 일별 Lab](adr/0069-offline-daily-allium-ledger-lab.md)은 비활성 계획·가상 authorization·EU 계산기와 새 PG Fixture의 공통 예약 원장을 구현한다. `npm run check:allium-daily`로 가상 응답과 장애 경로를 검증한다. 운영 연결/실행 CLI·새 공급자 호출은 없으며 기존 단발 실행기는 그대로다.
 
-[기존 예약 전환·checkpoint/대사 검토](adr/0070-legacy-allium-transition-and-checkpoint-review.md)는 로컬18개 intent/response와 검토 연결을 읽기 확인했다. 과거 usage의 할당기간·조직 연결·비용 상한/귀속이 미확인이라 실제 전환은 차단한다. 영속 publisher·복원 장애표는 후속 설계이며 기존 예약 변경·추가 호출은 없다.
+[기존 예약 전환·checkpoint/대사 검토](adr/0070-legacy-allium-transition-and-checkpoint-review.md)는 로컬18개 intent/response와 검토 연결을 읽기 확인했다. 과거 usage의 할당기간·조직 연결·비용 상한/귀속이 미확인이라 실제 전환은 차단한다. 해당 검토는 영속 publisher·복원 장애표의 설계 정본이며 기존 예약 변경·추가 호출은 없다.
+
+[ADR0071의 영속 publisher Fixture](adr/0071-offline-durable-checkpoint-fixture.md)는 가상 자료·새 소유 PG만으로 불변 게시/CAS·별도 신뢰 기준·복원/ACK 장애와 가상 송신 gate를 구현한다. 실제 legacy 이관·대사 차감·공급자 호출·운영 설치는 없다. `npm run check:allium-daily`로 검증한다.
 
 [ADR0060](adr/0060-allium-survey-and-collection-plan.md)의 CLI는 기존 등록 자료에서 검토 가능한 SELECT 세 개를 생성한다. 후속 [ADR0061](adr/0061-bounded-allium-survey-executor.md)의 단발 실행기·영속 예약은 구현했으며, 새 수집기·공급량 전환은 아직 없다. 현재 대상은 Ethereum5개, JPYC Polygon/Avalanche/Kaia3개, TRON USDT1개, Solana USDC/USDT2개다. XRPL2개는 매핑 미확인으로 보류한다. 사용자 수동 예외로 실행한 실제 범위는 [11배포 조사 결과](research/allium-samples/survey-2026-10-23.md)를 따른다. OBSERVED는 해당 응답 관측이며 제품 지원 인증이 아니다.
 
