@@ -1,0 +1,9 @@
+# 국가별 추정 보유 잔액 수집 — 테이블 거절 확인
+- 목표: 사용자 “그정도도 우리에겐 좋은 자료야 수집해줘”에 따라 Allium 추정 국가별 잔액 수집을 이어간다.
+- 끝난 것: ADR0081의 별도 고정 diagnosis 슬롯을 구현해 기존 balances query/run/SQL에 한정한 상세 GET1건을 실행했다. HTTP200·OBSERVED는 오류 정보 확보만 뜻한다. 공급자 오류는 `You used invalid tables: allium_identity.aggregates.geo_balances_daily`이며 datastore는 snowflake다. 원래 두 슬롯·legacy 원문/UNKNOWN 바이트 보존 확인. 실제 누적2run/7HTTP, 이번0run/1HTTP·재시도0·usage0·같은 SQL 재송신0. 실제 잔액은 미확보다. Lead 9c99ef1b769f403a84ce4951c0627930 revise_plan의 원인 없는 동일 SQL 재송신 금지·별도 소비·공통 잠금·증거 보존 조건을 반영했다.
+- 변경 파일: AGENTS.md, tools/allium-geography.mjs, tools/allium-geography-diagnosis.mjs, tests/allium-geography-diagnosis.test.mjs, docs/adr/0081-geographic-balance-collection-diagnosis.md, docs/research/allium-geography-availability-2026-10-24.md, docs/DEVELOPMENT_STATUS.md, docs/handoff/2026-10-24-geographic-balance-diagnosis.md
+- 검증: 실제 GET 전 npm run check rc0 tests459/pass459/fail0/cancelled0/skipped0(.state/agent-logs/geography-diagnosis-check.log). 최종 npm run check rc0 tests459/pass459/fail0/cancelled0/skipped0(.state/agent-logs/geography-diagnosis-final-check.log). node --use-env-proxy --test tests/allium-geography-diagnosis.test.mjs tests/allium-geography.test.mjs rc0 tests20/pass20/fail0/cancelled0/skipped0(.state/agent-logs/geography-diagnosis-targeted.log). git diff --check rc0.
+- 기다리는 것: 없음 — Lead 회수 완료. 기존 로컬 UI는 유지한다. 기존 미추적 docs/handoff/2026-10-22-router-lead-review.md 유지.
+- 다음 행동: 현재 계정에서 geo_balances_daily를 제공하는 테이블/전달 경로와 접근 조건을 확인한 공식 또는 계정 근거가 있으면 먼저 대조한다. 없으면 사용자에게 그 확인이 필요함을 설명한다. 기존 소비 슬롯을 재사용하거나 같은 SQL을 이름만 바꿔 재송신하지 않는다. 계정 변경·새 계약/키·새 유료 호출은 이번 진단만으로 진행하지 않는다.
+- 사용자 확인 필요: 예 — 현 계정의 지리 잔액 지원 경로·접근 조건 확인이 필요하다. 권한 부재/전역 테이블 부재/프록시 차단으로 단정하지 않는다.
+- 읽을 파일: docs/adr/0081-geographic-balance-collection-diagnosis.md, docs/research/allium-geography-availability-2026-10-24.md, docs/DEVELOPMENT_STATUS.md, tools/allium-geography-diagnosis.mjs

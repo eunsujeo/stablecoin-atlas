@@ -31,10 +31,10 @@ export async function geographyLegacyManifest(root){
  }
  await walk();return hash(records);
 }
-async function previousGeographyManifest(root,kind){
+export async function previousGeographyManifest(root,kind){
  const parent=join(root,'geography-once');let names;try{names=await readdir(parent);}catch(e){if(e.code==='ENOENT')return hash([]);throw e;}const records=[];
  for(const name of names.sort()){
-  if(name===kind)continue;if(!['discovery','balances'].includes(name))fail();
+  if(name===kind)continue;if(!['discovery','balances','balances-diagnosis-20261024'].includes(name))fail();
   const p=join(parent,name),s=await lstat(p);if(!s.isDirectory()||s.isSymbolicLink()||s.uid!==process.getuid()||s.mode&0o077)fail();
   for(const f of (await readdir(p)).sort()){const b=Buffer.from(await file(join(p,f),2097152));records.push([name,f,alliumHash(b)]);}
  }

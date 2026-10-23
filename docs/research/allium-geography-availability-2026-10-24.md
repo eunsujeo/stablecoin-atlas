@@ -21,6 +21,12 @@
 
 합계2run/6HTTP·재시도0·결과 페이지 요청0·금액 관측0. 상태 응답은 `failed`였고 상세 오류는 제공되지 않았다. 이는 공급자 조회 실행 실패이며 프록시 차단·만료 키·권한 부재·테이블 부재 중 하나로 추정하지 않는다. 비용 통제/귀속·조직/타PC 배타성은 미확인이다. 기존 archive 및 앞선 실패 원문의 바이트 보존을 확인했다. 원문·계정 식별자·승인·키는 Git/웹에 게시하지 않는다.
 
+## 후속 잔액 수집 요청의 실패 상세 확인
+
+사용자의 “그정도도 우리에겐 좋은 자료야 수집해줘” 요청에 따라 [ADR0081](../adr/0081-geographic-balance-collection-diagnosis.md)의 별도 단발 GET으로 기존 balances 실행의 상세 오류를 확보했다. 공식 [Fetch latest query run](https://docs.allium.so/api/explorer/fetch-latest-query-run)의 query_id 필터를 사용하고 원래 query/run/SQL을 대조했다. HTTP200 응답의 오류는 `You used invalid tables: allium_identity.aggregates.geo_balances_daily`다. 기존 status-only 응답에는 이 상세가 없었으며 원래 실패 기록은 수정하지 않았다.
+
+진단은1HTTP/0run·재시도0이며 실제 누적2run/7HTTP다. 이전 geography/legacy 바이트 보존을 확인했다. 오류 정보 확보와 금액 관측은 별개이며 실제 국가별 잔액은 계속 미확보다. 테이블 거절의 원인이 계정 권한인지 공개 경로 차이인지 확정하지 않는다. 같은 SQL의 새 실행은 하지 않았고 usage·공급자 전환도 없다. 재개에는 현재 계정에 제공되는 지리 잔액의 테이블/전달 경로와 접근 조건 확인이 필요하다.
+
 ## 로컬 표시
 
 `npm run allium:geography -- publish --kind balances`는 저장된 원문 hash·authorization·intent를 오프라인 확인해 확보 상태만 발행한다. 기존 loopback UI의 ‘국가·지역별 스테이블코인’은 잔액의 직접 조회 실패와 다른 두 항목의 미실행을 구분한다. 웹 요청/다시 읽기/서버 시작은 공급자를 호출하지 않는다.
