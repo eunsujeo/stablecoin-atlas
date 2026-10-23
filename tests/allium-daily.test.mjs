@@ -167,7 +167,7 @@ test('previous-day UNKNOWN and independent cap reset never authorize a new daily
  assert.equal(dailyPlan({asOfDay:'2024-03-01'}).window.from,'2024-02-23');
 });
 test('daily modules expose no provider URL, environment/credential loader, live executor or CLI',async()=>{
- for(const name of ['allium-daily-plan','allium-daily-state','allium-reconciliation-review','market-db/allium-daily-lab']){
+ for(const name of ['allium-daily-plan','allium-daily-state','allium-reconciliation-review','allium-cost-evidence-review','market-db/allium-daily-lab']){
   const source=await readFile(new URL('../tools/'+name+'.mjs',import.meta.url),'utf8');
   assert.doesNotMatch(source,/api\.allium\.so|process\.env|fetch\(|workspaceEnvironment|executeAllium|pathToFileURL/);
  }

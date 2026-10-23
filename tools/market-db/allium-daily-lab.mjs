@@ -4,6 +4,7 @@ import {transaction} from './connection.mjs';
 import {canonical,instant} from './plan.mjs';
 import {dailyHash,dailyFail,hashValue} from '../allium-daily-plan.mjs';
 import {initialDailyState,applyDailyEvent,dailyView,dailyEntryHash,sentDailyContext} from '../allium-daily-state.mjs';
+import {reviewDailyCostEvidence} from '../allium-cost-evidence-review.mjs';
 import {reviewDailyReconciliation} from '../allium-reconciliation-review.mjs';
 export {dailyEntryHash} from '../allium-daily-state.mjs';
 
@@ -132,14 +133,19 @@ export function dailyLab(c,{fixtureHash,checkpoints={},checkpointPublisher,respo
  }
  return {
   read:org=>run(org,null,{readonly:true}),
-  async reviewReconciliation(org){
+  async reviewReconciliation(org,evidence){
+   let input;try{input=evidence===undefined?undefined:structuredClone(evidence);}catch{dailyFail();}
    if(!checkpointPublisher||!responseStore)dailyFail();
    const identity=responseStore.identity(),publishedIdentity=checkpointPublisher.identity();
    if(['fixtureHash','dbEpoch','organizationHash'].some(k=>identity[k]!==publishedIdentity[k])||identity.organizationHash!==org)dailyFail();
-   let report;
+   let report,invalidEvidence=false;
    await checkpointPublisher.withGate(gate=>run(org,s=>{
-    report=reviewDailyReconciliation(s.events,{organizationHash:org,fixtureHash});return null;
+    if(input===undefined)report=reviewDailyReconciliation(s.events,{organizationHash:org,fixtureHash});
+    else try{report=reviewDailyCostEvidence(s.events,{organizationHash:org,fixtureHash},input);}catch{invalidEvidence=true;}
+    return null;
    },{readonly:true,gate}));
+   // Bad caller evidence is rejected after a successful read; storage failures still poison the gate.
+   if(invalidEvidence)dailyFail();
    return {...report,publication:'EXACT_PUBLISHED_HEAD'};
   },
   async publishCheckpoint(org){
@@ -212,5 +218,12 @@ export async function responseImportDailyLab(c,options){
 export async function reconciliationReviewDailyLab(c,options){
  if(!options.publisher||!options.responseStore)dailyFail();
  const lab=await checkpointDailyLab(c,options);
- return {review:lab.reviewReconciliation};
+ return {review:org=>lab.reviewReconciliation(org)};
+}
+
+// Synthetic evidence stays in memory; it is neither imported nor published.
+export async function costEvidenceReviewDailyLab(c,options){
+ if(!options.publisher||!options.responseStore)dailyFail();
+ const lab=await checkpointDailyLab(c,options);
+ return {review:(org,evidence)=>{if(evidence===undefined)dailyFail();return lab.reviewReconciliation(org,evidence);}};
 }

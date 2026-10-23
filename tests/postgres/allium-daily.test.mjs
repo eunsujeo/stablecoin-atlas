@@ -9,6 +9,8 @@ import {mkdtemp,realpath,chmod,rm,unlink} from 'node:fs/promises';
 import {tmpdir} from 'node:os';import {join} from 'node:path';
 import {createCheckpointStore,checkpointPublisher} from '../../tools/allium-checkpoint.mjs';
 import {checkpointDailyLab,responseImportDailyLab,reconciliationReviewDailyLab} from '../../tools/market-db/allium-daily-lab.mjs';
+import {costEvidenceReviewDailyLab} from '../../tools/market-db/allium-daily-lab.mjs';
+import {costEvidenceFor} from '../allium-cost-evidence-fixture.mjs';
 import {createResponseStore,responseStore} from '../../tools/allium-response-evidence.mjs';
 const exec=promisify(execFile),zero='0'.repeat(64),blocked=p=>assert.rejects(p,/ALLIUM_DAILY_OFFLINE_BLOCKED/);
 async function lab(t){
@@ -384,5 +386,56 @@ test('review PG17 missing or replaced original bytes and DB rollback block inste
    else {const {writeFile}=await import('node:fs/promises');await writeFile(path,'{}',{mode:0o600});}
   }
   await blocked(reviewer.review(org));assert.equal(await l.count(),before-(scenario==='db'?1:0));
+ }
+});
+
+async function costFixture(t,client){
+ const e=await reviewFixture(t),{l}=e;
+ const events=(await l.admin.query('SELECT payload FROM atlas_allium_daily_lab.entry WHERE organization_hash=$1 ORDER BY ordinal',[org])).rows.map(r=>JSON.parse(r.payload));
+ const bundle=costEvidenceFor(events,{organizationHash:org,fixtureHash:l.fixtureHash});
+ const options={fixtureHash:l.fixtureHash,publisher:e.p.publisher,responseStore:e.store};
+ return {...e,bundle,options,reviewer:await costEvidenceReviewDailyLab(client??l.reader,options)};
+}
+test('cost evidence PG17 review-only API preserves ledger, L, UNKNOWN, c zero and publication for repeated/blocked/malformed inputs',{timeout:120000},async t=>{
+ const e=await costFixture(t),{l,p,reviewer,bundle}=e;
+ assert.deepEqual(Object.keys(reviewer),['review']);
+ const before=await l.ledger.read(org),count=await l.count(),head=await p.publisher.inspect(),input=structuredClone(bundle);
+ const a=await reviewer.review(org,bundle);assert.equal(a.publication,'EXACT_PUBLISHED_HEAD');
+ assert.equal(a.evidenceReview.consistency,'CONSISTENT_SYNTHETIC_CONTRACT');assert.deepEqual(await reviewer.review(org,bundle),a);
+ assert.equal(a.reservations[0].state,'UNKNOWN');assert.equal(a.reservations[0].reconciledUnits,'0');assert.equal(a.pendingUnits,before.pendingUnits);
+ bundle.snapshots[0].finality.coverageHash=null;
+ assert.ok((await reviewer.review(org,bundle)).evidenceReview.blockers.includes('FINALITY_EVIDENCE_MISSING'));
+ bundle.snapshots[0].totalUnits=1;await blocked(reviewer.review(org,bundle));
+ assert.throws(()=>reviewer.review(org),/ALLIUM_DAILY_OFFLINE_BLOCKED/);
+ await blocked(reviewer.review(org,{unexpected:()=> 'SIMULATED_PRIVATE_TEXT'}));
+ assert.deepEqual(await reviewer.review(org,input),a);
+ const copied=structuredClone(input),inFlight=reviewer.review(org,copied);copied.snapshots[0].totalUnits=1;assert.deepEqual(await inFlight,a);
+ assert.equal(await l.count(),count);assert.deepEqual(await l.ledger.read(org),before);assert.deepEqual(await p.publisher.inspect(),head);
+ assert.doesNotMatch(JSON.stringify(a.evidenceReview),/rawHash|rawLength|sourceHash|keyLinks/);
+});
+test('cost evidence PG17 pins publication through commit; lost ACK blocks further reports without appending',{timeout:120000},async t=>{
+ const e=await costFixture(t),{l,p,bundle}=e,raw=await l.connect('reader');let intercept=false,lost=false,pins=0;
+ const wrapped={connectionParameters:raw.connectionParameters,query:async(sql,args)=>{
+  if(intercept&&sql==='COMMIT'){
+   await assert.rejects(p.publisher.publish({count:0,hash:zero},{sequence:0,hash:zero}),/ALLIUM_DAILY_OFFLINE_BLOCKED/);pins++;
+   const result=await raw.query(sql,args);if(lost)throw Error('SIMULATED_COMMIT_ACK_LOST');return result;
+  }
+  return raw.query(sql,args);
+ }};
+ const reviewer=await costEvidenceReviewDailyLab(wrapped,e.options),count=await l.count();intercept=true;
+ await reviewer.review(org,bundle);assert.equal(pins,1);lost=true;await blocked(reviewer.review(org,bundle));
+ assert.equal(await l.count(),count);await blocked(reviewer.review(org,bundle));
+});
+test('cost evidence PG17 refuses absent original bytes and unpublished head rather than publishing partial evidence',{timeout:120000},async t=>{
+ for(const scenario of ['raw','unpublished']){
+  const e=scenario==='raw'?await costFixture(t):await evidenceLab(t),{l}=e;
+  if(scenario==='raw')await unlink(join(e.path,e.ref.recordHash+'.json'));
+  else {
+   const ref=await l.ledger.preserveResponse(org,e.r.id,e.i.id,Buffer.from(ok),e.observedAt);await l.ledger.importResponse(org,ref);
+  }
+  const count=await l.count(),reviewer=await costEvidenceReviewDailyLab(l.reader,{fixtureHash:l.fixtureHash,publisher:e.p.publisher,responseStore:e.store});
+  const events=(await l.admin.query('SELECT payload FROM atlas_allium_daily_lab.entry WHERE organization_hash=$1 ORDER BY ordinal',[org])).rows.map(r=>JSON.parse(r.payload));
+  const bundle=costEvidenceFor(events,{organizationHash:org,fixtureHash:l.fixtureHash});
+  await blocked(reviewer.review(org,bundle));assert.equal(await l.count(),count);
  }
 });
