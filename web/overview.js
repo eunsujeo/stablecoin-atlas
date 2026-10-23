@@ -1,3 +1,4 @@
+import {readChartPreferences,saveChartPreferences} from './overview-preferences.js';
 import {validateRegistrationIndex,validateRegisteredHistory,registrationChartData,sameRegisteredSource} from './registration-model.js';
 import {tokenInfoButton,registeredCoinInfoButton} from './token-profile.js';
 import {beginLoading} from './loading.js';
@@ -7,9 +8,12 @@ import { validateMarket, displayAmount, ratio, units, latest } from './market-mo
 import { overviewSummary, overviewRanking, overviewEvidenceRanking } from './overview-model.js';
 const $=selector=>document.querySelector(selector);
 const node=(tag,text,cls)=>{const el=document.createElement(tag);if(text!==undefined)el.textContent=String(text);if(cls)el.className=cls;return el;};
-const state={index:null,market:null,loading:false,loaded:false,period:'30d',sourceInitialized:false,comparison:'amount',registration:null,detail:null,trendLoading:false,trendError:false,registrationFailed:false};
+const savedChart=readChartPreferences();
+const state={selectedCoin:savedChart?.coinId??'usdc',selectedSource:savedChart?.source??'history',selectedNetwork:savedChart?.networkId??'all',marketFailed:false,index:null,market:null,loading:false,loaded:false,period:savedChart?.period??'30d',sourceInitialized:!!savedChart,comparison:savedChart?.comparison??'amount',registration:null,detail:null,trendLoading:false,trendError:false,registrationFailed:false};
 let trendSequence=0,trendAbort,trendFinish;
 const trendData=()=>state.registration?registrationChartData(state.registration,state.detail):state.registrationFailed?null:state.market;
+const scopeReady=()=>!state.registrationFailed&&(!!state.registration||!!state.market&&!state.marketFailed);
+const rememberTrend=()=>saveChartPreferences({version:1,coinId:state.selectedCoin,networkId:state.selectedNetwork,source:state.selectedSource,period:state.period,comparison:state.comparison});
 const when=value=>new Date(value).toLocaleString('ko-KR',{hour12:false});
 const labels={PASS:'통과',FAIL:'실패',INCONCLUSIVE:'판정 불충분',NOT_TESTED:'미검증',NOT_APPLICABLE:'비적용',UNSUPPORTED:'지원 범위 밖'};
 async function json(path,{signal,optional=false,revalidate=false}={}){
@@ -57,7 +61,7 @@ function renderEvidenceRankings(){
   }
 }
 function populateTrendSource(){
-  const select=$('#overview-trend-source'),previous=select.value;select.replaceChildren();
+  const select=$('#overview-trend-source'),previous=state.selectedSource;select.replaceChildren();
   for(const [metric,value,label]of [['NETWORK_CIRCULATING','history','일별 유통량'],['NETWORK_MINTED','minted','일별 발행 잔액']]){
     if(state.registration?state.registration.coins.find(c=>c.id===$('#overview-trend-coin').value)?.metrics.some(m=>m.metric===metric):!state.registrationFailed&&state.market?.supplyHistory?.some(s=>s.metric===metric)){const option=node('option',label);option.value=value;select.append(option);}
   }
@@ -65,12 +69,13 @@ function populateTrendSource(){
   if(!available){const option=node('option','일별 자료 미확보');option.value='history';select.append(option);}
   select.disabled=!available;
   if([...select.options].some(o=>o.value===previous))select.value=previous;
-  if(!state.sourceInitialized&&available)state.period='1y';state.sourceInitialized=!!(state.registration||state.market);
+  else if(available&&scopeReady()){state.selectedSource=select.value;state.selectedNetwork='all';}
+  if(!state.sourceInitialized&&available)state.period='1y';state.sourceInitialized||=!!(state.registration||state.market);
   updateTrendPeriods();
 }
-function updateTrendPeriods(){for(const b of $('#overview-trend-period').querySelectorAll('button[data-period]')){b.hidden=['24h','7d'].includes(b.dataset.period);b.setAttribute('aria-pressed',String(b.dataset.period===state.period));}}
+function updateTrendPeriods(){for(const b of $('#overview-trend-period').querySelectorAll('button[data-period]')){b.hidden=['24h','7d'].includes(b.dataset.period);b.setAttribute('aria-pressed',String(b.dataset.period===state.period));}for(const b of $('#overview-trend-period').querySelectorAll('button[data-comparison]'))b.setAttribute('aria-pressed',String(b.dataset.comparison===state.comparison));}
 function populateTrendNetworks(){
-  const select=$('#overview-trend-network'),previous=select.value,data=trendData(),coinId=$('#overview-trend-coin').value;
+  const select=$('#overview-trend-network'),previous=state.selectedNetwork,data=trendData(),coinId=$('#overview-trend-coin').value;
   select.replaceChildren();
   const all=node('option','모든 네트워크');all.value='all';select.append(all);
   const available=data?networkSupplySeries(data,coinId,{source:$('#overview-trend-source').value}):[];
@@ -78,6 +83,10 @@ function populateTrendNetworks(){
   if(available.some(s=>s.network.id===previous))select.value=previous;else select.value='all';
   if(!available.length){select.replaceChildren();const option=node('option','표시할 네트워크 없음');option.value='';select.append(option);}
   select.disabled=!available.length;
+  const metric=$('#overview-trend-source').value==='minted'?'NETWORK_MINTED':'NETWORK_CIRCULATING';
+  const ready=scopeReady()&&(state.registration?sameRegisteredSource(state.detail,state.registration,{coinId,metric}):!!data);
+  // Empty/loading/failed responses do not prove that a saved network disappeared.
+  if(ready){state.selectedNetwork=select.value||'all';rememberTrend();}
 }
 function renderMarketTrend(){
   if(state.trendLoading||state.loading&&!state.market&&!state.registration&&!state.registrationFailed)return;
@@ -102,16 +111,17 @@ function renderMarketTrend(){
   for(const row of rows){
     const network=data.registry.networks.find(n=>n.id===row.networkId),item=node('button',undefined,'overview-chain-item'),heading=node('div');
     heading.append(node('strong',network.name),node('span',displayAmount(row.amount)));
-    item.type='button';item.dataset.network=row.networkId;item.setAttribute('aria-pressed',String(row.networkId===networkId));item.setAttribute('aria-label',`${coin.symbol} · ${network.name} ${metricLabel} 추이 보기`);item.addEventListener('click',()=>{$('#overview-trend-network').value=row.networkId;renderMarketTrend();$('#overview-chain-breakdown').querySelector(`[data-network="${row.networkId}"]`)?.focus({preventScroll:true});});
+    item.type='button';item.dataset.network=row.networkId;item.setAttribute('aria-pressed',String(row.networkId===networkId));item.setAttribute('aria-label',`${coin.symbol} · ${network.name} ${metricLabel} 추이 보기`);item.addEventListener('click',()=>{$('#overview-trend-network').value=row.networkId;state.selectedNetwork=row.networkId;rememberTrend();renderMarketTrend();$('#overview-chain-breakdown').querySelector(`[data-network="${row.networkId}"]`)?.focus({preventScroll:true});});
     const track=node('div',undefined,'track'),fill=node('span',undefined,'track-fill');fill.style.width=ratio(row.amount,rows[0].amount)+'%';track.append(fill);item.append(heading,track);chains.append(item);
   }
   if(!rows.length)chains.append(node('p','체인별 공급량 미확보','muted'));
   chains.scrollTop=chainScroll;
 }
 function renderMarket(){
-  const select=$('#overview-trend-coin'),previous=select.value;select.replaceChildren();
+  const select=$('#overview-trend-coin'),previous=state.selectedCoin;select.replaceChildren();
   for(const coin of trendData()?.registry.coins??[]){const option=node('option',coin.symbol);option.value=coin.id;select.append(option);}
   if(trendData()?.registry.coins.some(c=>c.id===previous))select.value=previous;
+  else if(select.options.length&&scopeReady()){state.selectedCoin=select.value;state.selectedNetwork='all';}
   select.disabled=!trendData();
   populateTrendSource();populateTrendNetworks();renderMarketTrend();
   for(const [metric,target] of [['CIRCULATING','circulating'],['COIN_TOTAL','total']]){
@@ -161,6 +171,7 @@ async function load(){
     else failed.push(index===0?'검증 근거':'시장 자료');
   }
   if(results[2].status==='fulfilled'){state.registration=results[2].value;state.registrationFailed=false;}else{state.registrationFailed=true;failed.push('공급량 자료');}
+  state.marketFailed=results[1].status!=='fulfilled';
   renderEvidence();renderMarket();renderEvidenceRankings();
   if(state.registration)await loadTrend();
   const collectionFailed=state.market?.collectionState?.state==='FAILED'||state.market?.lastBuildState==='FAILED';
@@ -176,12 +187,12 @@ new MutationObserver(theme).observe(document.documentElement,{attributes:true,at
 document.addEventListener('atlas:navigate',activate);activate();
 setInterval(()=>{if(!$('#overview-screen').hidden&&!document.hidden)load();},60000);
 
-$('#overview-trend-coin').addEventListener('change',()=>{$('#overview-trend-network').value='all';populateTrendSource();loadTrend();});
-$('#overview-trend-network').addEventListener('change',renderMarketTrend);
-$('#overview-trend-period').addEventListener('click',event=>{const button=event.target.closest('button[data-period]');if(!button)return;state.period=button.dataset.period;for(const item of $('#overview-trend-period').querySelectorAll('button[data-period]'))item.setAttribute('aria-pressed',String(item===button));renderMarketTrend();});
+$('#overview-trend-coin').addEventListener('change',()=>{state.selectedCoin=$('#overview-trend-coin').value;state.selectedNetwork='all';$('#overview-trend-network').value='all';populateTrendSource();rememberTrend();loadTrend();});
+$('#overview-trend-network').addEventListener('change',()=>{state.selectedNetwork=$('#overview-trend-network').value;rememberTrend();renderMarketTrend();});
+$('#overview-trend-period').addEventListener('click',event=>{const button=event.target.closest('button[data-period]');if(!button)return;state.period=button.dataset.period;rememberTrend();for(const item of $('#overview-trend-period').querySelectorAll('button[data-period]'))item.setAttribute('aria-pressed',String(item===button));renderMarketTrend();});
 let overviewTrendWidth=0;
 new ResizeObserver(entries=>{const bounds=entries[0].contentRect;$('#overview-chain-breakdown').style.setProperty('--supply-list-height',Math.max(180,Math.round(bounds.height)-60)+'px');const width=Math.round(bounds.width);if(width>0&&width!==overviewTrendWidth){overviewTrendWidth=width;renderMarketTrend();}}).observe($('#overview-market-trend'));
 
-$('#overview-trend-source').addEventListener('change',()=>{state.period='1y';updateTrendPeriods();$('#overview-trend-network').value='all';loadTrend();});
+$('#overview-trend-source').addEventListener('change',()=>{state.selectedSource=$('#overview-trend-source').value;state.selectedNetwork='all';state.period='1y';rememberTrend();updateTrendPeriods();$('#overview-trend-network').value='all';loadTrend();});
 
-$('#overview-trend-period').addEventListener('click',event=>{const button=event.target.closest('button[data-comparison]');if(!button)return;state.comparison=button.dataset.comparison;for(const item of $('#overview-trend-period').querySelectorAll('button[data-comparison]'))item.setAttribute('aria-pressed',String(item===button));renderMarketTrend();});
+$('#overview-trend-period').addEventListener('click',event=>{const button=event.target.closest('button[data-comparison]');if(!button)return;state.comparison=button.dataset.comparison;rememberTrend();for(const item of $('#overview-trend-period').querySelectorAll('button[data-comparison]'))item.setAttribute('aria-pressed',String(item===button));renderMarketTrend();});

@@ -19,6 +19,7 @@ const assets = new Map([
   ['/token-profile.js', ['../web/token-profile.js', 'text/javascript; charset=utf-8']],
   ['/token-profile-model.js', ['../web/token-profile-model.js', 'text/javascript; charset=utf-8']],
   ['/loading.js', ['../web/loading.js', 'text/javascript; charset=utf-8']],
+  ['/overview-preferences.js', ['../web/overview-preferences.js', 'text/javascript; charset=utf-8']],
   ['/overview.js', ['../web/overview.js', 'text/javascript; charset=utf-8']],
   ['/registration-model.js', ['../web/registration-model.js', 'text/javascript; charset=utf-8']],
   ['/overview-model.js', ['../web/overview-model.js', 'text/javascript; charset=utf-8']],
