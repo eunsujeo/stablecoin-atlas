@@ -60,6 +60,8 @@ Allium은 [Explorer 표본](research/allium-samples/README.md)에 이어 [최근
 
 ## 다음 개발 단위
 
+2026-10-24 저장된 Allium 가격3종의 [오프라인 필드 계약](research/provider-data-use-priorities-2026-10-24.md#재사용-가능한-가격-검토)을 구현했다. 고정 receipt/요청/source hash·원문 숫자 lexeme·자산·UTC/기간·누락/오류를 검사하고 실제3종의 FIELD_CONTRACT_OBSERVED 비공개 보고서를 생성했다. 통화·완전성·변화율 단위·창 정의 UNKNOWN, 기존 원본/판정/시각을 유지한다. 새 API·키·DB/UI·소비 슬롯·기본 공급자 변경은 없다. 다음은 같은 문서의 저장된 Arkham 시장/가격 이력 오프라인 검토다.
+
 [ADR0080](adr/0080-bounded-allium-geographic-data.md)의 Allium 지리 자료 수집/UI 요청과 후속 직접 호출 지시를 진행했다. 브라우저 HTML에서 Geo 링크를 확보했지만 문서 로그인이 필요했다. 계정 지리 메타데이터와 공개 공식 geo_balances_daily를 각각 직접1회 조회했으며 합계2run/6HTTP는 HTTP200 뒤 provider `failed`·UNKNOWN으로 종료됐다. 상세 사유는 미확인이다. UI에는 직접 조회한 잔액 INCONCLUSIVE/미확보·사용량/국가간 흐름 NOT_TESTED를 연결했다. 검토된 잔액 집계 표/필터 경로는 가상 자료로만 확인했으며 실제 국가별 숫자는 **미확보**다. 두 슬롯을 재소비하지 않으며 기존 live-once·원문·공급량/전송량을 보존했다. 근거는 [조사 결과](research/allium-geography-availability-2026-10-24.md)를 따른다.
 
 [ADR0078](adr/0078-windowed-survey-storage.md)의 동적7일 기간 저장·조회·표시를 완료했다. 개발 DB의 비파괴 v2 upgrade 후 기존4source/version1·137관측·6schema 보존을 확인했다. 후속 [ADR0079](adr/0079-finite-offline-schedule-simulation.md)는 가상 자료·새 소유 PG17에서 유한 UTC tick 반복 실행과 중복/재시작·ACK 유실·누적 예산·시간 경계를 검증한다. 실제 timer/스케줄·새 공급자/usage 호출·기존 DB 변경은 없다. 실제 반복 실행·비용·예약 범위는 별도 사용자 확인이 필요하며 소비된 live-once를 재사용하지 않는다.

@@ -39,6 +39,26 @@
 | Identity·국가 귀속 자료 | 해당 테이블 INVALID_TABLES, 실제 국가별 자료 미확보 | 다른 테이블 이름을 추측하거나 다른 공급자로 전환하지 않음 |
 | 나머지12개 세부 API | NOT_TESTED | 현재 우선순위에서 제외; 전체 기능 부재로 단정하지 않음 |
 
+## 재사용 가능한 가격 검토
+
+`tools/provider-price-review.mjs`와 `tests/provider-price-review.test.mjs`에 저장본 전용 필드 계약을 구현했다. 독립적으로 검토한 receipt SHA-256을 입력받아 고정 ADR0083 plan·job·POST 경로/body hash·HTTP200 JSON·단일 시도·원문 hash/바이트 수를 확인한다. 원본 receipt와 응답은 읽기만 하고 영속 소비 슬롯을 사용하지 않는다. 통화·완전성·변화율 단위·창 정의는 계속 UNKNOWN이다. 원본 확보와 가격 정확성 인증을 구분한다.
+
+```sh
+node tools/provider-price-review.mjs <검토한-receipt-sha256> <새-보고서명.json>
+```
+
+고정 입력은 `.state/allium-executor/api-capabilities-20261024`이며 보고서는 `.state/provider-price-review`에 새 이름으로만 생성한다(디렉터리0700·파일0600). 기존 보고서를 덮어쓰지 않는다. CLI는 항목별 상태/오류 코드만 출력하고 원래 가격·주소·시각 값은 비공개 보고서에만 보존한다. API·키·DB/UI·환경설정 읽기는 없다. receipt pin은 로컬 무결성 연결이며 공급자 인증이나 receipt까지 함께 바꾼 변조의 진위 증명은 아니다.
+
+계약의 범위는 다음과 같다.
+
+- 모든 입력: 최대2MiB·엄격한 UTF-8/JSON·깊이32·중복 key 거절. 숫자는 Number로 변환하지 않고 지수/소수 자릿수까지 원문 lexeme 문자열로 보존한다. 숫자 위치의 quoted string은 이번 관측 계약과 달라 INCONCLUSIVE다.
+- 공통 자산: items 정확히1개·ethereum·고정 USDC address/mint·숫자 decimals6. 가격/통계는 원래 timestamp, 이력은 각 점의 timestamp를 보존한다. UTC Z와 실제 달력 날짜를 확인한다(소수 초는 최대3자리).
+- 최신 가격/이력: price/open/high/close/low 전부 존재와 숫자 문법을 확인한다. 통계는 latest_price·low/high의24h/1h·percent_change의24h/1h를 확인한다. 값의 정확성·양수성·OHLC 관계·외부 가격 대사는 인증하지 않는다.
+- 이력: 빈 prices·중복/역순 시각·고정 요청창 밖을 거절한다. 로컬 검토창은 `[2026-10-22T00:00:00Z, 2026-10-22T00:05:00Z)`로 제한한다. 이 경계는 로컬 검토 정책이며 공급자의 끝점 포함 규칙을 인증하지 않는다. 1개 점으로 전체 창의 완전성을 판정하지 않는다.
+- 누락/null·빈 배열·오류 envelope·추가 cursor·자산/시각/숫자/원문 불일치는 INCONCLUSIVE와 고정 오류 코드로 남긴다. 관측값은 null이며0으로 채우지 않는다. receipt 구조/요청·바이트 수 오류나 파일 접근 실패는 보고서 생성 전 중단한다. 새 수집은 실행하지 않는다.
+
+실제 저장본3종은 `FIELD_CONTRACT_OBSERVED`이며 `.state/provider-price-review/20261024-field-contract.json`에 receipt/source hash·원래 요청시각·숫자 문자열을 보존했다. 이전 일회성 observation 파일도 유지한다. 이 상태는 제품 PASS·SOURCE_REVIEWED·현재 가격·지원 인증이 아니다. 가상 부정 표본은 별도 임시 디렉터리에서만 시험하며 실제 보고서에 섞지 않는다.
+
 ## 다음 구현 단위
 
-저장된 Allium 가격3개 원문의 오프라인 필드 계약과 검토 보고서를 우선한다. API·키·DB 없이 입력 hash·숫자 문자열·토큰/체인·관측시각·기간·누락/오류를 검증하고, 검토 전에는 제품의 기본 공급자를 바꾸지 않는다. 새 실제 수집·스케줄·DB/UI 연결은 별도 범위다. 과거 원문을 새 관측으로 표시하거나 비어 있는 필드를0으로 채우지 않는다.
+우선순위2의 저장된 Arkham 시장·가격 이력 필드를 오프라인에서 검토한다. 원문/receipt hash와 숫자 정밀도·시각·누락을 확인하고 전체 코인 유통량/총공급량과 체인별 공급량을 구분한다. 새 실제 수집·스케줄·DB/UI 연결·기본 공급자 전환은 별도 범위다. 과거 원문을 새 관측으로 표시하지 않는다.
