@@ -46,7 +46,7 @@
     "market:db:latest": "node --use-env-proxy tools/market-db/cli.mjs latest",
     "market:db:history": "node --use-env-proxy tools/market-db/cli.mjs history",
     "check:db": "node --use-env-proxy --test --test-concurrency=1 tests/postgres/*.test.mjs",
-    "check:allium-daily": "node --use-env-proxy --test --test-concurrency=1 tests/allium-daily.test.mjs tests/allium-checkpoint.test.mjs tests/postgres/allium-daily.test.mjs",
+    "check:allium-daily": "node --use-env-proxy --test --test-concurrency=1 tests/allium-daily.test.mjs tests/allium-checkpoint.test.mjs tests/allium-response-evidence.test.mjs tests/postgres/allium-daily.test.mjs",
     "market:db:networks": "node --use-env-proxy tools/market-db/cli.mjs networks",
     "market:db:network-history": "node --use-env-proxy tools/market-db/cli.mjs network-history",
     "market:catalog:init": "node --use-env-proxy tools/market-db/catalog-cli.mjs init",

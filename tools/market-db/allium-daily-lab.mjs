@@ -3,11 +3,11 @@ import {randomBytes} from 'node:crypto';
 import {transaction} from './connection.mjs';
 import {canonical,instant} from './plan.mjs';
 import {dailyHash,dailyFail,hashValue} from '../allium-daily-plan.mjs';
-import {initialDailyState,applyDailyEvent,dailyView} from '../allium-daily-state.mjs';
+import {initialDailyState,applyDailyEvent,dailyView,dailyEntryHash,sentDailyContext} from '../allium-daily-state.mjs';
+export {dailyEntryHash} from '../allium-daily-state.mjs';
 
 const schema='atlas_allium_daily_lab',migration=new URL('../../db/allium-daily-lab/001-initial.sql',import.meta.url),zero='0'.repeat(64);
 const quote=v=>{if(typeof v!=='string'||!/^atlas_test_[a-z]+$/.test(v))dailyFail();return '"'+v+'"';};
-export const dailyEntryHash=(org,n,previous,payload)=>dailyHash(Buffer.from(org+'\n'+n+'\n'+previous+'\n'+dailyHash(Buffer.from(payload))));
 async function fixtureGuard(c,fixtureHash){
  if(!hashValue(fixtureHash)||!['127.0.0.1','localhost','::1'].includes(c.connectionParameters?.host))dailyFail();
  const r=(await c.query("SELECT current_database() AS name,shobj_description(oid,'pg_database') AS marker FROM pg_database WHERE datname=current_database()")).rows[0];
@@ -69,14 +69,15 @@ export async function initializeDailyLab(c,{fixtureHash,writer,reader}){
  });}catch{dailyFail();}
 }
 // No environment reader, connection factory, provider client, activation path, or CLI is exposed.
-export async function checkpointDailyLab(c,{fixtureHash,publisher}){
+export async function checkpointDailyLab(c,{fixtureHash,publisher,responseStore}){
  try{
   const identity=publisher.identity();if(identity.fixtureHash!==fixtureHash||identity.dbEpoch!==fixtureHash)dailyFail();
+  if(responseStore){const r=responseStore.identity();if(['fixtureHash','dbEpoch','organizationHash'].some(k=>r[k]!==identity[k]))dailyFail();}
   const published=await publisher.inspect();
-  return dailyLab(c,{fixtureHash,checkpoints:{[identity.organizationHash]:published.checkpoint},checkpointPublisher:publisher});
+  return dailyLab(c,{fixtureHash,checkpoints:{[identity.organizationHash]:published.checkpoint},checkpointPublisher:publisher,responseStore});
  }catch{dailyFail();}
 }
-export function dailyLab(c,{fixtureHash,checkpoints={},checkpointPublisher}){
+export function dailyLab(c,{fixtureHash,checkpoints={},checkpointPublisher,responseStore}){
  const anchors=new Map(Object.entries(structuredClone(checkpoints))),workers=new Map(),confirmedReservations=new Map(),confirmedIntents=new Set();
  async function lock(org){if(!hashValue(org))dailyFail();await c.query('SELECT pg_advisory_xact_lock(18471236,hashtext($1))',[org]);}
  async function worker(org,pid){
@@ -96,6 +97,11 @@ export function dailyLab(c,{fixtureHash,checkpoints={},checkpointPublisher}){
   for(const [index,r]of rows.entries()){
    if(r.ordinal!==index+1||r.previous_hash!==previous||r.event_hash!==dailyEntryHash(org,r.ordinal,previous,r.payload))dailyFail();
    const e=JSON.parse(r.payload);if(canonical(e)!==r.payload)dailyFail();applyDailyEvent(s,e);previous=r.event_hash;
+   if(e.type==='RESPONSE_IMPORTED'&&e.evidence.fixtureHash!==fixtureHash)dailyFail();
+   if(e.type==='RESPONSE_IMPORTED'&&responseStore){
+    const saved=await responseStore.read({storeHash:e.evidence.storeHash,recordHash:e.evidenceHash});
+    if(canonical(saved)!==canonical(e.evidence))dailyFail();
+   }
   }
   return {s,head:{count:rows.length,hash:previous},bytes:BigInt(totals.bytes)};
  }
@@ -162,6 +168,32 @@ export function dailyLab(c,{fixtureHash,checkpoints={},checkpointPublisher}){
    try{return checkpointPublisher?await checkpointPublisher.withGate(send):await send();}
    catch{confirmedIntents.delete(intentId);dailyFail();}
   },
-  response:(org,reservationId,intentId,body)=>run(org,()=>({type:'RESPONSE',reservationId,intentId,body})),
+  response:async(org,reservationId,intentId,body)=>{if(responseStore)dailyFail();return run(org,()=>({type:'RESPONSE',reservationId,intentId,body}));},
+  async preserveResponse(org,reservationId,intentId,bytes,observedAt){
+   try{
+    if(!responseStore)dailyFail();const identity=responseStore.identity();
+    if(identity.fixtureHash!==fixtureHash||identity.dbEpoch!==fixtureHash||identity.organizationHash!==org)dailyFail();
+    let metadata;await run(org,s=>{metadata={...sentDailyContext(s,reservationId,intentId),observedAt};return null;},{readonly:true});
+    return await responseStore.preserve(metadata,bytes);
+   }catch{dailyFail();}
+  },
+  async importResponse(org,reference){
+   try{
+    reference=structuredClone(reference);
+    if(!responseStore)dailyFail();const evidence=await responseStore.read(reference);
+    if(evidence.fixtureHash!==fixtureHash||evidence.organizationHash!==org)dailyFail();
+    return await run(org,s=>{
+     const existing=s.events.find(e=>e.type==='RESPONSE_IMPORTED'&&e.evidenceHash===reference.recordHash);
+     if(existing){if(canonical(existing.evidence)!==canonical(evidence))dailyFail();return null;}
+     return {type:'RESPONSE_IMPORTED',evidenceHash:reference.recordHash,evidence};
+    });
+   }catch{dailyFail();}
+  },
  };
+}
+// Recovery has no worker/intent/send/ordinary response/reservation entry point.
+export async function responseImportDailyLab(c,options){
+ if(!options.publisher||!options.responseStore)dailyFail();
+ const lab=await checkpointDailyLab(c,options);
+ return {read:lab.read,importResponse:lab.importResponse,publishCheckpoint:lab.publishCheckpoint};
 }

@@ -1,7 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {dailyPlan,verifyDailyPlan,dailyHash,eu,euText,dailyBudget,validateSimulationAuthorization} from '../tools/allium-daily-plan.mjs';
-import {initialDailyState,applyDailyEvent,dailyView,dailyReservationState} from '../tools/allium-daily-state.mjs';
+import {initialDailyState,applyDailyEvent,dailyView,dailyReservationState,sentDailyContext} from '../tools/allium-daily-state.mjs';
 import {simulation,simulationOrg as org,dailyResponse} from './allium-daily-fixture.mjs';
 const at='2026-10-23T10:00:00.000000Z';
 const blocked=fn=>assert.throws(fn,/ALLIUM_DAILY_OFFLINE_BLOCKED/);
@@ -20,6 +20,25 @@ function send(f,job,operation,body){
  f.add({type:'RESPONSE',reservationId:f.id,intentId:id,body:typeof body==='string'?body:JSON.stringify(body)});return id;
 }
 const ok={state:'OK',referenceHash:dailyHash('SIMULATED REFERENCE')};
+test('import replay validates result bytes at original observation time, preserves UNKNOWN, and cannot complete or rearm jobs',()=>{
+ for(const scenario of ['valid','cost','sql','period']){
+  const f=setup();send(f,'supply','create',ok);send(f,'supply','run',ok);send(f,'supply','status',{status:'success'});
+  const id=dailyHash({reservationId:f.id,ordinal:3});f.add({type:'INTENT',id,reservationId:f.id,job:'supply',operation:'result'});
+  f.add({type:'FAKE_SEND',reservationId:f.id,intentId:id});
+  const raw=Buffer.from(dailyResponse(f.plan,'supply',scenario==='cost'?{cost:'0.200000000000000001'}:scenario==='sql'?{echo:'SELECT SIMULATED_WRONG_QUERY'}:{}));
+  const evidence={...sentDailyContext(f.s,f.id,id),schema:1,kind:'ALLIUM_OFFLINE_SIMULATED_RESPONSE',storeHash:dailyHash('FAKE STORE'),
+   fixtureHash:dailyHash('FAKE EPOCH'),dbEpoch:dailyHash('FAKE EPOCH'),organizationHash:org,observedAt:at,
+   rawLength:raw.length,rawHash:dailyHash(raw),rawBase64:raw.toString('base64')};
+  if(scenario==='period')evidence.observedAt='2026-11-01T10:00:00.000000Z';
+  const event={type:'RESPONSE_IMPORTED',organizationHash:org,at:'2026-11-02T10:00:00.000000Z',evidence,evidenceHash:dailyHash(evidence)};
+  if(scenario==='period'){blocked(()=>applyDailyEvent(f.s,event));continue;}
+  applyDailyEvent(f.s,event);const v=dailyView(f.s),r=f.s.reservations[0];
+  assert.equal(v.reservations[0].importedResponses[0].reviewed.state,scenario==='valid'?'VALIDATED':'UNKNOWN');
+  assert.equal(r.intents[3].response,null);assert.equal(r.jobs[0].complete,false);assert.equal(v.reservations[0].state,'UNKNOWN');assert.equal(v.pendingUnits,'0.5');
+  blocked(()=>applyDailyEvent(f.s,event));
+  blocked(()=>applyDailyEvent(f.s,{type:'RESPONSE',organizationHash:org,at:event.at,reservationId:f.id,intentId:id,body:raw.toString()}));
+ }
+});
 test('daily plans remain offline, bind exact approved SQL/identity, exclude registry and XRPL execution',()=>{
  const p=dailyPlan({asOfDay:'2026-10-23'});assert.deepEqual(p.jobs.map(j=>j.kind),['supply','volume']);assert.equal(p.executionEnabled,false);
  assert.deepEqual(p.window,{from:'2026-10-16',untilExclusive:'2026-10-23',days:7,dateBasis:'PROVIDER_DAY',aggregateTimezone:'UNKNOWN'});

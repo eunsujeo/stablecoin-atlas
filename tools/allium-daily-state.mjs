@@ -1,6 +1,19 @@
 import {canonical,epochMicros,instant} from './market-db/plan.mjs';
 import {parseHistorySource} from './supply-history-source.mjs';
 import {dailyHash,dailyFail,hashValue,eu,euText,validateSimulationAuthorization,verifyDailyPlan,dailyBudget,dailyResult} from './allium-daily-plan.mjs';
+import {validateResponseEvidence} from './allium-response-evidence.mjs';
+
+export const dailyEntryHash=(org,n,previous,payload)=>dailyHash(Buffer.from(org+'\n'+n+'\n'+previous+'\n'+dailyHash(Buffer.from(payload))));
+export function sentDailyContext(s,reservationId,intentId){
+ const r=s.reservations.find(r=>r.id===reservationId),i=r?.intents.find(i=>i.id===intentId);
+ if(!i?.sent||i.response||i.imported)dailyFail();
+ let hash='0'.repeat(64);
+ for(const [n,e]of s.events.entries()){
+  hash=dailyEntryHash(s.organizationHash,n+1,hash,canonical(e));
+  if(e.type==='FAKE_SEND'&&e.reservationId===reservationId&&e.intentId===intentId)return {reservationId,intentId,job:i.job,operation:i.operation,sendHead:{count:n+1,hash}};
+ }
+ dailyFail();
+}
 
 export const initialDailyState=organizationHash=>{
  if(!hashValue(organizationHash))dailyFail();return {organizationHash,events:[],usages:[],reservations:[]};
@@ -94,7 +107,22 @@ export function applyDailyEvent(s,event){
   assert(r&&i&&!i.sent&&!i.response&&!r.blocked);activeGate(s,r,event.at);i.sent=true;
  }else if(event.type==='RESPONSE'){
   const r=s.reservations.find(r=>r.id===event.reservationId),i=r?.intents.find(i=>i.id===event.intentId);
-  assert(i&&i.sent&&!i.response);i.response=response(r,i,event.body,event.at);
+  assert(i&&i.sent&&!i.response&&!i.imported);i.response=response(r,i,event.body,event.at);
+ }else if(event.type==='RESPONSE_IMPORTED'){
+  const evidence=event.evidence,bytes=validateResponseEvidence(evidence);
+  assert(hashValue(event.evidenceHash)&&event.evidenceHash===dailyHash(evidence)&&evidence.organizationHash===s.organizationHash);
+  const context=sentDailyContext(s,evidence.reservationId,evidence.intentId);
+  for(const k of ['reservationId','intentId','job','operation','sendHead'])assert(canonical(context[k])===canonical(evidence[k]));
+  const r=s.reservations.find(r=>r.id===evidence.reservationId),i=r.intents.find(i=>i.id===evidence.intentId);
+  const original=epochMicros(evidence.observedAt),send=s.events[context.sendHead.count-1];
+  assert(original>=epochMicros(send.at)&&original<=epochMicros(event.at));
+  for(const [start,end]of [['allocationStart','allocationEnd'],['billingStart','billingEnd'],['capStart','capEnd']])
+   assert(original>=epochMicros(r.authorization[start])&&original<epochMicros(r.authorization[end]));
+  // Validate a copy at the original observation time. Import never completes jobs or restores execution ACKs.
+  let reviewed;
+  try{reviewed=response(structuredClone(r),i,new TextDecoder('utf-8',{fatal:true}).decode(bytes),evidence.observedAt);}
+  catch{reviewed={state:'UNKNOWN'};}
+  i.imported={evidenceHash:event.evidenceHash,rawHash:evidence.rawHash,observedAt:evidence.observedAt,reviewedAt:event.at,reviewed};
  }else dailyFail();
  s.events.push(structuredClone(event));return s;
 }
@@ -104,6 +132,7 @@ export function dailyView(s){
   pendingUnits:euText(s.reservations.reduce((n,r)=>n+eu(r.reservedUnits),0n)),
   usages:s.usages.map(u=>({day:u.day,state:u.state})),
   reservations:s.reservations.map(r=>({id:r.id,day:r.day,kind:r.kind,state:dailyReservationState(r),reservedUnits:r.reservedUnits,
-   fakeSends:r.intents.filter(i=>i.sent).length,intents:r.intents.length})),
+   fakeSends:r.intents.filter(i=>i.sent).length,intents:r.intents.length,
+   importedResponses:r.intents.filter(i=>i.imported).map(i=>({intentId:i.id,...i.imported}))})),
   stateHash:dailyHash(canonical(s.events))};
 }

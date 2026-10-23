@@ -8,7 +8,8 @@ import {canonical} from '../../tools/market-db/plan.mjs';
 import {mkdtemp,realpath,chmod,rm,unlink} from 'node:fs/promises';
 import {tmpdir} from 'node:os';import {join} from 'node:path';
 import {createCheckpointStore,checkpointPublisher} from '../../tools/allium-checkpoint.mjs';
-import {checkpointDailyLab} from '../../tools/market-db/allium-daily-lab.mjs';
+import {checkpointDailyLab,responseImportDailyLab} from '../../tools/market-db/allium-daily-lab.mjs';
+import {createResponseStore,responseStore} from '../../tools/allium-response-evidence.mjs';
 const exec=promisify(execFile),zero='0'.repeat(64),blocked=p=>assert.rejects(p,/ALLIUM_DAILY_OFFLINE_BLOCKED/);
 async function lab(t){
  const f=await fixture(),clients=[],fixtureHash=dailyHash(randomBytes(32)),name='atlas_daily_fixture_'+randomBytes(8).toString('hex');
@@ -227,4 +228,89 @@ test('checkpoint PG17 intent/send commit ACK loss and post-publication worker lo
   const v=await dailyLab(l.reader,{fixtureHash:l.fixtureHash}).read(org);
   assert.equal(v.reservations[0].fakeSends,scenario==='send-commit'?1:0);assert.equal(v.reservations[0].state,'UNKNOWN');assert.equal(v.reservations[0].reservedUnits,'0.5');
  }
+});
+async function evidenceLab(t,{writerFault,storeFault,publishFault}={}){
+ const l=await lab(t),raw=l.writer;
+ if(writerFault)l.writer={connectionParameters:raw.connectionParameters,query:async(...args)=>writerFault(raw,args)};
+ const p=await publishedLab(t,l,{fault:publishFault}),path=join(p.root,'responses');
+ const config=await createResponseStore(path,{fixtureHash:l.fixtureHash,organizationHash:org});
+ const store=await responseStore(path,{...config,fault:storeFault});
+ l.ledger=await checkpointDailyLab(l.writer,{fixtureHash:l.fixtureHash,publisher:p.publisher,responseStore:store});
+ const f=await seed(l),r=await l.ledger.reserve(org,f.plan,f.authorization),i=await l.ledger.intent(org,r.id,'supply','create');
+ await l.ledger.publishCheckpoint(org);await l.ledger.fakeSend(org,r.id,i.id);
+ const observedAt=await l.now();
+ const recovery=async(client=undefined)=>responseImportDailyLab(client??await l.connect(),{fixtureHash:l.fixtureHash,publisher:p.publisher,responseStore:store});
+ return {l,p,path,config,store,r,i,f,observedAt,recovery};
+}
+test('response PG17 restart import preserves original UNKNOWN/budget/time, serializes duplicate imports and exposes no send API',{timeout:120000},async t=>{
+ const e=await evidenceLab(t),{l,r,i}=e,ref=await l.ledger.preserveResponse(org,r.id,i.id,Buffer.from(' '+ok+'\n'),e.observedAt);
+ const a=await e.recovery(),b=await e.recovery();assert.deepEqual(Object.keys(a).sort(),['importResponse','publishCheckpoint','read']);
+ const before=await l.count();await Promise.all([a.importResponse(org,ref),b.importResponse(org,ref)]);assert.equal(await l.count(),before+1);
+ const v=await a.read(org),entry=v.reservations[0].importedResponses[0];
+ assert.equal(v.reservations[0].state,'UNKNOWN');assert.equal(v.reservations[0].fakeSends,1);assert.equal(v.pendingUnits,'0.5');
+ assert.equal(v.reconciliation,'NOT_ENABLED_C_ZERO');assert.equal(entry.observedAt,e.observedAt);assert.equal(entry.reviewed.state,'OK');
+ assert.ok(entry.reviewedAt>=entry.observedAt);assert.equal(v.providerRequests,0);
+ await blocked(l.ledger.response(org,r.id,i.id,ok));await blocked(l.ledger.intent(org,r.id,'supply','run'));
+ await a.publishCheckpoint(org);await blocked(l.ledger.fakeSend(org,r.id,i.id));
+ assert.equal((await a.read(org)).reservations[0].fakeSends,1);
+});
+test('response PG17 DB INSERT failure and commit ACK loss recover by import only, without duplicate events',{timeout:120000},async t=>{
+ for(const scenario of ['insert','commit']){
+  let fail=false;
+  const e=await evidenceLab(t,{writerFault:async(raw,args)=>{
+   if(fail&&scenario==='insert'&&String(args[0]).startsWith('INSERT INTO atlas_allium_daily_lab.entry')){fail=false;throw Error('SIMULATED_INSERT_FAILURE');}
+   const v=await raw.query(...args);if(fail&&scenario==='commit'&&String(args[0])==='COMMIT'){fail=false;throw Error('SIMULATED_COMMIT_ACK_LOSS');}return v;
+  }}),{l,r,i}=e;
+  const ref=await l.ledger.preserveResponse(org,r.id,i.id,Buffer.from(ok),e.observedAt),before=await l.count();
+  fail=true;await blocked(l.ledger.importResponse(org,ref));assert.equal(await l.count(),before+(scenario==='commit'?1:0));
+  const recovery=await e.recovery();await recovery.importResponse(org,ref);await recovery.importResponse(org,ref);assert.equal(await l.count(),before+1);
+  const v=await recovery.read(org);assert.equal(v.reservations[0].fakeSends,1);assert.equal(v.pendingUnits,'0.5');assert.equal(v.reservations[0].state,'UNKNOWN');
+ }
+});
+test('response PG17 wrong ancestry/identity/observation period cannot import; malformed exact bytes remain UNKNOWN',{timeout:120000},async t=>{
+ const e=await evidenceLab(t),{l,r,i}=e,valid=await l.ledger.preserveResponse(org,r.id,i.id,Buffer.from(ok),e.observedAt),record=await e.store.read(valid);
+ const {rawHash,rawLength,rawBase64,schema,kind,storeHash,fixtureHash,dbEpoch,organizationHash,...metadata}=record;
+ const before=await l.count();
+ for(const patch of [{sendHead:{...metadata.sendHead,hash:zero}},{sendHead:{count:5,hash:metadata.sendHead.hash}},
+  {intentId:dailyHash('OTHER INTENT')},{reservationId:dailyHash('OTHER RESERVATION')},{job:'volume'},{operation:'run'},
+  {observedAt:'2000-01-01T00:00:00.000000Z'},{observedAt:'2099-01-01T00:00:00.000000Z'}]){
+  const ref=await e.store.preserve({...metadata,...patch},Buffer.from(ok));await blocked(l.ledger.importResponse(org,ref));assert.equal(await l.count(),before);
+ }
+ const malformed=await e.store.preserve(metadata,Buffer.from([0xff,0x00,0x7b]));await l.ledger.importResponse(org,malformed);
+ const v=await l.ledger.read(org);assert.equal(v.reservations[0].importedResponses[0].reviewed.state,'UNKNOWN');assert.equal(v.reservations[0].state,'UNKNOWN');
+ await blocked(l.ledger.importResponse(org,valid));assert.equal(await l.count(),before+1);
+});
+test('response PG17 vault rollback and DB rollback cannot satisfy current evidence/trusted publication',{timeout:120000},async t=>{
+ const e=await evidenceLab(t),{l,r,i}=e,ref=await l.ledger.preserveResponse(org,r.id,i.id,Buffer.from(ok),e.observedAt);
+ const before=await l.count();await l.ledger.importResponse(org,ref);const trusted=await l.ledger.publishCheckpoint(org);
+ const {readFile,writeFile}=await import('node:fs/promises'),path=join(e.path,ref.recordHash+'.json'),bytes=await readFile(path);
+ await unlink(path);await blocked((await e.recovery()).read(org));
+ await writeFile(path,bytes,{mode:0o600});await l.admin.query('ALTER TABLE atlas_allium_daily_lab.entry DISABLE TRIGGER immutable_record');
+ await l.admin.query('DELETE FROM atlas_allium_daily_lab.entry WHERE ordinal>$1',[before]);await l.admin.query('ALTER TABLE atlas_allium_daily_lab.entry ENABLE TRIGGER immutable_record');
+ await blocked((await e.recovery()).importResponse(org,ref));await blocked((await e.recovery()).read(org));
+ assert.ok(trusted.trusted.hash);assert.equal((await dailyLab(l.reader,{fixtureHash:l.fixtureHash}).read(org)).reservations[0].fakeSends,1);
+});
+test('response PG17 response fsync/ACK uncertainty retains UNKNOWN; import publication ACK loss grants no send rights',{timeout:120000},async t=>{
+ for(const point of ['record-write','file-sync','directory-sync','response-ack']){
+  const e=await evidenceLab(t,{storeFault:async where=>{if(where===point)throw Error('SIMULATED_STORE_FAILURE');}}),{l,r,i}=e;
+  await blocked(l.ledger.preserveResponse(org,r.id,i.id,Buffer.from(ok),e.observedAt));
+  const v=await l.ledger.read(org);assert.equal(v.reservations[0].fakeSends,1);assert.equal(v.reservations[0].state,'UNKNOWN');assert.equal(v.pendingUnits,'0.5');
+ }
+ let fail=false;const e=await evidenceLab(t,{publishFault:async where=>{if(fail&&where==='publication-ack')throw Error('SIMULATED_PUBLICATION_ACK_LOSS');}}),{l,r,i}=e;
+ const ref=await l.ledger.preserveResponse(org,r.id,i.id,Buffer.from(ok),e.observedAt),recovery=await e.recovery();await recovery.importResponse(org,ref);
+ fail=true;await blocked(recovery.publishCheckpoint(org));await blocked(l.ledger.fakeSend(org,r.id,i.id));
+ const v=await recovery.read(org);assert.equal(v.reservations[0].fakeSends,1);assert.equal(v.pendingUnits,'0.5');assert.equal(v.providerRequests,0);
+});
+test('response PG17 full result bytes import without marking the job complete or releasing budget',{timeout:120000},async t=>{
+ const l=await lab(t),f=await seed(l),r=await l.ledger.reserve(org,f.plan,f.authorization);
+ await send(l,r.id,'supply','create',ok);await send(l,r.id,'supply','run',ok);await send(l,r.id,'supply','status',JSON.stringify({status:'success'}));
+ const i=await l.ledger.intent(org,r.id,'supply','result');await l.ledger.fakeSend(org,r.id,i.id);
+ const observedAt=await l.now(),p=await publishedLab(t,l),path=join(p.root,'responses');
+ const config=await createResponseStore(path,{fixtureHash:l.fixtureHash,organizationHash:org}),store=await responseStore(path,config);
+ l.ledger=await checkpointDailyLab(l.writer,{fixtureHash:l.fixtureHash,publisher:p.publisher,responseStore:store});
+ const bytes=Buffer.from(dailyResponse(f.plan,'supply')),ref=await l.ledger.preserveResponse(org,r.id,i.id,bytes,observedAt);
+ assert.ok(bytes.length>16384);const recovery=await responseImportDailyLab(await l.connect(),{fixtureHash:l.fixtureHash,publisher:p.publisher,responseStore:store});
+ const v=await recovery.importResponse(org,ref);assert.equal(v.reservations[0].importedResponses[0].reviewed.state,'VALIDATED');
+ assert.equal(v.reservations[0].state,'UNKNOWN');assert.equal(v.pendingUnits,'0.5');assert.equal(v.reservations[0].fakeSends,4);
+ await recovery.publishCheckpoint(org);assert.deepEqual(await recovery.read(org),v);
 });
