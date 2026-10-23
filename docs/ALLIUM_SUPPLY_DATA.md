@@ -42,3 +42,5 @@ read의 `totalSupply`, `circulatingSupply`, `adjustedCirculatingSupply`는 독�
 ## 로컬 표본 화면
 
 `npm run ui -- --database --database-env .state/market-db-secrets/reader.env`의 Overview에서 **Allium 공급량 · 과거 표본**을 확인한다. 표본 토큰 필터와 행별 관측 근거를 제공하며 정확한 문자열·null·원래 시각/hash를 보존한다. 누락·조회 실패·미연결과 마지막 정상 자료의 표시 규칙, 웹 읽기 경계는 ADR0064를 따른다. 기본 JSON 모드에는 이 DB 표본을 복제하지 않는다. 원문과 private 검증 자료는 Git/웹에 게시하지 않는다.
+
+후속 사용자 승인 [다중 체인 저장 조사](ALLIUM_SURVEY_DATA.md)는 별도 atlas_survey와 로컬 표를 사용한다. 기존 표본/조회 경로는 유지하며 새 공급자 호출·자동 수집·기본 공급자 전환은 추가하지 않는다.

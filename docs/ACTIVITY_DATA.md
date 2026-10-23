@@ -30,7 +30,7 @@ npm run market:activity:db -- read --env-file .state/market-db-secrets/reader.en
 
 사용자가 정한 기본은 Allium, 장애 시 보조는 DeFiLlama다. 전송량에는 검증된 동등 DeFiLlama 경로가 없어 자동 대체하지 않는다. 공급량 전체를 Allium 기본으로 전환하는 작업과 실제 DeFiLlama 보조 연결은 아직 구현하지 않았다. [기존 공급량 차이](research/allium-samples/followup.md)를 보존하며, 정의가 다른 값으로 그래프를 이어 붙이지 않는다. `providerChoice`는 현재 화면의 마지막 정상 자료 유지에 사용하며 backup 경로는 동등성이 검증된 호출자가 명시할 때만 선택 가능한 정책 함수다.
 
-전송량 연결은 저장된 검토 원문의 import다. 후속 [조사 실행기](ALLIUM_COLLECTION_PLAN.md)는 별도 CLI의 승인 배포별 SQL·영속 예산 예약·영수증과 오프라인 원문 검토를 제공한다. usage GET1회만 확인했고 과금 한도 미확인으로 조사 query 생성/실행은0회다. 일별 자동 수집·다른 네트워크 지원·공급량 전환은 아직 추가하지 않았다.
+전송량 연결은 저장된 검토 원문의 import다. 후속 [조사 실행기](ALLIUM_COLLECTION_PLAN.md)는 별도 CLI의 승인 배포별 SQL·영속 예산 예약·영수증과 오프라인 원문 검토를 제공한다. 후속 사용자 승인 수동 조사 실행 결과는 [11배포 조사 기록](research/allium-samples/survey-2026-10-23.md)을 따른다. 일별 자동 수집·다른 네트워크 지원·공급량 전환은 아직 추가하지 않았다.
 
 ## 검증 기록
 
@@ -38,3 +38,5 @@ npm run market:activity:db -- read --env-file .state/market-db-secrets/reader.en
 - PG17: 최소 역할, 중복/동시 import, 구시각/수정/충돌, source 삽입 뒤 fact 오류의 transaction rollback, trigger 변조 시 거부.
 - 실제 DB: 60행·5코인·원래 수량/조정값/최신일 대조, replay0, 기존 schema 구조 동일, 새 공급자 요청0.
 - 브라우저: 5열 스켈레톤·정확한 값/기준일·오류 시 마지막 정상 자료·복구·F5·dark/light·390px·외부 요청/JS 오류 없음.
+
+후속 사용자 승인 [다중 체인 저장 조사](ALLIUM_SURVEY_DATA.md)는 별도 atlas_survey와 로컬 표를 사용한다. 기존 표본/조회 경로는 유지하며 새 공급자 호출·자동 수집·기본 공급자 전환은 추가하지 않는다.

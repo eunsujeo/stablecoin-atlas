@@ -17,7 +17,7 @@ node tools/allium-plan-cli.mjs review --day 2026-10-23 --kind supply \
 
 kind는 registry/supply/volume 중 하나다. 원문 형식은 Explorer results의 sql·data·meta.row_count·queried_at이다. 조회 시각은 예약일 이후여야 한다. 현재 등록 자료/계획과 다른 SQL, 누락된 배포, 중복, sentinel 행, 기간 밖 날짜, Number 수량은 오류다. 이 명령은 DB import나 외부 실행 성공을 인증하지 않으며 실제 요청 횟수 영수증을 생성하지 않는다. stdout에는 공개용 선별 필드만 반환하고 원문의 계정 query/run 식별자는 버린다.
 
-일곱 날짜 겹침·지연/수정과 보조 공급자 조건은 ADR0060을 따른다. 실제 실행 경계는 ADR0061을 따른다. [별도 공급량 저장/조회](ALLIUM_SUPPLY_DATA.md)는 기존 검토 Ethereum 두 자산14행에 한해 기존 비공개 DB 설치·대조·재생0까지 완료했다. 실제 조사·전체 공급량 전환·일별 자동 수집은 아직 미완료다.
+일곱 날짜 겹침·지연/수정과 보조 공급자 조건은 ADR0060을 따른다. 실제 실행 경계는 ADR0061과 후속 수동 예외 ADR0065/0066을 따른다. [별도 공급량 저장/조회](ALLIUM_SUPPLY_DATA.md)는 기존 검토 Ethereum 두 자산14행을 유지한다. 실제11배포 조사 결과는 아래 기록을 따르며 전체 공급량 전환·일별 자동 수집은 아직 미완료다.
 
 ## 단발 실행 CLI
 
@@ -63,3 +63,5 @@ node tools/allium-execute-cli.mjs review --day D --kind supply \
 status/review는 네트워크나 환경변수 읽기 없이 동작한다. review는 archive 원문을 검증하는 것뿐이며 receipt/예약/DB를 변경하지 않는다. 공개 요약의 observedExplorerUnits는 확보된 원문 비용 문자열, null은 미확보다. 실패·미완료 job은 후속 job을 실행하지 않는다.
 
 2026-10-23 최초 확인은 usage GET1회뿐이었고 strict 실행 조건은 미확보였다. 후속 사용자 승인 수동 예외로 **create3/run3·총17HTTP**를 수행했다. 등록11·공급량70·전송량67개 OBSERVED와 누락을 구분한 [실제 결과](research/allium-samples/survey-2026-10-23.md)를 따른다. 강제 과금 상한은 계속 UNCONFIRMED이며 원문·영수증은 Git/웹에 게시하지 않는다.
+
+후속 사용자 승인 [다중 체인 저장 조사](ALLIUM_SURVEY_DATA.md)는 별도 atlas_survey와 로컬 표를 사용한다. 기존 표본/조회 경로는 유지하며 새 공급자 호출·자동 수집·기본 공급자 전환은 추가하지 않는다.

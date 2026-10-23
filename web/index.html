@@ -43,6 +43,17 @@
         <div class="table-scroll"><table class="overview-market-table"><caption class="sr-only">Ethereum 스테이블코인 일별 전송량</caption><thead><tr><th scope="col">토큰</th><th scope="col">전송량 (tokens)</th><th scope="col">환산 전송량 (USD)</th><th scope="col">전송 건수</th><th scope="col">기준일</th></tr></thead><tbody id="overview-activity-rows"></tbody></table></div>
         <p class="chart-note">매매 거래량과 다릅니다. — 자료 미확보</p>
       </section>
+      <section id="overview-survey" class="panel overview-market-table-panel" aria-labelledby="overview-survey-title">
+        <div class="panel-heading"><div><h2 id="overview-survey-title">Allium 다중 체인 · 저장 조사</h2><p>11개 배포 / 2026-10-16~22 / 공급량 · 지갑 간 전송량</p></div>
+          <label class="market-select"><span>자료</span><select data-survey-kind><option value="supply">공급량</option><option value="volume">전송량</option></select></label>
+          <label class="market-select"><span>토큰</span><select data-survey-coin><option value="all">전체</option></select></label>
+          <label class="market-select"><span>네트워크</span><select data-survey-network><option value="all">전체</option></select></label>
+        </div>
+        <p class="chart-note" role="status" aria-live="polite">저장 조사 읽는 중</p>
+        <div class="table-scroll survey-table-scroll" tabindex="0" role="region" aria-label="Allium 다중 체인 일별 조사 표"><table class="overview-market-table"><caption class="sr-only">고정 11개 배포의 공급량과 전송량</caption><thead><tr></tr></thead><tbody id="overview-survey-rows"></tbody></table></div>
+        <p class="chart-note">OBSERVED: 응답 관측 / INCONCLUSIVE: 공급자 조회 미일치 / 미확보: 해당 날짜 행 없음 / —: 필드 null. XRPL USDC·RLUSD는 NOT_TESTED.</p>
+        <p class="chart-note">공급자 기준일 · 집계 시간대 미확인 · 최소 단위 정밀도 미검증. 전송량은 매매 거래량과 다르며 각 공급량 열은 별도 정의입니다. 저장된 과거 조사이며 자산 지원 인증이 아닙니다.</p>
+      </section>
       <section id="overview-reviewed-supply" class="panel overview-market-table-panel" aria-labelledby="overview-reviewed-title">
         <div class="panel-heading"><div><h2 id="overview-reviewed-title">Allium 공급량 · 과거 표본</h2><p>Ethereum USDC · USDT / 2026-10-16~22 / tokens</p></div><label class="market-select"><span>표본 토큰</span><select id="overview-reviewed-coin"><option value="all">전체</option><option value="usdc">USDC</option><option value="usdt">USDT</option></select></label></div>
         <p class="chart-note" role="status" aria-live="polite">저장 표본 읽는 중</p>
