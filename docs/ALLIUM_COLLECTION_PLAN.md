@@ -17,7 +17,7 @@ node tools/allium-plan-cli.mjs review --day 2026-10-23 --kind supply \
 
 kind는 registry/supply/volume 중 하나다. 원문 형식은 Explorer results의 sql·data·meta.row_count·queried_at이다. 조회 시각은 예약일 이후여야 한다. 현재 등록 자료/계획과 다른 SQL, 누락된 배포, 중복, sentinel 행, 기간 밖 날짜, Number 수량은 오류다. 이 명령은 DB import나 외부 실행 성공을 인증하지 않으며 실제 요청 횟수 영수증을 생성하지 않는다. stdout에는 공개용 선별 필드만 반환하고 원문의 계정 query/run 식별자는 버린다.
 
-일곱 날짜 겹침·지연/수정과 보조 공급자 조건은 ADR0060을 따른다. 실제 실행 경계는 ADR0061을 따른다. 별도 Allium 공급량 저장/조회와 일별 자동 수집은 다음 구현 대상이다.
+일곱 날짜 겹침·지연/수정과 보조 공급자 조건은 ADR0060을 따른다. 실제 실행 경계는 ADR0061을 따른다. [별도 공급량 저장/조회](ALLIUM_SUPPLY_DATA.md)는 기존 검토 Ethereum 두 자산 표본에 한해 구현·사설 Fixture 검증을 완료했으며 기존 비공개 DB 설치는 검토 대기다. 실제 조사·전체 공급량 전환·일별 자동 수집은 아직 미완료다.
 
 ## 단발 실행 CLI
 
