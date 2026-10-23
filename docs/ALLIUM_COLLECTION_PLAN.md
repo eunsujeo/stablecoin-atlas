@@ -1,5 +1,7 @@
 # Allium 조사 계획과 단발 실행
 
+[실제 비용 증거 제공 가능성 조사](research/allium-cost-evidence-availability-2026-10-23.md)는 공개 문서의 CSV·EU 한도 설명과 요청별 귀속/최종성의 미확인을 구분한다. 계정 자료 확보·인증 호출·실제 전환은 수행하지 않았다.
+
 후속 [일별 수집 설계·비용 통제 검토](adr/0068-daily-allium-design-and-cost-controls.md)는 조직 공통 예약·usage 대사·장애/전환 조건을 정리한 비활성 설계다. 실제 일별 실행·추가 수집·스케줄 활성화는 수행하지 않았다.
 
 [ADR0069의 오프라인 일별 Lab](adr/0069-offline-daily-allium-ledger-lab.md)은 비활성 계획·가상 authorization·EU 계산기와 새 PG Fixture의 공통 예약 원장을 구현한다. `npm run check:allium-daily`로 가상 응답과 장애 경로를 검증한다. 운영 연결/실행 CLI·새 공급자 호출은 없으며 기존 단발 실행기는 그대로다.

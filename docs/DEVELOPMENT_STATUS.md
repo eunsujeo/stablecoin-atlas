@@ -60,6 +60,8 @@ Allium은 [Explorer 표본](research/allium-samples/README.md)에 이어 [최근
 
 ## 다음 개발 단위
 
+[Allium 실제 비용 증거 제공 가능성 조사](research/allium-cost-evidence-availability-2026-10-23.md)를 완료했다. 공개 CSV/한도 기능 설명은 확인했지만 계정별 설정·요청별 비용 귀속/최종성은 미확인이다. 실제 전환은 계속 차단하며 후속 계정 자료의 비공개 오프라인 검토 범위는 사용자 확인이 필요하다.
+
 Allium 일별 수집의 [설계·비용 통제 검토](adr/0068-daily-allium-design-and-cost-controls.md)를 완료했다. 권고는 비활성 daily 계획·조직 공통 예산 원장부터 검증하는 것이며, 실제 일별 수집은 DISABLED다. 기존 manual-once·고정 조사·UNKNOWN을 유지하고 공급자 강제 한도·초과 과금 설정은 UNCONFIRMED로 남긴다. 이번 검토에서 공급자 API/usage/SQL·DB·스케줄 변경은 없다. 구현과 실제 실행은 별도 후속이다.
 
 후속 사용자 승인으로 [ADR0069의 비활성 일별 Lab](adr/0069-offline-daily-allium-ledger-lab.md)을 구현했다. 1~3단계의 계획·가상 authorization·정확 EU 계산·새 소유 PG Fixture의 조직 공통 append-only 예약/usage/intent/가상응답과 장애 검증이다. 실제 공급자 호출·운영 DB 설치·기존 예약 전환·동적 DB/UI·스케줄은 없다. 대사 차감은 c_i=0으로 닫아 두며 trusted checkpoint 없는 꼬리 삭제 검출은 보장하지 않는다. 다음 범위는 기존 예약/소비 전환 계획과 checkpoint/대사 검토다.
