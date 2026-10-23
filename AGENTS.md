@@ -43,6 +43,8 @@
 
 ## 개발용 Router와 Herdr 작업 흐름
 
+- 사용자 인자 후속 단발 승인(2026-10-24): ADR0084의 Allium 최신 잔액 배열 body 1건을 동일 Ethereum USDC 컨트랙트 주소·새 balance-array 영속 슬롯/기존 root·공통 lock으로 검사한다. 최대1HTTP/0run·응답/전체2MiB·요청20초/lease5분·재시도0·추가페이지0이며 비용미확인을 유지한다. 실패하면 추가 호출·인자 변형·공급자 전환 없이 종료하고 확보한 표본의 오프라인 활용 정리로 넘어간다. 기존 원문/소비/판정·DB/UI를 유지하고 usage·SQL·자동 반복은 추가하지 않는다.
+
 - 사용자 스테이블코인 API 접근 표본 테스트 요청(2026-10-24): ADR0083의 고정45개 읽기 표본(Arkham20GET·Allium REST9/SQL16)을 새 별도 영속 슬롯/기존 root·공통 lock으로 단발 검사한다. USDC Ethereum/고정기관·SQL최대1행·각응답2MiB/전체32MiB·15분·총16run/125HTTP·재시도0·페이지1이다. 이전 두 지리 테이블 거절은 재호출하지 않는다. HTTP/SQL/인자/빈응답/UNKNOWN·NOT_TESTED를 구분하고 기존 bytes·소비·DB/UI를 보존한다. 새 usage·전체 보유자 열거·서명/거래·알림/설정 생성·자동 반복·공급자 전환은 없다.
 
 - 사용자 추정 국가-거래소 흐름 확인 요청(2026-10-24): ADR0082의 cex_attributed_flows 단발 조회를 허용한다. 고정11배포·UTC2026-10-22·geo/반대편cex·3300행+sentinel/2MiB·1페이지·1run/13HTTP·15분·재시도0, 새 cex-flows 영속 슬롯과 기존 root/송신 lock·세 슬롯/legacy 원문 보존을 따른다. failed일 때 같은 한도 안의 해당 query 상세GET1회만 포함한다. 국가간 송금/실제 결제와 구분하며 기존 잔액 재시도·usage·공급자 전환·새 DB/UI·자동 반복은 추가하지 않는다.

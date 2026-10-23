@@ -102,7 +102,7 @@ Allium 일별 수집의 [설계·비용 통제 검토](adr/0068-daily-allium-des
 
 [ADR0083](adr/0083-bounded-provider-capability-probe.md)의 사용자 승인 API 접근 표본45개를 검사했다. Arkham20: HTTP200 JSON14·인자오류3·응답크기초과2·HTTP500 1. Allium REST9: HTTP200 JSON7·인자오류1·HTTP500 1. Allium SQL16: 실행성공 표본6(5개 echo 개별검토)·Identity 테이블 거절7·완료미확인3이다. 실제105HTTP/16run·기존 archive 보존, 추가 페이지/재시도/usage0이며 DB/UI는 유지했다. 전체 기능이 사용 불가인 상태가 아니며 자료군별 접근·오류·미검증을 [정본 결과표](research/provider-api-capabilities-2026-10-24.md)로 구분한다. 기존 두 지리 거절은 재호출하지 않았다.
 
-2026-10-24 [API 인자 후속 조사](research/provider-api-argument-followup-2026-10-24.md): Allium 잔액의 공식 Body 명세/CLI에서 배열 body 후보를 확보했다. Arkham 3건의 인자 값·단위는 미확인이다. 새 인증 호출 없이 1HTTP/0run 후속 제안만 고정했으며 실행은 별도 사용자 확인 후 진행한다.
+2026-10-24 [API 인자 후속 조사](research/provider-api-argument-followup-2026-10-24.md) 후 사용자 승인으로 [ADR0084](adr/0084-single-allium-balance-array-probe.md)의 Allium 잔액 배열 요청1건을 실행했다. HTTP200 JSON·1HTTP/0run·283389bytes·재시도0이며 기존 원문/판정을 보존했다. Arkham 3건은 인자UNKNOWN으로 보류하고 추가 호출 없이 [저장 표본 활용 검토](research/provider-data-use-priorities-2026-10-24.md)로 넘어갔다. 가격3종의 토큰/체인/decimals·숫자 문자열/시각 모양을 확인했으며 통화·기간 완전성은 미확인이다. DB/UI는 변경하지 않았다.
 
 ## 검증 기준
 

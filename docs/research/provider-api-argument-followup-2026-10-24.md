@@ -39,3 +39,7 @@ Arkham 상세 URL은 [공식 목록](https://arkm.com/llms.txt)에 있는 경로
 추천 후보는 Allium 배열 body 단발 표본이다. [ADR0083 재개 조건](../adr/0083-bounded-provider-capability-probe.md)에 따라 새 고정 대상·예산·범위를 사용자에게 확인한 뒤 진행한다. Arkham은 공식 인자 명세가 확보되기 전까지 별도 미해결로 유지한다. 기존 크기 초과·500·미완료 SQL·Identity 거절·NOT_TESTED 항목은 이번 후보에 섞지 않는다.
 
 Lead `f19d539fe74249a494672c017063d471`의 검토 결과는 `proceed`이며 문서 제안 범위에 한정된다. 가변 CLI 근거 고정·별도 영속 소비·기존 원문 보존·사용자의 새 범위/비용 미확인 확인 조건을 유지하며 구현·실제 호출 승인을 뜻하지 않는다.
+
+## 승인 후 단발 결과
+
+사용자가 위 후보를 승인해 [ADR0084](../adr/0084-single-allium-balance-array-probe.md)로 별도 실행했다. 배열 body 요청은 HTTP200 JSON·1HTTP/0run·283389bytes로 종료됐고 기존 원문/판정은 보존했다. 이 절 이전의 미실행/승인 전 서술은 후보 작성 당시의 기록이다. 추가 재호출 없이 [오프라인 활용 검토](provider-data-use-priorities-2026-10-24.md)로 넘어갔다.

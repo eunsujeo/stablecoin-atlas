@@ -114,3 +114,5 @@ Identity7개는 해당 query/run/SQL의 상세에서 `You used invalid tables: <
 현재 단발 슬롯은 소비됐고 재실행/재개하지 않는다. 인자 오류는 필수 값/단위의 공식 스키마, 크기 초과는 지원되는 기간/페이지 인자, 미완료 SQL은 별도 후속 읽기 범위를 먼저 고정해야 한다. 스키마 미확보 항목은 정확한 경로·필수 인자·새 고정 예산이 필요하다. 이번 검사로 자동 수집·API fallback·DB/UI·서명/거래·알림/설정 생성은 추가하지 않았다.
 
 후속 [인자 명세 조사와 단발 후보](provider-api-argument-followup-2026-10-24.md)에서 Allium 잔액의 배열 body 근거를 확보했다. 인증 재호출은 하지 않았고 위 실제 결과·소비 상태는 그대로다. Arkham 3건의 인자 값·단위는 계속 미확인이다.
+
+이후 별도 사용자 승인·새 슬롯의 [ADR0084 배열 body 검사](../adr/0084-single-allium-balance-array-probe.md)는 HTTP200 JSON·1HTTP/0run으로 종료됐다. 위45개 원래 표본·HTTP400·실행 수·소비를 수정하지 않고 별도 후속으로 연결한다. 다음 우선순위는 [확보한 자료의 오프라인 활용](provider-data-use-priorities-2026-10-24.md)이다.

@@ -7,14 +7,17 @@ import {alliumHash,alliumExecutionStorage as io,withAlliumSendLock} from './alli
 import {parseHistorySource} from './supply-history-source.mjs';
 import {workspaceEnvironment} from './workspace-env.mjs';
 import {providerCapabilityPlan,capabilitySlot} from './provider-capability-plan.mjs';
+import {balanceArrayPlan} from './balance-array-plan.mjs';
 const fail=code=>{throw Error(code??'CAPABILITY_PROBE_BLOCKED');},hash=v=>alliumHash(Buffer.from(canonical(v)));
+const fixedPlan=profile=>profile==='capabilities'?providerCapabilityPlan():profile==='balance-array'?balanceArrayPlan():fail();
 const reference=v=>{if(typeof v!=='string'||!/^[A-Za-z0-9_-]{1,160}$/.test(v))fail();return v;};
 // Includes every previous archive, including the four consumed geographic slots.
-export async function capabilityPriorManifest(root){
+export async function capabilityPriorManifest(root,excludedSlot=capabilitySlot){
+ if(![capabilitySlot,balanceArrayPlan().slot].includes(excludedSlot))fail();
  const records=[];let bytes=0;
  async function walk(relative=''){
   for(const name of (await readdir(join(root,relative))).sort()){
-   if(!relative&&['reservation-lock',capabilitySlot].includes(name))continue;
+   if(!relative&&['reservation-lock',excludedSlot].includes(name))continue;
    const key=relative?relative+'/'+name:name,path=join(root,key),s=await lstat(path);
    if(s.isSymbolicLink()||s.uid!==process.getuid()||records.length>=4096)fail();
    if(s.isDirectory()){if(s.mode&0o077)fail();records.push([key,'directory',s.mode&0o777]);await walk(key);}
@@ -23,10 +26,10 @@ export async function capabilityPriorManifest(root){
  }
  await walk();return hash(records);
 }
-async function authorization(root,{keys,approvalBytes,now}){
- const plan=providerCapabilityPlan();
- if(!['arkham','allium'].every(p=>typeof keys?.[p]==='string'&&keys[p])||!Buffer.isBuffer(approvalBytes)||!approvalBytes.length||approvalBytes.length>65536||!Number.isFinite(Date.parse(now)))fail();
- return {version:1,kind:'MANUAL_PROVIDER_CAPABILITY_ONCE',plan,planHash:hash(plan),approvalHash:alliumHash(approvalBytes),keyHashes:Object.fromEntries(Object.entries(keys).map(([p,k])=>[p,alliumHash(Buffer.from(k))])),previousHash:await capabilityPriorManifest(root),authorizedAt:now,expiresAt:new Date(Date.parse(now)+plan.leaseMs).toISOString()};
+async function authorization(root,{keys,approvalBytes,now,profile='capabilities'}){
+ const plan=fixedPlan(profile),providers=[...new Set(plan.jobs.map(j=>j.provider))];
+ if(!providers.every(p=>typeof keys?.[p]==='string'&&keys[p])||!Buffer.isBuffer(approvalBytes)||!approvalBytes.length||approvalBytes.length>65536||!Number.isFinite(Date.parse(now)))fail();
+ return {version:1,kind:'MANUAL_PROVIDER_CAPABILITY_ONCE',plan,planHash:hash(plan),approvalHash:alliumHash(approvalBytes),keyHashes:Object.fromEntries(Object.entries(keys).map(([p,k])=>[p,alliumHash(Buffer.from(k))])),previousHash:await capabilityPriorManifest(root,plan.slot),authorizedAt:now,expiresAt:new Date(Date.parse(now)+plan.leaseMs).toISOString()};
 }
 export const prepareCapabilityProbe=(root,options)=>withAlliumSendLock(root,async()=>Buffer.from(canonical(await authorization(root,options))),{live:true});
 function responseState(status,value){
@@ -36,18 +39,18 @@ function responseState(status,value){
  const list=Array.isArray(value)?value:Array.isArray(value?.items)?value.items:Array.isArray(value?.data)?value.data:null;
  return list?.length===0||value&&typeof value==='object'&&Object.keys(value).length===0?'HTTP_200_EMPTY':'HTTP_200_JSON';
 }
-export function capabilityReport(r){
- const plan=providerCapabilityPlan();return {version:1,kind:'PROVIDER_CAPABILITY_REPORT',state:r.state,planHash:r.planHash,checkedAt:r.finishedAt??null,httpAttempts:r.attempts.length,runs:r.runs,responseBytes:r.responseBytes,previousPreserved:r.previousPreserved??false,costStatus:'UNCONFIRMED',stopReason:r.stopReason??null,
+export function capabilityReport(r,profile='capabilities'){
+ const plan=fixedPlan(profile);return {version:1,kind:'PROVIDER_CAPABILITY_REPORT',state:r.state,planHash:r.planHash,checkedAt:r.finishedAt??null,httpAttempts:r.attempts.length,runs:r.runs,responseBytes:r.responseBytes,previousPreserved:r.previousPreserved??false,costStatus:'UNCONFIRMED',stopReason:r.stopReason??null,
   counts:Object.fromEntries(['arkham','allium'].map(p=>[p,r.attempts.filter(a=>a.provider===p).length])),lastFailure:r.lastFailure??null,
   jobs:r.jobs.map(j=>({id:j.id,provider:j.provider,type:j.type,state:j.state,httpStatus:j.httpStatus??null,diagnosisState:j.diagnosisState??null,errorClass:j.errorClass??null,echoMatches:j.echoMatches??null})),previous:plan.previous,notTested:plan.notTested};
 }
-export async function collectCapabilityProbe(root,{keys,approvalBytes,authorizationBytes,reviewedHash,now=()=>new Date().toISOString(),fetcher=globalThis.fetch,sleep=ms=>new Promise(r=>setTimeout(r,ms)),onProgress=()=>{}}){
+export async function collectCapabilityProbe(root,{keys,approvalBytes,authorizationBytes,reviewedHash,profile='capabilities',now=()=>new Date().toISOString(),fetcher=globalThis.fetch,sleep=ms=>new Promise(r=>setTimeout(r,ms)),onProgress=()=>{}}){
  return withAlliumSendLock(root,async()=>{
   if(!Buffer.isBuffer(authorizationBytes)||authorizationBytes.length>131072||alliumHash(authorizationBytes)!==reviewedHash)fail();
-  const a=JSON.parse(authorizationBytes),plan=providerCapabilityPlan(),expected=await authorization(root,{keys,approvalBytes,now:a.authorizedAt});
+  const a=JSON.parse(authorizationBytes),plan=fixedPlan(profile),expected=await authorization(root,{keys,approvalBytes,now:a.authorizedAt,profile});
   if(canonical(a)!==canonical(expected))fail();
   const validTime=()=>{const t=Date.parse(now());if(!Number.isFinite(t)||t<Date.parse(a.authorizedAt)||t>=Date.parse(a.expiresAt))fail('LEASE_EXPIRED');};validTime();
-  const archive=join(root,capabilitySlot);await io.exclusiveDirectory(archive);await io.durableFile(join(archive,'authorization.json'),authorizationBytes);await io.durableFile(join(archive,'approval'),approvalBytes);
+  const archive=join(root,plan.slot);await io.exclusiveDirectory(archive);await io.durableFile(join(archive,'authorization.json'),authorizationBytes);await io.durableFile(join(archive,'approval'),approvalBytes);
   const receipt={version:1,kind:'PROVIDER_CAPABILITY_RECEIPT',planHash:a.planHash,authorizationHash:reviewedHash,state:'RUNNING',runs:0,responseBytes:0,attempts:[],jobs:plan.jobs.map(j=>({id:j.id,provider:j.provider,type:j.type,state:'NOT_TESTED'}))};
   await io.snapshot(join(archive,'receipt.json'),receipt);
   async function request(job,step,path,body=null){
@@ -115,8 +118,8 @@ export async function collectCapabilityProbe(root,{keys,approvalBytes,authorizat
    const last=receipt.attempts.at(-1);if(last?.jobId===receipt.activeJobId){receipt.lastFailure={jobId:last.jobId,httpStatus:last.httpStatus,transportCode:last.transportCode??null,proxyError:last.proxyError??null};const job=receipt.jobs.find(j=>j.id===last.jobId);job.httpStatus=last.httpStatus;}
    else receipt.lastFailure={jobId:receipt.activeJobId,httpStatus:null,transportCode:null,proxyError:null};
   }
-  receipt.previousPreserved=a.previousHash===await capabilityPriorManifest(root);if(!receipt.previousPreserved){receipt.state='STOPPED_UNKNOWN';receipt.stopReason='PREVIOUS_EVIDENCE_CHANGED';}
-  receipt.finishedAt=now();await io.snapshot(join(archive,'receipt.json'),receipt);const report=capabilityReport(receipt);await io.durableFile(join(archive,'report.json'),Buffer.from(canonical(report)));return report;
+  receipt.previousPreserved=a.previousHash===await capabilityPriorManifest(root,plan.slot);if(!receipt.previousPreserved){receipt.state='STOPPED_UNKNOWN';receipt.stopReason='PREVIOUS_EVIDENCE_CHANGED';}
+  receipt.finishedAt=now();await io.snapshot(join(archive,'receipt.json'),receipt);const report=capabilityReport(receipt,profile);await io.durableFile(join(archive,'report.json'),Buffer.from(canonical(report)));return report;
  },{live:true});
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
