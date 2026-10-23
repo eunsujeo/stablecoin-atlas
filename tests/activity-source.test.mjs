@@ -1,0 +1,10 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {activitySource,activityHash} from '../tools/activity-source.mjs';import {activityFixture} from './activity-fixture.mjs';
+import {activityArguments} from '../tools/market-db/activity-cli.mjs';
+test('activity mapper retains exact decimal strings, null and original provider day without private SQL/run IDs',()=>{
+ const f=activityFixture(),p=activitySource(f.bytes,f.options);assert.equal(p.rows[0].values.volume,'1000.000000000000000001');assert.equal(p.rows[0].values.adjustedUSD,null);assert.equal(p.rows[0].day,'2026-10-21');assert.equal(p.queriedAt,f.data.queried_at);assert(!JSON.stringify(p).includes('private-run'));assert(!JSON.stringify(p).includes('SELECT'));assert.deepEqual(activitySource(f.bytes,f.options),p);
+ for(const change of [r=>r.transfer_volume_str=1,r=>r.chain='tron',r=>r.token_address='0xwrong',r=>r.activity_date='2026-02-30T00:00:00',r=>r.adjusted_volume_usd_str='-1',r=>r.transfer_count_str='1.2']){const bad=structuredClone(f.data);change(bad.data[0]);const b=Buffer.from(JSON.stringify(bad));assert.throws(()=>activitySource(b,{...f.options,expectedHash:activityHash(b)}));}
+ assert.throws(()=>activitySource(f.bytes,{...f.options,expectedHash:'0'.repeat(64)}));assert.throws(()=>activitySource(f.bytes,{...f.options,from:'2026-10-22'}));assert.throws(()=>activitySource(f.bytes,{...f.options,now:'2026-10-20T00:00:00.000Z'}));
+ const duplicate=structuredClone(f.data);duplicate.data.push(duplicate.data[0]);duplicate.meta.row_count=2;const b=Buffer.from(JSON.stringify(duplicate));assert.throws(()=>activitySource(b,{...f.options,expectedHash:activityHash(b)}));
+});
+test('activity CLI restricts commands, required and duplicate flags',()=>{assert.equal(activityArguments(['read']).command,'read');for(const args of [['collect'],['import','--source','x'],['read','--env-file','x','--env-file','y'],['grant','--role','x'],['read','--source','x']])assert.throws(()=>activityArguments(args));});

@@ -1,4 +1,5 @@
 import {validateFX,usableFX,priceLabel,readCurrency,saveCurrency} from './fx-model.js';
+import {validateActivity,providerChoice} from './activity-model.js';
 import {overviewMarketRows} from './overview-market-model.js';
 import {readChartPreferences,saveChartPreferences,readChartURL,syncChartURL} from './overview-preferences.js';
 import {validateRegistrationIndex,validateRegisteredHistory,registrationChartData,sameRegisteredSource} from './registration-model.js';
@@ -13,6 +14,19 @@ const node=(tag,text,cls)=>{const el=document.createElement(tag);if(text!==undef
 const savedChart=readChartURL(location.href)??readChartPreferences();
 const state={currency:readCurrency(location.href),fx:null,selectedCoin:savedChart?.coinId??'usdc',selectedSource:savedChart?.source??'history',selectedNetwork:savedChart?.networkId??'all',marketFailed:false,index:null,market:null,loading:false,loaded:false,period:savedChart?.period??'30d',sourceInitialized:!!savedChart,comparison:savedChart?.comparison??'amount',registration:null,detail:null,trendLoading:false,trendError:false,registrationFailed:false};
 let trendSequence=0,trendAbort,trendFinish;
+let activity=null,activityState='MISSING';
+function renderActivity(){
+ const host=$('#overview-activity-rows');host.replaceChildren();
+ $('#overview-activity-state').textContent=activityState==='LAST_GOOD'?'조회 실패 · 마지막 정상 자료':activityState==='UNAVAILABLE'?'자료 조회 실패':'';
+ if(!activity?.series.length){const tr=node('tr'),cell=node('td',activityState==='UNAVAILABLE'?'전송량 자료를 읽지 못했습니다. 다시 읽어주세요.':'저장된 전송량 자료가 없습니다.','muted');cell.colSpan=5;tr.append(cell);host.append(tr);return;}
+ for(const coinId of ['usdt','usdc','rlusd','jpyc','jpysc']){
+  const row=node('tr'),identity=node('th');identity.scope='row';identity.append(registeredCoinInfoButton(state.registration,state.market,coinId,coinId.toUpperCase()+' ⓘ')??node('strong',coinId.toUpperCase()));row.append(identity);
+  const point=activity.series.find(s=>s.coinId===coinId)?.points.at(-1);
+  if(point){for(const key of ['volume','volumeUSD','transfers']){const cell=node('td',displayAmount(point[key]));cell.title=point[key]+(key==='volume'?' tokens':key==='volumeUSD'?' USD':'건');row.append(cell);}const day=node('td',point.day,'market-updated');day.title='일별 집계 기준일 · 조회 '+when(point.queriedAt);row.append(day);}
+  else for(let i=0;i<4;i++)row.append(node('td','—','muted'));
+  host.append(row);
+ }
+}
 const trendData=()=>state.registration?registrationChartData(state.registration,state.detail):state.registrationFailed?null:state.market;
 const scopeReady=()=>!state.registrationFailed&&(!!state.registration||!!state.market&&!state.marketFailed);
 const rememberTrend=()=>{
@@ -178,9 +192,9 @@ async function loadTrend(){
 }
 async function load(){
   if(state.loading)return;state.loading=true;$('#overview-reload').disabled=true;
-  const finish=beginLoading($('#overview-screen'),{ready:!!(state.index||state.market),targets:[['#overview-market-trend','chart'],['#overview-chain-breakdown','rows'],['#overview-market-rows','rows'],['#overview-metrics','cards']]});
+  const finish=beginLoading($('#overview-screen'),{ready:!!(state.index||state.market),targets:[['#overview-market-trend','chart'],['#overview-chain-breakdown','rows'],['#overview-market-rows','rows'],['#overview-activity-rows','rows'],['#overview-metrics','cards']]});
   try {
-  const results=await Promise.allSettled([json('/evidence/index.json').then(dashboardEvidence),json('/market-data.json').then(validateMarket),json('/registration-index.json',{optional:true}).then(x=>x===null?null:validateRegistrationIndex(x)),json('/fx-data.json').then(validateFX)]);
+  const results=await Promise.allSettled([json('/evidence/index.json').then(dashboardEvidence),json('/market-data.json').then(validateMarket),json('/registration-index.json',{optional:true}).then(x=>x===null?null:validateRegistrationIndex(x)),json('/fx-data.json').then(validateFX),json('/activity-data.json',{optional:true}).then(x=>x===null?null:validateActivity(x))]);
   const failed=[];
   for(const [index,key]of ['index','market'].entries()){
     if(results[index].status==='fulfilled')state[key]=results[index].value;
@@ -188,8 +202,9 @@ async function load(){
   }
   if(results[2].status==='fulfilled'){state.registration=results[2].value;state.registrationFailed=false;}else{state.registrationFailed=true;failed.push('공급량 자료');}
   if(results[3].status==='fulfilled')state.fx=results[3].value;
+  const selected=providerChoice({primary:results[4].status==='fulfilled'?results[4].value:null,lastGood:activity,failed:results[4].status==='rejected'});activity=selected.data;activityState=selected.state;
   state.marketFailed=results[1].status!=='fulfilled';
-  renderEvidence();renderMarket();renderEvidenceRankings();
+  renderEvidence();renderMarket();renderEvidenceRankings();renderActivity();
   if(state.registration)await loadTrend();
   const collectionFailed=state.market?.collectionState?.state==='FAILED'||state.market?.lastBuildState==='FAILED';
   $('#overview-error').hidden=!failed.length&&!collectionFailed;

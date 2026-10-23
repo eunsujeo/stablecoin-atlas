@@ -35,9 +35,11 @@
 
 - 원화 가격·시장표 밀도: [ADR0058](adr/0058-reference-krw-prices.md)에 따라 USD/KRW 선택·ECB 기준일 표시·BigInt 참고 환산을 추가한다. 토큰 정보를 한 줄로 묶고 미확인 거래량 열을 숨겨 여백을 줄인다. 환율은 private 일별 snapshot이며 웹 요청이 수집하지 않는다. 실제 원격 FX timer 설치는 미실행이다.
 
-Allium은 [Explorer 표본](research/allium-samples/README.md)에 이어 [최근 전송량·공급량 차이](research/allium-samples/followup.md)를 분석했다. Ethereum 5코인 전송량 60행의 최신 관측일은 10/21이며 10/22 누락은 0으로 바꾸지 않는다. USDC·USDT 7일 공급량 비교는 날짜 경계와 브리지/준비금 정의 차이를 보여주지만 브리지 원문 상세만으로는 잔차가 남는다. 원본 수치형·실제 마감 시각·다른 체인 지원은 추가 확인 대상이다. 실패 SQL과 교정 실행을 보존했고 자동 수집/DB/대시보드는 변경하지 않았다.
+Allium은 [Explorer 표본](research/allium-samples/README.md)에 이어 [최근 전송량·공급량 차이](research/allium-samples/followup.md)를 분석했다. Ethereum 5코인 전송량 60행의 최신 관측일은 10/21이며 10/22 누락은 0으로 바꾸지 않는다. USDC·USDT 7일 공급량 비교는 날짜 경계와 브리지/준비금 정의 차이를 보여주지만 브리지 원문 상세만으로는 잔차가 남는다. 원본 수치형·실제 마감 시각·다른 체인 지원은 추가 확인 대상이다. 실패 SQL과 교정 실행을 보존했다. 연구 후 전송량 저장·UI는 아래 단계로 연결했으며 공급량 기본 전환·Allium 자동 수집은 미구현이다.
 
 ## 토큰 기본정보
+
+- [일별 전송량 DB·UI](ACTIVITY_DATA.md): Allium Ethereum5코인 60행을 별도 atlas_activity에 저장하고 전체 현황에 최신 기준일과 표시했다. 같은 원문 replay0·최소 권한·수정 이력·구시각 import·동시성·원자성 검증. 기존 schema와 공급량은 유지한다. Allium 기본/DeFiLlama 보조 방향은 ADR0059이며 공급량 전환·실제 보조 연결·Allium 자동 수집은 후속이다.
 
 - 공급량 차트는 축 눈금에 `눈금 (tokens)`를 표시하고 `1,000억`처럼 정리한다. 가장 큰 네트워크의 최신 실제 값은 선 끝에 별도 색상으로 표시하며 hover/키보드 tooltip 중에는 숨겨 겹침을 줄인다. 로그 축·원본 공급량·증감률 계산은 유지한다.
 
