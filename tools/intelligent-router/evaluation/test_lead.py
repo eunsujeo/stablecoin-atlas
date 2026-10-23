@@ -255,12 +255,10 @@ class ScheduledRenewTests(unittest.TestCase):
         self.assertEqual(result, "renewed")
         renewed.assert_called_once_with("router-impl", "docs/handoff/x.md")
 
-    def test_renewed_session_is_told_to_wait_not_continue(self):
+    def test_renewed_session_is_told_to_continue_next_action(self):
         with patch.object(renew, "renew"), patch.object(lead, "herdr") as send, patch.object(lead, "write"):
             renew.renew_with_handoff("router-impl", "docs/handoff/x.md")
-        text = send.call_args.args[3]
-        self.assertIn("시작하지 말고", text)
-        self.assertNotIn("이어서 진행", text)
+        self.assertIn("'다음 행동'부터 이어서 진행", send.call_args.args[3])
 
     def test_user_continuing_during_grace_cancels(self):
         result, renewed = self.run_watch(["working", "idle", "idle", "working"])
@@ -345,10 +343,20 @@ class ScheduleGateTests(unittest.TestCase):
     def test_missing_field_is_rejected(self):
         self.assertRaises(ValueError, renew.schedule, "router-impl", self.handoff(drop="기다리는 것"))
 
-    def test_user_confirmation_does_not_block_context_only_renewal(self):
+    def test_user_confirmation_is_not_scheduled(self):
         with patch.object(renew.subprocess, "Popen") as spawn:
-            renew.schedule("router-impl", self.handoff(confirm="예 — 원격 DB 접속"))
-        spawn.assert_called_once()
+            self.assertRaises(ValueError, renew.schedule, "router-impl", self.handoff(confirm="예 — 원격 DB 접속"))
+        spawn.assert_not_called()
+
+    def test_chain_limit_stops_until_a_human_continues(self):
+        for _ in range(renew.CHAIN_LIMIT):
+            renew.remember("router-impl", "renewed")
+        with patch.object(renew.subprocess, "Popen") as spawn, patch.object(renew, "notify") as notice:
+            self.assertRaises(ValueError, renew.schedule, "router-impl", self.handoff())
+        spawn.assert_not_called()
+        notice.assert_called_once_with("router-impl", "stopped_chain_limit")
+        renew.remember("router-impl", "cancelled_user_continued")
+        self.assertIsNone(renew.limit_reason("router-impl"))
 
     def test_daily_limit_stops_and_notifies_until_reset(self):
         for _ in range(renew.DAILY_LIMIT):
