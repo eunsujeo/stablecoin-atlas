@@ -4,6 +4,8 @@
 
 [최초 실제 수집 결과](research/allium-samples/live-2026-10-23.md)는 SQL2회/12HTTP 모두200, 공급량70/전송량67 OBSERVED다. 각 원문의 echo 검토 뒤 같은 묶음만 완료했으며 live-once는 영속 소비됐다. 명령 예시는 이미 소비한 승인을 반복 사용하라는 지시가 아니다.
 
+후속 [ADR0077](adr/0077-offline-live-survey-storage.md)은 그 저장본 두 개만 기존 개발 DB·로컬 표에 오프라인 연결했다. 추가 API/SQL 실행·승인 재소비·자동 수집은 없다. 최신 표시와 원래 자료 보존은 [저장 현황](ALLIUM_SURVEY_DATA.md)을 따른다.
+
 준비와 실제 실행은 분리한다. 기존 사용자 승인 기록을 600권한의 `.state` 파일로 보존한 뒤, `npm run allium:live -- prepare --day D --approval <private-file> --output <private-state-file>`로 15분 lease를 만든다. stdout의 authorizationHash와 정확한 준비 파일을 검토하고 `npm run allium:live -- collect --day D --approval <same-private-file> --authorization <prepared-file> --reviewed-authorization-sha256 <hash>`로 최초 1묶음만 실행한다. 준비 출력의 부모는 소유700 디렉터리여야 한다. 명령에 키를 넣지 않는다. 실행 뒤 `live-once`는 영속 소비되므로 날짜·키·새 준비 파일로 재실행할 수 없다. 원문과 승인 파일은 Git/웹에 게시하지 않는다.
 
 성공 응답의 echo 차이만 남으면 각 원문을 오프라인에서 개별 검토한다. `resume`은 collect와 같은 인자에 `--sql-review <private-manifest> --reviewed-sql-review-sha256 <hash>`를 더해 같은 lease·묶음의 미전송 job만 진행한다. 이전 SQL은 재전송하지 않으며 마지막 결과 검토는 외부 호출0이다. 만료된 lease는 갱신하지 않는다. 정확한 바인딩·UNKNOWN 보존·재개 차단 조건은 ADR0076을 따른다.

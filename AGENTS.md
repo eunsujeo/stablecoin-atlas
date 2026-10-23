@@ -44,6 +44,7 @@
 ## 개발용 Router와 Herdr 작업 흐름
 
 - 사용자 실제 Allium 호출·수집 승인(2026-10-23): ADR0076의 비용 통제 미확인 로컬 수동1회 supply/volume 실제 수집을 허용한다. 동일 legacy root의 공통 송신 잠금·영속 live-once 소비·2run/26HTTP/재시도0/15분·기존 원문/UNKNOWN 보존을 유지한다. 개별 echo 검토 checkpoint는 같은 lease·미전송 job에 한정하며 기존 SQL을 반복하거나 lease를 연장하지 않는다. 조직/타PC 배타성 UNKNOWN은 로컬 실행의 새 완료조건으로 요구하지 않으며 글로벌 한도는 보장하지 않는다. 실제 비용 대사·claim/차감·조직 예산 전환·새 usage·자동 예약·DB/UI 전환은 포함하지 않는다.
+- 사용자 실제 수집 후속 진행(2026-10-23): ADR0077의 저장된 live 두 원문·개별 검토·원래 UNKNOWN receipt·authorization/승인의 오프라인 검증과 기존 atlas_survey/로컬 표 연결을 허용한다. 같은 고정11배포·기간의 새 snapshot만 append하며 원래 시각·기존 자료·누락·비용 미확인을 유지한다. 현재 실행 lease나 새 키를 요구하거나 재소비하지 않는다. 새 API/usage·자동 예약·migration/grant·기본 공급자 전환·실제 비용 대사는 포함하지 않는다.
 
 - 사용자 Allium 최초 실행·지수 백오프 승인(2026-10-23): ADR0065의 수동 단발 조사에 한해 과금 통제 미확인 상태 실행을 허용한다. 기존 strict 검사·비공개 증거·공통 영속 예약은 유지하며, 새 usage 조회·Allium 자동 수집·웹/DB 전환은 포함하지 않는다.
 

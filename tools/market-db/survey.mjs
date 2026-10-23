@@ -57,7 +57,8 @@ export async function importSurvey(c,bytes,options){
  const source=surveySource(bytes,options);if(typeof options.archiveRoot!=='string'||!options.archiveRoot)fail();
  return transaction(c,async()=>{
   await lock(c);await access(c,true);
-  await archiveSources([{hash:source.sourceHash,bytes},{hash:source.reviewHash,bytes:options.reviewBytes},{hash:source.receiptHash,bytes:options.receiptBytes}],options.archiveRoot);
+  await archiveSources([{hash:source.sourceHash,bytes},{hash:source.reviewHash,bytes:options.reviewBytes},{hash:source.receiptHash,bytes:options.receiptBytes},
+   ...(options.executionAuthorizationBytes?[{hash:surveyHash(options.executionAuthorizationBytes),bytes:options.executionAuthorizationBytes},{hash:surveyHash(options.userApprovalBytes),bytes:options.userApprovalBytes}]:[])],options.archiveRoot);
   const prior=(await c.query("SELECT encode(id,'hex') AS id FROM atlas_survey.source WHERE id=$1",[hashBytes(source.id)])).rows[0];
   if(prior)return {state:'UNCHANGED',rows:0,sourceHash:source.sourceHash};
   if((await c.query('SELECT 1 FROM atlas_survey.source WHERE kind=$1 AND plan_hash=$2 AND queried_at=$3',[source.kind,hashBytes(source.planHash),source.queriedAt])).rowCount)throw Error('ALLIUM_SURVEY_TIMESTAMP_CONFLICT');

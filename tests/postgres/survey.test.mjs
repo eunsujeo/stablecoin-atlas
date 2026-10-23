@@ -1,9 +1,10 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {mkdtemp,readFile,rm,stat} from 'node:fs/promises';import {tmpdir} from 'node:os';import {join} from 'node:path';
+import {mkdtemp,readFile,writeFile,rm,stat} from 'node:fs/promises';import {tmpdir} from 'node:os';import {join} from 'node:path';
+import {supplyHash} from '../../tools/allium-supply-source.mjs';
 import {fixture} from './fixture.mjs';import {initialize,grantAccess,structureHash} from '../../tools/market-db/schema.mjs';
 import {initializeSurvey,grantSurvey,importSurvey,readSurvey,verifySurveySchema} from '../../tools/market-db/survey.mjs';
 import {verifySupplyApiBoundary} from '../../tools/market-db/supply-api-boundary.mjs';
-import {connectDatabase,transaction} from '../../tools/market-db/connection.mjs';import {surveyFixture} from '../survey-fixture.mjs';
+import {connectDatabase,transaction} from '../../tools/market-db/connection.mjs';import {surveyFixture,liveSurveyFixture} from '../survey-fixture.mjs';
 test('survey PG17 stores immutable whole snapshots with least privileges, atomic rollback, replay/races and latest missing days',{timeout:120000},async()=>{
  const f=await fixture(),archive=await mkdtemp(join(tmpdir(),'allium-survey-'));let writer,reader,second;
  try{
@@ -27,6 +28,18 @@ test('survey PG17 stores immutable whole snapshots with least privileges, atomic
   const volume=await surveyFixture({kind:'volume'});let inserted=false;
   const faulty={query:async(...args)=>{const result=await writer.query(...args);if(typeof args[0]==='string'&&args[0].startsWith('INSERT INTO atlas_survey.source')){inserted=true;throw Error('INJECT_AFTER_INSERT');}return result;}};
   await assert.rejects(importSurvey(faulty,volume.bytes,options(volume)),/INJECT_AFTER_INSERT/);assert(inserted);assert.equal(await count(),3);assert.equal((await importSurvey(writer,volume.bytes,options(volume))).rows,70);
+  const liveSupply=await liveSurveyFixture(),liveVolume=await liveSurveyFixture({kind:'volume',mutate:p=>{p.data=p.data.filter(r=>r.deployment_id!=='jpysc-ethereum'||r.provider_day>='2026-10-19');}});
+  await assert.rejects(importSurvey(faulty,liveSupply.bytes,options(liveSupply)),/INJECT_AFTER_INSERT/);assert.equal(await count(),4);
+  assert.deepEqual((await Promise.all([importSurvey(writer,liveSupply.bytes,options(liveSupply)),importSurvey(second,liveSupply.bytes,options(liveSupply))])).map(v=>v.rows).sort((a,b)=>a-b),[0,70]);
+  assert.equal((await importSurvey(writer,liveVolume.bytes,options(liveVolume))).rows,67);assert.equal(await count(),6);
+  read=await readSurvey(reader);assert.deepEqual(read.snapshots.map(s=>s.queriedAt),[liveSupply.source().queriedAt,liveVolume.source().queriedAt]);
+  assert.equal(read.snapshots[1].rows.filter(r=>r.deploymentId==='jpysc-ethereum').length,4);
+  for(const bytes of [liveSupply.options.executionAuthorizationBytes,liveSupply.options.userApprovalBytes]) {
+   const digest=supplyHash(bytes),path=join(archive,digest.slice(0,2),digest+'.json');
+   assert.deepEqual(await readFile(path),bytes);assert.equal((await stat(path)).mode&0o777,0o600);
+   await writeFile(path,Buffer.from('tampered'));await assert.rejects(importSurvey(writer,liveSupply.bytes,options(liveSupply)));await writeFile(path,bytes);
+  }
+  const liveClash=await liveSurveyFixture({amount:'999'});await assert.rejects(importSurvey(writer,liveClash.bytes,options(liveClash)),/TIMESTAMP_CONFLICT/);
   await assert.rejects(importSurvey(reader,a.bytes,options(a)));await assert.rejects(importSurvey(f.admin,a.bytes,options(a)));await assert.rejects(grantSurvey(f.admin,'atlas_test_surveyreader','writer'));
   for(const sql of ['DELETE FROM atlas_survey.source',"UPDATE atlas_survey.source SET kind='supply'",'TRUNCATE atlas_survey.source',"INSERT INTO atlas_survey.access_grant VALUES('intruder','writer')",'SELECT atlas_survey.reject_mutation()'])await assert.rejects(writer.query(sql));
   await f.admin.query('GRANT SELECT(payload) ON atlas_survey.source TO anon');await assert.rejects(boundary());await f.admin.query('REVOKE SELECT(payload) ON atlas_survey.source FROM anon');
@@ -37,7 +50,7 @@ test('survey PG17 stores immutable whole snapshots with least privileges, atomic
   await f.admin.query('GRANT USAGE ON SCHEMA atlas_survey TO PUBLIC');await assert.rejects(readSurvey(reader));await f.admin.query('REVOKE USAGE ON SCHEMA atlas_survey FROM PUBLIC');
   // Bypassing the immutable trigger as fixture owner still cannot hide corrupted payload from the reader.
   await f.admin.query('ALTER TABLE atlas_survey.source DISABLE TRIGGER immutable_record');
-  await f.admin.query("UPDATE atlas_survey.source SET payload=jsonb_set(payload,'{rows,0,values,total_supply}','\"999\"') WHERE kind='supply' AND queried_at='2026-10-23T11:00:00Z'");
+  await f.admin.query("UPDATE atlas_survey.source SET payload=jsonb_set(payload,'{rows,0,values,total_supply}','\"999\"') WHERE kind='supply' AND queried_at='2026-10-23T13:00:05.123456Z'");
   await f.admin.query('ALTER TABLE atlas_survey.source ENABLE TRIGGER immutable_record');await assert.rejects(readSurvey(reader));
   await verifySurveySchema(f.admin);assert.equal(await structureHash(f.admin,'atlas_market'),before);assert.equal((await boundary()).dashboardExposedSchemas,'UNKNOWN');
  }finally{await Promise.all([writer,second,reader].filter(Boolean).map(c=>c.end()));await f.stop();await rm(archive,{recursive:true,force:true});}

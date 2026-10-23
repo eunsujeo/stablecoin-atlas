@@ -1,5 +1,7 @@
 import {storedSurveyPlan,surveySource} from '../tools/allium-survey-source.mjs';
 import {supplyHash} from '../tools/allium-supply-source.mjs';
+import {dailyPlan} from '../tools/allium-daily-plan.mjs';
+import {liveAuthorization} from '../tools/allium-live-once.mjs';
 export async function surveyFixture({kind='supply',queriedAt='2026-10-23T09:32:05.123456Z',amount='100.000000000000000001',mutate=()=>{}}={}){
  const plan=await storedSurveyPlan(),job=plan.jobs.find(j=>j.kind===kind);
  const data=plan.targets.filter(t=>t.family!=='XRPL').flatMap(t=>Array.from({length:t.networkId==='kaia'?1:7},(_,i)=>{
@@ -15,3 +17,29 @@ export async function surveyFixture({kind='supply',queriedAt='2026-10-23T09:32:0
  return {bytes,options,source:()=>surveySource(bytes,options)};
 }
 export async function surveyDto(){const a=await surveyFixture(),b=await surveyFixture({kind:'volume',mutate:p=>{p.data=p.data.filter(r=>r.deployment_id!=='jpysc-ethereum'||r.provider_day>='2026-10-19');}});return {schemaVersion:1,kind:'ALLIUM_STORED_SURVEY',provider:'ALLIUM',snapshots:[a.source().snapshot,b.source().snapshot]};}
+
+export async function liveSurveyFixture({kind='supply',queriedAt='2026-10-23T13:00:05.123456Z',amount='200.000000000000000001',mutate=()=>{}}={}) {
+ const f=await surveyFixture({kind,queriedAt,amount,mutate}),daily=dailyPlan({asOfDay:f.options.plan.asOfDay});
+ const userApprovalBytes=Buffer.from('TEST ONLY: local live once user approval');
+ const authorization=liveAuthorization(daily,{apiKey:'TEST_ONLY_PRIVATE_KEY',approvalBytes:userApprovalBytes,
+  legacyManifest:{entries:[]},now:'2026-10-23T13:00:00.000Z',grantId:'00000000-0000-4000-8000-000000000001'});
+ const executionAuthorizationBytes=Buffer.from(JSON.stringify(authorization)),authorizationHash=supplyHash(executionAuthorizationBytes);
+ const raw=JSON.parse(f.bytes);raw.meta.run_id='private-live-run-'+kind;
+ const bytes=Buffer.from(JSON.stringify(raw)),expectedHash=supplyHash(bytes);
+ const jobs=daily.jobs.map(j=>({kind:j.kind,sqlHash:j.sqlHash,resultLimit:j.resultLimit,state:j.kind===kind?'UNKNOWN':kind==='volume'?'SUCCEEDED':'RESERVED',
+  ...(j.kind===kind||kind==='volume'?{sourceHash:j.kind===kind?expectedHash:'1'.repeat(64),resultAttempt:j.kind==='supply'?3:7,
+   queryId:'private-live-query-'+j.kind,runId:'private-live-run-'+j.kind}:{})}));
+ const resultAt=new Date(Date.parse(queriedAt)+1000).toISOString().replace('Z','000Z');
+ const attempts=Array.from({length:kind==='supply'?4:8},(_,i)=>({index:i,kind:['create','run','status','result'][i%4],
+  at:i===jobs.find(j=>j.kind===kind).resultAttempt?resultAt:'2026-10-23T13:00:00.000000Z',httpStatus:200,
+  responseHash:i===jobs.find(j=>j.kind===kind).resultAttempt?expectedHash:'1'.repeat(64)}));
+ const receipt={schemaVersion:1,kind:'ALLIUM_LIVE_ONCE_RECEIPT',day:daily.asOfDay,planHash:daily.planHash,
+  authorizationHash,authorization,state:'UNKNOWN',failure:'SQL_ECHO_REVIEW_REQUIRED',jobs,attempts};
+ const receiptBytes=Buffer.from(JSON.stringify(receipt)),legacyReview=JSON.parse(f.options.reviewBytes).reviews[0];
+ const review={...legacyReview,sourceHash:expectedHash,reviewedAt:new Date(Date.parse(queriedAt)+2000).toISOString().replace('Z','000Z')};
+ const manifest={schemaVersion:1,kind:'ALLIUM_LIVE_REVIEWED_SQL_ECHO',planHash:daily.planHash,authorizationHash,
+  receiptHash:supplyHash(receiptBytes),review};
+ const reviewBytes=Buffer.from(JSON.stringify(manifest)),options={...f.options,expectedHash,reviewBytes,reviewHash:supplyHash(reviewBytes),
+  receiptBytes,executionAuthorizationBytes,userApprovalBytes};
+ return {bytes,options,source:()=>surveySource(bytes,options)};
+}
