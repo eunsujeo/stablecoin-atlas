@@ -100,6 +100,8 @@ Allium 일별 수집의 [설계·비용 통제 검토](adr/0068-daily-allium-des
 
 국가-거래소 흐름 후보도 사용자 확인 요청으로 [ADR0082](adr/0082-bounded-country-exchange-flow-query.md)의 기존11배포/고정일 단발 조회를 수행했다. 생성·실행·상태·상세 모두 HTTP200이었지만 run failed이며 동일 query/run/SQL 오류는 `You used invalid tables: allium_identity.aggregates.cex_attributed_flows`다. 이번1run/4HTTP, 지리 조회/진단 누적3run/11HTTP, 실제 흐름 자료 미확보다. 기존 receipt/원문·잔액 화면은 유지했고 새 DB/UI·재시도·usage·공급자 전환은 없다. 상세 및 소비 경계는 ADR0082를 따른다.
 
+[ADR0083](adr/0083-bounded-provider-capability-probe.md)의 사용자 승인 API 접근 표본45개를 검사했다. Arkham20: HTTP200 JSON14·인자오류3·응답크기초과2·HTTP500 1. Allium REST9: HTTP200 JSON7·인자오류1·HTTP500 1. Allium SQL16: 실행성공 표본6(5개 echo 개별검토)·Identity 테이블 거절7·완료미확인3이다. 실제105HTTP/16run·기존 archive 보존, 추가 페이지/재시도/usage0이며 DB/UI는 유지했다. 전체 기능이 사용 불가인 상태가 아니며 자료군별 접근·오류·미검증을 [정본 결과표](research/provider-api-capabilities-2026-10-24.md)로 구분한다. 기존 두 지리 거절은 재호출하지 않았다.
+
 ## 검증 기준
 
 직전 Git 체크포인트는 `c3e9557`이며 연구형 시장 화면과 기존 엔진 검사225개가 통과했다. 이동 기능과 새 checkout 보정 후231개가 통과했고, 단발 수집 검사 추가 후 전체236개가 통과했다(실패·취소·skip0). 키/보고서/의존성 없는 격리 소스에서 npm ci, 환경 진단,14원본 복원,15보고서/202항목·14시장 관측의 바이트/hash·시각/판정 일치, 두 화면의 Chrome 확인을 수행했다. 고정 TRON compiler는 공식 로더로 준비하고 무변경 재사용·손상 시 무실행/무재다운로드 거부를 확인했다. 초기 검사에서 실제 Solana 보고서와 TRON cache에 대한 숨은 의존성을 발견해 보정했다. 현 실행 환경은 macOS/ARM64, Node25.2.1이다. 같은 머신의 격리 checkout 검증과 물리적으로 다른 PC/OS에서의 검증을 구분한다.
