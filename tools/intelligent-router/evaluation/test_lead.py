@@ -230,7 +230,7 @@ class ScheduledRenewTests(unittest.TestCase):
     IDLE = renew.GRACE_SECONDS // renew.POLL_SECONDS + 1
     CLEAN = "Done.\n\u203a Ask Codex to do anything\n  ? for shortcuts"
 
-    def run_watch(self, statuses, screens=None, open_request=False):
+    def run_watch(self, statuses, screens=None, open_request=False, awaits_nothing=False):
         clock = [0.0]
         states = iter(statuses)
         screens = list(screens or [self.CLEAN])
@@ -246,7 +246,8 @@ class ScheduledRenewTests(unittest.TestCase):
                 patch.object(renew, "screen", side_effect=lambda name: shown_next()), \
                 patch.object(renew, "open_lead_request", return_value=open_request), \
                 patch.object(renew, "renew_with_handoff") as renewed:
-            result = renew.wait_and_renew("router-impl", "docs/handoff/x.md", now=lambda: clock[0], sleep=step)
+            result = renew.wait_and_renew("router-impl", "docs/handoff/x.md", awaits_nothing=awaits_nothing,
+                                          now=lambda: clock[0], sleep=step)
         return result, renewed
 
     def test_renews_after_grace_once_turn_has_ended(self):
@@ -285,6 +286,19 @@ class ScheduledRenewTests(unittest.TestCase):
         result, renewed = self.run_watch(["idle"] * (self.IDLE * 2 + 1), screens=[busy, self.CLEAN])
         self.assertEqual(result, "renewed")
         renewed.assert_called_once()
+
+    def test_service_terminals_do_not_block_when_handoff_awaits_nothing(self):
+        busy = "Done.\n  4 background terminals running\n\u203a Ask Codex to do anything"
+        result, renewed = self.run_watch(["idle"] * self.IDLE, screens=[busy], awaits_nothing=True)
+        self.assertEqual(result, "renewed")
+        renewed.assert_called_once()
+
+    def test_awaited_background_never_renews_until_done(self):
+        busy = "Done.\n  4 background terminals running\n\u203a Ask Codex to do anything"
+        result, renewed = self.run_watch(["idle"] * (renew.DEADLINE_SECONDS // renew.POLL_SECONDS + 1),
+                                         screens=[busy])
+        self.assertEqual(result, "expired")
+        renewed.assert_not_called()
 
     def test_open_lead_request_never_renews(self):
         result, renewed = self.run_watch(["idle"] * (renew.DEADLINE_SECONDS // renew.POLL_SECONDS + 1),

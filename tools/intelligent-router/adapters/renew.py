@@ -162,12 +162,14 @@ def renew_with_handoff(name, handoff):
                "AGENTS.md 규칙을 따릅니다.")
 
 
-def wait_and_renew(name, handoff, now=time.time, sleep=time.sleep):
+def wait_and_renew(name, handoff, awaits_nothing=False, now=time.time, sleep=time.sleep):
     """Wait for the scheduling turn to end, then renew after GRACE_SECONDS of untouched idle.
 
     Any status change after idle (a user, router-coord, or any other prompt) means the session
     continued: cancel, because the handoff no longer describes it. Background terminals or an
-    open Lead request restart the grace period; a question or blocked UI cancels.
+    open Lead request restart the grace period; a question or blocked UI cancels. When the
+    handoff says it awaits nothing, background terminals are long-running services (collectors,
+    servers) whose results no conversation waits for, so they do not block renewal.
     """
     deadline = now() + DEADLINE_SECONDS
     idle_since = idle_seq = None
@@ -183,6 +185,8 @@ def wait_and_renew(name, handoff, now=time.time, sleep=time.sleep):
                 return "cancelled_user_continued"
             elif now() - idle_since >= GRACE_SECONDS:
                 reason = screen_reason(screen(name))
+                if reason == "waiting_background" and awaits_nothing:
+                    reason = None
                 if reason == "waiting_background" or (reason is None and open_lead_request(name)):
                     idle_since = None
                 elif reason:
@@ -240,7 +244,9 @@ def watch(name):
             return "watcher_busy"
         pending_path = RECORDS / (name + ".pending.json")
         pending = json.loads(pending_path.read_text())
-        pending["state"] = wait_and_renew(name, pending["handoff"])
+        fields = handoff_fields((lead.REPO / pending["handoff"]).read_text())
+        pending["state"] = wait_and_renew(name, pending["handoff"],
+                                          awaits_nothing=fields.get("기다리는 것", "").startswith("없음"))
         pending["finished_at"] = time.time()
         lead.write(pending_path, pending)
         remember(name, pending["state"])
