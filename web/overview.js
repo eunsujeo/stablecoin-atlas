@@ -1,11 +1,12 @@
+import {overviewMarketRows} from './overview-market-model.js';
 import {readChartPreferences,saveChartPreferences,readChartURL,syncChartURL} from './overview-preferences.js';
 import {validateRegistrationIndex,validateRegisteredHistory,registrationChartData,sameRegisteredSource} from './registration-model.js';
 import {tokenInfoButton,registeredCoinInfoButton} from './token-profile.js';
 import {beginLoading} from './loading.js';
-import {sparkline, renderNetworkSupplyChart, networkSupplySeries} from './market-chart.js';
+import {renderNetworkSupplyChart, networkSupplySeries} from './market-chart.js';
 import { dashboardEvidence, VERDICTS, reportLinks } from './evidence-model.js';
-import { validateMarket, displayAmount, ratio, units, latest } from './market-model.js';
-import { overviewSummary, overviewRanking, overviewEvidenceRanking } from './overview-model.js';
+import { validateMarket, displayAmount, exactDecimal, ratio, units } from './market-model.js';
+import { overviewSummary, overviewEvidenceRanking } from './overview-model.js';
 const $=selector=>document.querySelector(selector);
 const node=(tag,text,cls)=>{const el=document.createElement(tag);if(text!==undefined)el.textContent=String(text);if(cls)el.className=cls;return el;};
 const savedChart=readChartURL(location.href)??readChartPreferences();
@@ -127,22 +128,31 @@ function renderMarket(){
   else if(select.options.length&&scopeReady()){state.selectedCoin=select.value;state.selectedNetwork='all';}
   select.disabled=!trendData();
   populateTrendSource();populateTrendNetworks();renderMarketTrend();
-  for(const [metric,target] of [['CIRCULATING','circulating'],['COIN_TOTAL','total']]){
-    const host=$('#overview-'+target);host.replaceChildren();
-    const rows=state.market?overviewRanking(state.market,metric):[];
-    for(const [index,row]of rows.entries()){
-      const coin=state.market.registry.coins.find(c=>c.id===row.coinId),item=node('li'),link=node('a',undefined,'overview-rank-row');link.href='#live';
-      link.append(node('span',index+1,'rank-number'),node('strong',coin.symbol),node('span',displayAmount(row.amount),'overview-rank-value'),node('small',when(row.observedAt),'muted'));
-      link.append(sparkline(state.market,row));
-      link.title=`${coin.name} · ${row.amount} tokens · ${row.provider} ${row.endpoint} · ${row.selector}`;item.append(link);host.append(item);
-    }
-    if(!rows.length)host.append(node('li','저장된 자료 없음','overview-empty'));
-    $('#overview-'+target+'-note').textContent=state.market?`${rows.length} / 등록 ${state.market.registry.coins.length}개 · 각 행은 해당 관측 시각 기준`:'시장 자료 미확보 · 누락은 0이 아닙니다.';
-  }
-  const volume=$('#overview-volume');volume.replaceChildren();volume.append(node('strong','비교 기준 확인 중'),node('p','거래량의 집계 기간과 단위가 확인되면 순위를 표시합니다.','muted'));
-  const count=state.market?latest(state.market,{metric:'REPORTED_VOLUME'}).length:0;
-  volume.append(node('small',`totalVolume 저장 관측 ${count}개 · 현재 순위에 사용하지 않습니다.`,'chart-note'));
+  renderMarketTable();
 }
+function renderMarketTable(){
+ const host=$('#overview-market-rows');host.replaceChildren();
+ const rows=overviewMarketRows(state.market,state.registration);
+ const metricCell=(value,price=false)=>{
+  const cell=node('td');if(!value){cell.append(node('span','—','muted'));cell.title='자료 미확보';return cell;}
+  cell.textContent=(price?'$':'')+(price?exactDecimal(value.amount):displayAmount(value.amount));
+  cell.title=`${value.amount} ${price?'USD':'tokens'} · ${value.day?'일별 기준 '+value.day+' · ':''}${value.observedAt?'기준시각 '+when(value.observedAt):price?'가격 기준시각 미제공':'기준시각 미제공'} · 수집 ${when(value.fetchedAt)}`;
+  return cell;
+ };
+ for(const row of rows){
+  const tr=node('tr'),asset=node('th');asset.scope='row';
+  const info=registeredCoinInfoButton(state.registration,state.market,row.coin.id,row.coin.symbol+' ⓘ');
+  asset.append(info??node('strong',row.coin.symbol),node('small',row.coin.name,'muted'),node('span',row.pegCurrency+' 연동','market-peg'));
+  const clocks=[row.price,row.circulating,row.total].filter(Boolean).map(v=>v.fetchedAt).sort(),updated=node('td',clocks.length?when(clocks.at(-1)):'—','market-updated');
+  updated.title='각 지표의 기준일·수집시각은 해당 값에서 확인할 수 있습니다.';
+  const action=node('td'),button=node('button','차트 보기','market-chart-link');button.type='button';button.setAttribute('aria-label',row.coin.symbol+' 공급량 차트 보기');
+  button.addEventListener('click',()=>{const select=$('#overview-trend-coin');if(![...select.options].some(o=>o.value===row.coin.id))return;select.value=row.coin.id;select.dispatchEvent(new Event('change'));$('#overview-trend-title').scrollIntoView({behavior:'smooth',block:'start'});});
+  button.disabled=![...$('#overview-trend-coin').options].some(o=>o.value===row.coin.id);action.append(button);
+  tr.append(asset,metricCell(row.price,true),metricCell(row.circulating),metricCell(row.total),metricCell(row.volume),updated,action);host.append(tr);
+ }
+ if(!rows.length){const tr=node('tr'),cell=node('td','시장 자료를 읽지 못했습니다. 다시 읽어주세요.','muted');cell.colSpan=7;tr.append(cell);host.append(tr);}
+}
+
 async function loadTrend(){
   const sequence=++trendSequence;trendAbort?.abort();trendFinish?.();trendFinish=null;state.trendLoading=false;
   if(!state.registration){populateTrendNetworks();renderMarketTrend();return;}
@@ -165,7 +175,7 @@ async function loadTrend(){
 }
 async function load(){
   if(state.loading)return;state.loading=true;$('#overview-reload').disabled=true;
-  const finish=beginLoading($('#overview-screen'),{ready:!!(state.index||state.market),targets:[['#overview-market-trend','chart'],['#overview-chain-breakdown','rows'],['#overview-circulating','rows'],['#overview-total','rows'],['#overview-volume','rows'],['#overview-metrics','cards']]});
+  const finish=beginLoading($('#overview-screen'),{ready:!!(state.index||state.market),targets:[['#overview-market-trend','chart'],['#overview-chain-breakdown','rows'],['#overview-market-rows','rows'],['#overview-metrics','cards']]});
   try {
   const results=await Promise.allSettled([json('/evidence/index.json').then(dashboardEvidence),json('/market-data.json').then(validateMarket),json('/registration-index.json',{optional:true}).then(x=>x===null?null:validateRegistrationIndex(x))]);
   const failed=[];

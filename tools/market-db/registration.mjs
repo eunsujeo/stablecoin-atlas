@@ -1,3 +1,6 @@
+import {readCoinMarkets} from './registration-coin-market.mjs';
+import {selectionContext,requireCurrentRegistrationSelection} from './registration-context.mjs';
+export {selectionContext,requireCurrentRegistrationSelection} from './registration-context.mjs';
 import {gzipSync,gunzipSync} from 'node:zlib';
 import {createHash} from 'node:crypto';
 import {transaction,runtimeRole} from './connection.mjs';
@@ -23,16 +26,6 @@ const valueHash=(coverage,network,p)=>hash({metadataId:coverage.metadataId,coinI
 export function registrationFilter(input){
  requireValue(input&&Object.keys(input).every(k=>['selectionId','coinId','metric','from','to','sourceId'].includes(k))&&isHash(input.selectionId)&&typeof input.coinId==='string'&&/^[a-z][a-z0-9-]{0,63}$/.test(input.coinId)&&metricContract(input.metric)&&day(input.from)&&day(input.to)&&input.to>=input.from&&(Date.parse(input.to)-Date.parse(input.from))/86400000<=365&&(input.sourceId===undefined||isHash(input.sourceId)),'REGISTRATION_DB_FILTER_INVALID');
  return input;
-}
-
-export async function selectionContext(client,id){
- const r=(await client.query(`SELECT encode(s.id,'hex') AS id,encode(s.metadata_id,'hex') AS metadata_id,encode(s.source_hash,'hex') AS source_hash,${stamp('s.fetched_at')} AS fetched,
- s.document AS plan,m.document AS metadata,m.legacy_document AS legacy,m.contracts,encode(m.legacy_hash,'hex') AS legacy_hash,m.revision
- FROM atlas_registration.selection s JOIN atlas_registration.metadata_revision m ON m.id=s.metadata_id WHERE s.id=$1`,[hex(id)])).rows[0];
- requireValue(r,'REGISTRATION_DB_SELECTION_REQUIRED');
- validateRegistration(r.metadata,r.legacy);verifyRegistrationPlanHash(r.plan);
- requireValue(hash(r.metadata)===r.metadata_id&&hash(r.legacy)===r.legacy_hash&&r.revision===r.metadata.revision&&hash(r.contracts)===hash(measurementContracts)&&r.plan.planHash===r.id&&r.plan.metadataHash===r.metadata_id&&r.plan.legacyRegistryHash===r.legacy_hash&&r.plan.catalogueSource.hash===r.source_hash&&r.plan.catalogueSource.fetchedAt===r.fetched);
- return r;
 }
 
 // Owner-only additive installation; supplied plan DTOs are never accepted as authority.
@@ -108,14 +101,15 @@ async function verifyValues(client,coverage){
 }
 
 async function authorizeRegistrationReader(client){
-  await runtimeRole(client);await verifyRuntimeAccess(client);await verifyRegistration(client);
+  await runtimeRole(client);await verifyRuntimeAccess(client);const version=await verifyRegistration(client);
   const role=(await client.query('SELECT current_user AS name')).rows[0].name;
   await readerPrivileges(client,role);
   requireValue((await client.query('SELECT 1 FROM atlas_registration.reader_grant WHERE role_name=current_user')).rowCount,'REGISTRATION_DB_ACCESS_DENIED');
+  return version;
 }
 export async function readRegistrationIndex(client){
  return transaction(client,async()=>{
-  await authorizeRegistrationReader(client);
+  const version=await authorizeRegistrationReader(client);
   const latest=(await client.query(`SELECT encode(id,'hex') AS id FROM atlas_registration.selection
    WHERE metadata_id=(SELECT id FROM atlas_registration.metadata_revision ORDER BY revision DESC LIMIT 1)
    ORDER BY fetched_at DESC,id DESC LIMIT 1`)).rows[0];
@@ -124,8 +118,10 @@ export async function readRegistrationIndex(client){
   const sources=(await client.query(`SELECT DISTINCT ON (coin,metric) coin,metric,encode(id,'hex') AS "sourceId",to_char(window_from,'YYYY-MM-DD') AS "from",to_char(window_to,'YYYY-MM-DD') AS "to"
    FROM atlas_registration.daily_source WHERE selection_id=$1 ORDER BY coin,metric,fetched_at DESC,id DESC LIMIT 11`,[hex(latest.id)])).rows;
   requireValue(sources.length<=10,'REGISTRATION_DB_RESPONSE_LIMIT');
+  const markets=version>=3?await readCoinMarkets(client,c):new Map();
   return {schemaVersion:1,kind:'REGISTERED_SUPPLY_INDEX',selectionId:latest.id,
    coins:c.plan.coins.map(coin=>({id:coin.coinId,symbol:coin.symbol,name:coin.name,pegCurrency:coin.pegCurrency,notes:coin.notes,
+    ...(markets.has(coin.coinId)?{market:markets.get(coin.coinId)}:{}),
     basicInfo:{reviewedAt:c.metadata.reviewedAt,networks:coin.selection.selected.map(n=>n.networkId),sources:c.metadata.coins.find(m=>m.id===coin.coinId).sources.map(id=>{const s=c.metadata.sources.find(s=>s.id===id);return {title:s.title,url:s.url};}),profiles:c.metadata.newDeployments.filter(d=>d.coinId===coin.coinId).map(d=>({networkId:d.networkId,standard:d.standard,identity:d.identity}))},
     metrics:sources.filter(s=>s.coin===coin.coinId).map(({metric,from,to,sourceId})=>({metric,from,to,sourceId}))})),
    networks:c.metadata.networks.map(({id,name})=>({id,name}))};
@@ -150,12 +146,4 @@ export async function readRegistrationHistory(client,input){
   const result={...base,state:series.length?coverage.state:'MISSING',updatedAt:s.fetched,sourceId:s.id,sourceHash:s.source_hash,mapperVersion,missingNetworks:coverage.missingNetworks,series};
   requireValue(Buffer.byteLength(JSON.stringify(result))<=2*1024*1024,'REGISTRATION_DB_RESPONSE_LIMIT');return result;
  },{repeatableRead:true});
-}
-
-export async function requireCurrentRegistrationSelection(client,selectionId){
- const latest=(await client.query(`SELECT encode(id,'hex') AS id FROM atlas_registration.selection
- WHERE metadata_id=(SELECT id FROM atlas_registration.metadata_revision ORDER BY revision DESC LIMIT 1)
- ORDER BY fetched_at DESC,id DESC LIMIT 1`)).rows[0];
- requireValue(latest?.id===selectionId,'REGISTRATION_DB_SELECTION_CHANGED');
- const c=await selectionContext(client,selectionId);await registryMatches(client,c.legacy);return c;
 }

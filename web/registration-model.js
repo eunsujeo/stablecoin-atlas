@@ -12,6 +12,7 @@ export function validateRegistrationIndex(x){
  for(const n of x.networks)requireValue(id(n.id)&&text(n.name,64));
  for(const c of x.coins){
   requireValue(['usdt','usdc','rlusd','jpyc','jpysc'].includes(c.id)&&text(c.symbol,16)&&text(c.name,64)&&['USD','JPY'].includes(c.pegCurrency)&&Array.isArray(c.notes)&&c.notes.length<=4&&c.notes.every(n=>text(n,400))&&Array.isArray(c.metrics)&&c.metrics.length<=2&&new Set(c.metrics.map(m=>m.metric)).size===c.metrics.length);
+  if(c.market!==undefined)validateCoinMarket(c.market,x.selectionId,c);
   if(c.basicInfo!==undefined){
    const b=c.basicInfo;requireValue(iso(b.reviewedAt)&&Array.isArray(b.networks)&&b.networks.length<=10&&new Set(b.networks).size===b.networks.length&&b.networks.every(id=>x.networks.some(n=>n.id===id))&&Array.isArray(b.sources)&&b.sources.length<=4&&b.sources.every(s=>text(s.title,120)&&registrationProfileUrl(s.url))&&Array.isArray(b.profiles)&&b.profiles.length<=8);
    for(const p of b.profiles)requireValue(x.networks.some(n=>n.id===p.networkId)&&p.standard==='ERC-20'&&p.identity?.kind==='CONTRACT'&&/^0x[a-fA-F0-9]{40}$/.test(p.identity.address));
@@ -45,4 +46,10 @@ export function sameRegisteredSource(detail,index,{coinId,metric:expected}={}){
 
 export function registrationProfileUrl(value){
  try{const u=new URL(value);return typeof value==='string'&&value.length<=320&&u.protocol==='https:'&&!u.username&&!u.password&&!u.port&&!u.search&&!u.hash&&['developers.circle.com','tether.to','docs.ripple.com','github.com','www.startale.com'].includes(u.hostname)&&u.href===value;}catch{return false;}
+}
+
+function validateCoinMarket(p,selectionId,coin){
+ requireValue(p&&p.schemaVersion===1&&p.kind==='REGISTERED_COIN_MARKET'&&p.mapperVersion==='defillama-global-market-v1'&&p.selectionId===selectionId&&p.coinId===coin.id&&p.pegCurrency===coin.pegCurrency&&hash(p.sourceId)&&hash(p.sourceHash)&&day(p.requestDay)&&iso(p.fetchedAt)&&Date.parse(p.fetchedAt)>=Date.parse(p.requestDay)&&Date.parse(p.fetchedAt)<Date.parse(p.requestDay)+86460000&&p.price?.unit==='USD'&&p.price.sourceAsOf===null&&p.circulating?.unit==='token');
+ for(const f of [p.price,p.circulating])requireValue(['AVAILABLE','MISSING','INVALID'].includes(f.state)&&(f.state==='AVAILABLE'?typeof f.amount==='string'&&/^(0|[1-9]\d{0,77})(\.\d{1,36})?$/.test(f.amount):f.amount===null));
+ requireValue(p.circulating.state==='AVAILABLE'?day(p.circulating.day)&&p.circulating.day<=p.fetchedAt.slice(0,10):p.circulating.day===null);
 }

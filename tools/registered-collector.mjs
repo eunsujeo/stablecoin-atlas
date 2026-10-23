@@ -4,6 +4,9 @@ import {setTimeout as pause} from 'node:timers/promises';
 import {workspaceEnvironment} from './workspace-env.mjs';
 import {connectDatabase} from './market-db/connection.mjs';
 import {safeErrorCode} from './market-db/errors.mjs';
+import {importCoinMarket} from './market-db/registration-coin-market.mjs';
+import {verifyRegistration} from './market-db/registration-access.mjs';
+import {transaction} from './market-db/connection.mjs';
 import {importRegistrationHistory} from './market-db/registration.mjs';
 import {importHistory,verifyHistoryWriter} from './market-db/history.mjs';
 import {acquireRegisteredWorker,releaseRegisteredWorker,registeredContext,claimRegistered,pendingRegistered,beforeRegisteredRequest,finishRegistered} from './market-db/registration-scheduler.mjs';
@@ -45,7 +48,7 @@ export async function processRegisteredCoin({reservation,context,receipts,archiv
    await archiveCompressedSources([{hash:proof.sourceHash,bytes}],join(archiveRoot,'history'));
    await receipts.save(job,slot,proof);receipt=await receipts.read(job,slot);
   }
-  signal?.throwIfAborted();const input={selectionId,coinId,bytes,fetchedAt:receipt.payload.fetchedAt};
+  signal?.throwIfAborted();const input={selectionId,coinId,bytes,fetchedAt:receipt.payload.fetchedAt,requestDay:reservation.day};
   const stats=await importRegistered(input);
   if(['usdt','usdc','rlusd'].includes(coinId))await importLegacy(context.legacy,[historyProjection(bytes,coinId,context.legacy,input.fetchedAt),historyProjection(bytes,coinId,context.legacy,input.fetchedAt,{metric:'NETWORK_MINTED'})]);
   signal?.throwIfAborted();await finish(reservation,'STORED');return {...stats,providerRequests,coinId,day:reservation.day,state:'STORED',recovered:reservation.state==='RECOVER'};
@@ -61,12 +64,13 @@ export async function runRegisteredCollector({env,options,signal,connect=connect
  const client=await connect(env),lost=new AbortController(),combined=signal?AbortSignal.any([signal,lost.signal]):lost.signal;client.on('error',()=>lost.abort());let locked=false;
  try{
   const pid=await acquireRegisteredWorker(client,options.selectionId);locked=true;await verifyHistoryWriter(client);
+  const marketEnabled=await transaction(client,async()=>await verifyRegistration(client)>=3,{repeatableRead:true});
   const receipts=await receiptStore(options.stateDirectory),context=await registeredContext(client,options.selectionId);
   if(context.metadata.coins.map(c=>c.id).sort().join(',')!==[...coins].sort().join(','))throw Error('REGISTRATION_METADATA_INVALID');
   const process=reservation=>processRegisteredCoin({reservation,context,receipts,archiveRoot:options.archiveRoot,signal:combined,
    request:coin=>fetchRegisteredHistorySource(coin,(url,o)=>{combined.throwIfAborted();return fetcher(url,{...o,signal:AbortSignal.any([combined,o.signal])});}),
    stamp:async()=>new Date((await client.query('SELECT clock_timestamp() AS now')).rows[0].now).toISOString(),
-   guard:r=>beforeRegisteredRequest(client,r,pid),importRegistered:input=>importRegistrationHistory(client,input),importLegacy:(legacy,snapshots)=>importHistory(client,legacy,snapshots),finish:(...a)=>finishRegistered(client,...a)});
+   guard:r=>beforeRegisteredRequest(client,r,pid),importRegistered:async input=>{const stats=await importRegistrationHistory(client,input);return marketEnabled?{...stats,...await importCoinMarket(client,input)}:stats;},importLegacy:(legacy,snapshots)=>importHistory(client,legacy,snapshots),finish:(...a)=>finishRegistered(client,...a)});
   do{
    combined.throwIfAborted();const handled=new Set();let failed=false;
    const recoveries=await pendingRegistered(client,options.selectionId,pid);

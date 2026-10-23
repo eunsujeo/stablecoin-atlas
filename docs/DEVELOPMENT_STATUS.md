@@ -7,7 +7,7 @@
 - 대시보드는 실제 자산의 저장 조회만 표시한다. 개발용 Fixture는 UI 집계/목록에서 제외하고 원본·CLI 검사는 보존한다. 이 PC의 UI는8보고서/111항목, 원본 저장소는15보고서/202항목이다.
 
 - Overview 자산별/네트워크별 검증 랭킹: SCENARIO_SUCCESS_V1의 통과 점수·판정 완료 비율을 항목 수로 합산하고 정렬 기준을 선택한다. 미산정은 순위 없음, 정확한 동점은 공동 순위다. 시장 지표와 분리한다. [ADR0043](adr/0043-overview-asset-network-rankings.md), 최종 검토 상태는 최신 인계문을 따른다.
-- 기본 Overview: 일반 이용자를 위한 토큰·네트워크별 공급량 추이·네트워크별 공급량 비교·시장 랭킹을 먼저 표시한다. 기술 검증은 기본 접힌 전문가용 보조 영역에 두고 검토한 자산/네트워크 수·통과 점수·판정 완료 범위·항목 이동을 제공한다. 기존 집계 공식은 [ADR0038](adr/0038-overview-scenario-results.md), 현재 화면 범위는 ADR0043을 따른다.
+- 기본 Overview: 일반 이용자를 위한 토큰·네트워크별 공급량 추이·네트워크별 공급량 비교·시장 비교표를 먼저 표시한다. 기술 검증은 기본 접힌 전문가용 보조 영역에 두고 검토한 자산/네트워크 수·통과 점수·판정 완료 범위·항목 이동을 제공한다. 기존 집계 공식은 [ADR0038](adr/0038-overview-scenario-results.md), 현재 화면 범위는 ADR0043을 따른다.
 - EVM/ERC-20·TRON 읽기와 프로그램이 생성한 격리 사설 Fixture 검사.
 - Solana mint/명시 Token Account, XRPL issuer/명시 holder trust-line의 공통 읽기. 공개망 거래·서명·실제 관리자 권한 행사는 없다.
 - 로컬 저장 근거의 항목별 현황, 자산 프로필·비교, 보고서 문서. 소스 확인과 실제 실행 판정을 구분한다.
@@ -30,6 +30,8 @@
 사용자가 Supabase/PostgreSQL과 다수 스테이블코인·네트워크 확장을 전제로 설계를 요청했다. [ADR0039](adr/0039-postgresql-market-storage-design.md)의 후보 DDL·범위/지표별 시계열·공통 요청 근거·legacy 이전·용량/조회 설계를 작성했다. 로컬 격리 PostgreSQL17.11에서 제약 시험과 합성30코인×3지표×1440분의129,600관측을 측정했다. 메타데이터/인덱스 포함 약42MB/일이며 원문·backup은 별도다. 정본은 [저장 설계](design/POSTGRESQL_MARKET_STORAGE.md), 실제 수행/미검증 구분은 [검증 기록](design/POSTGRESQL_MARKET_VALIDATION.md)이다. [ADR0040](adr/0040-postgresql-market-import-and-query.md)의 명시적 init/partition/grant/import·저장/제한 조회 CLI와 서버 환경 연결을 구현했다. 격리 로컬 DB에서 기존30관측/네트워크6행 이전·legacy/바이트/시각 보존과 재이전, 실제 비관리자 역할/RLS·동시성·rollback을 검증했다. [실행 안내](POSTGRESQL_MARKET_CLI.md). 실제 Supabase PostgreSQL17.11에 인증서를 검증하는 TLS로 연결하여 초기화·2026-10/11 파티션·writer/reader 전용 로그인과 권한을 준비했다. 명시적 웹 DB 읽기 모드는 ADR0044로 추가했으며 공개 배포는 아직 하지 않았다. ADR0042의 `market:watch --database`와 읽기 전용 `market:db:check`를 구현했으며, 소유 로컬 DB로 저장/접속 점검/복구를 검증했다. 실제 원격 writer/reader의 두 달 읽기 전용 READY 점검을 완료했고 .env.local은 writer로 전환했다. 관리자/reader 접속 정보는 Git 제외 비공개 설정으로 보관한다. 실제 원격으로 기존18파일의246관측/42네트워크 이력을 이전하고18파일 재이전이 모두 UNCHANGED임을 확인했다. 5분 수집은 명시 DB 모드로 전환해 새 projection/JSON과 DB의 원본 hash 및 행 수를 대조했다. 이후 누적 수량은 최신 실행 기록을 따른다. [새 프로젝트 설정](SUPABASE_SETUP.md).
 
 - 공급량 화면 개선: [ADR0056](adr/0056-supply-scale-and-source-cache.md)의 자동 로그 눈금/실제0 분리, 최대10개 목록 높이 제한, 같은 일별 source 재사용/조건부 HTTP, 확장 코인 기본정보 hover를 추가했다.
+
+- 코인 시장 비교표: [ADR0057](adr/0057-global-coin-market-comparison.md)의 등록 v3에 상세 응답의 전체 유통량·USD 가격을 저장한다. Overview는5코인을 연동 통화별로 묶고 기존3코인의 Arkham 지표와 엔화2코인의 일별 지표를 명시적으로 선택한다. 총공급량/24시간 거래량 부재는0으로 대체하지 않는다. 같은 수집 응답을 재사용하며 추가 API 호출은 없다. 실제 적용·검증 상태는 최신 인계문을 따른다.
 
 ## 토큰 기본정보
 

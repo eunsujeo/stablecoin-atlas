@@ -33,12 +33,11 @@
         <div id="overview-trend-period" class="chart-filters" aria-label="유통량 조회 기간과 비교 방식"><button data-period="24h" aria-pressed="false">24H</button><button data-period="7d" aria-pressed="false">7D</button><button data-period="30d" aria-pressed="true">30D</button><button data-period="90d" aria-pressed="false">3M</button><button data-period="1y" aria-pressed="false">1Y</button><span class="comparison-divider" aria-hidden="true">·</span><button data-comparison="amount" aria-pressed="true">공급량 규모</button><button data-comparison="change" aria-pressed="false">증감률 (%)</button></div>
         <div class="overview-market-grid"><div><div id="overview-market-trend"></div><p id="overview-trend-note" class="chart-note"></p></div><aside class="overview-chain-panel"><h3>네트워크별 공급량</h3><p class="muted">같은 코인의 체인별 총공급량 비교</p><div id="overview-chain-breakdown"></div><a href="#live" class="text-link">네트워크 · 원본 상세 →</a></aside></div>
       </section>
-      <div class="panel-heading overview-market-heading"><div><h2>스테이블코인 시장</h2><p>등록된 스테이블코인 중 지표가 확인된 자료 · 서로 다른 지표는 합산하지 않습니다.</p></div><a href="#live" class="text-link">시장 상세 →</a></div>
-      <div class="overview-rankings">
-        <section class="panel"><div class="panel-heading"><div><h2>유통량 랭킹</h2><p>코인 전체 · circulatingSupply · tokens</p></div></div><ol id="overview-circulating" class="overview-ranking"></ol><p id="overview-circulating-note" class="chart-note"></p></section>
-        <section class="panel"><div class="panel-heading"><div><h2>거래량 랭킹</h2><p>집계 기간·단위 확인 후 비교합니다.</p></div></div><div id="overview-volume" class="overview-volume"></div></section>
-        <section class="panel"><div class="panel-heading"><div><h2>총공급량 랭킹</h2><p>현재 총공급량 · totalSupply · tokens</p></div></div><ol id="overview-total" class="overview-ranking"></ol><p id="overview-total-note" class="chart-note"></p></section>
-      </div>
+      <section class="panel overview-market-table-panel" aria-labelledby="overview-market-title">
+        <div class="panel-heading overview-market-heading"><div><h2 id="overview-market-title">스테이블코인 시장</h2><p>코인 전체 공급량 · 연동 통화별 비교</p></div><a href="#live" class="text-link">시장 상세 →</a></div>
+        <div class="table-scroll"><table class="overview-market-table"><caption class="sr-only">스테이블코인별 가격과 공급량 비교</caption><thead><tr><th scope="col">토큰</th><th scope="col">가격 (USD)</th><th scope="col">유통량 (tokens)</th><th scope="col">총공급량 (tokens)</th><th scope="col">24시간 거래량</th><th scope="col">업데이트</th><th scope="col"><span class="sr-only">공급량 차트</span></th></tr></thead><tbody id="overview-market-rows"></tbody></table></div>
+        <p class="chart-note">— 자료 미확보 · 거래량은 집계 기간과 단위 확인 전까지 표시하지 않습니다.</p>
+      </section>
       <details id="overview-technical" class="overview-technical"><summary><span>기술 검증 현황</span><small>개발자 · 전문가용 · 검토 범위와 항목별 판정</small></summary>
       <div class="section-toolbar overview-scope"><span id="overview-scope-summary" class="muted">검토한 자산 · 네트워크 범위</span><input type="hidden" id="overview-scope" value="STORED_READ_ONLY"><a class="text-link" href="#validation">검증 항목 전체 보기 →</a></div>
       <div id="overview-metrics" class="metrics overview-metrics"></div>

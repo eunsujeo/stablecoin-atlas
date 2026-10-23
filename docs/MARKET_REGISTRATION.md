@@ -97,3 +97,15 @@ npm run collector:registered -- run --env-file <writer.env> --selection <검토�
 ```
 
 `--once`는 같은 예약 규칙으로 단발 실행한다. 재실행해도 같은 UTC일의 성공/실패 예약을 재조회하지 않는다. 원문이 있는 미종료 예약은 API 없이 재수입한다. 원문 없는 미종료 예약은 UNCONFIRMED로 보존하고 다음 코인을 진행한다. 실패 코인의 이전 성공 자료/시각은 유지한다. metadata/selection 변경 시 명시 설정을 바꿔야 하며 하루 예약은 초기화되지 않는다. private archive/receipt를 영속 보관하고 owner env를 runtime에 주지 않는다. v2 설치 후 기존 history collect는 HTTP 전에 차단된다. 5분 Arkham 수집은 별도 유지한다.
+
+## 코인 전체 가격·유통량과 시장 비교표
+
+[ADR0057](adr/0057-global-coin-market-comparison.md)의 v3는 동일한 일별 상세 응답에서 전체 토큰 유통량과 USD 가격을 저장한다. 기존 일별5회 요청 수는 늘리지 않는다. owner로 `market-upgrade`를 한 번 적용하면 기존 등록 reader/writer 권한이 원자적으로 확장된다. 진행 중인 일별 worker를 정상 종료한 뒤 새 코드로 재시작한다. v1/v2 조회는 유지하지만 새 필드 저장에는 v3가 필요하다.
+
+```sh
+npm run market:registration:db -- market-upgrade --env-file <admin.env>
+# 이미 완료한 예약은 archive/receipt의 원본 시각과 UTC 예약일로 import-only 백필한다.
+npm run market:registration:db -- market-import --env-file <writer.env> --selection <selection-id> --coin jpyc --source <private-raw.json> --fetched-at <receipt-fetchedAt> --day <receipt-UTC-day>
+```
+
+`market-import`는 HTTP를 실행하지 않고 원문을 비공개 archive에 보관한 뒤 저장한다. receipt의 날짜를 원문 파일 mtime이나 현재 시각으로 대체하지 않는다. UI의 price는 USD이며 자체 기준시각이 없는 가격은 수집시각만 표시한다. global circulating과 상위10개 네트워크 합계는 다른 값이다. 엔화 코인의 총공급량·검증된24시간 거래량은 미확보로 남긴다.
