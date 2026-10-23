@@ -8,6 +8,8 @@
 
 [ADR0078](adr/0078-windowed-survey-storage.md)로 날짜별7일 원문 저장·명시 v2 upgrade·기간별 읽기를 연결했다. 실제4source를 보존했으며 반복 실행이나 스케줄은 활성화하지 않았다. 다음 날짜를 위한 저장 지원이 새 Allium 호출 승인은 아니다.
 
+[ADR0079](adr/0079-finite-offline-schedule-simulation.md)는 명시 UTC일의 유한 tick을 새 소유 PG17에서 가상 실행한다. `npm run check:allium-daily`로 다일·중복/재시작·ACK 유실·누적 예산·시간 경계를 검증한다. 실제 timer/스케줄·수집 CLI·기존 DB 연결 없이 기존 원장과 checkpoint 보호를 유지한다.
+
 준비와 실제 실행은 분리한다. 기존 사용자 승인 기록을 600권한의 `.state` 파일로 보존한 뒤, `npm run allium:live -- prepare --day D --approval <private-file> --output <private-state-file>`로 15분 lease를 만든다. stdout의 authorizationHash와 정확한 준비 파일을 검토하고 `npm run allium:live -- collect --day D --approval <same-private-file> --authorization <prepared-file> --reviewed-authorization-sha256 <hash>`로 최초 1묶음만 실행한다. 준비 출력의 부모는 소유700 디렉터리여야 한다. 명령에 키를 넣지 않는다. 실행 뒤 `live-once`는 영속 소비되므로 날짜·키·새 준비 파일로 재실행할 수 없다. 원문과 승인 파일은 Git/웹에 게시하지 않는다.
 
 성공 응답의 echo 차이만 남으면 각 원문을 오프라인에서 개별 검토한다. `resume`은 collect와 같은 인자에 `--sql-review <private-manifest> --reviewed-sql-review-sha256 <hash>`를 더해 같은 lease·묶음의 미전송 job만 진행한다. 이전 SQL은 재전송하지 않으며 마지막 결과 검토는 외부 호출0이다. 만료된 lease는 갱신하지 않는다. 정확한 바인딩·UNKNOWN 보존·재개 차단 조건은 ADR0076을 따른다.

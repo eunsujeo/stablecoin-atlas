@@ -130,6 +130,7 @@ export function dailyView(s){
  return {kind:'ALLIUM_DAILY_OFFLINE_SIMULATION',executionEnabled:false,providerRequests:0,scheduleWrites:0,
   tailDetection:'REQUIRES_TRUSTED_CHECKPOINT',reconciliation:'NOT_ENABLED_C_ZERO',
   pendingUnits:euText(s.reservations.reduce((n,r)=>n+eu(r.reservedUnits),0n)),
+  lastEventAt:s.events.at(-1)?.at??null,
   usages:s.usages.map(u=>({day:u.day,state:u.state})),
   reservations:s.reservations.map(r=>({id:r.id,day:r.day,kind:r.kind,state:dailyReservationState(r),reservedUnits:r.reservedUnits,
    fakeSends:r.intents.filter(i=>i.sent).length,intents:r.intents.length,

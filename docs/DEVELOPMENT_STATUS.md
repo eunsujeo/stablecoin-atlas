@@ -60,7 +60,7 @@ Allium은 [Explorer 표본](research/allium-samples/README.md)에 이어 [최근
 
 ## 다음 개발 단위
 
-[ADR0078](adr/0078-windowed-survey-storage.md)의 동적7일 기간 저장·조회·표시를 완료했다. 개발 DB의 비파괴 v2 upgrade 후 기존4source/version1·137관측·6schema 보존을 확인했다. 새 실제 원문/공급자 호출은0이며 새 날짜 계약은 Fixture에서 검증했다. 다음 큰 작업은 반복 수집 실행 경로와 스케줄·장애 검증이다. 새 실행·비용·예약 범위는 사용자 확인 후 결정하고, 소비된 live-once를 재사용하지 않는다.
+[ADR0078](adr/0078-windowed-survey-storage.md)의 동적7일 기간 저장·조회·표시를 완료했다. 개발 DB의 비파괴 v2 upgrade 후 기존4source/version1·137관측·6schema 보존을 확인했다. 후속 [ADR0079](adr/0079-finite-offline-schedule-simulation.md)는 가상 자료·새 소유 PG17에서 유한 UTC tick 반복 실행과 중복/재시작·ACK 유실·누적 예산·시간 경계를 검증한다. 실제 timer/스케줄·새 공급자/usage 호출·기존 DB 변경은 없다. 실제 반복 실행·비용·예약 범위는 별도 사용자 확인이 필요하며 소비된 live-once를 재사용하지 않는다.
 
 [ADR0077](adr/0077-offline-live-survey-storage.md)로 실제 수집 저장본의 오프라인 입력·기존 표 연결을 완료했다. [저장 현황](ALLIUM_SURVEY_DATA.md)의 source2→4·최신137관측·원래 시각/미일치/누락 보존·기존6schema 불변을 확인했다. 새 Allium 호출·DB schema/권한 변경·일별 자동 수집은 없다. 다음 동적 기간/자동 수집 범위는 사용자 확인 후 결정한다.
 

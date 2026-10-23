@@ -132,6 +132,12 @@ export function dailyLab(c,{fixtureHash,checkpoints={},checkpointPublisher,respo
   }catch{dailyFail();}
  }
  return {
+  async simulationTime(){
+   try{return await transaction(c,async()=>{
+    await verify(c,fixtureHash,false);
+    return instant((await c.query("SELECT to_char(clock_timestamp() AT TIME ZONE 'UTC','YYYY-MM-DD\"T\"HH24:MI:SS.US\"Z\"') AS at")).rows[0].at);
+   },{readonly:true,repeatableRead:true});}catch{dailyFail();}
+  },
   read:org=>run(org,null,{readonly:true}),
   async reviewReconciliation(org,evidence){
    let input;try{input=evidence===undefined?undefined:structuredClone(evidence);}catch{dailyFail();}
