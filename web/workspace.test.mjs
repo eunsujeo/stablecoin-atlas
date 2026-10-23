@@ -26,9 +26,9 @@ test('setup creates private empty configuration once and preserves existing file
   await rm(join(root,'.env.local'));await symlink(join(root,'.env.example'),join(root,'.env.local'));await assert.rejects(setupWorkspace(url));
 }));
 test('environment loading keeps inherited values, rejects unrelated settings, and does not expand shell expressions',()=>temporary(async root=>{
-  const path=join(root,'.env.local');await writeFile(path,"ARKM_API_KEY='$(ignored-command)'\nRPC_URL=unused\n");
+  const path=join(root,'.env.local');await writeFile(path,"ARKM_API_KEY='$(ignored-command)'\nRPC_URL=unused\nALLIUM_API_KEY=synthetic-allium-only\n");
   const inherited={RPC_URL:'',PATH:'inherited-path',HTTPS_PROXY:'sentinel-inherited',NO_PROXY:'sentinel-local'};
-  const actual=await workspaceEnvironment(path,inherited);assert.equal(actual.ARKM_API_KEY,'$(ignored-command)');assert.equal(actual.RPC_URL,'');assert.equal(actual.PATH,inherited.PATH);assert.equal(actual.HTTPS_PROXY,inherited.HTTPS_PROXY);assert.equal(actual.NO_PROXY,inherited.NO_PROXY);assert.deepEqual(inherited,{RPC_URL:'',PATH:'inherited-path',HTTPS_PROXY:'sentinel-inherited',NO_PROXY:'sentinel-local'});
+  const actual=await workspaceEnvironment(path,inherited);assert.equal(actual.ARKM_API_KEY,'$(ignored-command)');assert.equal(actual.ALLIUM_API_KEY,'synthetic-allium-only');assert.equal((await workspaceEnvironment(path,{ALLIUM_API_KEY:'inherited-allium'})).ALLIUM_API_KEY,'inherited-allium');assert.equal(actual.RPC_URL,'');assert.equal(actual.PATH,inherited.PATH);assert.equal(actual.HTTPS_PROXY,inherited.HTTPS_PROXY);assert.equal(actual.NO_PROXY,inherited.NO_PROXY);assert.deepEqual(inherited,{RPC_URL:'',PATH:'inherited-path',HTTPS_PROXY:'sentinel-inherited',NO_PROXY:'sentinel-local'});
   await writeFile(path,'HTTPS_PROXY=ignored\n');await assert.rejects(workspaceEnvironment(path,inherited));await writeFile(path,'NODE_OPTIONS=ignored\n');await assert.rejects(workspaceEnvironment(path,inherited));
   await rm(path);assert.deepEqual(await workspaceEnvironment(path,inherited),inherited);
 }));
