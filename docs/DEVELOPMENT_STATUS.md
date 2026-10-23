@@ -72,6 +72,8 @@ Allium 일별 수집의 [설계·비용 통제 검토](adr/0068-daily-allium-des
 
 후속 진행으로 [ADR0073의 오프라인 대사 준비 검토 보고서 Fixture](adr/0073-offline-reconciliation-review-fixture.md)를 추가했다. 별도 review-only factory는 publisher를 DB read-only transaction/commit까지 pin하고 exact published head와 원문을 확인한다. 미송신·미import·일반 응답·import 검토와 result 내용을 구분하며 비용 귀속/최종성은 UNKNOWN·c_i=0으로 보존한다. 실제 차감/전환/호출·스케줄·웹 연결은 추가하지 않았다. 다음 범위는 별도 사용자 확인이 필요하다.
 
+[ADR0074의 비용 귀속·최종성 증거 계약](adr/0074-cost-attribution-evidence-contract.md) 설계를 완료했다. 필요한 증거와 향후 시험 기준의 정본이며 공급자 지원·실제 최종성은 미확인이다. 현재 API와 c_i=0을 유지한다. 다음 후보는 별도 사용자 확인 후 읽기 전용 가상 증거 검토 Fixture이며, 배분/차감·실제 전환은 포함하지 않는다.
+
 [ADR0044](adr/0044-read-only-database-market-preview.md)의 DB 읽기 전용 시장 API/화면 연결을 구현했다. `npm run ui -- --database --database-env .state/market-db-secrets/reader.env`로 실행하며 화면에 PostgreSQL 조회 완료와 조회 기간/표본 여부를 표시한다. DB 조회와 수집 상태는 별도다. 기본 `npm run ui`는 기존 JSON 모드다. `collector:registered -- status`로 reader 또는 최소 권한 writer가 일별5코인의 UTC 당일 결과·전체 미종료 예약 수·선정별 마지막 저장 시각·잠금407 관측을 읽기 전용으로 확인한다. 잠금은 건강 보장이 아니며 조회가 수집을 실행하지 않는다. Linux용 두 수집 서비스·코드 밖 영속 경로·로컬 구성 doctor·전환/백업/롤백 절차는 [수집 운영](COLLECTOR_SERVICE.md)에 준비했다. 실제 원격 설치·부팅/재시작·백업 복원 검증은 다음 단계다. 계정 예산·보관 정책·24시리즈 초과 조회 확장도 남았다. 기존 market:watch의 프로세스12회 상한은 유지한다. 후속 ADR0048/0049의 worker는 UTC 하루288회 상한과 DB 예약으로 계속 실행하며 공개 배포는 별도다.
 
 새 PC는 `npm ci` → `npm run setup` → `npm run doctor`로 준비한다. 과거 근거는 별도 이동 파일을 가져와 두 publisher로 복원한다. 시장 자료만 새로 받으려면 `.env.local`의 ARKM_API_KEY를 설정하고 `npm run market:collect`를 명시적으로1회 실행한다. 새 collected 이력은 기존14원본 이동 파일에 포함되지 않는다.
