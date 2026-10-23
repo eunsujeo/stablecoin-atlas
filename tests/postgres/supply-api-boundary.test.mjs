@@ -1,0 +1,42 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {fixture} from './fixture.mjs';import {initialize,grantAccess} from '../../tools/market-db/schema.mjs';
+import {initializeSupply,grantSupply} from '../../tools/market-db/allium-supply.mjs';
+import {verifySupplyApiBoundary,definerSchemaHash} from '../../tools/market-db/supply-api-boundary.mjs';
+import {createHash} from 'node:crypto';
+import {transaction} from '../../tools/market-db/connection.mjs';
+test('supply API boundary: column/PUBLIC/default ACL, SET ROLE paths, definer/view bypasses and BYPASSRLS remain distinct from Dashboard exposure',{timeout:120000},async()=>{
+ const f=await fixture();try{
+  await initialize(f.admin);await f.admin.query('CREATE ROLE anon NOLOGIN; CREATE ROLE authenticated NOLOGIN; CREATE ROLE authenticator NOLOGIN; CREATE ROLE service_role NOLOGIN BYPASSRLS');
+  await initializeSupply(f.admin);await f.createUser('atlas_test_boundarywriter');await grantAccess(f.admin,'atlas_test_boundarywriter','writer');await grantSupply(f.admin,'atlas_test_boundarywriter','writer');
+  const verify=()=>transaction(f.admin,()=>verifySupplyApiBoundary(f.admin),{repeatableRead:true});
+  const pin=()=>transaction(f.admin,()=>definerSchemaHash(f.admin,'public'),{repeatableRead:true});
+  let result=await verify();assert.equal(result.state,'VERIFIED_EFFECTIVE_ACCESS_DENIED');assert.equal(result.dashboardExposedSchemas,'UNKNOWN');assert.equal(result.bypassRlsRoles,1);
+  await f.admin.query('GRANT SELECT(payload) ON atlas_supply.daily_value TO anon');await assert.rejects(verify());await f.admin.query('REVOKE SELECT(payload) ON atlas_supply.daily_value FROM anon');
+  await f.admin.query('GRANT SELECT(payload) ON atlas_supply.daily_value TO PUBLIC');await assert.rejects(verify());await f.admin.query('REVOKE SELECT(payload) ON atlas_supply.daily_value FROM PUBLIC');
+  await f.admin.query('ALTER DEFAULT PRIVILEGES IN SCHEMA atlas_supply GRANT SELECT ON TABLES TO anon');await assert.rejects(verify());await f.admin.query('ALTER DEFAULT PRIVILEGES IN SCHEMA atlas_supply REVOKE SELECT ON TABLES FROM anon');
+  await f.admin.query('GRANT atlas_test_boundarywriter TO authenticator WITH INHERIT FALSE');await assert.rejects(verify());await f.admin.query('REVOKE atlas_test_boundarywriter FROM authenticator');
+  await f.admin.query('GRANT anon TO authenticator');assert.equal((await verify()).state,'VERIFIED_EFFECTIVE_ACCESS_DENIED');
+  await f.admin.query('GRANT USAGE ON SCHEMA public TO anon; CREATE FUNCTION public.test_boundary() RETURNS integer LANGUAGE sql SECURITY DEFINER AS $$ SELECT 1 $$; GRANT EXECUTE ON FUNCTION public.test_boundary() TO anon');
+  await assert.rejects(verify());
+  const definition=(await f.admin.query("SELECT pg_get_functiondef('public.test_boundary()'::regprocedure) AS definition")).rows[0].definition;
+  const schemaHash=await pin(),reviewedDefiners=[{namespace:'public',name:'test_boundary',arguments:'',state:'SOURCE_REVIEWED',definitionHash:createHash('sha256').update(definition).digest('hex'),schemaHash}];
+  const reviewed=()=>transaction(f.admin,()=>verifySupplyApiBoundary(f.admin,{reviewedDefiners}),{repeatableRead:true});
+  assert.equal((await reviewed()).reviewedDefiners,1);
+  await f.admin.query('CREATE OR REPLACE FUNCTION public.test_boundary() RETURNS integer LANGUAGE sql SECURITY DEFINER AS $$ SELECT 2 $$');await assert.rejects(reviewed());
+  await f.admin.query('CREATE OR REPLACE FUNCTION public.test_boundary() RETURNS integer LANGUAGE sql SECURITY DEFINER AS $$ SELECT 1 $$');
+  assert.equal((await reviewed()).reviewedDefiners,1);
+  await f.admin.query('CREATE FUNCTION public.new_dependency() RETURNS integer LANGUAGE sql AS $$ SELECT 1 $$');await assert.rejects(reviewed());await f.admin.query('DROP FUNCTION public.new_dependency()');
+  assert.equal((await reviewed()).reviewedDefiners,1);
+  await f.admin.query('CREATE TABLE public.rule_target(value integer)');reviewedDefiners[0].schemaHash=await pin();
+  await f.admin.query('CREATE RULE guard_rule AS ON INSERT TO public.rule_target DO INSTEAD NOTHING');await assert.rejects(reviewed());
+  await f.admin.query('DROP RULE guard_rule ON public.rule_target');assert.equal((await reviewed()).reviewedDefiners,1);
+  await f.admin.query('CREATE RULE guard_rule AS ON INSERT TO public.rule_target DO INSTEAD NOTHING');reviewedDefiners[0].schemaHash=await pin();assert.equal((await reviewed()).reviewedDefiners,1);
+  await f.admin.query('ALTER TABLE public.rule_target DISABLE RULE guard_rule');await assert.rejects(reviewed());await f.admin.query('ALTER TABLE public.rule_target ENABLE RULE guard_rule');assert.equal((await reviewed()).reviewedDefiners,1);
+  await f.admin.query('DROP RULE guard_rule ON public.rule_target; CREATE SCHEMA rule_external; CREATE FUNCTION rule_external.rule_exec() RETURNS integer LANGUAGE sql AS $$ SELECT 1 $$; CREATE RULE foreign_rule AS ON INSERT TO public.rule_target DO ALSO SELECT rule_external.rule_exec()');
+  await assert.rejects(pin());await f.admin.query('DROP RULE foreign_rule ON public.rule_target; DROP FUNCTION rule_external.rule_exec(); DROP SCHEMA rule_external; DROP TABLE public.rule_target');
+  await f.admin.query('DROP FUNCTION public.test_boundary()');
+  await f.admin.query('CREATE VIEW public.test_supply_view AS SELECT payload FROM atlas_supply.daily_value; GRANT SELECT ON public.test_supply_view TO anon');await assert.rejects(verify());await f.admin.query('DROP VIEW public.test_supply_view');
+  await f.admin.query('GRANT USAGE ON SCHEMA atlas_supply TO anon');await assert.rejects(verify());await f.admin.query('REVOKE USAGE ON SCHEMA atlas_supply FROM anon');
+  result=await verify();assert.equal(result.dashboardExposedSchemas,'UNKNOWN');assert.equal(result.apiRoles,4);
+ }finally{await f.stop();}
+});

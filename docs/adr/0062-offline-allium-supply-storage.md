@@ -1,5 +1,7 @@
 # ADR0062 — 검토 표본의 별도 Allium 공급량 저장·조회
 
+후속 [ADR0063](0063-supply-install-and-api-boundary.md)에서 재개 검토와 실제 기존 DB의14행 설치/입력/대조를 완료했다. 아래의 설치 보류는 이 ADR 작성 당시 상태이며, Dashboard 설정 UNKNOWN과 소스·권한 검토의 구분은 후속 기록을 따른다.
+
 ## 범위와 보류
 
 [ADR0061](0061-bounded-allium-survey-executor.md)의 실제 지원 조사에는 강제 과금 한도 증거가 여전히 필요하다. 그 조건과 독립적으로, 이미 검토한 [Ethereum USDC/USDT 표본](../research/allium-samples/followup.md)의 오프라인 저장·조회 CLI를 구현한다. 기존 Arkham/DeFiLlama 공급량과 별도인 `atlas_supply`에 보존하며 UI 기본 공급자 변경·동등 보조 연결·일별 수집·11배포 지원 확정은 포함하지 않는다.

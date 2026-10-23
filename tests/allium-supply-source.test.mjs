@@ -1,7 +1,8 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {alliumSupplySource,supplyHash,supplyReadRange} from '../tools/allium-supply-source.mjs';
-import {supplyArguments} from '../tools/market-db/allium-supply-cli.mjs';
+import {supplyArguments,main} from '../tools/market-db/allium-supply-cli.mjs';
 import {supplyFixture} from './allium-supply-fixture.mjs';
+import {mkdtemp,writeFile,rm} from 'node:fs/promises';import {join} from 'node:path';import {tmpdir} from 'node:os';
 
 test('Allium supply projection preserves three distinct token quantities, original day/time, native and null without private metadata',()=>{
  const f=supplyFixture(),p=alliumSupplySource(f.bytes,f.options);assert.equal(p.rows.length,14);assert.equal(p.rows[0].values.totalSupply,'1000.000000000000000001');
@@ -26,7 +27,15 @@ test('fixed historical LIMIT result requires the full distinct 2×7 grid and pre
  assert.equal(r.values.totalSupply,'0');assert.equal(r.values.circulatingSupply,null);assert.equal(r.values.isNative,false);
 });
 test('supply CLI has explicit bounded reads and cannot collect, change providers or pass extra flags',()=>{
+ assert.equal(supplyArguments(['boundary']).command,'boundary');assert.throws(()=>supplyArguments(['boundary','--collect','true']));assert.throws(()=>supplyArguments(['boundary','--reviewed-definers','x']));
  assert.equal(supplyArguments(['read','--from','2026-10-16','--to','2026-10-22']).command,'read');
  for(const args of [['collect'],['read'],['read','--from','2026-10-16','--to','2026-10-22','--coin','rlusd'],['read','--from','2026-10-16','--to','2026-10-22','--from','2026-10-16'],['grant','--role','x','--mode','admin'],['import','--source','x'],['read','--from','2026-10-16','--to','2026-10-22','--provider','defillama']])assert.throws(()=>supplyArguments(args));
  for(const o of [{from:'2026-02-30',to:'2026-03-01'},{from:'2026-10-01',to:'2026-11-01'},{from:'2026-10-22',to:'2026-10-16'}])assert.throws(()=>supplyReadRange(o));
+});
+test('boundary CLI rejects changed or wrong-kind reviewed manifests before database configuration',async t=>{
+ const directory=await mkdtemp(join(tmpdir(),'supply-review-'));t.after(()=>rm(directory,{recursive:true,force:true}));
+ const file=join(directory,'review.json'),bytes=Buffer.from(JSON.stringify({schemaVersion:1,kind:'WRONG_KIND',definers:[]}));await writeFile(file,bytes,{mode:0o600});
+ const flags=['boundary','--env-file',join(directory,'missing.env'),'--reviewed-definers',file,'--reviewed-sha256'];
+ await assert.rejects(main([...flags,'0'.repeat(64)]),/REVIEW_HASH_MISMATCH/);
+ await assert.rejects(main([...flags,supplyHash(bytes)]),/INVALID_REVIEW/);
 });

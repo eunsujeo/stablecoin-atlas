@@ -41,7 +41,7 @@ Allium은 [Explorer 표본](research/allium-samples/README.md)에 이어 [최근
 
 - [일별 전송량 DB·UI](ACTIVITY_DATA.md): Allium Ethereum5코인 60행을 별도 atlas_activity에 저장하고 전체 현황에 최신 기준일과 표시했다. 같은 원문 replay0·최소 권한·수정 이력·구시각 import·동시성·원자성 검증. 기존 schema와 공급량은 유지한다. Allium 기본/DeFiLlama 보조 방향은 ADR0059이며 공급량 전환·실제 보조 연결·Allium 자동 수집은 후속이다.
 - [Allium 조사 계획·단발 실행기](ALLIUM_COLLECTION_PLAN.md): ADR0060의 등록13배포/조회후보11개·XRPL2개보류, 고정7일·SQL3개와 ADR0061의 계정 할당기간당 단발 예약·실제 호출 intent/영수증·원문 archive·오프라인 복구를 구현했다. usage GET1회만 성공했으며 강제 과금 한도는 UNCONFIRMED여서 조사 create/run0·DB/스케줄0, 지원 상태 NOT_TESTED다. 공급량 기본 전환·일별 수집은 아직 없다.
-- [Allium 별도 공급량 저장·조회](ALLIUM_SUPPLY_DATA.md): ADR0062의 오프라인 CLI·atlas_supply와 검토 Ethereum USDC/USDT14행의 신규 사설 PG17 입력/대조/재생0을 구현·검증했다. Lead가 capacity 오류로 검토 없이 종료되어 기존 비공개 DB의 실제 설치는 보류했다. 기본 UI·실제11배포 지원·일별 수집으로 표시하지 않는다.
+- [Allium 별도 공급량 저장·조회](ALLIUM_SUPPLY_DATA.md): ADR0062/0063의 오프라인 CLI·atlas_supply를 기존 비공개 DB에 설치하고 검토 Ethereum USDC/USDT14행 입력·대조·재생0을 확인했다. 기존5개 schema·권한/정책·시장 표본180건·전송량60건 보존. API 역할의 DB 권한·전환 경로와 source pin을 검사했으며 Dashboard exposed schemas는 UNKNOWN이다. 기본 UI·실제11배포 지원·일별 수집으로 표시하지 않는다.
 
 - 공급량 차트는 축 눈금에 `눈금 (tokens)`를 표시하고 `1,000억`처럼 정리한다. 가장 큰 네트워크의 최신 실제 값은 선 끝에 별도 색상으로 표시하며 hover/키보드 tooltip 중에는 숨겨 겹침을 줄인다. 로그 축·원본 공급량·증감률 계산은 유지한다.
 
