@@ -1,4 +1,4 @@
-import {surveyRows,surveyMetrics,surveyTargets} from './survey-model.js';
+import {surveyRows,surveyMetrics,surveyTargets,surveyWindow,surveyWindowDays} from './survey-model.js';
 const node=(tag,text)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;return n;};
 const metricLabels={total_supply:'총공급량 (tokens)',circulating_supply:'유통량 (tokens)',adjusted_circulating_supply:'조정 유통량 (tokens)',total_supply_usd:'총공급량 환산 (USD)',circulating_supply_usd:'유통량 환산 (USD)',adjusted_circulating_supply_usd:'조정 유통량 환산 (USD)',transfer_volume:'전송량 (tokens)',transfer_volume_usd:'환산 전송량 (USD)',transfer_count:'전송 건수',transfer_tx_count:'트랜잭션 수',adjusted_volume_usd:'조정 전송량 (USD)'};
 export function initializeSurveyFilters(root,render){
@@ -9,7 +9,8 @@ export function initializeSurveyFilters(root,render){
 }
 export function renderSurvey(root,{data,state}){
  const kind=root.querySelector('[data-survey-kind]').value,coin=root.querySelector('[data-survey-coin]').value,network=root.querySelector('[data-survey-network]').value;
- const snapshot=data?.snapshots.find(s=>s.survey===kind),rows=surveyRows(snapshot,{coin,network});
+ const snapshot=data?.snapshots.find(s=>s.survey===kind),window=data?.window??snapshot?.window??surveyWindow,rows=surveyRows(snapshot,{coin,network,window});
+ const period=root.querySelector('[data-survey-window]');if(period)period.textContent=`11개 배포 / ${window.from}~${surveyWindowDays(window).at(-1)} / 공급량 · 지갑 간 전송량`;
  const observed=rows.filter(r=>r.state==='OBSERVED').length,inconclusive=rows.filter(r=>r.state==='INCONCLUSIVE').length;
  root.querySelector('[role="status"]').textContent=({LAST_GOOD:'조회 실패 · 마지막 정상 자료',UNAVAILABLE:'자료 조회 실패',DISABLED:'DB 읽기 모드 미연결',MISSING:'저장 자료 미확보'})[state]??`관측 ${observed}/${rows.length}일 · INCONCLUSIVE ${inconclusive}일 · 미확보 ${rows.length-observed-inconclusive}일`;
  const head=root.querySelector('thead tr');head.replaceChildren();

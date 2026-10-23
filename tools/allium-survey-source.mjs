@@ -6,28 +6,34 @@ import {validateSurveySnapshot,surveyTargets} from '../web/survey-model.js';
 import {dailyPlan,dailyHash} from './allium-daily-plan.mjs';
 import {canonical,instant,epochMicros} from './market-db/plan.mjs';
 export const surveyMapper='allium-stored-survey-v1';
+export const surveyWindowMapper='allium-stored-survey-window-v2';
 export const surveyPlanHash='1b4318b699f0620bcff4c52587201d8bbaa0b45860dd777df35f6b81407e8797';
 const fail=()=>{throw Error('ALLIUM_SURVEY_SOURCE_INVALID');};
-export async function storedSurveyPlan(){
- const [metadata,legacy]=await Promise.all([readFile(new URL('../data/market-registration.json',import.meta.url)),readFile(new URL('../data/asset-registry.json',import.meta.url))]);
- const plan=alliumPlan(JSON.parse(metadata),JSON.parse(legacy),{asOfDay:'2026-10-23'});
- if(plan.planHash!==surveyPlanHash||surveyTargets.some(t=>!plan.targets.some(p=>p.deploymentId===t.deploymentId&&p.coinId===t.coinId&&p.networkId===t.networkId&&p.networkIdentity===t.networkIdentity)))fail();return plan;
+const [metadataBytes,legacyBytes]=await Promise.all([readFile(new URL('../data/market-registration.json',import.meta.url)),readFile(new URL('../data/asset-registry.json',import.meta.url))]);
+const pinnedMetadata=JSON.parse(metadataBytes),pinnedLegacy=JSON.parse(legacyBytes);
+export function surveyPlanForDay(asOfDay='2026-10-23'){
+ const baseline=alliumPlan(pinnedMetadata,pinnedLegacy,{asOfDay:'2026-10-23'});
+ if(baseline.planHash!==surveyPlanHash||surveyTargets.some(t=>!baseline.targets.some(p=>p.deploymentId===t.deploymentId&&p.coinId===t.coinId&&p.networkId===t.networkId&&p.networkIdentity===t.networkIdentity)))fail();
+ return asOfDay==='2026-10-23'?baseline:alliumPlan(pinnedMetadata,pinnedLegacy,{asOfDay});
 }
+export async function storedSurveyPlan(asOfDay){return surveyPlanForDay(asOfDay);}
 export function surveySource(bytes,{plan,kind,expectedHash,reviewBytes,reviewHash,receiptBytes,executionAuthorizationBytes,userApprovalBytes,now=new Date().toISOString()}={}){
- if(plan?.planHash!==surveyPlanHash||!['supply','volume'].includes(kind)||!Buffer.isBuffer(reviewBytes)||reviewBytes.length>65536||supplyHash(reviewBytes)!==reviewHash||!Buffer.isBuffer(receiptBytes)||receiptBytes.length>131072)fail();
+ if(!plan||canonical(plan)!==canonical(surveyPlanForDay(plan.asOfDay))||!['supply','volume'].includes(kind)||!Buffer.isBuffer(reviewBytes)||reviewBytes.length>65536||supplyHash(reviewBytes)!==reviewHash||!Buffer.isBuffer(receiptBytes)||receiptBytes.length>131072)fail();
+ const dynamic=plan.asOfDay!=='2026-10-23';
  parseHistorySource(reviewBytes);parseHistorySource(receiptBytes);
  const manifest=JSON.parse(reviewBytes),receipt=JSON.parse(receiptBytes),record=receipt.jobs?.find(j=>j.kind===kind);
  let sqlReview;
  if(manifest.kind==='ALLIUM_LIVE_REVIEWED_SQL_ECHO') {
   sqlReview=liveStoredReview({bytes,plan,kind,expectedHash,manifest,receipt,receiptBytes,executionAuthorizationBytes,userApprovalBytes});
  } else {
-  if(executionAuthorizationBytes!==undefined||userApprovalBytes!==undefined||manifest.schemaVersion!==1||manifest.kind!=='ALLIUM_REVIEWED_SQL_ECHO'||manifest.planHash!==plan.planHash||manifest.receiptHash!==supplyHash(receiptBytes)||!Array.isArray(manifest.reviews)||manifest.reviews.length>3||manifest.reviews.filter(r=>r.kind===kind).length!==1||receipt.kind!=='ALLIUM_SURVEY_RECEIPT'||receipt.planHash!==plan.planHash||receipt.state!=='UNKNOWN'||record?.sourceHash!==expectedHash||receipt.attempts?.[record.resultAttempt]?.responseHash!==expectedHash)fail();
+  if(dynamic||executionAuthorizationBytes!==undefined||userApprovalBytes!==undefined||manifest.schemaVersion!==1||manifest.kind!=='ALLIUM_REVIEWED_SQL_ECHO'||manifest.planHash!==plan.planHash||manifest.receiptHash!==supplyHash(receiptBytes)||!Array.isArray(manifest.reviews)||manifest.reviews.length>3||manifest.reviews.filter(r=>r.kind===kind).length!==1||receipt.kind!=='ALLIUM_SURVEY_RECEIPT'||receipt.planHash!==plan.planHash||receipt.state!=='UNKNOWN'||record?.sourceHash!==expectedHash||receipt.attempts?.[record.resultAttempt]?.responseHash!==expectedHash)fail();
   sqlReview=manifest.reviews.find(r=>r.kind===kind);
  }
  if(sqlReview.reviewStatus!=='SOURCE_REVIEWED')fail();
- const snapshot=validateSurveySnapshot(alliumSurveyResult(plan,kind,bytes,{expectedHash,now,sqlReview}));
+ const projection=alliumSurveyResult(plan,kind,bytes,{expectedHash,now,sqlReview});
+ const snapshot=validateSurveySnapshot(dynamic?{...projection,schemaVersion:2,mapper:'allium-survey-window-v2'}:projection);
  if(snapshot.sqlReviewStatus!=='SOURCE_REVIEWED')fail();
- const metadata={mapper:surveyMapper,kind,planHash:plan.planHash,sourceHash:expectedHash,reviewHash,receiptHash:manifest.receiptHash,queriedAt:snapshot.queriedAt,from:snapshot.window.from,to:'2026-10-22',projectionHash:supplyHash(snapshot)};
+ const metadata={mapper:dynamic?surveyWindowMapper:surveyMapper,kind,planHash:plan.planHash,sourceHash:expectedHash,reviewHash,receiptHash:manifest.receiptHash,queriedAt:snapshot.queriedAt,from:snapshot.window.from,to:new Date(Date.parse(plan.asOfDay)-86400000).toISOString().slice(0,10),projectionHash:supplyHash(snapshot)};
  return {...metadata,id:supplyHash(metadata),snapshot};
 }
 

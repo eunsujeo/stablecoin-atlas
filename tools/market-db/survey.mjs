@@ -3,10 +3,13 @@ import {transaction,safeRole,runtimeRole} from './connection.mjs';
 import {verifySchema,verifyRuntimeAccess,structureHash} from './schema.mjs';
 import {canonical,instant} from './plan.mjs';
 import {supplyHash as surveyHash} from '../allium-supply-source.mjs';
-import {surveySource,surveyMapper,storedSurveyPlan} from '../allium-survey-source.mjs';
-import {validateSurveySnapshot,validateStoredSurvey} from '../../web/survey-model.js';
+import {surveySource,surveyMapper,surveyWindowMapper,storedSurveyPlan,surveyPlanForDay} from '../allium-survey-source.mjs';
+import {validateSurveySnapshot,validateStoredSurvey,surveyWindowForDay} from '../../web/survey-model.js';
 import {archiveSources} from './files.mjs';
 const migration=new URL('../../db/survey/001-initial.sql',import.meta.url),tables=['schema_version','access_grant','source'];
+const windowMigration=new URL('../../db/survey/002-windowed-snapshots.sql',import.meta.url);
+// Derived from the committed DDL in a fresh, owned PG17 fixture, never a live DB baseline.
+export const surveyStructures=Object.freeze({1:'3be23136abd8293ee0ef99103c586754f2e1a9a70d1286f4db58fcf5837512c9',2:'89412c2d0574a8047ade2adf1c06eac3f3875dec74d26e288f6c52958848feca'});
 const fail=()=>{throw Error('ALLIUM_SURVEY_DATABASE_INVALID');};
 const ident=s=>{if(typeof s!=='string'||!/^[a-z][a-z0-9_]{0,62}$/.test(s))fail();return '"'+s+'"';};
 const lock=c=>c.query('SELECT pg_advisory_xact_lock(18471234,412)');
@@ -23,8 +26,10 @@ async function privileges(c,role,mode){
  if((await c.query("SELECT 1 FROM pg_proc WHERE pronamespace='atlas_survey'::regnamespace AND has_function_privilege($1,oid,'EXECUTE')",[role])).rowCount)fail();
 }
 export async function verifySurveySchema(c){
- const rows=(await c.query("SELECT version,encode(migration_hash,'hex') AS migration,encode(structure_hash,'hex') AS structure FROM atlas_survey.schema_version")).rows;
- if(rows.length!==1||rows[0].version!==1||rows[0].migration!==surveyHash(await readFile(migration))||rows[0].structure!==await structureHash(c,'atlas_survey'))fail();
+ const rows=(await c.query("SELECT version,encode(migration_hash,'hex') AS migration,encode(structure_hash,'hex') AS structure FROM atlas_survey.schema_version ORDER BY version")).rows;
+ if(![1,2].includes(rows.length))fail();
+ for(const [n,r]of rows.entries())if(r.version!==n+1||r.migration!==surveyHash(await readFile(n===0?migration:windowMigration))||r.structure!==surveyStructures[r.version])fail();
+ const version=rows.at(-1).version;if(await structureHash(c,'atlas_survey')!==surveyStructures[version])fail();
  const owner=(await c.query("SELECT nspowner::text AS id FROM pg_namespace WHERE nspname='atlas_survey'")).rows[0].id;
  const grants=(await c.query('SELECT g.role_name,g.access_mode,r.oid::text AS id FROM atlas_survey.access_grant g JOIN pg_roles r ON r.rolname=g.role_name')).rows;
  const expected=[];for(const table of tables){expected.push({table,name:'installer',command:'*',roles:owner,using:'true',check:'true'});for(const g of grants){const prefix='app_'+surveyHash(g.role_name).slice(0,12);expected.push({table,name:prefix+'_s_'+table,command:'r',roles:g.id,using:'true',check:null});if(g.access_mode==='writer'&&['source'].includes(table))expected.push({table,name:prefix+'_i_'+table,command:'a',roles:g.id,using:null,check:'true'});}}
@@ -39,13 +44,24 @@ export async function verifySurveySchema(c){
  const exposed=(await c.query(`SELECT 1 FROM pg_roles r WHERE r.rolname IN ('anon','authenticated','authenticator','service_role') AND (has_schema_privilege(r.oid,'atlas_survey','USAGE,CREATE') OR EXISTS(SELECT 1 FROM pg_class c WHERE c.relnamespace='atlas_survey'::regnamespace AND has_table_privilege(r.oid,c.oid,'SELECT,INSERT,UPDATE,DELETE,TRUNCATE')) OR EXISTS(SELECT 1 FROM pg_class c JOIN pg_attribute a ON a.attrelid=c.oid WHERE c.relnamespace='atlas_survey'::regnamespace AND a.attnum>0 AND NOT a.attisdropped AND has_column_privilege(r.oid,c.oid,a.attnum,'SELECT,INSERT,UPDATE,REFERENCES')) OR EXISTS(SELECT 1 FROM pg_proc p WHERE p.pronamespace='atlas_survey'::regnamespace AND has_function_privilege(r.oid,p.oid,'EXECUTE')))`)).rowCount;if(exposed)fail();
  const schemas=(await c.query("SELECT current_setting('pgrst.db_schemas',true) AS schemas")).rows[0].schemas;if(schemas?.split(',').some(s=>s.trim()==='atlas_survey'))fail();
  for(const g of grants)await privileges(c,g.role_name,g.access_mode);
+ return version;
 }
-async function access(c,write=false){await runtimeRole(c);await verifySchema(c);await verifyRuntimeAccess(c,write);await verifySurveySchema(c);const g=(await c.query('SELECT access_mode FROM atlas_survey.access_grant WHERE role_name=current_user')).rows[0];if(!g||write&&g.access_mode!=='writer')fail();}
+async function access(c,write=false){await runtimeRole(c);await verifySchema(c);await verifyRuntimeAccess(c,write);const version=await verifySurveySchema(c);const g=(await c.query('SELECT access_mode FROM atlas_survey.access_grant WHERE role_name=current_user')).rows[0];if(!g||write&&g.access_mode!=='writer')fail();return version;}
 export async function initializeSurvey(c){return transaction(c,async()=>{await lock(c);await owner(c);
- if((await c.query("SELECT to_regnamespace('atlas_survey') IS NOT NULL AS present")).rows[0].present){if(!(await c.query("SELECT current_user=pg_get_userbyid(nspowner) AS ok FROM pg_namespace WHERE nspname='atlas_survey'")).rows[0]?.ok)fail();await verifySurveySchema(c);return {state:'UNCHANGED',version:1};}
+ if((await c.query("SELECT to_regnamespace('atlas_survey') IS NOT NULL AS present")).rows[0].present){if(!(await c.query("SELECT current_user=pg_get_userbyid(nspowner) AS ok FROM pg_namespace WHERE nspname='atlas_survey'")).rows[0]?.ok)fail();return {state:'UNCHANGED',version:await verifySurveySchema(c)};}
  const sql=await readFile(migration);await c.query(sql.toString());const role=(await c.query('SELECT current_user AS role')).rows[0].role;
  for(const table of tables)await c.query(`CREATE POLICY installer ON atlas_survey.${table} TO ${ident(role)} USING(true) WITH CHECK(true)`);
- await c.query('INSERT INTO atlas_survey.schema_version VALUES(1,$1,$2)',[hashBytes(surveyHash(sql)),hashBytes(await structureHash(c,'atlas_survey'))]);await verifySurveySchema(c);return {state:'INITIALIZED',version:1};
+ if(await structureHash(c,'atlas_survey')!==surveyStructures[1])fail();
+ await c.query('INSERT INTO atlas_survey.schema_version VALUES(1,$1,$2)',[hashBytes(surveyHash(sql)),hashBytes(surveyStructures[1])]);await verifySurveySchema(c);return {state:'INITIALIZED',version:1};
+});}
+export async function upgradeSurvey(c){return transaction(c,async()=>{
+ await lock(c);await owner(c);
+ if(!(await c.query("SELECT current_user=pg_get_userbyid(nspowner) AS ok FROM pg_namespace WHERE nspname='atlas_survey'")).rows[0]?.ok)fail();
+ if(await verifySurveySchema(c)===2)return {state:'UNCHANGED',version:2};
+ const sql=await readFile(windowMigration);await c.query(sql.toString());
+ if(await structureHash(c,'atlas_survey')!==surveyStructures[2])fail();
+ await c.query('INSERT INTO atlas_survey.schema_version VALUES(2,$1,$2)',[hashBytes(surveyHash(sql)),hashBytes(surveyStructures[2])]);
+ await verifySurveySchema(c);return {state:'UPGRADED',version:2};
 });}
 export async function grantSurvey(c,role,mode){ident(role);if(!['reader','writer'].includes(mode))fail();return transaction(c,async()=>{await lock(c);await owner(c);await verifySurveySchema(c);await safeRole(c,role);
  if((await c.query('SELECT access_mode FROM atlas_market.access_grant WHERE role_name=$1',[role])).rows[0]?.access_mode!==mode)fail();
@@ -56,7 +72,7 @@ export async function grantSurvey(c,role,mode){ident(role);if(!['reader','writer
 export async function importSurvey(c,bytes,options){
  const source=surveySource(bytes,options);if(typeof options.archiveRoot!=='string'||!options.archiveRoot)fail();
  return transaction(c,async()=>{
-  await lock(c);await access(c,true);
+  await lock(c);const version=await access(c,true);if(source.mapper===surveyWindowMapper&&version!==2)throw Error('SURVEY_UPGRADE_REQUIRED');
   await archiveSources([{hash:source.sourceHash,bytes},{hash:source.reviewHash,bytes:options.reviewBytes},{hash:source.receiptHash,bytes:options.receiptBytes},
    ...(options.executionAuthorizationBytes?[{hash:surveyHash(options.executionAuthorizationBytes),bytes:options.executionAuthorizationBytes},{hash:surveyHash(options.userApprovalBytes),bytes:options.userApprovalBytes}]:[])],options.archiveRoot);
   const prior=(await c.query("SELECT encode(id,'hex') AS id FROM atlas_survey.source WHERE id=$1",[hashBytes(source.id)])).rows[0];
@@ -67,21 +83,26 @@ export async function importSurvey(c,bytes,options){
   return {state:'IMPORTED',rows:source.snapshot.rows.filter(r=>r.state==='OBSERVED').length,inconclusive:source.snapshot.rows.filter(r=>r.state==='INCONCLUSIVE').length,sourceHash:source.sourceHash};
  });
 }
-export async function readSurvey(c){
- const plan=await storedSurveyPlan();
+export async function readSurvey(c,{asOfDay}={}){
+ if(asOfDay!==undefined)surveyPlanForDay(asOfDay);
  return transaction(c,async()=>{
   await access(c);
+  let selected=asOfDay;
+  if(selected===undefined){const last=(await c.query("SELECT to_char(max(window_to)+1,'YYYY-MM-DD') AS day FROM atlas_survey.source")).rows[0].day;selected=last??'2026-10-23';}
+  const plan=await storedSurveyPlan(selected),window=surveyWindowForDay(selected);
+  const until=new Date(Date.parse(selected)-86400000).toISOString().slice(0,10);
   const rows=(await c.query(`SELECT DISTINCT ON(kind) encode(id,'hex') AS id,encode(source_hash,'hex') AS source_hash,mapper,kind,
    encode(plan_hash,'hex') AS plan_hash,encode(review_hash,'hex') AS review_hash,encode(receipt_hash,'hex') AS receipt_hash,
    to_char(queried_at AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS queried_at,
    to_char(window_from,'YYYY-MM-DD') AS window_from,to_char(window_to,'YYYY-MM-DD') AS window_to,
    encode(projection_hash,'hex') AS projection_hash,payload FROM atlas_survey.source
-   WHERE plan_hash=$1 AND window_from='2026-10-16' AND window_to='2026-10-22'
-   ORDER BY kind,queried_at DESC,id DESC`,[hashBytes(plan.planHash)])).rows;
+   WHERE window_from=$1 AND window_to=$2
+   ORDER BY kind,queried_at DESC,id DESC`,[window.from,until])).rows;
   const snapshots=rows.map(r=>{
    const snapshot=validateSurveySnapshot(r.payload),metadata={mapper:r.mapper,kind:r.kind,planHash:r.plan_hash,sourceHash:r.source_hash,reviewHash:r.review_hash,receiptHash:r.receipt_hash,queriedAt:instant(r.queried_at),from:r.window_from,to:r.window_to,projectionHash:r.projection_hash};
-   if(surveyHash(metadata)!==r.id||r.mapper!==surveyMapper||snapshot.survey!==r.kind||snapshot.planHash!==r.plan_hash||snapshot.sourceHash!==r.source_hash||snapshot.queriedAt!==metadata.queriedAt||snapshot.window.from!==r.window_from||r.window_to!=='2026-10-22'||surveyHash(snapshot)!==r.projection_hash||canonical(r.payload)!==canonical(snapshot)||snapshot.sqlHash!==plan.jobs.find(j=>j.kind===r.kind)?.sqlHash)fail();return snapshot;
+   const mapper=selected==='2026-10-23'?surveyMapper:surveyWindowMapper;
+   if(surveyHash(metadata)!==r.id||r.mapper!==mapper||snapshot.schemaVersion!==(mapper===surveyMapper?1:2)||snapshot.survey!==r.kind||r.plan_hash!==plan.planHash||snapshot.planHash!==r.plan_hash||snapshot.sourceHash!==r.source_hash||snapshot.queriedAt!==metadata.queriedAt||snapshot.window.from!==r.window_from||r.window_to!==until||surveyHash(snapshot)!==r.projection_hash||canonical(r.payload)!==canonical(snapshot)||snapshot.sqlHash!==plan.jobs.find(j=>j.kind===r.kind)?.sqlHash)fail();return snapshot;
   });
-  return validateStoredSurvey({schemaVersion:1,kind:'ALLIUM_STORED_SURVEY',provider:'ALLIUM',snapshots});
+  return validateStoredSurvey({schemaVersion:selected==='2026-10-23'&&asOfDay===undefined?1:2,kind:'ALLIUM_STORED_SURVEY',provider:'ALLIUM',window,snapshots});
  },{repeatableRead:true});
 }

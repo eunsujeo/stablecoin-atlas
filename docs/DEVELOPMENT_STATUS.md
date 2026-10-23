@@ -60,6 +60,8 @@ Allium은 [Explorer 표본](research/allium-samples/README.md)에 이어 [최근
 
 ## 다음 개발 단위
 
+[ADR0078](adr/0078-windowed-survey-storage.md)의 동적7일 기간 저장·조회·표시를 완료했다. 개발 DB의 비파괴 v2 upgrade 후 기존4source/version1·137관측·6schema 보존을 확인했다. 새 실제 원문/공급자 호출은0이며 새 날짜 계약은 Fixture에서 검증했다. 다음 큰 작업은 반복 수집 실행 경로와 스케줄·장애 검증이다. 새 실행·비용·예약 범위는 사용자 확인 후 결정하고, 소비된 live-once를 재사용하지 않는다.
+
 [ADR0077](adr/0077-offline-live-survey-storage.md)로 실제 수집 저장본의 오프라인 입력·기존 표 연결을 완료했다. [저장 현황](ALLIUM_SURVEY_DATA.md)의 source2→4·최신137관측·원래 시각/미일치/누락 보존·기존6schema 불변을 확인했다. 새 Allium 호출·DB schema/권한 변경·일별 자동 수집은 없다. 다음 동적 기간/자동 수집 범위는 사용자 확인 후 결정한다.
 
 [ADR0076](adr/0076-user-authorized-local-live-collection.md)의 사용자 명시 실제 호출 선택으로 로컬 수동 1회 supply/volume CLI와 같은 lease의 개별 echo 검토 checkpoint를 추가했다. [실제 수집](research/allium-samples/live-2026-10-23.md)은 SQL2회/12HTTP 모두200·공급량70/전송량67 OBSERVED이며 Kaia 미일치·JPYSC 전송량3일 미확보를 보존했다. 두 echo 원문별 SOURCE_REVIEWED·최종 SUCCEEDED·legacy 불변을 확인했다. 계정 증거 없이 허용한 실행 예외이며 실제 비용 인증·조직 예산 전환·일별 자동 예약·DB/UI 연결 완료를 뜻하지 않는다. 검증 결과는 해당 인계문을 따른다.
