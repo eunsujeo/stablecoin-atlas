@@ -1,0 +1,9 @@
+# Allium 승인 배포 조사·수집 계획
+- 목표: 전송량 DB/UI 후속인 승인 네트워크 조사와 Allium 일별 수집의 예산·영수증·지연집계 설계를 구체화. 이번 단위는 오프라인 계획·저장 응답 검토 CLI이며 실제 지원 확인/수집기/공급량 전환은 남아 있다. 완료 후 commit/push.
+- 끝난 것: ADR0060. 고정13배포의 network identity 검증, 주소형11개 registry/supply/volume SQL3개, XRPL issuer+currency2개 매핑 미확인 NOT_TESTED 보류. EVM만 case-fold, TRON/Solana 원래 대소문자. 명시 예약일 D의 [D-7,D), provider 집계 timezone UNKNOWN, 각 SQL 최대+1 sentinel/반환상한. 계획상 create3/run3/poll30/result3 최대HTTP39회·재시도0·페이지1, 실제요청/DB/스케줄0. review는 검토 SHA·계획 SQL·원래 queriedAt·행수/배포/기간/수량문자열/null 검증, 불완전/중복/절단/Number/민감 메타데이터 차단. 영수증·영속예약·append-only/지연수정은 후속 실행기 요구사항으로 기록했고 구현 완료로 표시하지 않았다.
+- 변경 파일: tools/allium-plan.mjs, tools/allium-plan-cli.mjs, tests/allium-plan.test.mjs, package.json, docs/ALLIUM_COLLECTION_PLAN.md, docs/adr/0060-allium-survey-and-collection-plan.md, docs/ACTIVITY_DATA.md, docs/DEVELOPMENT_STATUS.md, docs/handoff/2026-10-23-allium-survey-plan.md
+- 검증: npm run check rc0 tests343/pass343/fail0/cancelled0/skipped0(.state/agent-logs/allium-plan-check.log). node tools/allium-plan-cli.mjs plan --day 2026-10-23 rc0 targets13/candidates11/jobs3/actualRequests0/maxPlannedRequests39. git diff --check rc0. 신규 테스트8개는 전체 check에 포함. DB/UI 변경·유료 API 실행 없음.
+- 기다리는 것: 없음
+- 다음 행동: docs/ALLIUM_COLLECTION_PLAN.md·ADR0060의 계획을 바탕으로 소량 실제 지원 조사/원문을 확보할 실행 경로와 예약/예산/영수증을 구현한다. 아직 실행기 없음, plan의 executionEnabled=false·billingLimit=null. 후속은 체인별 식별자·decimals·날짜/정의 확인 → 별도 Allium 공급량 저장/조회 → 기본 화면 연결 → 동등성이 확인된 보조만 연결 → 일별 수집. DeFiLlama 경제적 체인 유통량은 Allium 일반 유통량과 다른 지표이므로 자동 대체·합산·그래프 연결 금지. 전송량 동등 보조 없음. 기존 Arkham/registered 상시수집기 유지. 미추적 docs/handoff/2026-10-22-router-lead-review.md는 이번 범위 밖으로 그대로 보존.
+- 사용자 확인 필요: 아니오
+- 읽을 파일: docs/ALLIUM_COLLECTION_PLAN.md, docs/adr/0060-allium-survey-and-collection-plan.md, tools/allium-plan.mjs, docs/ACTIVITY_DATA.md, docs/research/allium-samples/followup.md

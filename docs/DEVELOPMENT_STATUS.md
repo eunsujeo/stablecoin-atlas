@@ -40,6 +40,7 @@ Allium은 [Explorer 표본](research/allium-samples/README.md)에 이어 [최근
 ## 토큰 기본정보
 
 - [일별 전송량 DB·UI](ACTIVITY_DATA.md): Allium Ethereum5코인 60행을 별도 atlas_activity에 저장하고 전체 현황에 최신 기준일과 표시했다. 같은 원문 replay0·최소 권한·수정 이력·구시각 import·동시성·원자성 검증. 기존 schema와 공급량은 유지한다. Allium 기본/DeFiLlama 보조 방향은 ADR0059이며 공급량 전환·실제 보조 연결·Allium 자동 수집은 후속이다.
+- [Allium 오프라인 조사 계획](ALLIUM_COLLECTION_PLAN.md): ADR0060의 등록13배포/조회후보11개·XRPL2개보류, 고정7일·SQL3개·예상HTTP39회 상한과 저장 응답 검토 CLI. 실제 외부 요청/DB/스케줄0, 지원 상태 NOT_TESTED. 예산·실행 영수증·지연집계 설계를 기록했으며 실행기와 공급량 기본 전환은 아직 없다.
 
 - 공급량 차트는 축 눈금에 `눈금 (tokens)`를 표시하고 `1,000억`처럼 정리한다. 가장 큰 네트워크의 최신 실제 값은 선 끝에 별도 색상으로 표시하며 hover/키보드 tooltip 중에는 숨겨 겹침을 줄인다. 로그 축·원본 공급량·증감률 계산은 유지한다.
 

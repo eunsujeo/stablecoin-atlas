@@ -67,7 +67,8 @@
     "collector:registered": "node --use-env-proxy tools/registered-collector.mjs",
     "fx:collect": "node --use-env-proxy tools/fx-store.mjs collect",
     "fx:import": "node tools/fx-store.mjs import",
-    "market:activity:db": "node --use-env-proxy tools/market-db/activity-cli.mjs"
+    "market:activity:db": "node --use-env-proxy tools/market-db/activity-cli.mjs",
+    "allium:plan": "node tools/allium-plan-cli.mjs"
   },
   "dependencies": {
     "ajv": "8.20.0",
