@@ -59,6 +59,25 @@ node tools/provider-price-review.mjs <검토한-receipt-sha256> <새-보고서�
 
 실제 저장본3종은 `FIELD_CONTRACT_OBSERVED`이며 `.state/provider-price-review/20261024-field-contract.json`에 receipt/source hash·원래 요청시각·숫자 문자열을 보존했다. 이전 일회성 observation 파일도 유지한다. 이 상태는 제품 PASS·SOURCE_REVIEWED·현재 가격·지원 인증이 아니다. 가상 부정 표본은 별도 임시 디렉터리에서만 시험하며 실제 보고서에 섞지 않는다.
 
+## Arkham 시장·가격 이력의 오프라인 필드 관측
+
+`tools/arkham-price-review.mjs`는 같은 ADR0083 archive의 `arkham-market`·`arkham-price-history` 응답 두 개만 읽는다. 기존 가격 검토와 공통 무결성 검사를 사용하여 독립적으로 pin한 receipt·고정 plan·GET 경로·body 없음·단일 HTTP200 JSON 시도·응답 hash/바이트 수를 결합한다. 기존 Allium 보고서의 receipt pin과도 대조했다. 새 호출·키·소비·DB/UI 변경은 없다.
+
+```sh
+node tools/arkham-price-review.mjs <검토한-receipt-sha256> <새-보고서명.json>
+```
+
+입력·출력 경로와 파일 보호·중복 key/엄격한 JSON/UTF-8·최대2MiB·숫자 lexeme 보존 규칙은 [기존 가격 검토](#재사용-가능한-가격-검토)와 같다. 응답에 자산 식별자와 시장 기준시각 필드가 없어 자산은 고정 요청 경로의 `usd-coin`에만 연결한다. 응답 자체 자산 식별과 시장 기준시각은 UNKNOWN이다. 요청시각을 공급자 기준시각으로 대입하지 않는다. 현재 컨트랙트/체인 인증으로 확대하지 않는다.
+
+| 저장 표본 | 관측 계약 | 보존한 한계 |
+| --- | --- | --- |
+| 시장 | price·totalVolume·price24hAgo·maxPrice24h·minPrice24h·circulatingSupply·totalSupply·price7dAgo·price30dAgo·price180dAgo·allTimeHigh·allTimeLow·marketCap·fullyDilutedValue의14개 숫자 lexeme | circulatingSupply는 전체 코인 유통량, totalSupply는 전체 코인 총공급량 필드로 분리한다. 체인별 공급량은 NOT_OBSERVED이며 이 값을 대입하지 않는다. 공급자 산식·단위/기간 정의·외부 대사·가격 통화는 UNKNOWN |
+| 가격 이력 | 배열1225점의 time·usd·volume24h·marketCap. 각 UTC Z/달력 날짜·필수 숫자·중복 없는 엄격한 시각 오름차순 확인. 원래 시각과 실제 첫/끝 시각을 비공개 보고서에 보존 | `usd`는 원문 필드명으로만 보존하며 통화 인증은 UNKNOWN. 요청에 기간 인자가 없어 requestedWindow는 null이며 실제 관측 범위와 구분한다. 점 개수·순서로 이력 완전성/일정 간격·volume24h/marketCap 정의를 인증하지 않음 |
+
+누락/null·문자열 금액·빈 이력·오류 envelope·시각/순서/원문 불일치는 INCONCLUSIVE와 고정 오류 코드로 남기고 관측값은 null로 보존한다. 값을0으로 채우지 않는다. receipt/요청/바이트 수·파일 보호 위반은 보고서 생성 전 중단한다. 가상 부정 표본과 실제 저장 관측을 분리한다.
+
+실제 두 응답은 `FIELD_CONTRACT_OBSERVED`이며 `.state/provider-price-review/20261024-arkham-field-contract.json`에 원문/receipt hash·원래 요청시각·원래 숫자/시각을 결합했다. report 생성시각을 새 공급자 관측시각으로 사용하지 않으며 기존 원문/판정은 보존한다. FIELD_CONTRACT_OBSERVED는 제품 PASS·SOURCE_REVIEWED·가격/지원 인증이 아니다. 비용은 UNCONFIRMED다.
+
 ## 다음 구현 단위
 
-우선순위2의 저장된 Arkham 시장·가격 이력 필드를 오프라인에서 검토한다. 원문/receipt hash와 숫자 정밀도·시각·누락을 확인하고 전체 코인 유통량/총공급량과 체인별 공급량을 구분한다. 새 실제 수집·스케줄·DB/UI 연결·기본 공급자 전환은 별도 범위다. 과거 원문을 새 관측으로 표시하지 않는다.
+우선순위3의 기존 Allium 공급량·전송량 저장 조사와 로컬 표 연결에서 정밀도·기간·누락 의미를 오프라인으로 대조한다. [기존 저장 검증 기록](../ALLIUM_SURVEY_DATA.md)의 고정 자료와 코드만 읽고, 실제 시계열 입력이 아닌 probe_id 표본6건은 분리한다. 차이가 있으면 원본·기존 DB/UI를 바꾸지 않고 비공개 검토 기록으로 남긴다. 새 실제 수집·스케줄·DB/UI 변경·기본 공급자 전환은 별도 범위다.

@@ -1,0 +1,9 @@
+# 저장된 Arkham 시장·가격 이력 필드 관측
+- 목표: 이전 인계문의 다음 행동인 Arkham 시장·가격 이력 두 응답의 hash결합 오프라인 검토를 완료한다.
+- 끝난 것: 기존 receipt pin을 이전 Allium 보고서와 대조했다. 공통 receipt/고정 plan/요청/원문 검사를 재사용하고 GET body 없음도 결합했다. 시장14개 숫자 필드와 이력1225점의 UTC·숫자 lexeme·엄격한 오름차순을 확인해 .state/provider-price-review/20261024-arkham-field-contract.json에 비공개 보존했다. 자산은 고정 usd-coin 요청 경로에만 연결하며 응답 자체 식별·시장 기준시각·가격 통화·이력 완전성·공급자 정의 UNKNOWN이다. 전체 코인 유통량/총공급량과 체인별 공급량 NOT_OBSERVED를 분리했다. 기존 Allium 보고서3종 결과와 원본/판정/시각·비용UNCONFIRMED 유지. API·키·소비·DB/UI 변경 없음. FIELD_CONTRACT_OBSERVED는 제품PASS/SOURCE_REVIEWED가 아니다.
+- 변경 파일: tools/arkham-price-review.mjs, tools/provider-price-review.mjs, tests/arkham-price-review.test.mjs, docs/research/provider-data-use-priorities-2026-10-24.md, docs/DEVELOPMENT_STATUS.md, docs/handoff/2026-10-24-offline-arkham-price-fields.md
+- 검증: npm run check rc0 tests492/pass492/fail0/cancelled0/skipped0(.state/agent-logs/arkham-price-check.log). node --test tests/provider-price-review.test.mjs tests/arkham-price-review.test.mjs rc0 tests12/pass12/fail0/cancelled0/skipped0(.state/agent-logs/arkham-price-targeted.log). 실제 오프라인 CLI rc0 두 항목 관측. 보고서 재독·source/receipt hash·시각·0600 및 기존 Allium 보고서 동일성 대조 rc0. git diff --check rc0.
+- 기다리는 것: 없음 — 모든 검사 회수. Lead/추가 Agent 없음. 기존 UI는 상시 서비스. 기존 미추적 docs/handoff/2026-10-22-router-lead-review.md 유지.
+- 다음 행동: 우선순위3의 기존 Allium 공급량·전송량 저장 조사와 로컬 표 연결에서 정밀도·기간·누락 의미를 오프라인으로 대조한다. docs/ALLIUM_SURVEY_DATA.md의 고정 저장 자료와 관련 코드를 읽고 공급량70·전송량67관측 및 별도 미일치/누락을 확인한다. probe_id만 있는 접근 표본6건은 실제 시계열과 분리한다. 차이가 있으면 원본·기존 DB/UI를 바꾸지 않고 비공개 검토 기록으로 남긴다. 새 API/키/재시도/소비/DB/UI/기본 공급자 전환은 하지 않는다.
+- 사용자 확인 필요: 아니오 — 승인된 성공 자료의 오프라인 활용만 진행한다. 새 수집/비용/DB/UI 변경은 별도 확인한다.
+- 읽을 파일: docs/research/provider-data-use-priorities-2026-10-24.md, docs/ALLIUM_SURVEY_DATA.md, docs/DEVELOPMENT_STATUS.md, tools/arkham-price-review.mjs

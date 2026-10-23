@@ -13,6 +13,11 @@ export const priceHash=bytes=>createHash('sha256').update(bytes).digest('hex');
 const fail=code=>{throw Error(code);};
 const digest=v=>typeof v==='string'&&/^[a-f0-9]{64}$/.test(v);
 class Numeric {constructor(lexeme){this.lexeme=lexeme;}}
+export function numericLexeme(value){
+ if(value===undefined||value===null)fail('NUMERIC_FIELD_MISSING');
+ if(!(value instanceof Numeric)||value.lexeme.length>256)fail('NUMERIC_FIELD_INVALID');
+ return value.lexeme;
+}
 
 // Retain numeric tokens before conversion; reject duplicate (including escaped) keys.
 export function parsePriceBytes(bytes){
@@ -45,7 +50,7 @@ export function parsePriceBytes(bytes){
 }
 const ohlc=['price','open','high','close','low'];
 const stats=['latest_price','low_24h','high_24h','low_1h','high_1h','percent_change_24h','percent_change_1h'];
-function utc(value){
+export function utc(value){
  if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z$/.test(value))fail('TIMESTAMP_INVALID');
  const time=Date.parse(value);if(!Number.isFinite(time)||new Date(time).toISOString()!==value.replace(/(?:\.(\d{1,3}))?Z$/,(_m,f)=>'.'+(f??'').padEnd(3,'0')+'Z'))fail('TIMESTAMP_INVALID');
  return value;
@@ -95,21 +100,29 @@ async function privateBytes(path){
 // The caller pins an independently reviewed receipt digest. This is integrity binding,
 // not provider authentication or proof against coordinated source/receipt replacement.
 export async function reviewPriceArchive(archive,expectedReceiptHash){
+ const report=await reviewCapabilitySources(archive,expectedReceiptHash,
+  ['allium-price','allium-price-history','allium-price-stats'],reviewPriceSource);
+ return {...report,kind:'OFFLINE_PROVIDER_PRICE_REVIEW'};
+}
+// Shared offline evidence binding; selected jobs must belong to the fixed plan.
+export async function reviewCapabilitySources(archive,expectedReceiptHash,ids,review){
  await directory(archive);const receiptBytes=await privateBytes(join(archive,'receipt.json'));
  if(!digest(expectedReceiptHash)||priceHash(receiptBytes)!==expectedReceiptHash)fail('RECEIPT_HASH_MISMATCH');
  // Strict preflight catches duplicate keys and malformed UTF-8 in the receipt too.
  parsePriceBytes(receiptBytes);const receipt=JSON.parse(receiptBytes.toString('utf8')),plan=providerCapabilityPlan();
  if(receipt.version!==1||receipt.kind!=='PROVIDER_CAPABILITY_RECEIPT'||receipt.planHash!==priceHash(Buffer.from(canonical(plan)))||!Array.isArray(receipt.jobs)||!Array.isArray(receipt.attempts))fail('RECEIPT_INVALID');
  const rows=[];
- for(const job of plan.jobs.filter(j=>j.id.startsWith('allium-price'))){
+ if(!ids.length||new Set(ids).size!==ids.length||ids.some(id=>!plan.jobs.some(j=>j.id===id)))fail('JOB_UNSUPPORTED');
+ for(const job of plan.jobs.filter(j=>ids.includes(j.id))){
   const matches=receipt.jobs.filter(j=>j.id===job.id),attempts=receipt.attempts.filter(a=>a.jobId===job.id);
   const a=attempts[0],result=matches[0];
-  if(matches.length!==1||attempts.length!==1||result.provider!=='allium'||result.type!=='rest'||result.state!=='HTTP_200_JSON'||result.httpStatus!==200||a.provider!=='allium'||a.step!=='read'||a.method!==job.method||a.path!==job.path||a.bodyHash!==priceHash(Buffer.from(canonical(job.body)))||a.httpStatus!==200||a.responseTruncated||a.proxyError||!Number.isSafeInteger(a.index)||a.index<0||receipt.attempts.filter(x=>x.index===a.index).length!==1||!digest(a.responseHash))fail('RECEIPT_JOB_INVALID');
+  const expectedBodyHash=job.body===null?null:priceHash(Buffer.from(canonical(job.body)));
+  if(matches.length!==1||attempts.length!==1||result.provider!==job.provider||result.type!=='rest'||result.state!=='HTTP_200_JSON'||result.httpStatus!==200||a.provider!==job.provider||a.step!=='read'||a.method!==job.method||a.path!==job.path||a.bodyHash!==expectedBodyHash||a.httpStatus!==200||a.responseTruncated||a.proxyError||!Number.isSafeInteger(a.index)||a.index<0||receipt.attempts.filter(x=>x.index===a.index).length!==1||!digest(a.responseHash))fail('RECEIPT_JOB_INVALID');
   utc(a.at);const bytes=await privateBytes(join(archive,`response-${a.index}.json`));
   if(bytes.length!==a.responseBytes)fail('RECEIPT_BYTE_COUNT_MISMATCH');
-  rows.push({...reviewPriceSource(job.id,bytes,a.responseHash),receiptHash:expectedReceiptHash,recordedRequestAt:a.at,receiptState:result.state});
+  rows.push({...review(job.id,bytes,a.responseHash),receiptHash:expectedReceiptHash,recordedRequestAt:a.at,receiptState:result.state});
  }
- return {version:1,kind:'OFFLINE_PROVIDER_PRICE_REVIEW',receiptHash:expectedReceiptHash,planHash:receipt.planHash,
+ return {version:1,kind:'OFFLINE_PROVIDER_FIELD_REVIEW',receiptHash:expectedReceiptHash,planHash:receipt.planHash,
   originalObservationPreserved:true,costStatus:'UNCONFIRMED',rows};
 }
 export async function savePriceReview(outputDirectory,name,report){
