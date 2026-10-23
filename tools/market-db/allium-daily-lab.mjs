@@ -4,6 +4,7 @@ import {transaction} from './connection.mjs';
 import {canonical,instant} from './plan.mjs';
 import {dailyHash,dailyFail,hashValue} from '../allium-daily-plan.mjs';
 import {initialDailyState,applyDailyEvent,dailyView,dailyEntryHash,sentDailyContext} from '../allium-daily-state.mjs';
+import {reviewDailyReconciliation} from '../allium-reconciliation-review.mjs';
 export {dailyEntryHash} from '../allium-daily-state.mjs';
 
 const schema='atlas_allium_daily_lab',migration=new URL('../../db/allium-daily-lab/001-initial.sql',import.meta.url),zero='0'.repeat(64);
@@ -131,6 +132,16 @@ export function dailyLab(c,{fixtureHash,checkpoints={},checkpointPublisher,respo
  }
  return {
   read:org=>run(org,null,{readonly:true}),
+  async reviewReconciliation(org){
+   if(!checkpointPublisher||!responseStore)dailyFail();
+   const identity=responseStore.identity(),publishedIdentity=checkpointPublisher.identity();
+   if(['fixtureHash','dbEpoch','organizationHash'].some(k=>identity[k]!==publishedIdentity[k])||identity.organizationHash!==org)dailyFail();
+   let report;
+   await checkpointPublisher.withGate(gate=>run(org,s=>{
+    report=reviewDailyReconciliation(s.events,{organizationHash:org,fixtureHash});return null;
+   },{readonly:true,gate}));
+   return {...report,publication:'EXACT_PUBLISHED_HEAD'};
+  },
   async publishCheckpoint(org){
    if(!checkpointPublisher)dailyFail();
    try{
@@ -196,4 +207,10 @@ export async function responseImportDailyLab(c,options){
  if(!options.publisher||!options.responseStore)dailyFail();
  const lab=await checkpointDailyLab(c,options);
  return {read:lab.read,importResponse:lab.importResponse,publishCheckpoint:lab.publishCheckpoint};
+}
+// Read-only review has no import/publish/worker/reservation/send entry point.
+export async function reconciliationReviewDailyLab(c,options){
+ if(!options.publisher||!options.responseStore)dailyFail();
+ const lab=await checkpointDailyLab(c,options);
+ return {review:lab.reviewReconciliation};
 }

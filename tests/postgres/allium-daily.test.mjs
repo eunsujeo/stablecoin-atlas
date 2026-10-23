@@ -8,7 +8,7 @@ import {canonical} from '../../tools/market-db/plan.mjs';
 import {mkdtemp,realpath,chmod,rm,unlink} from 'node:fs/promises';
 import {tmpdir} from 'node:os';import {join} from 'node:path';
 import {createCheckpointStore,checkpointPublisher} from '../../tools/allium-checkpoint.mjs';
-import {checkpointDailyLab,responseImportDailyLab} from '../../tools/market-db/allium-daily-lab.mjs';
+import {checkpointDailyLab,responseImportDailyLab,reconciliationReviewDailyLab} from '../../tools/market-db/allium-daily-lab.mjs';
 import {createResponseStore,responseStore} from '../../tools/allium-response-evidence.mjs';
 const exec=promisify(execFile),zero='0'.repeat(64),blocked=p=>assert.rejects(p,/ALLIUM_DAILY_OFFLINE_BLOCKED/);
 async function lab(t){
@@ -313,4 +313,76 @@ test('response PG17 full result bytes import without marking the job complete or
  const v=await recovery.importResponse(org,ref);assert.equal(v.reservations[0].importedResponses[0].reviewed.state,'VALIDATED');
  assert.equal(v.reservations[0].state,'UNKNOWN');assert.equal(v.pendingUnits,'0.5');assert.equal(v.reservations[0].fakeSends,4);
  await recovery.publishCheckpoint(org);assert.deepEqual(await recovery.read(org),v);
+ const reviewer=await reconciliationReviewDailyLab(l.reader,{fixtureHash:l.fixtureHash,publisher:p.publisher,responseStore:store});
+ const report=await reviewer.review(org),item=report.reservations[0].intents[3];
+ assert.equal(item.contentState,'RESULT_VALIDATED');assert.equal(item.reviewState,'VALIDATED');assert.equal(item.reportedResultUnits,'0.1');
+ assert.equal(item.usageFinality,'UNKNOWN');assert.equal(item.reconciledUnits,'0');assert.equal(report.reservations[0].jobs[0].complete,false);
+});
+async function reviewFixture(t){
+ const e=await evidenceLab(t),{l,r,i}=e;
+ const ref=await l.ledger.preserveResponse(org,r.id,i.id,Buffer.from(ok),e.observedAt);
+ await l.ledger.importResponse(org,ref);await l.ledger.publishCheckpoint(org);
+ return {...e,ref,review:client=>reconciliationReviewDailyLab(client,{fixtureHash:l.fixtureHash,publisher:e.p.publisher,responseStore:e.store})};
+}
+test('review PG17 least privilege report is deterministic, redacted and changes no ledger, budget, jobs or publication',{timeout:120000},async t=>{
+ const e=await reviewFixture(t),{l,p}=e,review=await e.review(l.reader);
+ assert.deepEqual(Object.keys(review),['review']);
+ await blocked(reconciliationReviewDailyLab(l.reader,{fixtureHash:l.fixtureHash,publisher:p.publisher}));
+ await blocked(reconciliationReviewDailyLab(l.reader,{fixtureHash:l.fixtureHash,publisher:p.publisher,
+  responseStore:{identity:()=>({...e.store.identity(),organizationHash:dailyHash('WRONG ORGANIZATION')})}}));
+ await blocked(review.review(dailyHash('WRONG ORGANIZATION')));
+ const before=await l.ledger.read(org),count=await l.count(),publication=await p.publisher.inspect();
+ const a=await review.review(org),b=await review.review(org);assert.deepEqual(a,b);
+ assert.equal(a.publication,'EXACT_PUBLISHED_HEAD');assert.deepEqual(a.checkpoint,publication.checkpoint);
+ assert.equal(a.reservations[0].state,'UNKNOWN');assert.equal(a.reservations[0].intents[0].contentState,'CONTROL_RESPONSE_ONLY');
+ assert.equal(a.reservations[0].intents[0].reviewState,'OK');
+ assert.equal(a.reservations[0].intents[0].observedAt,e.observedAt);assert.equal(a.reservations[0].intents[0].evidenceHash,e.ref.recordHash);
+ assert.equal(a.pendingUnits,'0.5');assert.equal(a.reservations[0].reconciledUnits,'0');assert.equal(a.reservations[0].usageIncludedUnits,null);
+ assert.equal(a.providerRequests,0);assert.equal(a.debitEnabled,false);assert.ok(a.reservations[0].jobs.every(j=>!j.complete));
+ assert.doesNotMatch(JSON.stringify(a),/rawBase64|referenceHash|rawLength/);
+ a.reservations[0].intents[0].contentState='ALTERED';assert.deepEqual(await review.review(org),b);
+ assert.equal(await l.count(),count);assert.deepEqual(await l.ledger.read(org),before);assert.deepEqual(await p.publisher.inspect(),publication);
+});
+test('review PG17 pins publication until read transaction commit and rejects lost commit ACK without appending',{timeout:120000},async t=>{
+ const e=await reviewFixture(t),{l,p}=e,raw=await l.connect('reader');let intercept=false,commitLost=false,pinned=0;
+ const wrapped={connectionParameters:raw.connectionParameters,query:async(...args)=>{
+  if(intercept&&String(args[0])==='COMMIT'){
+   await blocked(p.publisher.publish((await l.ledger.read(org)).checkpoint,{sequence:0,hash:zero}));
+   await blocked(p.publisher.close());pinned++;
+  }
+  const result=await raw.query(...args);
+  if(commitLost&&String(args[0])==='COMMIT')throw Error('SIMULATED_REVIEW_COMMIT_ACK_LOSS');
+  return result;
+ }};
+ const reviewer=await e.review(wrapped),before=await l.count();intercept=true;
+ await reviewer.review(org);assert.equal(pinned,1);commitLost=true;await blocked(reviewer.review(org));
+ assert.equal(await l.count(),before);await blocked(reviewer.review(org));
+ assert.equal((await l.ledger.read(org)).pendingUnits,'0.5');
+});
+test('review PG17 unpublished import and publication ACK uncertainty return no report',{timeout:120000},async t=>{
+ for(const scenario of ['unpublished','ack']){
+  let fail=false;const e=await evidenceLab(t,{publishFault:async point=>{if(fail&&point==='publication-ack')throw Error('SIMULATED_REVIEW_PUBLICATION_ACK_LOSS');}}),{l,r,i}=e;
+  const ref=await l.ledger.preserveResponse(org,r.id,i.id,Buffer.from(ok),e.observedAt);
+  await l.ledger.importResponse(org,ref);
+  if(scenario==='ack'){fail=true;await blocked(l.ledger.publishCheckpoint(org));}
+  const options={fixtureHash:l.fixtureHash,publisher:e.p.publisher,responseStore:e.store};
+  if(scenario==='ack')await blocked(reconciliationReviewDailyLab(l.reader,options));
+  else {const reviewer=await reconciliationReviewDailyLab(l.reader,options);await blocked(reviewer.review(org));}
+  assert.equal((await l.ledger.read(org)).reservations[0].fakeSends,1);
+ }
+});
+test('review PG17 missing or replaced original bytes and DB rollback block instead of returning a partial report',{timeout:120000},async t=>{
+ for(const scenario of ['missing','replaced','db']){
+  const e=await reviewFixture(t),{l}=e,reviewer=await e.review(l.reader),before=await l.count();
+  if(scenario==='db'){
+   await l.admin.query('ALTER TABLE atlas_allium_daily_lab.entry DISABLE TRIGGER immutable_record');
+   await l.admin.query('DELETE FROM atlas_allium_daily_lab.entry WHERE ordinal=$1',[before]);
+   await l.admin.query('ALTER TABLE atlas_allium_daily_lab.entry ENABLE TRIGGER immutable_record');
+  }else{
+   const path=join(e.path,e.ref.recordHash+'.json');
+   if(scenario==='missing')await unlink(path);
+   else {const {writeFile}=await import('node:fs/promises');await writeFile(path,'{}',{mode:0o600});}
+  }
+  await blocked(reviewer.review(org));assert.equal(await l.count(),before-(scenario==='db'?1:0));
+ }
 });

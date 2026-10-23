@@ -3,6 +3,7 @@ import {readFile} from 'node:fs/promises';
 import {dailyPlan,verifyDailyPlan,dailyHash,eu,euText,dailyBudget,validateSimulationAuthorization} from '../tools/allium-daily-plan.mjs';
 import {initialDailyState,applyDailyEvent,dailyView,dailyReservationState,sentDailyContext} from '../tools/allium-daily-state.mjs';
 import {simulation,simulationOrg as org,dailyResponse} from './allium-daily-fixture.mjs';
+import {reviewDailyReconciliation} from '../tools/allium-reconciliation-review.mjs';
 const at='2026-10-23T10:00:00.000000Z';
 const blocked=fn=>assert.throws(fn,/ALLIUM_DAILY_OFFLINE_BLOCKED/);
 function setup(now=at,mutate){
@@ -25,7 +26,7 @@ test('import replay validates result bytes at original observation time, preserv
   const f=setup();send(f,'supply','create',ok);send(f,'supply','run',ok);send(f,'supply','status',{status:'success'});
   const id=dailyHash({reservationId:f.id,ordinal:3});f.add({type:'INTENT',id,reservationId:f.id,job:'supply',operation:'result'});
   f.add({type:'FAKE_SEND',reservationId:f.id,intentId:id});
-  const raw=Buffer.from(dailyResponse(f.plan,'supply',scenario==='cost'?{cost:'0.200000000000000001'}:scenario==='sql'?{echo:'SELECT SIMULATED_WRONG_QUERY'}:{}));
+  const raw=Buffer.from(dailyResponse(f.plan,'supply',scenario==='cost'?{cost:'0.200000000000000001'}:scenario==='sql'?{echo:'SELECT SIMULATED_WRONG_QUERY'}:{cost:'0.05360000000000001'}));
   const evidence={...sentDailyContext(f.s,f.id,id),schema:1,kind:'ALLIUM_OFFLINE_SIMULATED_RESPONSE',storeHash:dailyHash('FAKE STORE'),
    fixtureHash:dailyHash('FAKE EPOCH'),dbEpoch:dailyHash('FAKE EPOCH'),organizationHash:org,observedAt:at,
    rawLength:raw.length,rawHash:dailyHash(raw),rawBase64:raw.toString('base64')};
@@ -33,11 +34,41 @@ test('import replay validates result bytes at original observation time, preserv
   const event={type:'RESPONSE_IMPORTED',organizationHash:org,at:'2026-11-02T10:00:00.000000Z',evidence,evidenceHash:dailyHash(evidence)};
   if(scenario==='period'){blocked(()=>applyDailyEvent(f.s,event));continue;}
   applyDailyEvent(f.s,event);const v=dailyView(f.s),r=f.s.reservations[0];
+  const before=structuredClone(f.s),report=reviewDailyReconciliation(f.s.events,{organizationHash:org,fixtureHash:evidence.fixtureHash});
+  const item=report.reservations[0].intents[3];
+  assert.equal(item.contentState,scenario==='valid'?'RESULT_VALIDATED':'UNKNOWN');
+  assert.equal(item.reportedResultUnits,scenario==='valid'?'0.05360000000000001':null);
+  assert.equal(item.observedAt,at);assert.equal(item.reviewedAt,event.at);assert.equal(item.evidenceHash,event.evidenceHash);
+  assert.equal(report.publication,'NOT_VERIFIED');assert.equal(report.costAttribution,'UNKNOWN');assert.equal(report.usageFinality,'UNKNOWN');
+  assert.equal(report.reservations[0].usageIncludedUnits,null);assert.equal(report.reservations[0].reconciledUnits,'0');
+  assert.equal(report.pendingUnits,'0.5');assert.equal(report.debitEnabled,false);assert.deepEqual(f.s,before);
+  assert.doesNotMatch(JSON.stringify(report),/rawBase64|referenceHash|rawLength/);
+  blocked(()=>reviewDailyReconciliation(f.s.events,{organizationHash:org,fixtureHash:dailyHash('OTHER FIXTURE')}));
   assert.equal(v.reservations[0].importedResponses[0].reviewed.state,scenario==='valid'?'VALIDATED':'UNKNOWN');
   assert.equal(r.intents[3].response,null);assert.equal(r.jobs[0].complete,false);assert.equal(v.reservations[0].state,'UNKNOWN');assert.equal(v.pendingUnits,'0.5');
   blocked(()=>applyDailyEvent(f.s,event));
   blocked(()=>applyDailyEvent(f.s,{type:'RESPONSE',organizationHash:org,at:event.at,reservationId:f.id,intentId:id,body:raw.toString()}));
  }
+});
+test('reconciliation summary distinguishes unsent, absent import, inline response and imported control without certifying costs',()=>{
+ const f=setup(),fixtureHash=dailyHash('REVIEW FIXTURE'),id=dailyHash({reservationId:f.id,ordinal:0});
+ const report=()=>reviewDailyReconciliation(f.s.events,{organizationHash:org,fixtureHash});
+ f.add({type:'INTENT',id,reservationId:f.id,job:'supply',operation:'create'});
+ assert.equal(report().reservations[0].intents[0].evidenceState,'NOT_SENT');
+ f.add({type:'FAKE_SEND',reservationId:f.id,intentId:id});
+ assert.equal(report().reservations[0].intents[0].evidenceState,'NOT_IMPORTED');
+ const raw=Buffer.from(JSON.stringify(ok)),evidence={...sentDailyContext(f.s,f.id,id),schema:1,kind:'ALLIUM_OFFLINE_SIMULATED_RESPONSE',
+  storeHash:dailyHash('STORE'),fixtureHash,dbEpoch:fixtureHash,organizationHash:org,observedAt:at,
+  rawLength:raw.length,rawHash:dailyHash(raw),rawBase64:raw.toString('base64')};
+ f.add({type:'RESPONSE_IMPORTED',evidence,evidenceHash:dailyHash(evidence)});
+ const imported=report().reservations[0].intents[0];assert.equal(imported.evidenceState,'IMPORTED');
+ assert.equal(imported.contentState,'CONTROL_RESPONSE_ONLY');assert.equal(imported.reportedResultUnits,null);
+ assert.equal(imported.reconciledUnits,'0');assert.equal(imported.costAttribution,'UNKNOWN');
+ const inline=setup();send(inline,'supply','create',ok);
+ const i=reviewDailyReconciliation(inline.s.events,{organizationHash:org,fixtureHash}).reservations[0].intents[0];
+ assert.equal(i.evidenceState,'INLINE_RESPONSE_ONLY');assert.equal(i.contentState,'NOT_TESTED');assert.equal(i.rawHash,null);
+ const corrupted=structuredClone(f.s.events);corrupted.at(-1).evidence.rawHash=dailyHash('WRONG');
+ blocked(()=>reviewDailyReconciliation(corrupted,{organizationHash:org,fixtureHash}));
 });
 test('daily plans remain offline, bind exact approved SQL/identity, exclude registry and XRPL execution',()=>{
  const p=dailyPlan({asOfDay:'2026-10-23'});assert.deepEqual(p.jobs.map(j=>j.kind),['supply','volume']);assert.equal(p.executionEnabled,false);
@@ -136,7 +167,7 @@ test('previous-day UNKNOWN and independent cap reset never authorize a new daily
  assert.equal(dailyPlan({asOfDay:'2024-03-01'}).window.from,'2024-02-23');
 });
 test('daily modules expose no provider URL, environment/credential loader, live executor or CLI',async()=>{
- for(const name of ['allium-daily-plan','allium-daily-state','market-db/allium-daily-lab']){
+ for(const name of ['allium-daily-plan','allium-daily-state','allium-reconciliation-review','market-db/allium-daily-lab']){
   const source=await readFile(new URL('../tools/'+name+'.mjs',import.meta.url),'utf8');
   assert.doesNotMatch(source,/api\.allium\.so|process\.env|fetch\(|workspaceEnvironment|executeAllium|pathToFileURL/);
  }

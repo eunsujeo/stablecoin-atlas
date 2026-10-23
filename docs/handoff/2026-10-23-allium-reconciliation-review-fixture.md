@@ -1,0 +1,9 @@
+# 오프라인 대사 준비 검토 보고서 Fixture
+- 목표: ADR0072 후속으로 읽기 전용 대사 준비 검토 보고서를 구현·검증하고 commit/push한다.
+- 끝난 것: 사용자 다음진행 승인에 따라 ADR0073의 가상 자료·새 소유 PG 한정 보고서를 구현했다. 원장 semantic replay로 미송신·미import·일반 response·import된 제어 응답·result VALIDATED/UNKNOWN을 구분한다. 원래 관측/검토시각과 hash를 요약하고 원문/base64/reference는 제외한다. 검증한 result 비용도 보고 수량으로만 표시하며 usage 반영액은 null, 귀속/최종성은 UNKNOWN·c_i=0이다. 별도 reconciliationReviewDailyLab은 review만 노출한다. publisher를 read-only repeatable-read transaction/commit까지 pin하고 exact published head·responseStore identity·원문을 재검증한다. 게시 누락/ACK 불명·원문 누락/교체·DB rollback은 보고서 반환을 차단한다. 반복 조회는 원장·예약0.5EU·원래 UNKNOWN·job·publication을 바꾸지 않는다. 기존 import-only API를 유지했다. 실제 legacy는 TRANSITION_BLOCKED·P UNKNOWN·b_i null·c_i=0이며 실제 공급자/usage/SQL HTTP·차감·운영 DB·스케줄·웹 연결은 없다. trusted reference까지 공동복원되는 최신성 한계는 기존대로다. 기존 미추적 router-lead-review 인계문과 상시 서비스는 유지했다.
+- 변경 파일: tools/allium-reconciliation-review.mjs, tools/market-db/allium-daily-lab.mjs, tests/allium-daily.test.mjs, tests/postgres/allium-daily.test.mjs, docs/adr/0073-offline-reconciliation-review-fixture.md, docs/ALLIUM_COLLECTION_PLAN.md, docs/DEVELOPMENT_STATUS.md, docs/handoff/2026-10-23-allium-reconciliation-review-fixture.md
+- 검증: npm run check rc0 tests408/pass408/fail0/cancelled0/skipped0(.state/agent-logs/review-check.log). npm run check:allium-daily rc0 tests47/pass47/fail0/cancelled0/skipped0(.state/agent-logs/review-pg-final.log). git diff --check rc0, 변경 문서 로컬 링크 누락0. Lead ddba1818d5414b7a9676376b2c1262de proceed 조건 반영. 구현/시험 실패 없음.
+- 기다리는 것: 없음
+- 다음 행동: 이 인계문과 ADR0073을 읽고 후속 범위를 사용자에게 확인한다. 현재 보고서는 차단 사유를 보여주는 검토이며 비용 귀속/최종성 증거나 대사 차감이 아니다. 실제 legacy 전환·비용 차감·공급자/usage/SQL 호출·운영 DB·스케줄을 시작하지 않는다.
+- 사용자 확인 필요: 예 — 이번 구현 단위 완료 후 후속 개발 범위를 확인한다.
+- 읽을 파일: docs/adr/0073-offline-reconciliation-review-fixture.md, docs/adr/0072-offline-response-evidence-import-fixture.md, docs/DEVELOPMENT_STATUS.md

@@ -10,6 +10,8 @@
 
 후속 승인으로 [ADR0072의 가상 원문 보존·import-only 복구 Fixture](adr/0072-offline-response-evidence-import-fixture.md)를 구현했다. 원문 바이트와 송신 ancestry를 결합하고 중복 import/commit ACK 유실·복원 오류를 검증한다. 복구 API는 읽기/import/게시만 제공하며 원래 UNKNOWN·예약·c_i=0을 유지한다. 실제 공급자 호출·legacy 이관·비용 차감·운영 연결은 없다. 검증 결과는 이번 인계문을 따른다.
 
+[ADR0073의 오프라인 대사 준비 검토](adr/0073-offline-reconciliation-review-fixture.md)는 별도 읽기 전용 factory로 게시 head와 원문을 재검증한 보고서를 제공한다. 원문 import·내용 검증과 비용 귀속/최종성을 구분하며 c_i=0·예약·UNKNOWN을 유지한다. 비용 차감·실제 실행의 승인이 아니다.
+
 [ADR0060](adr/0060-allium-survey-and-collection-plan.md)의 CLI는 기존 등록 자료에서 검토 가능한 SELECT 세 개를 생성한다. 후속 [ADR0061](adr/0061-bounded-allium-survey-executor.md)의 단발 실행기·영속 예약은 구현했으며, 새 수집기·공급량 전환은 아직 없다. 현재 대상은 Ethereum5개, JPYC Polygon/Avalanche/Kaia3개, TRON USDT1개, Solana USDC/USDT2개다. XRPL2개는 매핑 미확인으로 보류한다. 사용자 수동 예외로 실행한 실제 범위는 [11배포 조사 결과](research/allium-samples/survey-2026-10-23.md)를 따른다. OBSERVED는 해당 응답 관측이며 제품 지원 인증이 아니다.
 
 ```sh
