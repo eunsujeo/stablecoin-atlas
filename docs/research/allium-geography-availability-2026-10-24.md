@@ -27,7 +27,13 @@
 
 진단은1HTTP/0run·재시도0이며 실제 누적2run/7HTTP다. 이전 geography/legacy 바이트 보존을 확인했다. 오류 정보 확보와 금액 관측은 별개이며 실제 국가별 잔액은 계속 미확보다. 테이블 거절의 원인이 계정 권한인지 공개 경로 차이인지 확정하지 않는다. 같은 SQL의 새 실행은 하지 않았고 usage·공급자 전환도 없다. 재개에는 현재 계정에 제공되는 지리 잔액의 테이블/전달 경로와 접근 조건 확인이 필요하다.
 
-## 로컬 표시
+## 국가-거래소 흐름 테이블 단발 확인
+
+사용자가 `cex_attributed_flows`의 geo grain을 제시하고 “확인해줘”라고 요청해 [ADR0082](../adr/0082-bounded-country-exchange-flow-query.md)의 새 고정 조회를 수행했다. 국가간 송금이 아닌 추정 국가 지갑과 거래소 사이 전송 집계다. 기존11배포·UTC2026-10-22·geo/반대편cex를 고정했고 이번1run/4HTTP는 생성·실행·상태·상세 모두200이었지만 run은 failed였다. 동일 query/run/SQL로 확인한 오류는 `You used invalid tables: allium_identity.aggregates.cex_attributed_flows`다. UNKNOWN·PROVIDER_RUN_FAILED와 원문을 보존했다.
+
+이번 결과 페이지0·실제 흐름 자료0건 관측·재시도0·usage0이며 지리 조회/진단 누적3run/11HTTP다. 앞선 balances 거절로 추정한 결과가 아니라 새 테이블을 직접 확인한 별도 결과다. 기존 세 슬롯/legacy 바이트와 UI는 보존했다. 계정 권한인지 테이블 제공 경로인지 원인은 미확인이며 다른 Identity 테이블 전체로 일반화하지 않는다. cex-flows 슬롯을 재사용하거나 같은 SQL을 반복하지 않는다.
+
+## 기존 로컬 표시 유지
 
 `npm run allium:geography -- publish --kind balances`는 저장된 원문 hash·authorization·intent를 오프라인 확인해 확보 상태만 발행한다. 기존 loopback UI의 ‘국가·지역별 스테이블코인’은 잔액의 직접 조회 실패와 다른 두 항목의 미실행을 구분한다. 웹 요청/다시 읽기/서버 시작은 공급자를 호출하지 않는다.
 

@@ -10,6 +10,7 @@ const root=fileURLToPath(new URL('../.state/allium-executor/',import.meta.url));
 const published=fileURLToPath(new URL('../.state/allium-geography-preview/',import.meta.url));
 // Explicit offline publication. The web reader never reads the executor archive or executes this publisher.
 export async function publishGeographyAvailability({executionRoot=root,outputDirectory=published,kind='discovery'}={}){
+ if(!['discovery','balances'].includes(kind))throw Error('GEOGRAPHY_PUBLISH_BLOCKED');
  const archive=join(executionRoot,'geography-once',kind);
  const receiptBytes=Buffer.from(await file(join(archive,'receipt.json'),131072)),r=JSON.parse(receiptBytes),b=Buffer.from(await file(join(archive,'authorization.json'),65536)),a=JSON.parse(b),plan=geographyPlan(kind);
  if(r.kind!=='ALLIUM_GEOGRAPHY_RECEIPT'||!['UNKNOWN','SUCCEEDED'].includes(r.state)||r.authorizationHash!==alliumHash(b)||r.planHash!==alliumHash(Buffer.from(canonical(plan)))||canonical(a.plan)!==canonical(plan)||!Array.isArray(r.attempts)||!r.attempts.length||r.attempts.length>13||r.attempts.filter(x=>x.kind==='run').length>1)throw Error('GEOGRAPHY_PUBLISH_BLOCKED');
