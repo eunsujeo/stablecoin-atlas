@@ -253,18 +253,18 @@ class ScheduledRenewTests(unittest.TestCase):
     def test_renews_after_grace_once_turn_has_ended(self):
         result, renewed = self.run_watch(["working", "working"] + ["idle"] * self.IDLE)
         self.assertEqual(result, "renewed")
-        renewed.assert_called_once_with("router-impl", "docs/handoff/x.md", wait=False)
+        renewed.assert_called_once_with("router-impl", "docs/handoff/x.md", mode="continue")
 
-    def test_handoff_needing_user_renews_into_a_waiting_session(self):
+    def test_wait_mode_renews_into_a_waiting_session(self):
         clock = [0.0]
         with patch.object(lead, "agent", return_value={"agent_status": "idle", "state_change_seq": 1}), \
                 patch.object(renew, "screen", return_value=self.CLEAN), \
                 patch.object(renew, "open_lead_request", return_value=False), \
                 patch.object(renew, "renew_with_handoff") as renewed:
-            result = renew.wait_and_renew("router-impl", "docs/handoff/x.md", wait=True,
+            result = renew.wait_and_renew("router-impl", "docs/handoff/x.md", mode="wait",
                                           now=lambda: clock[0], sleep=lambda s: clock.__setitem__(0, clock[0] + s))
         self.assertEqual(result, "renewed_waiting")
-        renewed.assert_called_once_with("router-impl", "docs/handoff/x.md", wait=True)
+        renewed.assert_called_once_with("router-impl", "docs/handoff/x.md", mode="wait")
 
     def test_renewed_session_is_told_to_continue_next_action(self):
         with patch.object(renew, "renew"), patch.object(lead, "herdr") as send, patch.object(lead, "write"):
@@ -273,10 +273,17 @@ class ScheduledRenewTests(unittest.TestCase):
 
     def test_waiting_session_is_told_not_to_start_work(self):
         with patch.object(renew, "renew"), patch.object(lead, "herdr") as send, patch.object(lead, "write"):
-            renew.renew_with_handoff("router-impl", "docs/handoff/x.md", wait=True)
+            renew.renew_with_handoff("router-impl", "docs/handoff/x.md", mode="wait")
         text = send.call_args.args[3]
         self.assertIn("시작하지 말고", text)
         self.assertNotIn("이어서 진행", text)
+
+    def test_preapproved_session_continues_but_stops_for_new_approval(self):
+        with patch.object(renew, "renew"), patch.object(lead, "herdr") as send, patch.object(lead, "write"):
+            renew.renew_with_handoff("router-impl", "docs/handoff/x.md", mode="preapproved")
+        text = send.call_args.args[3]
+        self.assertIn("다음 진행해줘", text)
+        self.assertIn("질문으로 끝내세요", text)
 
     def test_user_continuing_during_grace_cancels(self):
         result, renewed = self.run_watch(["working", "idle", "idle", "working"])
@@ -378,25 +385,17 @@ class ScheduleGateTests(unittest.TestCase):
         value = renew.history("router-impl")
         self.assertEqual((len(value["renewals"]), value["chain"]), (2, 0))
 
-    def test_chain_limit_stops_until_a_human_continues(self):
+    def test_three_automatic_steps_then_the_next_renewal_waits(self):
+        fields = renew.handoff_fields(Path(self.folder / self.handoff(confirm="예 — 다음 단계")).read_text())
         for _ in range(renew.CHAIN_LIMIT):
+            self.assertEqual(renew.renewal_mode("router-impl", fields), "preapproved")
             renew.remember("router-impl", "renewed")
-        with patch.object(renew.subprocess, "Popen") as spawn, patch.object(renew, "notify") as notice:
-            self.assertRaises(ValueError, renew.schedule, "router-impl", self.handoff())
-        spawn.assert_not_called()
-        notice.assert_called_once_with("router-impl", "stopped_chain_limit")
-        renew.remember("router-impl", "cancelled_user_continued")
-        self.assertIsNone(renew.limit_reason("router-impl"))
-
-    def test_daily_limit_stops_and_notifies_until_reset(self):
-        for _ in range(renew.DAILY_LIMIT):
-            renew.remember("router-impl", "renewed")
-        with patch.object(renew.subprocess, "Popen") as spawn, patch.object(renew, "notify") as notice:
-            self.assertRaises(ValueError, renew.schedule, "router-impl", self.handoff())
-        spawn.assert_not_called()
-        notice.assert_called_once_with("router-impl", "stopped_daily_limit")
-        renew.reset_limit("router-impl")
-        self.assertIsNone(renew.limit_reason("router-impl"))
+        self.assertEqual(renew.renewal_mode("router-impl", fields), "wait")
+        with patch.object(renew.subprocess, "Popen") as spawn:
+            renew.schedule("router-impl", self.handoff())
+        spawn.assert_called_once()
+        renew.remember("router-impl", "renewed_waiting")
+        self.assertEqual(renew.renewal_mode("router-impl", fields), "preapproved")
 
     def test_unpushed_work_is_not_scheduled(self):
         self.unpushed.return_value = 2
