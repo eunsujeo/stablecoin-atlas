@@ -1,0 +1,9 @@
+# 기존 Allium 예약 전환·영속 checkpoint·대사 검토
+- 목표: 직전 제안에 따라 기존 예약/소비의 읽기 전용 점검과 영속 checkpoint·대사 검토를 완료하고 commit/push한다.
+- 끝난 것: ADR0070에 실제 저장본과 전환 계약·비용 귀속·단일 publisher/CAS·fencing·DB/저장소/공동복원·게시/ACK 유실 장애표를 정리했다. 원래 manual-once1개·resume선점3개·UNKNOWN3개를 보존하고 usage1+조사17의 intent/response18쌍, job/query/run/status/result와 원래 receipt/SQL-review hash 연결을 읽기 확인했다. 파일/디렉터리68항목의 bytes/hash/mtime/mode/디렉터리identity가 전후 동일했다. 전역 원자 snapshot/다른 PC 송신 정지는 인증하지 않는다. 기존 meta합0.13373333333333335EU는 관측값뿐이다. usage는 모든run 전이며 할당기간·안정 조직 연결·run상한·비용 포함/귀속이 미확인이다. 실제 전환은 TRANSITION_BLOCKED, legacy P는UNKNOWN·b_i는null·c_i=0을 유지한다. 새 호출/예약변경·운영DB·checkpoint설치·대사차감·스케줄0. 비공개700/600 검토본은 .state/allium-transition-review/20261023T114000967372Z-review.json에 보존하고 Git 제외를 확인했다. Lead40f6d2cc544e4ab992b1791520de6b18 proceed 조건을 반영했다. 기존 미추적 router-lead-review 인계문과 상시 미리보기/기존 수집 상태는 변경하지 않았다.
+- 변경 파일: docs/adr/0070-legacy-allium-transition-and-checkpoint-review.md, docs/ALLIUM_COLLECTION_PLAN.md, docs/DEVELOPMENT_STATUS.md, docs/handoff/2026-10-23-allium-transition-checkpoint-review.md
+- 검증: npm run check rc0 tests390/pass390/fail0/cancelled0/skipped0(.state/agent-logs/allium-transition-review-check.log). 읽기 전용 로컬 점검 Python rc0 intent/response18쌍·검토3개·resume3개·원본68항목 전후동일, 별도 재비교 rc0/matches=true. 검토본mode600/디렉터리700·Git제외 확인rc0. 문서 로컬 링크 누락0, git diff --check rc0. 첫 점검의 zip(strict) 로컬Python 미지원은 명시적 길이검사+zip으로 교정 후 완료했다. 장애표는 후속 시험 요구사항이며 영속 publisher/실제 전환을 구현·시험 완료한 것이 아니다.
+- 기다리는 것: 없음
+- 다음 행동: 인계문과 ADR0070을 읽고 사용자 후속 지시를 확인한다. 다음 권고는 가상 자료·새 소유 PG Fixture에서 영속 checkpoint publisher/CAS·신뢰head·독립/공동복원·ACK유실·분기·옛intent 재사용 차단 검증 구현이다. 실제 legacy 이관·비용 차감·공급자/usage 호출·운영DB·스케줄은 시작하지 않는다.
+- 사용자 확인 필요: 예 — 이번 전환/checkpoint 검토 단위는 완료했고 후속 Fixture 구현 범위는 사용자 진행 지시를 받는다.
+- 읽을 파일: docs/adr/0070-legacy-allium-transition-and-checkpoint-review.md, docs/adr/0069-offline-daily-allium-ledger-lab.md, docs/DEVELOPMENT_STATUS.md
