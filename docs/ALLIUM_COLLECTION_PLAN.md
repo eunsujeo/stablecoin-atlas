@@ -1,6 +1,6 @@
 # Allium 조사 계획과 단발 실행
 
-[ADR0060](adr/0060-allium-survey-and-collection-plan.md)의 CLI는 기존 등록 자료에서 검토 가능한 SELECT 세 개를 생성한다. 후속 [ADR0061](adr/0061-bounded-allium-survey-executor.md)의 단발 실행기·영속 예약은 구현했으며, 새 수집기·공급량 전환은 아직 없다. 현재 대상은 Ethereum5개, JPYC Polygon/Avalanche/Kaia3개, TRON USDT1개, Solana USDC/USDT2개다. XRPL2개는 매핑 미확인으로 보류한다. 모두 미실행 NOT_TESTED이며 조회 후보라는 사실만으로 지원을 뜻하지 않는다.
+[ADR0060](adr/0060-allium-survey-and-collection-plan.md)의 CLI는 기존 등록 자료에서 검토 가능한 SELECT 세 개를 생성한다. 후속 [ADR0061](adr/0061-bounded-allium-survey-executor.md)의 단발 실행기·영속 예약은 구현했으며, 새 수집기·공급량 전환은 아직 없다. 현재 대상은 Ethereum5개, JPYC Polygon/Avalanche/Kaia3개, TRON USDT1개, Solana USDC/USDT2개다. XRPL2개는 매핑 미확인으로 보류한다. 사용자 수동 예외로 실행한 실제 범위는 [11배포 조사 결과](research/allium-samples/survey-2026-10-23.md)를 따른다. OBSERVED는 해당 응답 관측이며 제품 지원 인증이 아니다.
 
 ```sh
 npm run allium:plan -- plan --day 2026-10-23
@@ -20,6 +20,10 @@ kind는 registry/supply/volume 중 하나다. 원문 형식은 Explorer results�
 일곱 날짜 겹침·지연/수정과 보조 공급자 조건은 ADR0060을 따른다. 실제 실행 경계는 ADR0061을 따른다. [별도 공급량 저장/조회](ALLIUM_SUPPLY_DATA.md)는 기존 검토 Ethereum 두 자산14행에 한해 기존 비공개 DB 설치·대조·재생0까지 완료했다. 실제 조사·전체 공급량 전환·일별 자동 수집은 아직 미완료다.
 
 ## 단발 실행 CLI
+
+사용자 승인 예외인 수동 단발 실행과 GET 지수 백오프는 [ADR0065](adr/0065-manual-allium-survey-with-backoff.md)를 따른다. 기존 strict `execute`의 과금 통제 검사는 유지한다. `execute-manual --day D --authorization <private-json> --reviewed-authorization-sha256 <hash> --usage <saved-original-usage> --approval <private-user-approval>`은 별도 수동 authorization을 요구하며 웹·일별 스케줄과 연결하지 않는다. 일별 26HTTP 계획과 수동 조사 재시도 상한은 서로 다른 실행 정책이다.
+
+공급자 SQL echo 차이의 특정 원문 검토와 같은 묶음의 미전송 작업 재개는 [ADR0066](adr/0066-reviewed-sql-echo-and-survey-checkpoints.md)를 따른다. `resume-manual`은 위 수동 인자에 `--sql-review <private-manifest> --reviewed-sql-review-sha256 <hash>`를 추가한다. 새 실행·접수 불명 POST의 재전송·예약 초기화 경로가 아니다.
 
 ```sh
 npm run allium:execute -- usage
@@ -58,4 +62,4 @@ node tools/allium-execute-cli.mjs review --day D --kind supply \
 
 status/review는 네트워크나 환경변수 읽기 없이 동작한다. review는 archive 원문을 검증하는 것뿐이며 receipt/예약/DB를 변경하지 않는다. 공개 요약의 observedExplorerUnits는 확보된 원문 비용 문자열, null은 미확보다. 실패·미완료 job은 후속 job을 실행하지 않는다.
 
-2026-10-23 실제 확인: usage GET1회는 성공했지만 강제 과금 상한은 UNCONFIRMED다. **조사 create/run은0회이며11배포 지원 상태는 계속 NOT_TESTED다.** 원문·영수증은 Git/웹에 게시하지 않는다.
+2026-10-23 최초 확인은 usage GET1회뿐이었고 strict 실행 조건은 미확보였다. 후속 사용자 승인 수동 예외로 **create3/run3·총17HTTP**를 수행했다. 등록11·공급량70·전송량67개 OBSERVED와 누락을 구분한 [실제 결과](research/allium-samples/survey-2026-10-23.md)를 따른다. 강제 과금 상한은 계속 UNCONFIRMED이며 원문·영수증은 Git/웹에 게시하지 않는다.

@@ -40,7 +40,7 @@ Allium은 [Explorer 표본](research/allium-samples/README.md)에 이어 [최근
 ## 토큰 기본정보
 
 - [일별 전송량 DB·UI](ACTIVITY_DATA.md): Allium Ethereum5코인 60행을 별도 atlas_activity에 저장하고 전체 현황에 최신 기준일과 표시했다. 같은 원문 replay0·최소 권한·수정 이력·구시각 import·동시성·원자성 검증. 기존 schema와 공급량은 유지한다. Allium 기본/DeFiLlama 보조 방향은 ADR0059이며 공급량 전환·실제 보조 연결·Allium 자동 수집은 후속이다.
-- [Allium 조사 계획·단발 실행기](ALLIUM_COLLECTION_PLAN.md): ADR0060의 등록13배포/조회후보11개·XRPL2개보류, 고정7일·SQL3개와 ADR0061의 계정 할당기간당 단발 예약·실제 호출 intent/영수증·원문 archive·오프라인 복구를 구현했다. usage GET1회만 성공했으며 강제 과금 한도는 UNCONFIRMED여서 조사 create/run0·DB/스케줄0, 지원 상태 NOT_TESTED다. 공급량 기본 전환·일별 수집은 아직 없다.
+- [Allium 조사 계획·단발 실행기](ALLIUM_COLLECTION_PLAN.md): ADR0060/0061의 고정11배포·7일 조사와 영속 예약을 구현했다. 후속 사용자 승인 ADR0065/0066의 수동 예외·GET 지수 백오프·개별 SQL echo 검토로 실제 SQL3회/17HTTP를 완료했다. [실제 결과](research/allium-samples/survey-2026-10-23.md)는 등록11·공급량70·전송량67 OBSERVED이며 Kaia JPYC 일별 미일치·JPYSC 전송량3일 미확보를 구분한다. meta 비용 합계0.13373333333333335EU, 과금 한도 UNCONFIRMED·DB/스케줄 변경0. XRPL2개 NOT_TESTED·공급량 기본 전환·일별 수집 미구현은 유지한다.
 - [Allium 별도 공급량 저장·조회](ALLIUM_SUPPLY_DATA.md): ADR0062/0063의 오프라인 CLI·atlas_supply를 기존 비공개 DB에 설치하고 검토 Ethereum USDC/USDT14행 입력·대조·재생0을 확인했다. 기존5개 schema·권한/정책·시장 표본180건·전송량60건 보존. API 역할의 DB 권한·전환 경로와 source pin을 검사했으며 Dashboard exposed schemas는 UNKNOWN이다. [ADR0064](adr/0064-reviewed-allium-supply-preview.md)로 DB 읽기 모드 Overview의 별도 과거 표본 표를 연결했다. 기존 공급량의 기본 전환·실제11배포 지원·일별 수집으로 표시하지 않는다.
 
 - 공급량 차트는 축 눈금에 `눈금 (tokens)`를 표시하고 `1,000억`처럼 정리한다. 가장 큰 네트워크의 최신 실제 값은 선 끝에 별도 색상으로 표시하며 hover/키보드 tooltip 중에는 숨겨 겹침을 줄인다. 로그 축·원본 공급량·증감률 계산은 유지한다.

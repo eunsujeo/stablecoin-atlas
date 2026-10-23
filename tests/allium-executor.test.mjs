@@ -1,12 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFile,mkdtemp,realpath,rm,writeFile,stat,symlink} from 'node:fs/promises';
+import {readFile,mkdtemp,realpath,rm,writeFile,stat,symlink,mkdir} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {spawnSync} from 'node:child_process';
 import {canonical} from '../tools/market-db/plan.mjs';
 import {alliumPlan} from '../tools/allium-plan.mjs';
-import {alliumUsage,executeAlliumSurvey,reviewAlliumArchive,alliumReceiptView,alliumHash,validateAlliumAuthorization} from '../tools/allium-executor.mjs';
+import {alliumUsage,executeAlliumSurvey,executeAlliumManualSurvey,resumeAlliumManualSurvey,reviewAlliumArchive,alliumReceiptView,alliumHash,validateAlliumAuthorization} from '../tools/allium-executor.mjs';
 import {executionArguments} from '../tools/allium-execute-cli.mjs';
 
 const metadata=JSON.parse(await readFile(new URL('../data/market-registration.json',import.meta.url)));
@@ -49,6 +49,137 @@ function mock({resultMutation=()=>{},failureAt=-1,status='success',before=async(
 }
 async function sandbox(t) {const root=await realpath(await mkdtemp(join(tmpdir(),'allium-executor-')));t.after(()=>rm(root,{recursive:true,force:true}));return root;}
 async function setup(t,options={}) {const root=await sandbox(t),net=mock(options);await alliumUsage({root,apiKey,now,fetcher:net.fetcher});net.calls.length=0;return {root,...net,...authorization()};}
+
+function manualAuthorization(mutate=()=>{}) {
+  const approvalBytes=Buffer.from('TEST ONLY: user authorizes one uncapped survey with exponential read retries.');
+  const a={schemaVersion:1,kind:'ALLIUM_MANUAL_UNCAPPED_SURVEY_AUTHORIZATION',reviewStatus:'USER_AUTHORIZED_UNCAPPED',planHash:p.planHash,
+    accountKeyHash:alliumHash(Buffer.from(apiKey)),usageHash:alliumHash(usageBytes),approvalHash:alliumHash(approvalBytes),usageObservedAt:at,
+    providerCapStatus:'UNCONFIRMED',overagesStatus:'UNCONFIRMED',costLimit:null,maxRuns:3,maxHttpRequests:156,maxReadRetries:3,
+    authorizedAt:at,expiresAt:'2026-10-23T08:15:00.000Z',sqlHashes:Object.fromEntries(p.jobs.map(j=>[j.kind,j.sqlHash])),resultLimits:Object.fromEntries(p.jobs.map(j=>[j.kind,j.resultLimit]))};
+  mutate(a);const authorizationBytes=Buffer.from(JSON.stringify(a));
+  return {authorizationBytes,reviewedHash:alliumHash(authorizationBytes),approvalBytes,random:()=>0};
+}
+
+test('manual approval binds real evidence and unknown cost without weakening strict authorization',async t=>{
+  const o=await setup(t);
+  for(const mutate of [a=>a.providerCapStatus='CONFIRMED',a=>a.costLimit='1',a=>a.maxHttpRequests=157,a=>a.maxRuns=4,a=>a.maxReadRetries=4,a=>a.expiresAt='2026-10-23T08:16:00Z',a=>a.approvalHash='0'.repeat(64),a=>a.sqlHashes.supply='0'.repeat(64)]) {
+    await assert.rejects(()=>executeAlliumManualSurvey(p,{...o,...manualAuthorization(mutate)}));
+  }
+  assert.equal(o.calls.length,0);
+  await assert.rejects(()=>executeAlliumSurvey(p,{...o,...manualAuthorization()}));
+  const r=await executeAlliumManualSurvey(p,{...o,...manualAuthorization()});assert.equal(r.state,'SUCCEEDED');assert.equal(r.providerCapStatus,'UNCONFIRMED');assert.equal(r.maxRuns,3);
+  await assert.rejects(()=>executeAlliumSurvey(p,o));await assert.rejects(()=>executeAlliumManualSurvey(p,{...o,...manualAuthorization()}));
+  assert.equal(o.calls.length,12);
+  const bytes=await readFile(join(o.root,'survey-'+p.asOfDay,'user-approval'));assert.deepEqual(bytes,manualAuthorization().approvalBytes);
+});
+
+test('manual GET retries use bounded exponential jitter and keep every intent without repeating SQL POSTs',async t=>{
+  const o=await setup(t),base=mock(),reads=new Map(),sleeps=[];
+  const fetcher=async(url,options)=>{
+    if(options.method==='GET'){
+      const n=(reads.get(url)??0)+1;reads.set(url,n);
+      if(n<=3)return new Response('{}',{status:503});
+    }
+    return base.fetcher(url,options);
+  };
+  const r=await executeAlliumManualSurvey(p,{...o,...manualAuthorization(),fetcher,sleep:async ms=>sleeps.push(ms)});
+  assert.equal(r.state,'SUCCEEDED');assert.equal(r.httpAttempts,30);assert.equal(r.counts.run,3);assert.equal(r.counts.create,3);
+  assert.equal(sleeps.filter(ms=>ms===4000).length,6);assert.equal(sleeps.filter(ms=>ms===8000).length,6);
+  const receipt=JSON.parse(await readFile(join(o.root,'survey-'+p.asOfDay,'receipt.json')));
+  assert.equal(receipt.attempts.filter(a=>a.retryDelayMs).length,18);
+  const projection=await reviewAlliumArchive(p,{root:o.root,kind:'volume',expectedHash:r.jobs[2].sourceHash,now:at});assert.equal(projection.survey,'volume');
+});
+
+test('manual retries respect Retry-After, expiry, permanent/proxy errors and uncertain POST acceptance',async t=>{
+  for(const mode of ['seconds','date','too-long','expired','proxy','permanent','post429','post-lost','network','exhausted']){
+    const o=await setup(t),base=mock(),sleeps=[];let clock=at,failures=0,calls=0;
+    const fetcher=async(url,options)=>{
+      calls++;
+      if(mode==='post-lost')throw Object.assign(new Error('private'),{name:'TimeoutError'});
+      if(mode==='post429')return new Response('{}',{status:429});
+      if(options.method==='GET'&&(mode==='exhausted'||failures++===0)) {
+        if(mode==='network')throw Object.assign(new Error('private'),{name:'TimeoutError'});
+        const headers=mode==='seconds'?{'Retry-After':'12'}:mode==='date'?{'Retry-After':'Fri, 23 Oct 2026 08:00:13 GMT'}:mode==='too-long'?{'Retry-After':'61'}:mode==='proxy'?{'X-Squid-Error':'ERR_ACCESS_DENIED 0'}:{};
+        return new Response('{}',{status:mode==='permanent'?403:503,headers});
+      }
+      return base.fetcher(url,options);
+    };
+    const r=await executeAlliumManualSurvey(p,{...o,...manualAuthorization(),fetcher,now:()=>clock,sleep:async ms=>{sleeps.push(ms);if(mode==='expired'&&ms!==2000)clock='2026-10-23T08:15:00Z';else if(mode==='expired'&&failures)clock='2026-10-23T08:15:00Z';}});
+    if(['seconds','date','network'].includes(mode)){assert.equal(r.state,'SUCCEEDED');if(mode==='seconds')assert(sleeps.includes(12000));if(mode==='date')assert(sleeps.includes(13000));}
+    else {assert.equal(r.state,'UNKNOWN');assert.equal(r.counts.run,mode.startsWith('post')?0:1);}
+    if(mode==='exhausted'){assert.equal(r.counts.status,4);assert.deepEqual(sleeps,[2000,2000,4000,8000]);}
+    if(mode==='expired')assert.equal(r.counts.status,1);
+    if(mode.startsWith('post'))assert.equal(calls,1);
+  }
+});
+
+test('manual maximum polling with read retries stays within its signed HTTP/run limits',async t=>{
+  const o=await setup(t),base=mock(),reads=new Map();
+  const fetcher=async(url,options)=>{
+    if(options.method==='GET'){
+      const n=(reads.get(url)??0)+1;reads.set(url,n);
+      if(n%4!==0)return new Response('{}',{status:429});
+      if(url.endsWith('/status')&&n<40)return new Response(JSON.stringify('running'));
+    }
+    return base.fetcher(url,options);
+  };
+  const r=await executeAlliumManualSurvey(p,{...o,...manualAuthorization(),fetcher});assert.equal(r.state,'SUCCEEDED');assert.equal(r.httpAttempts,138);assert.equal(r.counts.run,3);assert.equal(r.counts.status,120);
+});
+
+test('strict/manual reservations are atomic across modes and an interrupted mutex fails closed',async t=>{
+  for(let i=0;i<3;i++){
+    const o=await setup(t),r=await Promise.allSettled([executeAlliumSurvey(p,o),executeAlliumManualSurvey(p,{...o,...manualAuthorization()})]);
+    assert.equal(r.filter(x=>x.status==='fulfilled').length,1);assert.equal(o.calls.filter(c=>c.url.endsWith('/run-async')).length,3);
+  }
+  const o=await setup(t);await mkdir(join(o.root,'reservation-lock'));
+  await assert.rejects(()=>executeAlliumManualSurvey(p,{...o,...manualAuthorization()}));await assert.rejects(()=>executeAlliumSurvey(p,o));assert.equal(o.calls.length,0);
+});
+
+test('manual crash after dispatch leaves a global tombstone and forbids both restart modes',async t=>{
+  const o=await setup(t),m=manualAuthorization(),file=join(o.root,'manual-input.json');
+  await writeFile(file,JSON.stringify({plan:p,authorization:JSON.parse(m.authorizationBytes),approval:m.approvalBytes.toString(),usage:usageBytes.toString(),root:o.root}));
+  const script=`import{readFile}from'node:fs/promises';import{executeAlliumManualSurvey,alliumHash}from ${JSON.stringify(new URL('../tools/allium-executor.mjs',import.meta.url).href)};const x=JSON.parse(await readFile(process.argv[1]));const authorizationBytes=Buffer.from(JSON.stringify(x.authorization));await executeAlliumManualSurvey(x.plan,{root:x.root,authorizationBytes,reviewedHash:alliumHash(authorizationBytes),usageBytes:Buffer.from(x.usage),approvalBytes:Buffer.from(x.approval),apiKey:${JSON.stringify(apiKey)},now:()=>${JSON.stringify(at)},fetcher:async()=>process.exit(73)});`;
+  assert.equal(spawnSync(process.execPath,['--input-type=module','-e',script,file]).status,73);
+  const receipt=JSON.parse(await readFile(join(o.root,'survey-'+p.asOfDay,'receipt.json')));assert.equal(receipt.attempts.length,1);assert.equal(alliumReceiptView(receipt).state,'UNKNOWN');
+  await assert.rejects(()=>executeAlliumManualSurvey(p,{...o,...m}));await assert.rejects(()=>executeAlliumSurvey(p,o));assert.equal(o.calls.length,0);
+});
+
+async function sqlReviewOptions(o,mutate=()=>{}) {
+  const directory=join(o.root,'survey-'+p.asOfDay),bytes=await readFile(join(directory,'receipt.json')),r=JSON.parse(bytes),reviews=[];
+  for(const j of r.jobs.filter(j=>j.sourceHash)){
+    const raw=await readFile(join(directory,`response-${j.resultAttempt}.json`));
+    reviews.push({reviewStatus:'SOURCE_REVIEWED',planHash:p.planHash,kind:j.kind,requestSqlHash:p.jobs.find(x=>x.kind===j.kind).sqlHash,sourceHash:alliumHash(raw),responseSqlHash:alliumHash(Buffer.from(JSON.parse(raw).sql)),reviewedAt:at});
+  }
+  const manifest={schemaVersion:1,kind:'ALLIUM_REVIEWED_SQL_ECHO',planHash:p.planHash,receiptHash:alliumHash(bytes),reviews};mutate(manifest);
+  const sqlReviewBytes=Buffer.from(JSON.stringify(manifest));return {...o,...manualAuthorization(),sqlReviewBytes,reviewedSqlReviewHash:alliumHash(sqlReviewBytes)};
+}
+
+test('exact reviewed echoes resume only untransmitted jobs, preserve UNKNOWN snapshots and reject tampered manifests',async t=>{
+  const o=await setup(t),net=mock({resultMutation:r=>r.sql+=' '}),options={...o,...manualAuthorization(),fetcher:net.fetcher};
+  const first=await executeAlliumManualSurvey(p,options);assert.equal(first.state,'UNKNOWN');assert.equal(first.counts.run,1);
+  const directory=join(o.root,'survey-'+p.asOfDay),original=await readFile(join(directory,'receipt.json'));
+  for(const mutate of [m=>m.reviews[0].sourceHash='0'.repeat(64),m=>m.reviews[0].kind='supply',m=>m.receiptHash='0'.repeat(64),m=>m.reviews[0].responseSqlHash='0'.repeat(64)]){
+    const bad=await sqlReviewOptions(options,mutate);await assert.rejects(()=>resumeAlliumManualSurvey(p,bad));
+  }
+  assert.equal(net.calls.length,4);
+  const review=await sqlReviewOptions(options),race=await Promise.allSettled([resumeAlliumManualSurvey(p,review),resumeAlliumManualSurvey(p,review)]);
+  assert.equal(race.filter(x=>x.status==='fulfilled').length,1);assert.equal(net.calls.filter(c=>c.url.endsWith('/run-async')).length,2);
+  assert.deepEqual(await readFile(join(directory,'receipt-before-review-registry.json')),original);
+  const second=await resumeAlliumManualSurvey(p,await sqlReviewOptions(options));assert.equal(second.counts.run,3);assert.equal(second.state,'UNKNOWN');
+  const third=await resumeAlliumManualSurvey(p,await sqlReviewOptions(options));assert.equal(third.state,'SUCCEEDED');assert.equal(third.httpAttempts,12);assert(third.jobs.every(j=>j.sqlReviewStatus==='SOURCE_REVIEWED'));
+  await assert.rejects(()=>resumeAlliumManualSurvey(p,review));assert.equal(net.calls.filter(c=>c.url.endsWith('/run-async')).length,3);
+});
+
+test('review checkpoint refuses expired leases, altered intents, and a crash after permanent checkpoint claim',async t=>{
+  for(const mode of ['expired','intent','crash']){
+    const o=await setup(t),net=mock({resultMutation:r=>r.sql+=' '}),options={...o,...manualAuthorization(),fetcher:net.fetcher};
+    await executeAlliumManualSurvey(p,options);const review=await sqlReviewOptions(options),directory=join(o.root,'survey-'+p.asOfDay);
+    if(mode==='expired')review.now=()=> '2026-10-23T08:15:00Z';
+    if(mode==='intent'){const file=join(directory,'intent-0.json'),intent=JSON.parse(await readFile(file));intent.kind='run';await writeFile(file,JSON.stringify(intent));}
+    if(mode==='crash')await mkdir(join(directory,'resume-registry'));
+    await assert.rejects(()=>resumeAlliumManualSurvey(p,review));assert.equal(net.calls.length,4);
+  }
+});
 
 test('authorization binds exact SQL, limits, key, fresh observed usage and reviewed provider controls before any dispatch',()=>{
   const valid=authorization();const check=o=>validateAlliumAuthorization(p,o.authorizationBytes,{...o,now:o.now()});

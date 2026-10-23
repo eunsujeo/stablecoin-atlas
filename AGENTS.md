@@ -39,6 +39,8 @@
 
 ## 개발용 Router와 Herdr 작업 흐름
 
+- 사용자 Allium 최초 실행·지수 백오프 승인(2026-10-23): ADR0065의 수동 단발 조사에 한해 과금 통제 미확인 상태 실행을 허용한다. 기존 strict 검사·비공개 증거·공통 영속 예약은 유지하며, 새 usage 조회·Allium 자동 수집·웹/DB 전환은 포함하지 않는다.
+
 사용자가 별도로 요청한 개발 도구 예외다. 제품 내부 LLM 금지와 기존 금융/실행 경계는 유지한다.
 
 - 사용자 작업을 받으면 프로젝트 `UserPromptSubmit` hook의 Local Router recommendation을 확인한다. 현재 shadow 추천이며 실행 중 모델/effort를 변경했다거나 토큰을 절감했다고 주장하지 않는다.

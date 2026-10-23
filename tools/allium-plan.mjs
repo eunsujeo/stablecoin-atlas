@@ -51,14 +51,15 @@ export function alliumPlan(metadata, legacy, {asOfDay} = {}) {
 }
 
 // Projects only reviewed response evidence. SQL and account query/run identifiers never leave this function.
-export function alliumSurveyResult(plan, kind, bytes, {expectedHash, now = new Date().toISOString()} = {}) {
+export function alliumSurveyResult(plan, kind, bytes, {expectedHash, now = new Date().toISOString(), sqlReview} = {}) {
   const {planHash, ...body} = plan;
   if (planHash !== hash(body) || plan.kind !== 'ALLIUM_OFFLINE_SURVEY_PLAN' || !Buffer.isBuffer(bytes) || bytes.length > 2097152 || !/^[a-f0-9]{64}$/.test(expectedHash) || hash(bytes) !== expectedHash) fail();
   const job = plan.jobs.find(j => j.kind === kind);
   if (!job) fail();
   parseHistorySource(bytes); // Bound nesting and validate UTF-8, then retain JSON types for amount checks.
   const p = JSON.parse(bytes.toString('utf8'));
-  if (!p || p.sql !== job.sql || !Array.isArray(p.data) || String(p.meta?.row_count) !== String(p.data.length) || p.data.length > job.expectedMaxRows) fail();
+  const reviewed=sqlReview?.reviewStatus==='SOURCE_REVIEWED'&&sqlReview.planHash===planHash&&sqlReview.kind===kind&&sqlReview.requestSqlHash===job.sqlHash&&sqlReview.sourceHash===expectedHash&&typeof p?.sql==='string'&&sqlReview.responseSqlHash===createHash('sha256').update(p.sql).digest('hex')&&epochMicros(sqlReview.reviewedAt)<=epochMicros(now);
+  if (!p || p.sql !== job.sql&&!reviewed || !Array.isArray(p.data) || String(p.meta?.row_count) !== String(p.data.length) || p.data.length > job.expectedMaxRows) fail();
   const queriedAt = instant(p.queried_at);
   if (epochMicros(queriedAt) > epochMicros(now) || queriedAt.slice(0, 10) < plan.asOfDay) fail();
   const eligible = plan.targets.filter(t => t.family !== 'XRPL'), seen = new Set(), rows = [];
@@ -96,6 +97,7 @@ export function alliumSurveyResult(plan, kind, bytes, {expectedHash, now = new D
     if (!matches.length || matches.some(r => r.state === 'INCONCLUSIVE') && matches.length !== 1) fail();
   }
   return {schemaVersion: 1, kind: 'ALLIUM_SURVEY_EVIDENCE', planHash, sourceHash: expectedHash, sqlHash: job.sqlHash,
+    ...(reviewed?{sqlReviewStatus:'SOURCE_REVIEWED',responseSqlHash:sqlReview.responseSqlHash}:{}),
     mapper: plan.mapper, survey: kind, queriedAt, window: plan.window, precision: 'PROVIDER_DECIMAL_STRING_NOT_BASE_UNIT_VERIFIED', rows,
     deferred: plan.targets.filter(t => t.family === 'XRPL').map(t => ({deploymentId: t.deploymentId, state: 'NOT_TESTED', reason: t.reason}))};
 }
