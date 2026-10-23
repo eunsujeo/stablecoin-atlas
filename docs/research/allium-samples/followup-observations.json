@@ -1,0 +1,1335 @@
+{
+  "schemaVersion": 1,
+  "networkId": "ethereum",
+  "researchOnly": true,
+  "executions": 3,
+  "automaticRetries": 0,
+  "evidence": [
+    {
+      "query": "volume-recent-compatible",
+      "status": "success",
+      "rowCount": 60,
+      "queriedAt": "2026-10-23T03:26:35.651089Z",
+      "responseSHA256": "49efb866628e2739301b6c4c008d52861793c98e780cbf6150ca093b59944b8a",
+      "executedSQLSHA256": "2f328c705c2648426c1c29a1ecea221a944a1f93f56c1821db94e06dbe3681b3",
+      "explorerUnits": "0.03548333333333333"
+    },
+    {
+      "query": "supply-recent",
+      "status": "success",
+      "rowCount": 14,
+      "queriedAt": "2026-10-23T03:26:50.626271Z",
+      "responseSHA256": "8a54ce9c7a2f284ed80d141f15964d14981ad9bb639eb7f6087385207cdaefd0",
+      "executedSQLSHA256": "aeaa8477e6338483cf6dab90a2aadc5a29452f3002dc74faa3bde51717f8ce94",
+      "explorerUnits": "0.03745"
+    },
+    {
+      "query": "volume-recent",
+      "status": "failed",
+      "errorClass": "ORIGIN_QUERY_VALIDATION_REJECTED",
+      "errorPrefix": "Query not allowed. Invalid query",
+      "completedAt": "2026-10-23T03:24:36.302625Z",
+      "sourceNumericTypes": "NOT_OBSERVED",
+      "rawMetadataSHA256": "6b0a6d4831c5105b89d194b4fb4e53686efceaed58abc9985d4312fe7899c96b",
+      "functionRestriction": "SUSPECTED_NOT_PROVEN"
+    }
+  ],
+  "volumeCoverage": [
+    {
+      "coinId": "jpyc",
+      "observedDates": [
+        "2026-10-08",
+        "2026-10-09",
+        "2026-10-10",
+        "2026-10-11",
+        "2026-10-12",
+        "2026-10-13",
+        "2026-10-14",
+        "2026-10-15",
+        "2026-10-16",
+        "2026-10-17",
+        "2026-10-18",
+        "2026-10-19",
+        "2026-10-20",
+        "2026-10-21"
+      ],
+      "earliestObservedDate": "2026-10-08",
+      "latestObservedDate": "2026-10-21",
+      "returnedRows": 14,
+      "oct22": "NO_ROW_NOT_ZERO"
+    },
+    {
+      "coinId": "jpysc",
+      "observedDates": [
+        "2026-10-09",
+        "2026-10-19",
+        "2026-10-20",
+        "2026-10-21"
+      ],
+      "earliestObservedDate": "2026-10-09",
+      "latestObservedDate": "2026-10-21",
+      "returnedRows": 4,
+      "oct22": "NO_ROW_NOT_ZERO"
+    },
+    {
+      "coinId": "rlusd",
+      "observedDates": [
+        "2026-10-08",
+        "2026-10-09",
+        "2026-10-10",
+        "2026-10-11",
+        "2026-10-12",
+        "2026-10-13",
+        "2026-10-14",
+        "2026-10-15",
+        "2026-10-16",
+        "2026-10-17",
+        "2026-10-18",
+        "2026-10-19",
+        "2026-10-20",
+        "2026-10-21"
+      ],
+      "earliestObservedDate": "2026-10-08",
+      "latestObservedDate": "2026-10-21",
+      "returnedRows": 14,
+      "oct22": "NO_ROW_NOT_ZERO"
+    },
+    {
+      "coinId": "usdc",
+      "observedDates": [
+        "2026-10-08",
+        "2026-10-09",
+        "2026-10-10",
+        "2026-10-11",
+        "2026-10-12",
+        "2026-10-13",
+        "2026-10-14",
+        "2026-10-15",
+        "2026-10-16",
+        "2026-10-17",
+        "2026-10-18",
+        "2026-10-19",
+        "2026-10-20",
+        "2026-10-21"
+      ],
+      "earliestObservedDate": "2026-10-08",
+      "latestObservedDate": "2026-10-21",
+      "returnedRows": 14,
+      "oct22": "NO_ROW_NOT_ZERO"
+    },
+    {
+      "coinId": "usdt",
+      "observedDates": [
+        "2026-10-08",
+        "2026-10-09",
+        "2026-10-10",
+        "2026-10-11",
+        "2026-10-12",
+        "2026-10-13",
+        "2026-10-14",
+        "2026-10-15",
+        "2026-10-16",
+        "2026-10-17",
+        "2026-10-18",
+        "2026-10-19",
+        "2026-10-20",
+        "2026-10-21"
+      ],
+      "earliestObservedDate": "2026-10-08",
+      "latestObservedDate": "2026-10-21",
+      "returnedRows": 14,
+      "oct22": "NO_ROW_NOT_ZERO"
+    }
+  ],
+  "latestVolumeSamples": [
+    {
+      "coin_id": "jpyc",
+      "activity_date": "2026-10-21T00:00:00",
+      "chain": "ethereum",
+      "token_address": "0xe7c3d8c9a439fede00d2600032d5db0be71c3c29",
+      "transfer_volume_str": "51626296.7223736",
+      "transfer_volume_usd_str": "323922.832374761",
+      "transfer_count_str": "167",
+      "transfer_tx_count_str": "124",
+      "has_adjusted_volume": true,
+      "adjusted_volume_usd_str": "110998.495939113"
+    },
+    {
+      "coin_id": "jpysc",
+      "activity_date": "2026-10-21T00:00:00",
+      "chain": "ethereum",
+      "token_address": "0x6781d5631bfe47432b089e64e3eab3b6edd26177",
+      "transfer_volume_str": "711021",
+      "transfer_volume_usd_str": "4491.46277532",
+      "transfer_count_str": "1",
+      "transfer_tx_count_str": "1",
+      "has_adjusted_volume": true,
+      "adjusted_volume_usd_str": null
+    },
+    {
+      "coin_id": "rlusd",
+      "activity_date": "2026-10-21T00:00:00",
+      "chain": "ethereum",
+      "token_address": "0x8292bb45bf1ee4d140127049757c2e0ff06317ed",
+      "transfer_volume_str": "511673158.342741",
+      "transfer_volume_usd_str": "511729655.301308",
+      "transfer_count_str": "1366",
+      "transfer_tx_count_str": "763",
+      "has_adjusted_volume": true,
+      "adjusted_volume_usd_str": "6485253.073934"
+    },
+    {
+      "coin_id": "usdc",
+      "activity_date": "2026-10-21T00:00:00",
+      "chain": "ethereum",
+      "token_address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      "transfer_volume_str": "46088092408.0838",
+      "transfer_volume_usd_str": "46068500323.9368",
+      "transfer_count_str": "511281",
+      "transfer_tx_count_str": "299458",
+      "has_adjusted_volume": true,
+      "adjusted_volume_usd_str": "845955783.425228"
+    },
+    {
+      "coin_id": "usdt",
+      "activity_date": "2026-10-21T00:00:00",
+      "chain": "ethereum",
+      "token_address": "0xdac17f958d2ee523a2206206994597c13d831ec7",
+      "transfer_volume_str": "18821230544.0059",
+      "transfer_volume_usd_str": "18805520840.7327",
+      "transfer_count_str": "600834",
+      "transfer_tx_count_str": "415696",
+      "has_adjusted_volume": true,
+      "adjusted_volume_usd_str": "752438080.608281"
+    }
+  ],
+  "supplyComparisons": [
+    {
+      "coinId": "usdc",
+      "day": "2026-10-16",
+      "llamaMinted": "48098109598",
+      "llamaCirculating": "44778412118",
+      "alliumTotal": "48079993903.4973",
+      "alliumCirculating": "48079993903.4973",
+      "alliumTotalMinusLlamaMinted": "-18115694.5027",
+      "totalDifferencePercent": "-0.03766405",
+      "circulatingDifference": "3301581785.4973"
+    },
+    {
+      "coinId": "usdc",
+      "day": "2026-10-17",
+      "llamaMinted": "48080091405",
+      "llamaCirculating": "44705842087",
+      "alliumTotal": "48048944536.7351",
+      "alliumCirculating": "48048944536.7351",
+      "alliumTotalMinusLlamaMinted": "-31146868.2649",
+      "totalDifferencePercent": "-0.06478122",
+      "circulatingDifference": "3343102449.7351"
+    },
+    {
+      "coinId": "usdc",
+      "day": "2026-10-18",
+      "llamaMinted": "48048935709",
+      "llamaCirculating": "44670310400",
+      "alliumTotal": "48212107364.7328",
+      "alliumCirculating": "48212107364.7328",
+      "alliumTotalMinusLlamaMinted": "163171655.7328",
+      "totalDifferencePercent": "0.33959473",
+      "circulatingDifference": "3541796964.7328"
+    },
+    {
+      "coinId": "usdc",
+      "day": "2026-10-19",
+      "llamaMinted": "48212172095",
+      "llamaCirculating": "44834565564",
+      "alliumTotal": "47810262478.9825",
+      "alliumCirculating": "47810262478.9825",
+      "alliumTotalMinusLlamaMinted": "-401909616.0175",
+      "totalDifferencePercent": "-0.83362686",
+      "circulatingDifference": "2975696914.9825"
+    },
+    {
+      "coinId": "usdc",
+      "day": "2026-10-20",
+      "llamaMinted": "47810048252",
+      "llamaCirculating": "44456392996",
+      "alliumTotal": "47685013858.1572",
+      "alliumCirculating": "47685013858.1572",
+      "alliumTotalMinusLlamaMinted": "-125034393.8428",
+      "totalDifferencePercent": "-0.26152325",
+      "circulatingDifference": "3228620862.1572"
+    },
+    {
+      "coinId": "usdc",
+      "day": "2026-10-21",
+      "llamaMinted": "47687458175",
+      "llamaCirculating": "44308262186",
+      "alliumTotal": "48211882264.292",
+      "alliumCirculating": "48211882264.292",
+      "alliumTotalMinusLlamaMinted": "524424089.292",
+      "totalDifferencePercent": "1.09971072",
+      "circulatingDifference": "3903620078.292"
+    },
+    {
+      "coinId": "usdc",
+      "day": "2026-10-22",
+      "llamaMinted": "48211730502.54937",
+      "llamaCirculating": "44826418472.31008",
+      "alliumTotal": "48211882264.292",
+      "alliumCirculating": "48211882264.292",
+      "alliumTotalMinusLlamaMinted": "151761.74263",
+      "totalDifferencePercent": "0.00031478",
+      "circulatingDifference": "3385463791.98192"
+    },
+    {
+      "coinId": "usdt",
+      "day": "2026-10-16",
+      "llamaMinted": "88302633056",
+      "llamaCirculating": "73119901330",
+      "alliumTotal": "88302633055.7027",
+      "alliumCirculating": "86170580654.6647",
+      "alliumTotalMinusLlamaMinted": "-0.2973",
+      "totalDifferencePercent": "-0E-8",
+      "circulatingDifference": "13050679324.6647"
+    },
+    {
+      "coinId": "usdt",
+      "day": "2026-10-17",
+      "llamaMinted": "88302633056",
+      "llamaCirculating": "73338608305",
+      "alliumTotal": "88302633055.7027",
+      "alliumCirculating": "86081680654.6647",
+      "alliumTotalMinusLlamaMinted": "-0.2973",
+      "totalDifferencePercent": "-0E-8",
+      "circulatingDifference": "12743072349.6647"
+    },
+    {
+      "coinId": "usdt",
+      "day": "2026-10-18",
+      "llamaMinted": "88302633056",
+      "llamaCirculating": "73246453449",
+      "alliumTotal": "88302633055.7027",
+      "alliumCirculating": "86082080654.6647",
+      "alliumTotalMinusLlamaMinted": "-0.2973",
+      "totalDifferencePercent": "-0E-8",
+      "circulatingDifference": "12835627205.6647"
+    },
+    {
+      "coinId": "usdt",
+      "day": "2026-10-19",
+      "llamaMinted": "88302633056",
+      "llamaCirculating": "73253989908",
+      "alliumTotal": "88302623529.9793",
+      "alliumCirculating": "85788780654.6647",
+      "alliumTotalMinusLlamaMinted": "-9526.0207",
+      "totalDifferencePercent": "-0.00001079",
+      "circulatingDifference": "12534790746.6647"
+    },
+    {
+      "coinId": "usdt",
+      "day": "2026-10-20",
+      "llamaMinted": "88302623530",
+      "llamaCirculating": "72961023521",
+      "alliumTotal": "88302623529.9793",
+      "alliumCirculating": "85750980654.6647",
+      "alliumTotalMinusLlamaMinted": "-0.0207",
+      "totalDifferencePercent": "-0E-8",
+      "circulatingDifference": "12789957133.6647"
+    },
+    {
+      "coinId": "usdt",
+      "day": "2026-10-21",
+      "llamaMinted": "88302623530",
+      "llamaCirculating": "72954899591",
+      "alliumTotal": "88301265725.9705",
+      "alliumCirculating": "85385480654.6647",
+      "alliumTotalMinusLlamaMinted": "-1357804.0295",
+      "totalDifferencePercent": "-0.00153767",
+      "circulatingDifference": "12430581063.6647"
+    },
+    {
+      "coinId": "usdt",
+      "day": "2026-10-22",
+      "llamaMinted": "88301265725.97054",
+      "llamaCirculating": "72556900577.738",
+      "alliumTotal": "88301265725.9705",
+      "alliumCirculating": "85385480654.6647",
+      "alliumTotalMinusLlamaMinted": "-0.00004",
+      "totalDifferencePercent": "-0E-8",
+      "circulatingDifference": "12828580076.9267"
+    }
+  ],
+  "llamaReconstruction": [
+    {
+      "coinId": "usdc",
+      "day": "2026-10-22",
+      "sourceHash": "8e3a441663023ac1dfc459735ba17e05b98c67303c569b71cebaeedaf85e01dc",
+      "minted": "48211730502.54937",
+      "unreleased": "86511697.181989",
+      "bridgeInbound": "884018.43068145",
+      "bridgeOutboundFromMetadata": "3036266203.42862527460",
+      "bridgeDestinations": [
+        {
+          "destination": "Horizen L3",
+          "bridge": "layerzero",
+          "amount": "3411.622603"
+        },
+        {
+          "destination": "Movement",
+          "bridge": "layerzero",
+          "amount": "208167.83104"
+        },
+        {
+          "destination": "ApeChain",
+          "bridge": "layerzero",
+          "amount": "386034.408953"
+        },
+        {
+          "destination": "Peaq",
+          "bridge": "layerzero",
+          "amount": "203539.93302"
+        },
+        {
+          "destination": "Aptos",
+          "bridge": "stargate",
+          "amount": "1387438.853162"
+        },
+        {
+          "destination": "Aptos",
+          "bridge": "wormhole",
+          "amount": "48900.285789"
+        },
+        {
+          "destination": "Edu_chain",
+          "bridge": "layerzero",
+          "amount": "1025.959585"
+        },
+        {
+          "destination": "Loopring",
+          "bridge": "loopring",
+          "amount": "0"
+        },
+        {
+          "destination": "Polygon",
+          "bridge": "axelar",
+          "amount": "289056.388237"
+        },
+        {
+          "destination": "Polygon",
+          "bridge": "orbit",
+          "amount": "132465.149388"
+        },
+        {
+          "destination": "Polygon",
+          "bridge": "polygon",
+          "amount": "1015239834.128207"
+        },
+        {
+          "destination": "Polygon",
+          "bridge": "wormhole",
+          "amount": "92514.015556"
+        },
+        {
+          "destination": "DefiChain",
+          "bridge": "cake",
+          "amount": "0"
+        },
+        {
+          "destination": "Camp Network",
+          "bridge": "layerzero",
+          "amount": "91.28746"
+        },
+        {
+          "destination": "Karura",
+          "bridge": "wormhole",
+          "amount": "68739.98078"
+        },
+        {
+          "destination": "Moca",
+          "bridge": "layerzero",
+          "amount": "0.9"
+        },
+        {
+          "destination": "Metis",
+          "bridge": "metis",
+          "amount": "4154742.9006"
+        },
+        {
+          "destination": "Wanchain",
+          "bridge": "wan",
+          "amount": "465924.585922"
+        },
+        {
+          "destination": "Kava",
+          "bridge": "axelar",
+          "amount": "56652.824287"
+        },
+        {
+          "destination": "Kava",
+          "bridge": "celer",
+          "amount": "1273.035571"
+        },
+        {
+          "destination": "Kava",
+          "bridge": "multichain",
+          "amount": "5270064.396607"
+        },
+        {
+          "destination": "Kaia",
+          "bridge": "orbit",
+          "amount": "2889073.390934"
+        },
+        {
+          "destination": "Reinetwork",
+          "bridge": "celer",
+          "amount": "0.056007"
+        },
+        {
+          "destination": "Cardano",
+          "bridge": "circle",
+          "amount": "43412886.433601"
+        },
+        {
+          "destination": "Cardano",
+          "bridge": "wan",
+          "amount": "350678.72499184"
+        },
+        {
+          "destination": "EthereumClassic",
+          "bridge": "multichain",
+          "amount": "11096.115653"
+        },
+        {
+          "destination": "Vana",
+          "bridge": "layerzero",
+          "amount": "77002.116222"
+        },
+        {
+          "destination": "Somnia",
+          "bridge": "layerzero",
+          "amount": "507457.882091"
+        },
+        {
+          "destination": "KCC",
+          "bridge": "kcc",
+          "amount": "1806149.9053608256"
+        },
+        {
+          "destination": "Berachain",
+          "bridge": "layerzero",
+          "amount": "4801138.03624"
+        },
+        {
+          "destination": "Theta",
+          "bridge": "multichain",
+          "amount": "19549.627847"
+        },
+        {
+          "destination": "GateLayer",
+          "bridge": "layerzero",
+          "amount": "268471.080915"
+        },
+        {
+          "destination": "OP Mainnet",
+          "bridge": "optimism",
+          "amount": "19933388.823132"
+        },
+        {
+          "destination": "IOTA EVM",
+          "bridge": "layerzero",
+          "amount": "124678.751556"
+        },
+        {
+          "destination": "BSC",
+          "bridge": "bsc",
+          "amount": "1588999877.4398038"
+        },
+        {
+          "destination": "BSC",
+          "bridge": "wormhole",
+          "amount": "114122.245641"
+        },
+        {
+          "destination": "Astar",
+          "bridge": "celer",
+          "amount": "878842.625334"
+        },
+        {
+          "destination": "Astar",
+          "bridge": "multichain",
+          "amount": "6396.76"
+        },
+        {
+          "destination": "Oasis Emerald",
+          "bridge": "celer",
+          "amount": "36890.95519"
+        },
+        {
+          "destination": "Oasis Emerald",
+          "bridge": "wormhole",
+          "amount": "36628.011426"
+        },
+        {
+          "destination": "Data Network",
+          "bridge": "layerzero",
+          "amount": "512755.765869"
+        },
+        {
+          "destination": "Citrea",
+          "bridge": "layerzero",
+          "amount": "82170.031664"
+        },
+        {
+          "destination": "Avalanche",
+          "bridge": "axelar",
+          "amount": "154175.952011"
+        },
+        {
+          "destination": "Avalanche",
+          "bridge": "wormhole",
+          "amount": "4800.032934"
+        },
+        {
+          "destination": "Avalanche",
+          "bridge": "avax",
+          "amount": "31137822.077932"
+        },
+        {
+          "destination": "Telos",
+          "bridge": "multichain",
+          "amount": "509595.259888"
+        },
+        {
+          "destination": "Arbitrum",
+          "bridge": "arbitrum",
+          "amount": "47845033.261329"
+        },
+        {
+          "destination": "Redbelly",
+          "bridge": "layerzero",
+          "amount": "3130.874582"
+        },
+        {
+          "destination": "Stacks",
+          "bridge": "circle",
+          "amount": "8986369.215192"
+        },
+        {
+          "destination": "Viction",
+          "bridge": "tomochain",
+          "amount": "171.642596"
+        },
+        {
+          "destination": "GOAT",
+          "bridge": "layerzero",
+          "amount": "32963.271596"
+        },
+        {
+          "destination": "Sui",
+          "bridge": "wormhole",
+          "amount": "2909042.352951"
+        },
+        {
+          "destination": "Arbitrum Nova",
+          "bridge": "arbitrum",
+          "amount": "278874.343599"
+        },
+        {
+          "destination": "Rootstock",
+          "bridge": "rsk",
+          "amount": "1058.415593"
+        },
+        {
+          "destination": "ALEO",
+          "bridge": "circle",
+          "amount": "4250627.03576"
+        },
+        {
+          "destination": "Abstract",
+          "bridge": "layerzero",
+          "amount": "2526573.826903"
+        },
+        {
+          "destination": "Apex Fusion",
+          "bridge": "layerzero",
+          "amount": "84.037366"
+        },
+        {
+          "destination": "Bittensor EVM",
+          "bridge": "layerzero",
+          "amount": "298409.184278"
+        },
+        {
+          "destination": "Gravity by Galxe",
+          "bridge": "layerzero",
+          "amount": "15567.402723"
+        },
+        {
+          "destination": "Injective",
+          "bridge": "factory/inj14ejqjyq8um4p3xfqj74yld5waqljf88f9eneuk/inj1q6zlut7gtkzknkk773jecujwsdkgq882akqksk",
+          "amount": "66911.887511"
+        },
+        {
+          "destination": "Injective",
+          "bridge": "ibc/7E1AF94AD246BE522892751046F0C959B768642E5671CC3742264068D49553C0",
+          "amount": "3000.072667"
+        },
+        {
+          "destination": "Injective",
+          "bridge": "peggy0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+          "amount": "44513.790498"
+        },
+        {
+          "destination": "LightLink",
+          "bridge": "layerzero",
+          "amount": "22464.333263"
+        },
+        {
+          "destination": "Mixin",
+          "bridge": "9b180ab6-6abe-3dc0-a13f-04169eb34bfa",
+          "amount": "2345001.930128"
+        },
+        {
+          "destination": "Meter",
+          "bridge": "passport",
+          "amount": "497799.940724"
+        },
+        {
+          "destination": "Stable",
+          "bridge": "layerzero",
+          "amount": "2261.215992"
+        },
+        {
+          "destination": "Gnosis",
+          "bridge": "gnosis",
+          "amount": "13260095.42348"
+        },
+        {
+          "destination": "Orderly Network",
+          "bridge": "layerzero",
+          "amount": "50.802314"
+        },
+        {
+          "destination": "Gensyn",
+          "bridge": "layerzero",
+          "amount": "753167.470203"
+        },
+        {
+          "destination": "Celo",
+          "bridge": "moss",
+          "amount": "40968.639935"
+        },
+        {
+          "destination": "Celo",
+          "bridge": "optics",
+          "amount": "90844.109577"
+        },
+        {
+          "destination": "Celo",
+          "bridge": "wormhole",
+          "amount": "115774.24472"
+        },
+        {
+          "destination": "Rayls",
+          "bridge": "layerzero",
+          "amount": "26193.403289"
+        },
+        {
+          "destination": "Fuse",
+          "bridge": "fuse",
+          "amount": "138888.82015699998"
+        },
+        {
+          "destination": "Doma",
+          "bridge": "layerzero",
+          "amount": "1273056.454342"
+        },
+        {
+          "destination": "Fantom",
+          "bridge": "axelar",
+          "amount": "297896.645555"
+        },
+        {
+          "destination": "Fantom",
+          "bridge": "multichain",
+          "amount": "181110963.735328"
+        },
+        {
+          "destination": "Fantom",
+          "bridge": "wormhole",
+          "amount": "7650.466102"
+        },
+        {
+          "destination": "OKTChain",
+          "bridge": "okexchain",
+          "amount": "206928.00156015"
+        },
+        {
+          "destination": "Hemi",
+          "bridge": "layerzero",
+          "amount": "377889.093508"
+        },
+        {
+          "destination": "Mantle",
+          "bridge": "axelar",
+          "amount": "18689.318865"
+        },
+        {
+          "destination": "Near",
+          "bridge": "near",
+          "amount": "14644150.280524"
+        },
+        {
+          "destination": "Flare",
+          "bridge": "layerzero",
+          "amount": "2762078.273257"
+        },
+        {
+          "destination": "Elastos",
+          "bridge": "elastos",
+          "amount": "112813.869045"
+        },
+        {
+          "destination": "Boba",
+          "bridge": "boba",
+          "amount": "1042386.543956"
+        },
+        {
+          "destination": "Syscoin",
+          "bridge": "multichain",
+          "amount": "171891.969269"
+        },
+        {
+          "destination": "Solana",
+          "bridge": "allbridge",
+          "amount": "66819.430161659"
+        },
+        {
+          "destination": "Solana",
+          "bridge": "wormhole",
+          "amount": "223715.15255600002"
+        },
+        {
+          "destination": "0G",
+          "bridge": "layerzero",
+          "amount": "173.362742"
+        },
+        {
+          "destination": "Tempo",
+          "bridge": "layerzero",
+          "amount": "24707733.293918"
+        }
+      ],
+      "reconstructedCirculating": "45089836620.36943717540",
+      "storedCirculating": "44826418472.31008",
+      "reconstructionResidual": "263418148.05935717540",
+      "rule": "minted - unreleased + inbound - outbound",
+      "bridgeOutboundImpliedByCirculating": "3299684351.48798245",
+      "reconstructionStatus": "INCOMPLETE_NONZERO_RESIDUAL"
+    },
+    {
+      "coinId": "usdt",
+      "day": "2026-10-22",
+      "sourceHash": "f68f4fa48055fa3d1bc43397bb8bac9bdb4bd40cf9a9434c46d8b9b622db7e3e",
+      "minted": "88301265725.97054",
+      "unreleased": "2915785071.305825",
+      "bridgeInbound": "202657.66298107",
+      "bridgeOutboundFromMetadata": "12276175674.939430391",
+      "bridgeDestinations": [
+        {
+          "destination": "Movement",
+          "bridge": "layerzero",
+          "amount": "269675.551193"
+        },
+        {
+          "destination": "Shiden",
+          "bridge": "multichain",
+          "amount": "9859.073146"
+        },
+        {
+          "destination": "ApeChain",
+          "bridge": "layerzero",
+          "amount": "37009.074348"
+        },
+        {
+          "destination": "Peaq",
+          "bridge": "layerzero",
+          "amount": "732962.683161"
+        },
+        {
+          "destination": "Monad",
+          "bridge": "layerzero",
+          "amount": "37594136.577274"
+        },
+        {
+          "destination": "Aptos",
+          "bridge": "stargate",
+          "amount": "292552.399385"
+        },
+        {
+          "destination": "Aptos",
+          "bridge": "wormhole",
+          "amount": "10198.03635"
+        },
+        {
+          "destination": "Hedera",
+          "bridge": "layerzero",
+          "amount": "39195.433048"
+        },
+        {
+          "destination": "Loopring",
+          "bridge": "loopring",
+          "amount": "0"
+        },
+        {
+          "destination": "Polygon",
+          "bridge": "axelar",
+          "amount": "6767.793319"
+        },
+        {
+          "destination": "Polygon",
+          "bridge": "polygon",
+          "amount": "761143263.956257"
+        },
+        {
+          "destination": "Polygon",
+          "bridge": "wormhole",
+          "amount": "130852.591577"
+        },
+        {
+          "destination": "DefiChain",
+          "bridge": "cake",
+          "amount": "0"
+        },
+        {
+          "destination": "Unichain",
+          "bridge": "layerzero",
+          "amount": "7568870.898631"
+        },
+        {
+          "destination": "Wanchain",
+          "bridge": "wan",
+          "amount": "189193.473865"
+        },
+        {
+          "destination": "Metis",
+          "bridge": "metis",
+          "amount": "1551822.906657"
+        },
+        {
+          "destination": "Kava",
+          "bridge": "axelar",
+          "amount": "22709.254262"
+        },
+        {
+          "destination": "Kava",
+          "bridge": "celer",
+          "amount": "3411.231268"
+        },
+        {
+          "destination": "Kava",
+          "bridge": "multichain",
+          "amount": "2560474.333643"
+        },
+        {
+          "destination": "Ink",
+          "bridge": "layerzero",
+          "amount": "50607537.087754"
+        },
+        {
+          "destination": "Kaia",
+          "bridge": "orbit",
+          "amount": "19324106.730564"
+        },
+        {
+          "destination": "Reinetwork",
+          "bridge": "celer",
+          "amount": "2141.00922"
+        },
+        {
+          "destination": "IoTeX",
+          "bridge": "iotex",
+          "amount": "1143625.980195"
+        },
+        {
+          "destination": "XDC",
+          "bridge": "layerzero",
+          "amount": "39818.100446"
+        },
+        {
+          "destination": "EthereumClassic",
+          "bridge": "multichain",
+          "amount": "10682.311521"
+        },
+        {
+          "destination": "Vana",
+          "bridge": "layerzero",
+          "amount": "329.891721"
+        },
+        {
+          "destination": "Somnia",
+          "bridge": "layerzero",
+          "amount": "17422.688479"
+        },
+        {
+          "destination": "KCC",
+          "bridge": "kcc",
+          "amount": "8728834.425304525"
+        },
+        {
+          "destination": "Berachain",
+          "bridge": "layerzero",
+          "amount": "25250061.150599"
+        },
+        {
+          "destination": "Bittorrent",
+          "bridge": "bittorrent",
+          "amount": "91936.53584"
+        },
+        {
+          "destination": "Theta",
+          "bridge": "multichain",
+          "amount": "408.979889"
+        },
+        {
+          "destination": "OP Mainnet",
+          "bridge": "optimism",
+          "amount": "221498006.442435"
+        },
+        {
+          "destination": "IOTA EVM",
+          "bridge": "layerzero",
+          "amount": "323719.589585"
+        },
+        {
+          "destination": "BSC",
+          "bridge": "bsc",
+          "amount": "9184997801.482302"
+        },
+        {
+          "destination": "BSC",
+          "bridge": "wormhole",
+          "amount": "294484.521516"
+        },
+        {
+          "destination": "Flow",
+          "bridge": "layerzero",
+          "amount": "1098.25685"
+        },
+        {
+          "destination": "Astar",
+          "bridge": "celer",
+          "amount": "227350.305502"
+        },
+        {
+          "destination": "Astar",
+          "bridge": "multichain",
+          "amount": "856.135"
+        },
+        {
+          "destination": "Oasis Emerald",
+          "bridge": "celer",
+          "amount": "367.503713"
+        },
+        {
+          "destination": "Oasis Emerald",
+          "bridge": "wormhole",
+          "amount": "317670.938373"
+        },
+        {
+          "destination": "Citrea",
+          "bridge": "layerzero",
+          "amount": "3339.313345"
+        },
+        {
+          "destination": "Data Network",
+          "bridge": "layerzero",
+          "amount": "3250.014297"
+        },
+        {
+          "destination": "Avalanche",
+          "bridge": "axelar",
+          "amount": "1060.560373"
+        },
+        {
+          "destination": "Avalanche",
+          "bridge": "avax",
+          "amount": "16930915.835112"
+        },
+        {
+          "destination": "Telos",
+          "bridge": "multichain",
+          "amount": "203186.058623"
+        },
+        {
+          "destination": "Arbitrum",
+          "bridge": "layerzero",
+          "amount": "801910961.124479"
+        },
+        {
+          "destination": "Viction",
+          "bridge": "tomochain",
+          "amount": "17530.836111"
+        },
+        {
+          "destination": "GOAT",
+          "bridge": "layerzero",
+          "amount": "26213.901914"
+        },
+        {
+          "destination": "Sui",
+          "bridge": "wormhole",
+          "amount": "1283611.698693"
+        },
+        {
+          "destination": "Arbitrum Nova",
+          "bridge": "arbitrum",
+          "amount": "18.843526"
+        },
+        {
+          "destination": "Plasma",
+          "bridge": "layerzero",
+          "amount": "728294003.300373"
+        },
+        {
+          "destination": "Rootstock",
+          "bridge": "rsk",
+          "amount": "780771.065652"
+        },
+        {
+          "destination": "Abstract",
+          "bridge": "layerzero",
+          "amount": "450364.455354"
+        },
+        {
+          "destination": "Sei",
+          "bridge": "layerzero",
+          "amount": "2124757.259951"
+        },
+        {
+          "destination": "Gravity by Galxe",
+          "bridge": "layerzero",
+          "amount": "19833.544519"
+        },
+        {
+          "destination": "Injective",
+          "bridge": "peggy",
+          "amount": "4162038.627347"
+        },
+        {
+          "destination": "LightLink",
+          "bridge": "layerzero",
+          "amount": "12959.861698"
+        },
+        {
+          "destination": "Mixin",
+          "bridge": "4d8c508b-91c5-375b-92b0-ee702ed2dac5",
+          "amount": "25274882.585989"
+        },
+        {
+          "destination": "Meter",
+          "bridge": "passport",
+          "amount": "165220.996427"
+        },
+        {
+          "destination": "Stable",
+          "bridge": "layerzero",
+          "amount": "19860568.584742"
+        },
+        {
+          "destination": "X Layer",
+          "bridge": "layerzero",
+          "amount": "130950557.976103"
+        },
+        {
+          "destination": "Gnosis",
+          "bridge": "gnosis",
+          "amount": "810842.021524"
+        },
+        {
+          "destination": "Nibiru",
+          "bridge": "layerzero",
+          "amount": "117.786916"
+        },
+        {
+          "destination": "Conflux",
+          "bridge": "layerzero",
+          "amount": "20088350.060574"
+        },
+        {
+          "destination": "Rayls",
+          "bridge": "layerzero",
+          "amount": "1.0008"
+        },
+        {
+          "destination": "Celo",
+          "bridge": "moss",
+          "amount": "14906.572541"
+        },
+        {
+          "destination": "Celo",
+          "bridge": "optics",
+          "amount": "19015.070357"
+        },
+        {
+          "destination": "Fuse",
+          "bridge": "fuse",
+          "amount": "65279.669921"
+        },
+        {
+          "destination": "MegaETH",
+          "bridge": "layerzero",
+          "amount": "2046879.495112"
+        },
+        {
+          "destination": "Fantom",
+          "bridge": "axelar",
+          "amount": "2587.825596"
+        },
+        {
+          "destination": "Fantom",
+          "bridge": "multichain",
+          "amount": "82955448.983434"
+        },
+        {
+          "destination": "Fantom",
+          "bridge": "wormhole",
+          "amount": "51.01"
+        },
+        {
+          "destination": "Hyperliquid L1",
+          "bridge": "layerzero",
+          "amount": "67218640.746007"
+        },
+        {
+          "destination": "Zora",
+          "bridge": "layerzero",
+          "amount": "0.000001"
+        },
+        {
+          "destination": "OKTChain",
+          "bridge": "okexchain",
+          "amount": "8794294"
+        },
+        {
+          "destination": "Hemi",
+          "bridge": "layerzero",
+          "amount": "200461.681474"
+        },
+        {
+          "destination": "Near",
+          "bridge": "near",
+          "amount": "3914442.476141"
+        },
+        {
+          "destination": "Flare",
+          "bridge": "layerzero",
+          "amount": "21728053.590654"
+        },
+        {
+          "destination": "Plume Mainnet",
+          "bridge": "layerzero",
+          "amount": "6288.291098"
+        },
+        {
+          "destination": "Boba",
+          "bridge": "boba",
+          "amount": "134213.287293"
+        },
+        {
+          "destination": "Syscoin",
+          "bridge": "multichain",
+          "amount": "44561.83697"
+        },
+        {
+          "destination": "Solana",
+          "bridge": "allbridge",
+          "amount": "5752.112685866"
+        },
+        {
+          "destination": "Solana",
+          "bridge": "wormhole",
+          "amount": "454154.059363"
+        },
+        {
+          "destination": "0G",
+          "bridge": "layerzero",
+          "amount": "1"
+        },
+        {
+          "destination": "Tempo",
+          "bridge": "layerzero",
+          "amount": "10154070.582148"
+        }
+      ],
+      "reconstructedCirculating": "73109507637.388265679",
+      "storedCirculating": "72556900577.738",
+      "reconstructionResidual": "552607059.650265679",
+      "rule": "minted - unreleased + inbound - outbound",
+      "bridgeOutboundImpliedByCirculating": "12828782734.58969607",
+      "reconstructionStatus": "INCOMPLETE_NONZERO_RESIDUAL"
+    }
+  ],
+  "validation": {
+    "validatedResultRows": 74,
+    "rawArchiveHashCheck": "PASS",
+    "identityDatesDuplicateDecimalChecks": "PASS",
+    "sourceNumericTypes": "NOT_OBSERVED",
+    "timeCutoffEquivalence": "NOT_PROVEN"
+  },
+  "adjacentDayDiagnostic": {
+    "coinId": "usdc",
+    "pairs": [
+      {
+        "alliumDay": "2026-10-16",
+        "llamaDay": "2026-10-17",
+        "alliumTotal": "48079993903.4973",
+        "llamaMinted": "48080091405",
+        "difference": "-97501.5027",
+        "differencePercent": "-0.00020279"
+      },
+      {
+        "alliumDay": "2026-10-17",
+        "llamaDay": "2026-10-18",
+        "alliumTotal": "48048944536.7351",
+        "llamaMinted": "48048935709",
+        "difference": "8827.7351",
+        "differencePercent": "0.00001837"
+      },
+      {
+        "alliumDay": "2026-10-18",
+        "llamaDay": "2026-10-19",
+        "alliumTotal": "48212107364.7328",
+        "llamaMinted": "48212172095",
+        "difference": "-64730.2672",
+        "differencePercent": "-0.00013426"
+      },
+      {
+        "alliumDay": "2026-10-19",
+        "llamaDay": "2026-10-20",
+        "alliumTotal": "47810262478.9825",
+        "llamaMinted": "47810048252",
+        "difference": "214226.9825",
+        "differencePercent": "0.00044808"
+      },
+      {
+        "alliumDay": "2026-10-20",
+        "llamaDay": "2026-10-21",
+        "alliumTotal": "47685013858.1572",
+        "llamaMinted": "47687458175",
+        "difference": "-2444316.8428",
+        "differencePercent": "-0.00512570"
+      },
+      {
+        "alliumDay": "2026-10-21",
+        "llamaDay": "2026-10-22",
+        "alliumTotal": "48211882264.292",
+        "llamaMinted": "48211730502.54937",
+        "difference": "151761.74263",
+        "differencePercent": "0.00031478"
+      }
+    ],
+    "maxAbsDifferencePercent": "0.00512570",
+    "conclusion": "CONSISTENT_WITH_DIFFERENT_DAILY_CUTOFF_NOT_PROVEN"
+  }
+}
