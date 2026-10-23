@@ -1,5 +1,5 @@
 import {mkdir} from 'node:fs/promises';
-import {join} from 'node:path';
+import {join,resolve,basename} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {atomic,defaultMarketDirectory} from './market-store.mjs';
 import {pathToFileURL} from 'node:url';
@@ -15,9 +15,9 @@ export function parseCollectorArguments(args){
   if(flag==='--skip-daily-history'&&result.command==='run')result.skipDailyHistory=true;
   else if(flag==='--once'&&result.command==='run')result.once=true;
   else if(flag==='--arkham-runs-per-day'&&result.command==='run'&&/^\d{1,3}$/.test(args[i+1]??''))result.arkhamRunsPerDay=Number(args[++i]);
-  else if(['--env-file',...(result.command==='run'?['--state-dir','--archive-dir']:[])].includes(flag)&&args[i+1]&&!args[i+1].startsWith('--'))result[{'--env-file':'envFile','--state-dir':'stateDirectory','--archive-dir':'archiveRoot'}[flag]]=args[++i];
+  else if(['--env-file',...(result.command==='run'?['--state-dir','--archive-dir','--market-dir']:[])].includes(flag)&&args[i+1]&&!args[i+1].startsWith('--'))result[{'--env-file':'envFile','--state-dir':'stateDirectory','--archive-dir':'archiveRoot','--market-dir':'marketDirectory'}[flag]]=args[++i];
   else throw Error('INVALID_ARGUMENTS');
- }if(result.arkhamRunsPerDay>288)throw Error('INVALID_ARGUMENTS');return result;
+ }if(result.marketDirectory!==undefined&&(result.marketDirectory.length>4096||/[\x00-\x1f]/.test(result.marketDirectory)||basename(resolve(result.marketDirectory))!=='market-store'))throw Error('INVALID_ARGUMENTS');if(result.arkhamRunsPerDay>288)throw Error('INVALID_ARGUMENTS');return result;
 }
 export async function processScheduledJob({reservation,jobs,receipts,finish,signal}={}){
  const {job,slot}=reservation;if(!['CLAIMED','RECOVER'].includes(reservation.state))return {job,slot,state:reservation.state,used:reservation.used,budget:reservation.budget};
@@ -37,7 +37,7 @@ export async function processScheduledJob({reservation,jobs,receipts,finish,sign
 export async function runCollector({env,options,signal,connect=connectDatabase,jobsFactory=periodicJobs,wait=(ms,s)=>pause(ms,undefined,{signal:s}),onState=()=>{}}={}){
  if(options.arkhamRunsPerDay>0&&!env.ARKM_API_KEY?.trim())throw Error('MISSING_ARGUMENT');const client=await connect(env),lost=new AbortController(),combined=signal?AbortSignal.any([signal,lost.signal]):lost.signal;client.on('error',()=>lost.abort());let locked=false;
  try{
-  const pid=await acquireWorker(client);locked=true;await onState({state:'STARTING'});const receipts=await receiptStore(options.stateDirectory),jobs=jobsFactory({env,receipts,archiveRoot:options.archiveRoot,signal:combined});
+  const pid=await acquireWorker(client);locked=true;await onState({state:'STARTING'});const receipts=await receiptStore(options.stateDirectory),jobs=jobsFactory({env,receipts,archiveRoot:options.archiveRoot,marketDirectory:options.marketDirectory,signal:combined});
   do{
    for(const reservation of await pendingScheduled(client)){if(options.skipDailyHistory&&reservation.job==='DEFILLAMA')throw Error('SCHEDULER_RECONCILE_REQUIRED');if(combined.aborted)break;const result=await processScheduledJob({reservation,jobs,receipts,finish:(...args)=>finishScheduled(client,...args),signal:combined});await onState(result);if(result.state==='UNCONFIRMED'&&result.recoverable!==false)throw Error('SCHEDULER_RECONCILE_REQUIRED');}
    let now=Date.now(),arkhamExhausted=options.arkhamRunsPerDay===0,failed=false;
@@ -62,7 +62,7 @@ export async function runCollector({env,options,signal,connect=connectDatabase,j
 export async function main(args,env=process.env){const options=parseCollectorArguments(args),variables=await workspaceEnvironment(options.envFile,options.envFile?{}:env);
  if(options.command==='status'){const client=await connectDatabase(variables);try{return {runs:await schedulerStatus(client)};}finally{await client.end();}}
  const stop=new AbortController(),handler=()=>stop.abort();for(const name of ['SIGINT','SIGTERM'])process.once(name,handler);
- const marketRoot=fileURLToPath(defaultMarketDirectory);await mkdir(marketRoot,{recursive:true,mode:0o700});
+ const marketRoot=options.marketDirectory?resolve(options.marketDirectory):fileURLToPath(defaultMarketDirectory);await mkdir(marketRoot,{recursive:true,mode:0o700});
  let ownsStatus=false;const save=async(state,nextAt=null)=>atomic(join(marketRoot,'periodic-state.json'),{state,updatedAt:new Date().toISOString(),nextAt,arkhamRunsPerDay:options.arkhamRunsPerDay});
  try{const result=await runCollector({env:variables,options,signal:stop.signal,onState:async state=>{ownsStatus=true;await save(['STARTING','WAITING'].includes(state.state)?state.state:'RUNNING',state.nextAt??null);console.log(JSON.stringify(state));}});await save(result.state==='FAILED'?'FAILED':'STOPPED');return result;}
  catch(error){if(ownsStatus)await save('FAILED').catch(()=>{});throw error;}

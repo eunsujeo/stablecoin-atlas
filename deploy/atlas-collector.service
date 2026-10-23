@@ -6,11 +6,12 @@ StartLimitIntervalSec=900
 StartLimitBurst=3
 
 [Service]
-Type=simple
+Type=exec
 User=atlascollector
 Group=atlascollector
 WorkingDirectory=/opt/multi-chain-asset-compatibility
-ExecStart=/usr/bin/env node --use-env-proxy tools/collector-worker.mjs run --env-file /etc/atlas-collector/writer.env --state-dir /var/lib/atlas-collector/receipts --archive-dir /var/lib/atlas-collector/archive --arkham-runs-per-day 288
+ExecStartPre=/usr/bin/env node tools/collector-deploy.mjs check --kind arkham --env-file /etc/atlas-collector/writer.env --state-root /var/lib/atlas-collector
+ExecStart=/usr/bin/env node --use-env-proxy tools/collector-worker.mjs run --env-file /etc/atlas-collector/writer.env --state-dir /var/lib/atlas-collector/receipts --archive-dir /var/lib/atlas-collector/archive --market-dir /var/lib/atlas-collector/market-store --arkham-runs-per-day 288 --skip-daily-history
 Restart=on-failure
 RestartSec=60
 TimeoutStopSec=45
@@ -21,7 +22,7 @@ NoNewPrivileges=true
 PrivateTmp=true
 ProtectHome=true
 ProtectSystem=strict
-ReadWritePaths=/var/lib/atlas-collector /opt/multi-chain-asset-compatibility/reports/market-store
+ReadWritePaths=/var/lib/atlas-collector
 
 [Install]
 WantedBy=multi-user.target
