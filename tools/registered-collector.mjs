@@ -1,3 +1,4 @@
+import {registeredCollectorStatus} from './market-db/registration-status.mjs';
 import {join} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {setTimeout as pause} from 'node:timers/promises';
@@ -15,10 +16,11 @@ import {fetchRegisteredHistorySource,hashHistory,historyProjection} from './supp
 import {archiveCompressedSources,readCompressedSource} from './history-archive.mjs';
 const coins=['usdt','usdc','rlusd','jpyc','jpysc'];
 export function registeredCollectorArguments(args){
- if(args[0]!=='run')throw Error('INVALID_COMMAND');
- const options={once:false,stateDirectory:'.state/collector-state',archiveRoot:'.state/collector-archive'};const seen=new Set();
+ if(!['run','status'].includes(args[0]))throw Error('INVALID_COMMAND');
+ const options={command:args[0],once:false,stateDirectory:'.state/collector-state',archiveRoot:'.state/collector-archive'};const seen=new Set();
  for(let i=1;i<args.length;i++){
   const flag=args[i];if(seen.has(flag))throw Error('INVALID_ARGUMENTS');seen.add(flag);
+  if(options.command==='status'&&!['--env-file','--selection'].includes(flag))throw Error('INVALID_ARGUMENTS');
   if(flag==='--once')options.once=true;
   else if(['--env-file','--selection','--state-dir','--archive-dir'].includes(flag)&&args[i+1]&&!args[i+1].startsWith('--'))options[{'--env-file':'envFile','--selection':'selectionId','--state-dir':'stateDirectory','--archive-dir':'archiveRoot'}[flag]]=args[++i];
   else throw Error('INVALID_ARGUMENTS');
@@ -90,6 +92,7 @@ export async function runRegisteredCollector({env,options,signal,connect=connect
 }
 export async function main(args,env=process.env){
  const options=registeredCollectorArguments(args),variables=await workspaceEnvironment(options.envFile,options.envFile?{}:env),stop=new AbortController(),handler=()=>stop.abort();
+ if(options.command==='status'){const client=await connectDatabase(variables);try{return await registeredCollectorStatus(client,options.selectionId);}finally{await client.end().catch(()=>{});}}
  for(const event of ['SIGINT','SIGTERM'])process.once(event,handler);
  try{return await runRegisteredCollector({env:variables,options,signal:stop.signal,onState:state=>console.log(JSON.stringify(state))});}
  finally{for(const event of ['SIGINT','SIGTERM'])process.removeListener(event,handler);}

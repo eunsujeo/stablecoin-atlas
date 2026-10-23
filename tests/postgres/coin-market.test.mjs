@@ -1,3 +1,5 @@
+import {registeredCollectorStatus} from '../../tools/market-db/registration-status.mjs';
+import {acquireRegisteredWorker,releaseRegisteredWorker} from '../../tools/market-db/registration-scheduler.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile,mkdtemp,rm} from 'node:fs/promises';
@@ -34,8 +36,12 @@ test('coin market PG17: atomic v3 roles, exact global facts, COMMIT-loss replay,
   await initializeRegistration(f.admin);await grantRegistrationReader(f.admin,'atlas_test_coinmarketreader');
   const {selectionId}=await installRegistration(f.admin,metadata,legacy,bytes(catalogue),{fetchedAt:'2026-10-22T01:00:00.000Z'});
   assert((await readRegistrationIndex(reader)).coins.every(c=>c.market===undefined));
+  await assert.rejects(registeredCollectorStatus(reader,selectionId),/REGISTRATION_DB_UPGRADE_REQUIRED/);
   await upgradeRegistration(f.admin);await grantRegistrationWriter(f.admin,'atlas_test_coinmarketwriter');
   assert((await readRegistrationIndex(reader)).coins.every(c=>c.market===undefined));
+  const v2=await registeredCollectorStatus(reader,selectionId);assert.equal(v2.marketClockSupported,false);assert(v2.coins.every(c=>c.state==='NOT_STARTED'&&c.marketFetchedAt===null));
+  await assert.rejects(registeredCollectorStatus(f.admin,selectionId),/DATABASE_ROLE_UNSAFE/);
+  await acquireRegisteredWorker(writer,selectionId);assert.equal((await registeredCollectorStatus(reader,selectionId)).workerLockHeld,true);await releaseRegisteredWorker(writer);assert.equal((await registeredCollectorStatus(writer,selectionId)).workerLockHeld,false);
   await assert.rejects(upgradeCoinMarket(writer),/DATABASE_OWNER_REQUIRED/);
   assert.equal((await upgradeCoinMarket(f.admin)).version,3);assert.equal((await upgradeCoinMarket(f.admin)).state,'UNCHANGED');assert.equal(await verifyRegistration(reader),3);await requireRegistrationWriter(writer);assert.equal(await fingerprint(),before);
   const day=(await f.admin.query("SELECT to_char(clock_timestamp() AT TIME ZONE 'UTC','YYYY-MM-DD') AS day")).rows[0].day;
@@ -45,7 +51,10 @@ test('coin market PG17: atomic v3 roles, exact global facts, COMMIT-loss replay,
    c.query=async(sql,...args)=>{if(typeof sql==='string'&&sql.startsWith('INSERT INTO atlas_registration.coin_market_source'))marketInsert=true;const result=await query(sql,...args);if(sql==='COMMIT'&&marketInsert&&!lost){marketInsert=false;lost=true;throw Error('COMMIT response lost');}if(sql==='COMMIT'||sql==='ROLLBACK')marketInsert=false;return result;};return c;
   },fetcher:async url=>{calls++;const c=metadata.coins.find(c=>c.defillama.assetId===url.split('/').at(-1));return new Response(detailed(c,day));}});
   assert.equal((await collect()).state,'PARTIAL');assert.equal(lost,true);assert.equal(calls,5);
+  const incomplete=await registeredCollectorStatus(reader,selectionId);assert.equal(incomplete.pendingReservations.selected,1);assert.equal(incomplete.coins.find(c=>c.coinId==='usdt').state,'PENDING');
   assert.equal((await collect()).state,'COMPLETED');assert.equal(calls,5);
+  const completed=await registeredCollectorStatus(reader,selectionId);assert.equal(completed.pendingReservations.total,0);assert(completed.coins.every(c=>c.state==='STORED'&&c.marketFetchedAt!==null));assert.equal(completed.workerLockHeld,false);assert.equal(completed.day,completed.checkedAt.slice(0,10));
+  const query=reader.query.bind(reader);let readonly=false;reader.query=async(...args)=>{if(typeof args[0]==='string'&&args[0].includes('FROM atlas_registration.collection_run r LEFT JOIN')){const settings=(await query("SELECT current_setting('transaction_read_only') AS ro,current_setting('transaction_isolation') AS isolation")).rows[0];assert.equal(settings.ro,'on');assert.equal(settings.isolation,'repeatable read');readonly=true;}return query(...args);};await registeredCollectorStatus(reader,selectionId);reader.query=query;assert(readonly);
   const index=validateRegistrationIndex(await readRegistrationIndex(reader));assert.equal(index.coins.length,5);assert(index.coins.every(c=>c.market?.price.amount==='0.006313010246021263'&&c.market.price.sourceAsOf===null&&c.market.circulating.amount==='9007199254740993.1234567890123456789'));
   const receipts=await receiptStore(options.stateDirectory);let last;
   for(const c of metadata.coins){const receipt=await receipts.read('REGISTERED_'+c.id.toUpperCase(),day+'T00:00:00.000Z');last={selectionId,coinId:c.id,bytes:await readCompressedSource(join(root,'history'),receipt.payload.sourceHash),fetchedAt:receipt.payload.fetchedAt,requestDay:day};assert.equal((await importCoinMarket(writer,last)).marketSourcesInserted,0);}
@@ -63,6 +72,7 @@ test('coin market PG17: atomic v3 roles, exact global facts, COMMIT-loss replay,
   const conflict={...correction,bytes:detailed(metadata.coins.find(c=>c.id===last.coinId),day,'42'),fetchedAt:new Date(Date.parse(last.fetchedAt)+2).toISOString()},projection=coinMarketProjection(metadata,legacy,conflict.bytes,conflict),id=registrationHash(projection),bad=structuredClone(projection);bad.circulating.amount='43';
   await f.admin.query('INSERT INTO atlas_registration.coin_market_source VALUES($1,$2,$3,$4,$5,$6,$7,$8)',[Buffer.from(id,'hex'),Buffer.from(selectionId,'hex'),Buffer.from(registrationHash(metadata),'hex'),last.coinId,Buffer.from(projection.sourceHash,'hex'),day,projection.fetchedAt,bad]);
   await assert.rejects(importCoinMarket(writer,conflict),/REGISTRATION_DB_CONTENT_CONFLICT/);await assert.rejects(readRegistrationIndex(reader),/REGISTRATION_DB_CONTENT_CONFLICT/);
+  const next=structuredClone(metadata);next.revision=metadata.revision+1;const installedNext=await installRegistration(f.admin,next,legacy,bytes(catalogue),{fetchedAt:day+'T10:00:00.000Z'});await assert.rejects(registeredCollectorStatus(reader,selectionId),/REGISTRATION_DB_SELECTION_CHANGED/);const changedStatus=await registeredCollectorStatus(reader,installedNext.selectionId);assert(changedStatus.coins.every(c=>c.state==='SELECTION_CHANGED'&&c.marketFetchedAt===null));
   assert.equal(await fingerprint(),before);
  }finally{await writer?.end();await reader?.end();await f.stop();await rm(root,{recursive:true,force:true});}
 });

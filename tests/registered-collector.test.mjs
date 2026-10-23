@@ -49,3 +49,8 @@ test('cutover reuses legacy raw receipt and recovers a later legacy/finish commi
   assert.equal(imported,3);assert.equal(legacyCalls,3);assert.equal(finished,2);
  }finally{await rm(root,{recursive:true,force:true});}
 });
+
+test('registered status accepts only an explicit selection and environment, with no collection/archive controls',()=>{
+ assert.equal(registeredCollectorArguments(['status','--selection',selectionId]).command,'status');
+ for(const args of [['status'],['status','--selection',selectionId,'--once'],['status','--selection',selectionId,'--archive-dir','private'],['status','--selection',selectionId,'--state-dir','private']])assert.throws(()=>registeredCollectorArguments(args));
+});

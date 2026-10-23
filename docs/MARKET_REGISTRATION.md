@@ -109,3 +109,17 @@ npm run market:registration:db -- market-import --env-file <writer.env> --select
 ```
 
 `market-import`는 HTTP를 실행하지 않고 원문을 비공개 archive에 보관한 뒤 저장한다. receipt의 날짜를 원문 파일 mtime이나 현재 시각으로 대체하지 않는다. UI의 price는 USD이며 자체 기준시각이 없는 가격은 수집시각만 표시한다. global circulating과 상위10개 네트워크 합계는 다른 값이다. 엔화 코인의 총공급량·검증된24시간 거래량은 미확보로 남긴다.
+
+## 일별 수집 상태 조회
+
+```sh
+npm run collector:registered -- status --env-file <reader.env> --selection <검토된-selection-id>
+```
+
+reader 또는 최소 권한 writer로 조회한다. owner/과다 권한 계정은 거부한다. 명령 성공은 진단 조회 성공이며, 수집기 정상 보장을 뜻하지 않는다. `status`에는 `--once`, archive/state 경로, 수집 주기 옵션을 받지 않는다. API 호출·archive 접근·예약 생성·수집 잠금 획득은 실행하지 않는다.
+
+- `day/checkedAt`: DB transaction 시각의 UTC일과 조회 기준시각. 상태·자료 시각은 단일 repeatable-read READ ONLY snapshot이다.
+- `workerLockHeld`: 같은 DB의 일별 worker 잠금407이 조회 순간 존재하는지만 뜻한다. pg_locks는 데이터 snapshot과 별개의 순간 관측이고 프로세스 정상/다음 수집 성공/heartbeat를 보장하지 않는다.
+- 코인별 당일 `state`: NOT_STARTED(예약 없음), PENDING(DB 예약은 있고 종료 결과 없음), STORED, FAILED, UNCONFIRMED, SELECTION_CHANGED(오늘 예약이 다른 selection에 속함). PENDING만으로 receipt 존재나 안전한 재시도 가능성을 추정하지 않는다. 명령에 고정한 selection 자체가 최신 설정과 다르면 기존 selection-changed 오류로 중단한다.
+- `pendingReservations`: 모든 selection·모든 날짜의 DB 미종료 예약 수와 요청 selection/다른 selection의 구분이다. FAILED/UNCONFIRMED처럼 종료 결과가 있는 예약은 포함하지 않는다.
+- `networkFetchedAt`: 요청 selection의 코인·지표별 마지막 수집시각 목록이다. `marketFetchedAt`은 같은 selection·코인의 마지막 전체 시장 자료 수집시각이다. 원본 가격의 기준시각이나 시계열의 기준일을 뜻하지 않는다. v2는 `marketClockSupported=false`, 시장 시각은 null이며 v1은 upgrade-required다. 이 명령은 모든 과거 coverage/시계열을 재검증하는 명령은 아니다.

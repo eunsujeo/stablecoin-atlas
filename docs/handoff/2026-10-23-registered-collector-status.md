@@ -1,0 +1,9 @@
+# 일별5코인 수집기 읽기 전용 상태 조회
+- 목표: 원격 운영 준비를 위해 일별 수집 결과·미종료 예약·자료 시각·잠금 관측을 수집 없이 조회하고 commit/push한다.
+- 끝난 것: collector:registered status 명령과 registeredCollectorStatus. reader 또는 최소 권한 writer만 허용, owner/과다 권한 거부. 단일 repeatable-read READ ONLY transaction에서 현재 selection·UTC일·코인별 NOT_STARTED/PENDING/STORED/FAILED/UNCONFIRMED/SELECTION_CHANGED, 전체 날짜/selection 미종료 예약 집계, selection·코인·지표별 network 수집시각과 v3 global market 수집시각을 반환한다. pg_locks는 같은 DB의 granted lock407만 별도로 관측하며 건강/heartbeat로 판정하지 않는다. v1 upgrade-required, v2 marketClockSupported=false/null. API·archive·예약·잠금 획득/해제 없음. status에는 수집/경로 옵션을 거부한다. 기존 run 경로 유지.
+- 변경 파일: tools/market-db/registration-status.mjs, tools/registered-collector.mjs, tests/registered-collector.test.mjs, tests/postgres/coin-market.test.mjs, docs/MARKET_REGISTRATION.md, docs/DEVELOPMENT_STATUS.md
+- 검증: node --test tests/registered-collector.test.mjs rc0 tests5/pass5/fail0(registered-status-target.log). node --use-env-proxy --test tests/postgres/coin-market.test.mjs rc0 tests1/pass1/fail0(registered-status-final-pg.log): v1/v2/v3, reader/writer/owner, 미수집/미완료/완료, 잠금 유무, readonly/repeatable snapshot, UTC일·시각, selection 변경 확인. 실제 reader status CLI rc0:2026-10-23 5코인 STORED, 미종료0, lock407 관측 true(registered-status-live.json). 최종 전체 npm run check 결과는 .state/agent-logs/registered-status-check.log를 따른다.
+- 기다리는 것: 없음. Lead e9a3cfea5c864e8b88498389ae18d6f5 proceed. 기존 UI read-only4173, Arkham/day worker는 재시작·변경하지 않는다. 미추적2026-10-22-router-lead-review.md 유지.
+- 다음 행동: 원격 supervisor/영속 archive·보관 정책. 이번 작업은 운영 진단 명령 추가이며 서비스 설치/원격 배포/상태 알림·웹 UI를 추가하지 않는다. pg_locks는 MVCC 밖 순간 관측이고 상태 조회 성공(rc0)은 수집 건강 보장이 아니다. PENDING은 DB 미종료 상태만 의미하며 receipt 존재를 추론하지 않는다. stale selection은 명시 오류로 종료한다.
+- 사용자 확인 필요: 아니오
+- 읽을 파일: docs/MARKET_REGISTRATION.md, docs/DEVELOPMENT_STATUS.md, docs/handoff/2026-10-23-global-coin-market.md
