@@ -1,0 +1,9 @@
+# Allium 공급량 로컬 표본 화면 완료
+- 목표: 기존 atlas_supply의 검토 Ethereum USDC/USDT 2026-10-16~22 표본14행을 별도 로컬 화면으로 연결.
+- 끝난 것: ADR0064의 Overview 표본 표·토큰 필터·행별 관측 근거, 고정 범위 GET/HEAD·32KiB/14행·단일 진행 조회·성공/실패10초 cache. 기존 READ ONLY/역할/schema/hash 검사 유지. 세 지표 정확한 문자열/null·기준일·마이크로초 원시각/hash·isNative 보존. 날짜 누락/미연결/최초실패/마지막정상/복구 구분. 기존 차트/공급자 기본값 유지, 공급자 API·DB쓰기·새조사0. 설계 Lead f6fee423a686477ba05ce260354ce378 proceed의 조건 반영·검증 완료. Dashboard UNKNOWN은 ADR0063 그대로.
+- 변경 파일: tools/market-db/allium-supply-preview.mjs, tools/ui-preview.mjs, web/reviewed-supply-model.js, web/reviewed-supply.js, web/overview.js, web/index.html, web/styles.css, web/reviewed-supply-model.test.mjs, tests/reviewed-supply-fixture.mjs, tests/reviewed-supply-http.test.mjs, docs/ALLIUM_SUPPLY_DATA.md, docs/DEVELOPMENT_STATUS.md, docs/adr/0064-reviewed-allium-supply-preview.md, docs/handoff/2026-10-23-allium-supply-preview.md
+- 검증: npm run check rc0 tests367/pass367/fail0/cancelled0/skipped0(.state/agent-logs/reviewed-supply-check.log). node --use-env-proxy --test tests/reviewed-supply-http.test.mjs web/reviewed-supply-model.test.mjs rc0 tests5/pass5/fail0. 실제 read CLI rc0·Chrome QA rc0/1시나리오 pass1/fail0: DB/HTTP/화면14행·세수량/null/시각/hash 일치, 필터·누락·0·최초실패·마지막정상·복구·F5·두테마·390px, 외부HTTP0/JS오류0(.state/agent-logs/reviewed-supply-browser.log). git diff --check rc0. 초기 QA의 fetch Host 무시와 data URI 외부요청 오분류는 시험 도구를 교정해 재확인했다.
+- 기다리는 것: 없음
+- 다음 행동: 사용자 지시를 기다린다. 전체11배포 조사에는 ADR0061의 별도 과금 통제 근거가 필요하며 usage 재조회/예약삭제/새root 우회 금지. 공급량 기본 전환·DeFiLlama 보조·일별수집은 미완료다. SQL byte-exact 변경은 ADR0060에 따른 별도 오프라인 검토가 필요하다. 새 원문/manifest/receipt·개인 설정은 Git/웹에 게시하지 않는다. 기존 미추적 router-lead-review 인계문 보존. 이번 단위의 DB 읽기 미리보기는 loopback50843 상시 서비스로 남겨 두었다.
+- 사용자 확인 필요: 아니오 — 현재 표본 화면 단위 완료.
+- 읽을 파일: docs/adr/0064-reviewed-allium-supply-preview.md, docs/ALLIUM_SUPPLY_DATA.md, tools/market-db/allium-supply-preview.mjs, web/reviewed-supply-model.js, web/reviewed-supply.js, docs/DEVELOPMENT_STATUS.md

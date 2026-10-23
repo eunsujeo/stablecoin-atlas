@@ -1,6 +1,6 @@
 # Allium 공급량 오프라인 저장·조회
 
-[ADR0062](adr/0062-offline-allium-supply-storage.md)의 별도 `atlas_supply` CLI다. 현재 수용 범위는 검토한 Ethereum USDC/USDT 2026-10-16~22 표본14행이다. [ADR0063](adr/0063-supply-install-and-api-boundary.md)에 따라 기존 비공개 DB 설치·14행 입력/대조·재생0까지 완료했다. UI/기존 공급량/수집기에는 연결하지 않았다.
+[ADR0062](adr/0062-offline-allium-supply-storage.md)의 별도 `atlas_supply` CLI다. 현재 수용 범위는 검토한 Ethereum USDC/USDT 2026-10-16~22 표본14행이다. [ADR0063](adr/0063-supply-install-and-api-boundary.md)에 따라 기존 비공개 DB 설치·14행 입력/대조·재생0까지 완료했다. [ADR0064](adr/0064-reviewed-allium-supply-preview.md)로 로컬 Overview의 별도 표본 표에 연결했다. 기존 공급량·수집기의 기본 경로는 유지한다.
 
 ## 설치·조회 절차
 
@@ -37,4 +37,8 @@ read의 `totalSupply`, `circulatingSupply`, `adjustedCirculatingSupply`는 독�
 
 단위 검사4개와 별도 PG17 검사에서 주소/SQL/기간/행수/정밀도·동시 입력·재생0·구시각 역전 방지·같은 시각 충돌·null 수정·source 이후 fact 오류 rollback·원문 재개·최소 권한·trigger/ACL 변조를 확인한다. 검토한 실제 원문도 별도 소유 Fixture에서14행 입력·재생0·14행 수량/시각/hash 일치를 확인했고 정리했다. `npm run check:db`는 이 DB 검사를 포함한다.
 
-기존 비공개 DB에서14행 입력·재생0·14행 수량/null/시각/hash 대조와 필터/미확보 날짜를 확인했다. 기존5개 schema·권한/정책과 시장 표본180건·전송량60건을 보존했다. archive600권한을 확인했고 새 공급자 조회는0이다. 실제11배포 SQL 조사는 ADR0061의 과금 통제 증거 확보가 별도로 필요하다. 공급량 기본 UI·보조 연결·일별 수집은 아직 미구현이다.
+기존 비공개 DB에서14행 입력·재생0·14행 수량/null/시각/hash 대조와 필터/미확보 날짜를 확인했다. 기존5개 schema·권한/정책과 시장 표본180건·전송량60건을 보존했다. archive600권한을 확인했고 새 공급자 조회는0이다. 실제11배포 SQL 조사는 ADR0061의 과금 통제 증거 확보가 별도로 필요하다. 공급량 기본 전환·보조 연결·일별 수집은 아직 미구현이다.
+
+## 로컬 표본 화면
+
+`npm run ui -- --database --database-env .state/market-db-secrets/reader.env`의 Overview에서 **Allium 공급량 · 과거 표본**을 확인한다. 표본 토큰 필터와 행별 관측 근거를 제공하며 정확한 문자열·null·원래 시각/hash를 보존한다. 누락·조회 실패·미연결과 마지막 정상 자료의 표시 규칙, 웹 읽기 경계는 ADR0064를 따른다. 기본 JSON 모드에는 이 DB 표본을 복제하지 않는다. 원문과 private 검증 자료는 Git/웹에 게시하지 않는다.

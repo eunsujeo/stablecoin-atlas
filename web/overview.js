@@ -1,3 +1,5 @@
+import {validateReviewedSupply,reviewedSupplyChoice} from './reviewed-supply-model.js';
+import {renderReviewedSupply} from './reviewed-supply.js';
 import {validateFX,usableFX,priceLabel,readCurrency,saveCurrency} from './fx-model.js';
 import {validateActivity,providerChoice} from './activity-model.js';
 import {overviewMarketRows} from './overview-market-model.js';
@@ -14,6 +16,9 @@ const node=(tag,text,cls)=>{const el=document.createElement(tag);if(text!==undef
 const savedChart=readChartURL(location.href)??readChartPreferences();
 const state={currency:readCurrency(location.href),fx:null,selectedCoin:savedChart?.coinId??'usdc',selectedSource:savedChart?.source??'history',selectedNetwork:savedChart?.networkId??'all',marketFailed:false,index:null,market:null,loading:false,loaded:false,period:savedChart?.period??'30d',sourceInitialized:!!savedChart,comparison:savedChart?.comparison??'amount',registration:null,detail:null,trendLoading:false,trendError:false,registrationFailed:false};
 let trendSequence=0,trendAbort,trendFinish;
+let reviewedSupply={data:null,state:'MISSING'};
+const renderSupply=()=>renderReviewedSupply($('#overview-reviewed-supply'),reviewedSupply,$('#overview-reviewed-coin').value);
+$('#overview-reviewed-coin').addEventListener('change',renderSupply);
 let activity=null,activityState='MISSING';
 function renderActivity(){
  const host=$('#overview-activity-rows');host.replaceChildren();
@@ -192,9 +197,9 @@ async function loadTrend(){
 }
 async function load(){
   if(state.loading)return;state.loading=true;$('#overview-reload').disabled=true;
-  const finish=beginLoading($('#overview-screen'),{ready:!!(state.index||state.market),targets:[['#overview-market-trend','chart'],['#overview-chain-breakdown','rows'],['#overview-market-rows','rows'],['#overview-activity-rows','rows'],['#overview-metrics','cards']]});
+  const finish=beginLoading($('#overview-screen'),{ready:!!(state.index||state.market),targets:[['#overview-market-trend','chart'],['#overview-chain-breakdown','rows'],['#overview-market-rows','rows'],['#overview-activity-rows','rows'],['#overview-reviewed-rows','rows'],['#overview-metrics','cards']]});
   try {
-  const results=await Promise.allSettled([json('/evidence/index.json').then(dashboardEvidence),json('/market-data.json').then(validateMarket),json('/registration-index.json',{optional:true}).then(x=>x===null?null:validateRegistrationIndex(x)),json('/fx-data.json').then(validateFX),json('/activity-data.json',{optional:true}).then(x=>x===null?null:validateActivity(x))]);
+  const results=await Promise.allSettled([json('/evidence/index.json').then(dashboardEvidence),json('/market-data.json').then(validateMarket),json('/registration-index.json',{optional:true}).then(x=>x===null?null:validateRegistrationIndex(x)),json('/fx-data.json').then(validateFX),json('/activity-data.json',{optional:true}).then(x=>x===null?null:validateActivity(x)),json('/reviewed-supply-data.json',{optional:true}).then(x=>x===null?null:validateReviewedSupply(x))]);
   const failed=[];
   for(const [index,key]of ['index','market'].entries()){
     if(results[index].status==='fulfilled')state[key]=results[index].value;
@@ -203,8 +208,9 @@ async function load(){
   if(results[2].status==='fulfilled'){state.registration=results[2].value;state.registrationFailed=false;}else{state.registrationFailed=true;failed.push('공급량 자료');}
   if(results[3].status==='fulfilled')state.fx=results[3].value;
   const selected=providerChoice({primary:results[4].status==='fulfilled'?results[4].value:null,lastGood:activity,failed:results[4].status==='rejected'});activity=selected.data;activityState=selected.state;
+  reviewedSupply=reviewedSupplyChoice(reviewedSupply.data,results[5]);
   state.marketFailed=results[1].status!=='fulfilled';
-  renderEvidence();renderMarket();renderEvidenceRankings();renderActivity();
+  renderEvidence();renderMarket();renderEvidenceRankings();renderActivity();renderSupply();
   if(state.registration)await loadTrend();
   const collectionFailed=state.market?.collectionState?.state==='FAILED'||state.market?.lastBuildState==='FAILED';
   $('#overview-error').hidden=!failed.length&&!collectionFailed;

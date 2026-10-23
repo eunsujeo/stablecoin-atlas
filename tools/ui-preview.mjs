@@ -1,3 +1,5 @@
+import {databaseReviewedSupplyReader} from './market-db/allium-supply-preview.mjs';
+import {validateReviewedSupply} from '../web/reviewed-supply-model.js';
 import {readFX} from './fx-store.mjs';
 import {databaseActivityReader} from './market-db/activity-preview.mjs';
 import {createHash} from 'node:crypto';
@@ -22,6 +24,8 @@ const assets = new Map([
   ['/token-profile-model.js', ['../web/token-profile-model.js', 'text/javascript; charset=utf-8']],
   ['/loading.js', ['../web/loading.js', 'text/javascript; charset=utf-8']],
   ['/fx-model.js', ['../web/fx-model.js', 'text/javascript; charset=utf-8']],
+  ['/reviewed-supply-model.js', ['../web/reviewed-supply-model.js', 'text/javascript; charset=utf-8']],
+  ['/reviewed-supply.js', ['../web/reviewed-supply.js', 'text/javascript; charset=utf-8']],
   ['/activity-model.js', ['../web/activity-model.js', 'text/javascript; charset=utf-8']],
   ['/overview-market-model.js', ['../web/overview-market-model.js', 'text/javascript; charset=utf-8']],
   ['/overview-preferences.js', ['../web/overview-preferences.js', 'text/javascript; charset=utf-8']],
@@ -35,7 +39,7 @@ const assets = new Map([
   ['/mock-data.json', ['../docs/ui/mock-dashboard-data.json', 'application/json; charset=utf-8']],
 ]);
 const csp = "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; object-src 'none'";
-export function createPreviewServer({ evidenceDirectory, marketDirectory, marketReader, registrationReader, fxDirectory, activityReader } = {}) {
+export function createPreviewServer({ evidenceDirectory, marketDirectory, marketReader, registrationReader, fxDirectory, activityReader, reviewedSupplyReader } = {}) {
   const server = createServer(async (req, res) => {
     res.setHeader('Content-Security-Policy', csp);
     res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -67,6 +71,13 @@ export function createPreviewServer({ evidenceDirectory, marketDirectory, market
         }catch{fail(503,'SUPPLY_DATA_UNAVAILABLE');}
         return;
       }
+    }
+    if(req.url==='/reviewed-supply-data.json'){
+      if(!reviewedSupplyReader){fail(404,'REVIEWED_SUPPLY_DISABLED');return;}
+      try{const bytes=Buffer.from(JSON.stringify(validateReviewedSupply(await reviewedSupplyReader())));
+        if(bytes.length>32*1024)throw Error('READ_LIMIT');
+        res.writeHead(200,{'Content-Type':'application/json; charset=utf-8','Content-Length':bytes.length});res.end(req.method==='HEAD'?undefined:bytes);
+      }catch{fail(503,'REVIEWED_SUPPLY_UNAVAILABLE');}return;
     }
     if(req.url==='/activity-data.json'){if(!activityReader){fail(404,'ACTIVITY_DISABLED');return;}try{const bytes=Buffer.from(JSON.stringify(await activityReader()));if(bytes.length>128*1024)throw Error('READ_LIMIT');res.writeHead(200,{'Content-Type':'application/json; charset=utf-8','Content-Length':bytes.length});res.end(req.method==='HEAD'?undefined:bytes);}catch{fail(503,'ACTIVITY_UNAVAILABLE');}return;}
     if(req.url==='/fx-data.json'){try{const bytes=Buffer.from(JSON.stringify(await readFX(fxDirectory)));res.writeHead(200,{'Content-Type':'application/json; charset=utf-8','Content-Length':bytes.length});res.end(req.method==='HEAD'?undefined:bytes);}catch{fail(503,'FX_UNAVAILABLE');}return;}
@@ -128,7 +139,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     // An explicit file is authoritative; inherited writer credentials cannot override it.
     const env=args.database?await workspaceEnvironment(args.envFile,args.envFile?{}:process.env):undefined;
     if(args.database&&!env.DATABASE_URL)throw new Error('DATABASE_CONFIG_REQUIRED');
-    const server = await startPreviewServer(args.port,{fxDirectory:args.fxDirectory,...(args.database?{marketReader:databaseMarketReader({env}),registrationReader:databaseRegistrationReader({env}),activityReader:databaseActivityReader({env})}:{})});
+    const server = await startPreviewServer(args.port,{fxDirectory:args.fxDirectory,...(args.database?{marketReader:databaseMarketReader({env}),registrationReader:databaseRegistrationReader({env}),activityReader:databaseActivityReader({env}),reviewedSupplyReader:databaseReviewedSupplyReader({env})}:{})});
     console.log(`Local preview: http://127.0.0.1:${server.address().port} (${args.database?'PostgreSQL read-only':'local JSON'})`);
     for (const signal of ['SIGINT', 'SIGTERM']) process.once(signal, () => { server.close(() => { process.exitCode = 0; }); server.closeIdleConnections(); });
   } catch { console.error('Preview could not start. Check the port or use --port 0.'); process.exitCode = 1; }
