@@ -9,6 +9,7 @@ after an uncertain step.
 import argparse
 import fcntl
 import os
+import re
 import json
 from pathlib import Path
 import subprocess
@@ -26,7 +27,7 @@ EMPTY_INPUT = "Ask Codex to do anything"
 GRACE_SECONDS = 5
 DEADLINE_SECONDS = 3600
 POLL_SECONDS = 1
-DAILY_LIMIT = 6
+DAILY_LIMIT = 20
 CHAIN_LIMIT = 3
 BACKGROUND = "background terminal"
 HANDOFF_FIELDS = ("목표", "끝난 것", "변경 파일", "검증", "기다리는 것", "다음 행동", "사용자 확인 필요", "읽을 파일")
@@ -143,7 +144,9 @@ def screen_reason(text):
         return "waiting_background"
     body = text.split("\u203a " + EMPTY_INPUT)[0].splitlines()
     tail = [line.strip() for line in body if line.strip()][-12:]
-    if any("?" in line or "\uff1f" in line for line in tail):
+    # A question is prose ending in "?"; skip git status "?? path" lines and stray "?" in code.
+    if any(re.search(r"[?\uff1f]\s*$", line) and not re.match(r"[\s\u2514\u2502]*\?\? ", line)
+           for line in tail):
         return "cancelled_question"
     return None
 

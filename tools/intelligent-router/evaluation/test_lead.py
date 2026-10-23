@@ -304,6 +304,12 @@ class ScheduledRenewTests(unittest.TestCase):
         self.assertEqual(result, "cancelled_question")
         renewed.assert_not_called()
 
+    def test_git_untracked_marker_is_not_a_question(self):
+        text = ("  \u2514 ?? docs/handoff/x.md\n    ?? web/a.js\n  url?a=1 checked\n"
+                "\u203a Ask Codex to do anything\n  ? for shortcuts")
+        self.assertIsNone(renew.screen_reason(text))
+        self.assertEqual(renew.screen_reason("진행할까요?\n\u203a Ask Codex to do anything"), "cancelled_question")
+
     def test_background_terminal_restarts_grace_until_finished(self):
         busy = "Done.\n  1 background terminal running\n\u203a Ask Codex to do anything"
         result, renewed = self.run_watch(["idle"] * (self.IDLE * 2 + 1), screens=[busy, self.CLEAN])
