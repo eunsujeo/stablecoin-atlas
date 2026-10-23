@@ -1,6 +1,14 @@
 # Allium 조사 계획과 단발 실행
 
-[실제 비용 증거 제공 가능성 조사](research/allium-cost-evidence-availability-2026-10-23.md)는 공개 문서의 CSV·EU 한도 설명과 요청별 귀속/최종성의 미확인을 구분한다. 계정 자료 확보·인증 호출·실제 전환은 수행하지 않았다.
+[ADR0076](adr/0076-user-authorized-local-live-collection.md): 사용자가 실제 호출·수집을 선택하여 로컬 수동 1회 supply/volume 수집 경로를 추가했다. `npm run allium:live -- status`는 저장 상태만 읽는다. 비용 통제 UNCONFIRMED·실제 예산 전환 TRANSITION_BLOCKED를 유지하며 자동 예약·DB/UI 연결은 추가하지 않는다.
+
+[최초 실제 수집 결과](research/allium-samples/live-2026-10-23.md)는 SQL2회/12HTTP 모두200, 공급량70/전송량67 OBSERVED다. 각 원문의 echo 검토 뒤 같은 묶음만 완료했으며 live-once는 영속 소비됐다. 명령 예시는 이미 소비한 승인을 반복 사용하라는 지시가 아니다.
+
+준비와 실제 실행은 분리한다. 기존 사용자 승인 기록을 600권한의 `.state` 파일로 보존한 뒤, `npm run allium:live -- prepare --day D --approval <private-file> --output <private-state-file>`로 15분 lease를 만든다. stdout의 authorizationHash와 정확한 준비 파일을 검토하고 `npm run allium:live -- collect --day D --approval <same-private-file> --authorization <prepared-file> --reviewed-authorization-sha256 <hash>`로 최초 1묶음만 실행한다. 준비 출력의 부모는 소유700 디렉터리여야 한다. 명령에 키를 넣지 않는다. 실행 뒤 `live-once`는 영속 소비되므로 날짜·키·새 준비 파일로 재실행할 수 없다. 원문과 승인 파일은 Git/웹에 게시하지 않는다.
+
+성공 응답의 echo 차이만 남으면 각 원문을 오프라인에서 개별 검토한다. `resume`은 collect와 같은 인자에 `--sql-review <private-manifest> --reviewed-sql-review-sha256 <hash>`를 더해 같은 lease·묶음의 미전송 job만 진행한다. 이전 SQL은 재전송하지 않으며 마지막 결과 검토는 외부 호출0이다. 만료된 lease는 갱신하지 않는다. 정확한 바인딩·UNKNOWN 보존·재개 차단 조건은 ADR0076을 따른다.
+
+[실제 비용 증거 제공 가능성 조사](research/allium-cost-evidence-availability-2026-10-23.md)는 공개 문서의 CSV·EU 한도 설명과 요청별 귀속/최종성의 미확인을 구분한다. 그 공개 조사에서는 계정 자료 확보·인증 호출·실제 전환을 수행하지 않았다. 후속 사용자 승인 실제 호출은 위 ADR0076의 별도 실행 예외다.
 
 후속 [일별 수집 설계·비용 통제 검토](adr/0068-daily-allium-design-and-cost-controls.md)는 조직 공통 예약·usage 대사·장애/전환 조건을 정리한 비활성 설계다. 실제 일별 실행·추가 수집·스케줄 활성화는 수행하지 않았다.
 

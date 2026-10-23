@@ -60,6 +60,8 @@ Allium은 [Explorer 표본](research/allium-samples/README.md)에 이어 [최근
 
 ## 다음 개발 단위
 
+[ADR0076](adr/0076-user-authorized-local-live-collection.md)의 사용자 명시 실제 호출 선택으로 로컬 수동 1회 supply/volume CLI와 같은 lease의 개별 echo 검토 checkpoint를 추가했다. [실제 수집](research/allium-samples/live-2026-10-23.md)은 SQL2회/12HTTP 모두200·공급량70/전송량67 OBSERVED이며 Kaia 미일치·JPYSC 전송량3일 미확보를 보존했다. 두 echo 원문별 SOURCE_REVIEWED·최종 SUCCEEDED·legacy 불변을 확인했다. 계정 증거 없이 허용한 실행 예외이며 실제 비용 인증·조직 예산 전환·일별 자동 예약·DB/UI 연결 완료를 뜻하지 않는다. 검증 결과는 해당 인계문을 따른다.
+
 [Allium 실제 비용 증거 제공 가능성 조사](research/allium-cost-evidence-availability-2026-10-23.md)를 완료했다. 공개 CSV/한도 기능 설명은 확인했지만 계정별 설정·요청별 비용 귀속/최종성은 미확인이다. 실제 전환은 계속 차단하며 후속 계정 자료의 비공개 오프라인 검토 범위는 사용자 확인이 필요하다.
 
 Allium 일별 수집의 [설계·비용 통제 검토](adr/0068-daily-allium-design-and-cost-controls.md)를 완료했다. 권고는 비활성 daily 계획·조직 공통 예산 원장부터 검증하는 것이며, 실제 일별 수집은 DISABLED다. 기존 manual-once·고정 조사·UNKNOWN을 유지하고 공급자 강제 한도·초과 과금 설정은 UNCONFIRMED로 남긴다. 이번 검토에서 공급자 API/usage/SQL·DB·스케줄 변경은 없다. 구현과 실제 실행은 별도 후속이다.

@@ -33,6 +33,18 @@ async function snapshot(path, value) {
   await durableFile(temp, Buffer.from(JSON.stringify(value)));
   await rename(temp,path); await syncDirectory(resolve(path,'..'));
 }
+// Every CLI send path shares this lock, including usage and reviewed resumes.
+// A crash leaves the lock in place. A consumed live exception closes legacy sends.
+export async function withAlliumSendLock(root, action, {live = false} = {}) {
+  await privateDirectory(root);
+  const lock = join(root, 'reservation-lock');
+  await exclusiveDirectory(lock);
+  try {
+    if (!live && (await readdir(root)).includes('live-once')) fail();
+    return await action();
+  } finally { await rmdir(lock); await syncDirectory(root); }
+}
+export const alliumExecutionStorage = {privateDirectory, exclusiveDirectory, durableFile, snapshot, syncDirectory};
 function validPlan(plan) {
   const {planHash,...body} = plan;
   if (!hex(planHash) || objectHash(body) !== planHash || plan.mapper !== 'allium-survey-v1' || plan.jobs.length !== 3 || plan.budget.maxHttpRequests !== 39) fail();
@@ -78,17 +90,20 @@ export function validateAlliumAuthorization(plan, bytes, {reviewedHash, apiKey, 
 export function alliumReceiptView(receipt) {
   return {kind:receipt.kind, planHash:receipt.planHash ?? null, day:receipt.day, state:terminal.has(receipt.state)?receipt.state:'UNKNOWN',
     ...(receipt.authorization?.mode==='MANUAL_UNCAPPED_SURVEY'?{executionMode:'MANUAL_UNCAPPED_SURVEY',providerCapStatus:'UNCONFIRMED',maxHttpRequests:156,maxRuns:3}:{}),
+    ...(receipt.authorization?.mode==='USER_AUTHORIZED_LIVE_ONCE'?{executionMode:'USER_AUTHORIZED_LIVE_ONCE',providerCapStatus:'UNCONFIRMED',maxHttpRequests:26,maxRuns:2,
+      costAttribution:'UNKNOWN',globalBudgetGuaranteed:false,transition:'TRANSITION_BLOCKED',pendingUnits:null,reservationBound:null,reconciledUnits:'0',
+      failure:receipt.failure??null}:{}),
     httpAttempts:receipt.attempts.length, completedResponses:receipt.attempts.filter(a=>a.responseHash).length,
     counts:Object.fromEntries(['usage','create','run','status','result'].map(kind=>[kind,receipt.attempts.filter(a=>a.kind===kind).length])),
-    jobs:(receipt.jobs??[]).map(j=>({kind:j.kind,state:terminal.has(j.state)?j.state:'UNKNOWN',sourceHash:j.sourceHash??null,queriedAt:j.queriedAt??null,observedExplorerUnits:j.observedUnits??null,...(j.sqlReview?{sqlReviewStatus:'SOURCE_REVIEWED'}:{})})),
+    jobs:(receipt.jobs??[]).map(j=>({kind:j.kind,state:terminal.has(j.state)?j.state:receipt.authorization?.mode==='USER_AUTHORIZED_LIVE_ONCE'&&j.state==='RESERVED'?'NOT_TESTED':'UNKNOWN',sourceHash:j.sourceHash??null,queriedAt:j.queriedAt??null,observedExplorerUnits:j.observedUnits??null,...(j.sqlReview?{sqlReviewStatus:'SOURCE_REVIEWED'}:{})})),
     observedUsage:receipt.observedUsage??null, databaseWrites:0};
 }
 
 async function request(receipt, directory, kind, path, body, deps) {
-  if (receipt.attempts.length >= (receipt.kind==='ALLIUM_USAGE_RECEIPT'?1:receipt.authorization?.mode==='MANUAL_UNCAPPED_SURVEY'?156:39)) fail();
+  if (receipt.attempts.length >= (receipt.kind==='ALLIUM_USAGE_RECEIPT'?1:receipt.authorization?.mode==='USER_AUTHORIZED_LIVE_ONCE'?26:receipt.authorization?.mode==='MANUAL_UNCAPPED_SURVEY'?156:39)) fail();
   if (receipt.authorization) {
     const now=epochMicros(deps.now());
-    if(receipt.authorization.mode==='MANUAL_UNCAPPED_SURVEY') {
+    if(['MANUAL_UNCAPPED_SURVEY','USER_AUTHORIZED_LIVE_ONCE'].includes(receipt.authorization.mode)) {
       if(now<epochMicros(receipt.authorization.authorizedAt)||now>=epochMicros(receipt.authorization.expiresAt)||deps.now().slice(0,10)!==receipt.day)fail();
     } else if (now<epochMicros(receipt.authorization.usageObservedAt) || now>=epochMicros(receipt.authorization.periodEnd) || now>=epochMicros(receipt.authorization.capPeriodEnd) || now-epochMicros(receipt.authorization.usageObservedAt)>3600n*1000000n) fail();
   }
@@ -121,6 +136,7 @@ async function request(receipt, directory, kind, path, body, deps) {
   parseHistorySource(bytes);
   return {bytes,value:JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes)),attempt};
 }
+export const alliumBoundedRequest = request;
 const dependencies = options => ({fetcher:options.fetcher??globalThis.fetch,now:options.now??(()=>new Date().toISOString()),sleep:options.sleep??(ms=>new Promise(r=>setTimeout(r,ms))),random:options.random??Math.random,apiKey:options.apiKey});
 
 async function surveyRequest(receipt,directory,kind,path,body,deps) {
@@ -156,21 +172,18 @@ export function validateAlliumManualAuthorization(plan,bytes,{reviewedHash,apiKe
   return {...a,authorizedAt:instant(a.authorizedAt),expiresAt:instant(a.expiresAt),usageObservedAt:instant(a.usageObservedAt),mode:'MANUAL_UNCAPPED_SURVEY',authorizationHash:reviewedHash,usageContext:'SAVED_CONTEXT_ONLY_NOT_A_BUDGET_ASSERTION'};
 }
 
-// This short common mutex protects both modes. Permanent reservations are never removed.
-// A crash while holding it fails closed; it is not automatically recovered.
+// Called with the common send mutex held. Permanent reservations are never removed.
 async function reserveSurvey(root,plan,authorization,manual) {
-  const lock=join(root,'reservation-lock');await exclusiveDirectory(lock);
-  try {
     const names=await readdir(root);
     if(names.includes('manual-once')||manual&&names.some(n=>n.startsWith('period-')||n.startsWith('survey-')))fail();
     const periodDirectory=manual?join(root,'manual-once'):join(root,'period-'+objectHash({account:authorization.accountScopeHash,start:authorization.periodStart,end:authorization.periodEnd}));
     await exclusiveDirectory(periodDirectory);
     await durableFile(join(periodDirectory,'reservation.json'),Buffer.from(JSON.stringify({kind:manual?'ALLIUM_MANUAL_UNCAPPED_ONCE_RESERVED':'ALLIUM_FULL_PERIOD_ALLOWANCE_RESERVED',planHash:plan.planHash,day:plan.asOfDay,authorization})));
     const directory=join(root,'survey-'+plan.asOfDay);await exclusiveDirectory(directory);return directory;
-  }finally{await rmdir(lock);await syncDirectory(root);}
 }
 
-export async function alliumUsage({root, ...options}) {
+export const alliumUsage = options => withAlliumSendLock(options.root, () => usageUnlocked(options));
+async function usageUnlocked({root, ...options}) {
   const deps=dependencies(options); if(!deps.apiKey)fail();
   await privateDirectory(root);
   const day=instant(deps.now()).slice(0,10), directory=join(root,'usage-'+day);
@@ -192,9 +205,9 @@ export async function alliumUsage({root, ...options}) {
   return alliumReceiptView(receipt);
 }
 
-export const executeAlliumSurvey=(plan,options)=>executeSurvey(plan,options,false);
-export const executeAlliumManualSurvey=(plan,options)=>executeSurvey(plan,options,true);
-export const resumeAlliumManualSurvey=(plan,options)=>executeSurvey(plan,options,true,true);
+export const executeAlliumSurvey=(plan,options)=>withAlliumSendLock(options.root,()=>executeSurvey(plan,options,false));
+export const executeAlliumManualSurvey=(plan,options)=>withAlliumSendLock(options.root,()=>executeSurvey(plan,options,true));
+export const resumeAlliumManualSurvey=(plan,options)=>withAlliumSendLock(options.root,()=>executeSurvey(plan,options,true,true));
 
 async function reviewedCheckpoint(root,plan,authorization,authorizationBytes,approvalBytes,sqlReviewBytes,reviewedSqlReviewHash,now) {
   const directory=join(root,'survey-'+plan.asOfDay),bytes=await boundedRead(join(directory,'receipt.json'),131072),receipt=JSON.parse(bytes);
