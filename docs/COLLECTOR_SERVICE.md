@@ -88,3 +88,9 @@ SIGTERM 정상 정지에는45초를 부여한다. SIGKILL/전원 손실 때는 r
 보관 기본 정책은 **자동 삭제 없음**이다. 용량/파일 수를 점검하고, receipt와 참조 원문을 함께 보존한다. 백업은 두 서비스 정지→예약/DB 상태 확인→영속 트리의 private snapshot과 같은 시점의 DB 백업 확보→복원 검증 순서다. backup 위치도 비공개0700/파일0600으로 유지한다. 롤백은 서비스 정지 후 검증된 코드와 동일 영속 경로로 재시작하는 방식이다. DB ledger·등록 cutover 상태는 되돌리거나 지우지 않고, legacy 일별 수집을 임의로 다시 켜지 않는다. 다른 호스트 이관 전 receipt·원문 hash와 읽기 전용 status를 확인한다. 실제 보관기간 삭제/DB partition 정리는 별도 설계·검증 전까지 실행하지 않는다.
 
 현재 검증은 로컬 소유 Linux 컨테이너의 unit 정적 검사와 격리 PG의 외부 영속 경로·원문 재사용이다. 실제 원격 systemd에서 부팅/재시작/강제 종료·백업 복원을 검증하기 전에는 원격 배포 완료로 표시하지 않는다. 웹 UI 공개 배포는 이 두 수집 서비스와 별도다.
+
+## 원화 참고 환산용 FX timer
+
+[ADR0058](adr/0058-reference-krw-prices.md)의 ECB 환율은 DB writer/API 키가 없는 별도 oneshot이다. `/var/lib/atlas-collector/fx-store` 전체(claim/receipt/snapshot/raw XML)를 다른 영속 자료와 함께 보관한다. 한 호스트·같은 root의 UTC일 claim이며 다른 호스트 사이의 전역 예산은 아니다. 사용자 웹 프로세스가 이 private 저장본을 읽는 구조로 연결하며 공개 정적 폴더에 원문을 복사하지 않는다. 기본 서비스 사용자는 atlascollector이며 readonly preview를 다른 계정으로 운영할 경우 필요한 읽기 권한/게시 경계를 별도로 설계한다. 수집기만 설치하는 이 예제로 공개 웹 서버를 실행하지 않는다.
+
+`atlas-fx.service`와 `atlas-fx.timer`를 설치·verify한 뒤 `systemctl enable --now atlas-fx.timer`로 UTC00:10 갱신을 예약한다. 환경변수/DB 키는 FX unit에 넣지 않는다. 실패일에는 같은 UTC일 재요청을 하지 않고 이전 검증본의 기준일을 유지한다. claim만 남았으면 운영자가 원문/receipt를 조사하며 claim을 지워 API를 재시도하지 않는다. 실제 remote timer 실행은 별도 서버 검증 대상이다.

@@ -17,7 +17,7 @@ export function beginLoading(root,{ready=false,targets=[]}={}) {
     const target=typeof selector==='string'?root.querySelector(selector):selector;if(!target)continue;
     const original=[...target.childNodes];let placeholder=skeleton(kind);
     if(target.tagName==='TBODY'){
-      const row=document.createElement('tr'),cell=document.createElement('td');cell.colSpan=7;cell.append(placeholder);row.append(cell);placeholder=row;
+      const row=document.createElement('tr'),cell=document.createElement('td');cell.colSpan=target.closest('table')?.querySelectorAll('thead tr:first-child th').length||7;cell.append(placeholder);row.append(cell);placeholder=row;
     }else if(['OL','UL'].includes(target.tagName)){const item=document.createElement('li');item.setAttribute('aria-hidden','true');item.append(placeholder);placeholder=item;}
     saved.push({target,original,placeholder});target.replaceChildren(placeholder);
   }

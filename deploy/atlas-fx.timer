@@ -1,0 +1,10 @@
+[Unit]
+Description=Refresh stored ECB reference exchange rates daily
+
+[Timer]
+OnCalendar=*-*-* 00:10:00 UTC
+Persistent=true
+Unit=atlas-fx.service
+
+[Install]
+WantedBy=timers.target

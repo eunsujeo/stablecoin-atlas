@@ -33,6 +33,10 @@
 
 - 코인 시장 비교표: [ADR0057](adr/0057-global-coin-market-comparison.md)의 등록 v3에 상세 응답의 전체 유통량·USD 가격을 저장한다. Overview는5코인을 연동 통화별로 묶고 기존3코인의 Arkham 지표와 엔화2코인의 일별 지표를 명시적으로 선택한다. 총공급량/24시간 거래량 부재는0으로 대체하지 않는다. 같은 수집 응답을 재사용하며 추가 API 호출은 없다. 실제 적용·검증 상태는 최신 인계문을 따른다.
 
+- 원화 가격·시장표 밀도: [ADR0058](adr/0058-reference-krw-prices.md)에 따라 USD/KRW 선택·ECB 기준일 표시·BigInt 참고 환산을 추가한다. 토큰 정보를 한 줄로 묶고 미확인 거래량 열을 숨겨 여백을 줄인다. 환율은 private 일별 snapshot이며 웹 요청이 수집하지 않는다. 실제 원격 FX timer 설치는 미실행이다.
+
+Allium 중심 조회는 [공개 문서 조사·연결 순서](research/allium-data-plan-2026-10-23.md)를 작성했다. 인증 API·SQL 실행과 실제 코인/체인 지원 확인은 미실행이며 기존 공급자를 교체하지 않았다.
+
 ## 토큰 기본정보
 
 [ADR0045](adr/0045-token-profile-catalog-and-popovers.md)의 별도 private DB catalog에8개 deployment의 표준·설명·식별자·공식 출처/확인시각을 revision으로 저장하고 reader API로 조회한다. Overview와 시장에서 마우스·키보드·모바일 정보 패널을 제공한다. 실제 Supabase8개 등록/재등록/조회와 기존462관측/78네트워크 이력 보존을 확인했다. 이는 기본정보이며 지원/검증 PASS와 별도다.

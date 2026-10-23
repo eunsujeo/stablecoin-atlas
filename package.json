@@ -64,7 +64,9 @@
     "market:registration:plan": "node tools/market-registration/cli.mjs plan",
     "market:registration:detail": "node tools/market-registration/cli.mjs detail",
     "market:registration:db": "node --use-env-proxy tools/market-db/registration-cli.mjs",
-    "collector:registered": "node --use-env-proxy tools/registered-collector.mjs"
+    "collector:registered": "node --use-env-proxy tools/registered-collector.mjs",
+    "fx:collect": "node --use-env-proxy tools/fx-store.mjs collect",
+    "fx:import": "node tools/fx-store.mjs import"
   },
   "dependencies": {
     "ajv": "8.20.0",

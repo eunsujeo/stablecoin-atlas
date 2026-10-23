@@ -34,9 +34,9 @@
         <div class="overview-market-grid"><div><div id="overview-market-trend"></div><p id="overview-trend-note" class="chart-note"></p></div><aside class="overview-chain-panel"><h3>네트워크별 공급량</h3><p class="muted">같은 코인의 체인별 총공급량 비교</p><div id="overview-chain-breakdown"></div><a href="#live" class="text-link">네트워크 · 원본 상세 →</a></aside></div>
       </section>
       <section class="panel overview-market-table-panel" aria-labelledby="overview-market-title">
-        <div class="panel-heading overview-market-heading"><div><h2 id="overview-market-title">스테이블코인 시장</h2><p>코인 전체 공급량 · 연동 통화별 비교</p></div><a href="#live" class="text-link">시장 상세 →</a></div>
-        <div class="table-scroll"><table class="overview-market-table"><caption class="sr-only">스테이블코인별 가격과 공급량 비교</caption><thead><tr><th scope="col">토큰</th><th scope="col">가격 (USD)</th><th scope="col">유통량 (tokens)</th><th scope="col">총공급량 (tokens)</th><th scope="col">24시간 거래량</th><th scope="col">업데이트</th><th scope="col"><span class="sr-only">공급량 차트</span></th></tr></thead><tbody id="overview-market-rows"></tbody></table></div>
-        <p class="chart-note">— 자료 미확보 · 거래량은 집계 기간과 단위 확인 전까지 표시하지 않습니다.</p>
+        <div class="panel-heading overview-market-heading"><div><h2 id="overview-market-title">스테이블코인 시장</h2><p>코인 전체 공급량 · 연동 통화별 비교</p></div><div class="market-table-actions"><label class="market-select"><span class="sr-only">가격 통화</span><select id="overview-price-currency"><option value="USD">USD ($)</option><option value="KRW">KRW (₩)</option></select></label><a href="#live" class="text-link">시장 상세 →</a></div></div><p id="overview-fx-note" class="chart-note" hidden></p>
+        <div class="table-scroll"><table class="overview-market-table"><caption class="sr-only">스테이블코인별 가격과 공급량 비교</caption><thead><tr><th scope="col">토큰</th><th scope="col" id="overview-market-price-label">가격 (USD)</th><th scope="col">유통량 (tokens)</th><th scope="col">총공급량 (tokens)</th><th scope="col">업데이트</th><th scope="col"><span class="sr-only">공급량 차트</span></th></tr></thead><tbody id="overview-market-rows"></tbody></table></div>
+        <p class="chart-note">— 자료 미확보</p>
       </section>
       <details id="overview-technical" class="overview-technical"><summary><span>기술 검증 현황</span><small>개발자 · 전문가용 · 검토 범위와 항목별 판정</small></summary>
       <div class="section-toolbar overview-scope"><span id="overview-scope-summary" class="muted">검토한 자산 · 네트워크 범위</span><input type="hidden" id="overview-scope" value="STORED_READ_ONLY"><a class="text-link" href="#validation">검증 항목 전체 보기 →</a></div>

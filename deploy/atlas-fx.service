@@ -1,0 +1,20 @@
+[Unit]
+Description=Daily ECB reference exchange rate snapshot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=atlascollector
+Group=atlascollector
+WorkingDirectory=/opt/multi-chain-asset-compatibility
+ExecStart=/usr/bin/env node --use-env-proxy tools/fx-store.mjs collect --directory /var/lib/atlas-collector/fx-store
+TimeoutStartSec=45
+StateDirectory=atlas-collector
+StateDirectoryMode=0700
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/atlas-collector

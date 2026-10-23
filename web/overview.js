@@ -1,3 +1,4 @@
+import {validateFX,usableFX,priceLabel,readCurrency,saveCurrency} from './fx-model.js';
 import {overviewMarketRows} from './overview-market-model.js';
 import {readChartPreferences,saveChartPreferences,readChartURL,syncChartURL} from './overview-preferences.js';
 import {validateRegistrationIndex,validateRegisteredHistory,registrationChartData,sameRegisteredSource} from './registration-model.js';
@@ -5,12 +6,12 @@ import {tokenInfoButton,registeredCoinInfoButton} from './token-profile.js';
 import {beginLoading} from './loading.js';
 import {renderNetworkSupplyChart, networkSupplySeries} from './market-chart.js';
 import { dashboardEvidence, VERDICTS, reportLinks } from './evidence-model.js';
-import { validateMarket, displayAmount, exactDecimal, ratio, units } from './market-model.js';
+import { validateMarket, displayAmount, ratio, units } from './market-model.js';
 import { overviewSummary, overviewEvidenceRanking } from './overview-model.js';
 const $=selector=>document.querySelector(selector);
 const node=(tag,text,cls)=>{const el=document.createElement(tag);if(text!==undefined)el.textContent=String(text);if(cls)el.className=cls;return el;};
 const savedChart=readChartURL(location.href)??readChartPreferences();
-const state={selectedCoin:savedChart?.coinId??'usdc',selectedSource:savedChart?.source??'history',selectedNetwork:savedChart?.networkId??'all',marketFailed:false,index:null,market:null,loading:false,loaded:false,period:savedChart?.period??'30d',sourceInitialized:!!savedChart,comparison:savedChart?.comparison??'amount',registration:null,detail:null,trendLoading:false,trendError:false,registrationFailed:false};
+const state={currency:readCurrency(location.href),fx:null,selectedCoin:savedChart?.coinId??'usdc',selectedSource:savedChart?.source??'history',selectedNetwork:savedChart?.networkId??'all',marketFailed:false,index:null,market:null,loading:false,loaded:false,period:savedChart?.period??'30d',sourceInitialized:!!savedChart,comparison:savedChart?.comparison??'amount',registration:null,detail:null,trendLoading:false,trendError:false,registrationFailed:false};
 let trendSequence=0,trendAbort,trendFinish;
 const trendData=()=>state.registration?registrationChartData(state.registration,state.detail):state.registrationFailed?null:state.market;
 const scopeReady=()=>!state.registrationFailed&&(!!state.registration||!!state.market&&!state.marketFailed);
@@ -132,25 +133,27 @@ function renderMarket(){
 }
 function renderMarketTable(){
  const host=$('#overview-market-rows');host.replaceChildren();
+ $('#overview-price-currency').value=state.currency;saveCurrency(state.currency);$('#overview-market-price-label').textContent='가격 ('+state.currency+')';
+ const fxNote=$('#overview-fx-note');fxNote.hidden=state.currency!=='KRW';fxNote.textContent=usableFX(state.fx)?'환율 기준 '+state.fx.date+' · 참고 환산':'원화 환산용 환율 자료 미확보';
  const rows=overviewMarketRows(state.market,state.registration);
  const metricCell=(value,price=false)=>{
   const cell=node('td');if(!value){cell.append(node('span','—','muted'));cell.title='자료 미확보';return cell;}
-  cell.textContent=(price?'$':'')+(price?exactDecimal(value.amount):displayAmount(value.amount));
-  cell.title=`${value.amount} ${price?'USD':'tokens'} · ${value.day?'일별 기준 '+value.day+' · ':''}${value.observedAt?'기준시각 '+when(value.observedAt):price?'가격 기준시각 미제공':'기준시각 미제공'} · 수집 ${when(value.fetchedAt)}`;
+  cell.textContent=price?priceLabel(value.amount,state.currency,state.fx):displayAmount(value.amount);
+  cell.title=`${value.amount} ${price?'USD':'tokens'} · ${value.day?'일별 기준 '+value.day+' · ':''}${value.observedAt?'기준시각 '+when(value.observedAt):price?'가격 기준시각 미제공':'기준시각 미제공'} · 수집 ${when(value.fetchedAt)}${price&&state.currency==='KRW'?' · 참고 원화 환산 · 환율 기준 '+(state.fx?.date??'미확보'):''}`;
   return cell;
  };
  for(const row of rows){
   const tr=node('tr'),asset=node('th');asset.scope='row';
   const info=registeredCoinInfoButton(state.registration,state.market,row.coin.id,row.coin.symbol+' ⓘ');
-  asset.append(info??node('strong',row.coin.symbol),node('small',row.coin.name,'muted'),node('span',row.pegCurrency+' 연동','market-peg'));
-  const clocks=[row.price,row.circulating,row.total].filter(Boolean).map(v=>v.fetchedAt).sort(),updated=node('td',clocks.length?when(clocks.at(-1)):'—','market-updated');
-  updated.title='각 지표의 기준일·수집시각은 해당 값에서 확인할 수 있습니다.';
+  const identity=node('span',undefined,'market-token-identity');identity.append(info??node('strong',row.coin.symbol),node('span',row.coin.name,'market-token-name'),node('span',row.pegCurrency,'market-peg'));asset.append(identity);asset.title=row.coin.name+' · '+row.pegCurrency+' 연동';
+  const clocks=[row.price,row.circulating,row.total].filter(Boolean).map(v=>v.fetchedAt).sort(),updated=node('td',clocks.length?new Date(clocks.at(-1)).toLocaleDateString('sv-SE').replaceAll('-','.')+' '+new Date(clocks.at(-1)).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',hour12:false}):'—','market-updated');
+  updated.title=clocks.length?'업데이트 '+when(clocks.at(-1))+' · 지표별 기준시각은 해당 값에서 확인할 수 있습니다.':'자료 미확보';
   const action=node('td'),button=node('button','차트 보기','market-chart-link');button.type='button';button.setAttribute('aria-label',row.coin.symbol+' 공급량 차트 보기');
   button.addEventListener('click',()=>{const select=$('#overview-trend-coin');if(![...select.options].some(o=>o.value===row.coin.id))return;select.value=row.coin.id;select.dispatchEvent(new Event('change'));$('#overview-trend-title').scrollIntoView({behavior:'smooth',block:'start'});});
   button.disabled=![...$('#overview-trend-coin').options].some(o=>o.value===row.coin.id);action.append(button);
-  tr.append(asset,metricCell(row.price,true),metricCell(row.circulating),metricCell(row.total),metricCell(row.volume),updated,action);host.append(tr);
+  tr.append(asset,metricCell(row.price,true),metricCell(row.circulating),metricCell(row.total),updated,action);host.append(tr);
  }
- if(!rows.length){const tr=node('tr'),cell=node('td','시장 자료를 읽지 못했습니다. 다시 읽어주세요.','muted');cell.colSpan=7;tr.append(cell);host.append(tr);}
+ if(!rows.length){const tr=node('tr'),cell=node('td','시장 자료를 읽지 못했습니다. 다시 읽어주세요.','muted');cell.colSpan=6;tr.append(cell);host.append(tr);}
 }
 
 async function loadTrend(){
@@ -177,13 +180,14 @@ async function load(){
   if(state.loading)return;state.loading=true;$('#overview-reload').disabled=true;
   const finish=beginLoading($('#overview-screen'),{ready:!!(state.index||state.market),targets:[['#overview-market-trend','chart'],['#overview-chain-breakdown','rows'],['#overview-market-rows','rows'],['#overview-metrics','cards']]});
   try {
-  const results=await Promise.allSettled([json('/evidence/index.json').then(dashboardEvidence),json('/market-data.json').then(validateMarket),json('/registration-index.json',{optional:true}).then(x=>x===null?null:validateRegistrationIndex(x))]);
+  const results=await Promise.allSettled([json('/evidence/index.json').then(dashboardEvidence),json('/market-data.json').then(validateMarket),json('/registration-index.json',{optional:true}).then(x=>x===null?null:validateRegistrationIndex(x)),json('/fx-data.json').then(validateFX)]);
   const failed=[];
   for(const [index,key]of ['index','market'].entries()){
     if(results[index].status==='fulfilled')state[key]=results[index].value;
     else failed.push(index===0?'검증 근거':'시장 자료');
   }
   if(results[2].status==='fulfilled'){state.registration=results[2].value;state.registrationFailed=false;}else{state.registrationFailed=true;failed.push('공급량 자료');}
+  if(results[3].status==='fulfilled')state.fx=results[3].value;
   state.marketFailed=results[1].status!=='fulfilled';
   renderEvidence();renderMarket();renderEvidenceRankings();
   if(state.registration)await loadTrend();
@@ -209,3 +213,5 @@ new ResizeObserver(entries=>{const bounds=entries[0].contentRect;$('#overview-ch
 $('#overview-trend-source').addEventListener('change',()=>{state.selectedSource=$('#overview-trend-source').value;state.selectedNetwork='all';state.period='1y';rememberTrend();updateTrendPeriods();$('#overview-trend-network').value='all';loadTrend();});
 
 $('#overview-trend-period').addEventListener('click',event=>{const button=event.target.closest('button[data-comparison]');if(!button)return;state.comparison=button.dataset.comparison;rememberTrend();for(const item of $('#overview-trend-period').querySelectorAll('button[data-comparison]'))item.setAttribute('aria-pressed',String(item===button));renderMarketTrend();});
+
+$('#overview-price-currency').addEventListener('change',()=>{state.currency=$('#overview-price-currency').value;saveCurrency(state.currency);renderMarketTable();});
