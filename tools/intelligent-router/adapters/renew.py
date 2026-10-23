@@ -27,7 +27,6 @@ GRACE_SECONDS = 5
 DEADLINE_SECONDS = 3600
 POLL_SECONDS = 1
 DAILY_LIMIT = 6
-CHAIN_LIMIT = 3
 BACKGROUND = "background terminal"
 HANDOFF_FIELDS = ("목표", "끝난 것", "변경 파일", "검증", "기다리는 것", "다음 행동", "사용자 확인 필요", "읽을 파일")
 HANDOFF_MAX_CHARS = 3000
@@ -95,39 +94,28 @@ def handoff_fields(text):
     return fields
 
 
-def needs_user(fields):
-    return not fields.get("사용자 확인 필요", "").startswith("아니오")
-
-
 def history(name):
     path = RECORDS / (name + ".history.json")
-    return json.loads(path.read_text()) if path.exists() else {"renewals": [], "chain": 0}
+    return json.loads(path.read_text()) if path.exists() else {"renewals": []}
 
 
 def limit_reason(name, now=time.time):
     value = history(name)
     if sum(1 for at in value["renewals"] if at > now() - 86400) >= DAILY_LIMIT:
         return "stopped_daily_limit"
-    if value["chain"] >= CHAIN_LIMIT:
-        return "stopped_chain_limit"
     return None
 
 
 def remember(name, state):
-    """Count automatic renewals; any human/other-session continuation resets the chain."""
-    value = history(name)
+    """Count automatic renewals for the daily limit."""
     if state == "renewed":
+        value = history(name)
         value["renewals"] = [at for at in value["renewals"] if at > time.time() - 86400] + [time.time()]
-        value["chain"] += 1
-    elif state.startswith("cancelled"):
-        value["chain"] = 0
-    lead.write(RECORDS / (name + ".history.json"), value)
+        lead.write(RECORDS / (name + ".history.json"), value)
 
 
-def reset_chain(name):
-    value = history(name)
-    value["chain"] = 0
-    lead.write(RECORDS / (name + ".history.json"), value)
+def reset_limit(name):
+    lead.write(RECORDS / (name + ".history.json"), {"renewals": []})
 
 
 def screen(name):
@@ -158,7 +146,8 @@ def renew_with_handoff(name, handoff):
     renew(name)
     lead.write(RECORDS / (name + ".json"), {"handoff": str(handoff), "renewed_at": time.time()})
     lead.herdr("agent", "prompt", name,
-               f"새 대화입니다. 인계문 {handoff}을 읽고 '다음 행동'부터 이어서 진행하세요. "
+               f"새 대화입니다. 인계문 {handoff}과 그 안의 읽을 파일만 읽고 맥락을 파악하세요. "
+               "'다음 행동'을 포함해 어떤 작업도 시작하지 말고, 파악했다는 확인 한 줄만 답한 뒤 사용자 지시를 기다리세요. "
                "AGENTS.md 규칙을 따릅니다.")
 
 
@@ -220,9 +209,8 @@ def schedule(name, value):
     # Renew only after a large unit of work: committed and pushed, not after each small step.
     if unpushed_commits() != 0:
         raise ValueError("큰 작업 단위가 끝나지 않았다(커밋이 push되지 않음). push 후 예약한다")
-    handoff, fields = checked_handoff(name, value)
-    if needs_user(fields):
-        raise ValueError("다음 행동에 사용자 확인이 필요하므로 예약하지 않는다 (사용자 확인 필요: 아니오 일 때만)")
+    # The renewed session only loads context and waits, so no user-confirmation gate is needed.
+    handoff, _ = checked_handoff(name, value)
     reason = limit_reason(name)
     if reason:
         notify(name, reason)
@@ -266,8 +254,8 @@ def main():
                           "grace_seconds": GRACE_SECONDS}, ensure_ascii=False))
         return
     if sys.argv[1:3] == ["reset", "router-impl"]:
-        reset_chain("router-impl")
-        print(json.dumps({"agent": "router-impl", "chain": 0}))
+        reset_limit("router-impl")
+        print(json.dumps({"agent": "router-impl", "renewals_today": 0}))
         return
     if sys.argv[1:2] == ["watch"]:
         print(watch(sys.argv[2]))
@@ -290,7 +278,6 @@ def main():
         raise SystemExit("--handoff docs/handoff/<file>.md is required for router-impl")
     handoff, _ = checked_handoff(args.agent, args.handoff)
     renew_with_handoff(args.agent, handoff)
-    reset_chain(args.agent)  # A manual renewal is a human checkpoint.
     print(json.dumps({"agent": args.agent, "state": "renewed", "handoff": str(handoff)}, ensure_ascii=False))
 
 
