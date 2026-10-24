@@ -4,6 +4,8 @@
 
 ## 완료 범위
 
+- 2026-10-25 사용자 후속 지시에 따라 [JPYC/JPYSC 공개 HTML 취득·선택 소스 검토](research/2026-10-25-jpy-public-html-source-review.md)를 수행했다. 공식2·계약5·표시 구현체4페이지를 비공개 저장하고4배포의 proxy/implementation8묶음·Solidity119파일·import161연결/미해결0을 확보했다. Kaia는 HTML만 확보해 추출 불가/INCONCLUSIVE를 유지한다. 수동 함수/modifier 검토는 별도 SOURCE_REVIEWED이며 compiler/AST·RPC·배포 비교·권한 행사0, 제품 지원·기존 판정/원문·DB/UI 변경0이다. 앞선 로컬 입력 미확보 기록은 과거 결과로 보존한다.
+
 - 2026-10-25 [JPYC/JPYSC 5배포 로컬 기술 입력 점검](research/2026-10-25-jpy-technical-input-inventory.md)을 완료했다. 저장 주소·chainId와 시장 원문 hash 연결은 확인했으나 실제 계약 소스·의존 closure·전체 compiler/settings·소스 provenance 연결은 미확보다. 이름이 발견된 사설 smoke Fixture는 제외하고 NOT_TESTED/UNKNOWN을 유지했다. 새 외부 조회·컴파일·DB/UI 변경은 없으며 다음 기술 검토 대상과 제공 입력 확인이 필요하다.
 
 - 2026-10-25 [5코인 네트워크별 저장 근거 현황표](research/2026-10-25-five-coin-network-evidence.md)를 작성했다. 등록 후보33·당시 공급량 선정27·기존 기술 프로필8·선택 토큰 소스 검토4를 구분하고 공급량/전송량·직접 체인 관측·배포 연결을 별도 열로 연결했다. 상세 기술 검토 CLI 실제 실행은 Ethereum USDC1배포이며 전 네트워크 완료로 확대하지 않는다. Kaia 미일치·JPYSC 누락·XRPL 직접 연구/공통 Adapter 미완료·기존 UNKNOWN/NOT_TESTED를 보존했다. 새 외부 호출·원문/DB 재검사·키·DB/UI 변경은 없다.
