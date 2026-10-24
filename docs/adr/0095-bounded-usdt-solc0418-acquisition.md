@@ -17,3 +17,5 @@ host/path·버전·최대2GET/34MiB/120초·요청각30초·재시도/redirect/�
 ## 결과 기록
 
 [실제 단발 결과](../research/2026-10-25-usdt-compiler-acquisition.md)는 첫 metadata1GET의 HTTP403·응답 코드1010으로 실패 종료다. artifact/실행/profile 추가0이며0.4.18 사설 검증은 NOT_TESTED다. 이번 소비를 재사용하거나 다른 취득 경로로 전환하지 않는다. 기존 USDT MISMATCH/UNKNOWN·관측/소비를 보존한다.
+
+후속 사용자 지시로 [ADR0096의 브라우저 가이드](0096-browser-compiler-acquisition-guidance.md)를 추가했다. 이후 취득 작업은 기존 직접 실패를 보존하고 별도 새 브라우저 단계로 진행하며, 당시 소비를 재사용하지 않는다. 이 후속 가이드 작성 중 실제 브라우저 취득은 실행하지 않았다.

@@ -29,3 +29,5 @@
 `python3 .state/acquire-usdt-solc-0418-once.py`의 harness 종료는 rc0이지만 receipt의 실제 취득 결과는 FAILED다. `npm run check > .state/agent-logs/usdt-solc-acquisition-check.log 2>&1`은 rc0·tests541/pass541/fail0/cancelled0/skipped0이며 `git diff --check`도 rc0이다. 기존 저장소 시험의 성공과 이번 실제 취득 실패·구버전 사설 검증 미실행을 구분한다.
 
 **0.4.18 사설 검증은 미완료다.** 후속에는 확인 가능한 공식 artifact와 hash 자료의 별도 제공 또는 정확한 다른 취득 경로에 대한 새 범위가 필요하다. 현재 승인을 근거로 새 요청을 시작하지 않는다. compiler가 확보된 뒤에도 고정 profile/전체 버전/구버전 호환성 검증이 먼저이며 실제 USDT 재컴파일·고정 hash RPC 관측은 이번 승인에서 제외된다. 저장소 자동 검사 통과와 compiler 확보/실제 자산 검증 성공을 구분한다.
+
+이후 사용자는 거절 시 브라우저를 띄워 진행하는 가이드를 요청했다. [브라우저 후속 경로](../COMPILER_BROWSER_ACQUISITION.md)·[ADR0096](../adr/0096-browser-compiler-acquisition-guidance.md)에 새 단계의 범위/소비와 방식 변경 시 중복 승인 방지를 정리했다. 이는 위 직접 실패 기록의 변경이나 브라우저 취득 실행 결과가 아니며, 이 가이드 작성 중 추가 요청은0이다.

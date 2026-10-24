@@ -4,6 +4,8 @@
 
 ## 완료 범위
 
+- 2026-10-25 사용자 지시로 [공식 compiler 거절 시 브라우저 가이드](COMPILER_BROWSER_ACQUISITION.md)·[ADR0096](adr/0096-browser-compiler-acquisition-guidance.md)와 AGENTS 규칙을 반영했다. 후속 취득 작업에서 같은 공식 버전/파일을 보이는 임시 창으로 확인하며 방식 변경만으로 같은 승인을 반복 요청하지 않는다. 직접/브라우저 별도 소비·각2GET·hash/전체 버전·사설 검증과 거절 시 중단을 유지한다. 이번 변경은 문서만이며 브라우저 송신/추가 다운로드0, 현재0.4.18 compiler 확보·검증 미완료 상태를 보존한다.
+
 - 2026-10-25 사용자 승인 [USDT solc0.4.18 단발 취득](research/2026-10-25-usdt-compiler-acquisition.md)을 [ADR0095](adr/0095-bounded-usdt-solc0418-acquisition.md)의 경계로 시도했으나 첫 metadata1GET이 HTTP403·응답 코드1010으로 실패 종료했다. 소비/오류/receipt·원본7파일 불변을 보존했고 artifact/compiler/profile/새RPC0이다. **0.4.18 사설 호환성 검증은 미완료/NOT_TESTED**이며 기존 MISMATCH/UNKNOWN을 유지한다. 실패 시도 기록이 검증 완료를 뜻하지 않는다. 남은 요청 수 재사용·다른 경로 전환은 하지 않았다.
 
 - 2026-10-25 사용자 승인 [Ethereum USDT 기술 입력 준비](research/2026-10-25-usdt-technical-input-preparation.md)를 완료했다. 저장7파일 불변과 단일 소스/metadata/ABI 연결·16011바이트 standard JSON 후보를 확인했다. 서비스 재컴파일↔과거 관측 전체 코드는11075바이트 중31바이트 차이로 MISMATCH를 유지한다. 차이는 서비스 CBOR 표시 구간 안이지만 원인/배포 연결 증명으로 승격하지 않는다. 실행에 부족한 것은 허용 solc0.4.18 profile과 현재 archive 규칙의 고정 hash 관측이다. 새 외부 요청·대상 compiler·기술 검토 CLI 실행0, 기존 UNKNOWN/판정/원문 보존이다.
