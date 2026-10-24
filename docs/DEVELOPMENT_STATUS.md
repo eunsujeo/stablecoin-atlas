@@ -4,6 +4,8 @@
 
 ## 완료 범위
 
+- 2026-10-25 [USDT 보이는 Chrome 준비 실패·로컬 회귀 수정](research/2026-10-25-usdt-browser-preflight.md)을 기록했다. 실제 브라우저는 초기 탭 제어 오류로 공식 Document GET0에서 종료했다. 초기 탭을 추가 target으로 오분류해 닫는 문제를 수정하고 창 준비 helper·회귀2건과 보이는 Chrome loopback4종을 검증했다. 가상 artifact는 실제 compiler가 아니며0.4.18 취득/profile/사설 컴파일은 미완료다. 종료된 소비·deadline을 재사용하지 않았고 새 RPC/실제 USDT 재컴파일0이다.
+
 - 2026-10-25 사용자 지시로 [공식 compiler 거절 시 브라우저 가이드](COMPILER_BROWSER_ACQUISITION.md)·[ADR0096](adr/0096-browser-compiler-acquisition-guidance.md)와 AGENTS 규칙을 반영했다. 후속 취득 작업에서 같은 공식 버전/파일을 보이는 임시 창으로 확인하며 방식 변경만으로 같은 승인을 반복 요청하지 않는다. 직접/브라우저 별도 소비·각2GET·hash/전체 버전·사설 검증과 거절 시 중단을 유지한다. 이번 변경은 문서만이며 브라우저 송신/추가 다운로드0, 현재0.4.18 compiler 확보·검증 미완료 상태를 보존한다.
 
 - 2026-10-25 사용자 승인 [USDT solc0.4.18 단발 취득](research/2026-10-25-usdt-compiler-acquisition.md)을 [ADR0095](adr/0095-bounded-usdt-solc0418-acquisition.md)의 경계로 시도했으나 첫 metadata1GET이 HTTP403·응답 코드1010으로 실패 종료했다. 소비/오류/receipt·원본7파일 불변을 보존했고 artifact/compiler/profile/새RPC0이다. **0.4.18 사설 호환성 검증은 미완료/NOT_TESTED**이며 기존 MISMATCH/UNKNOWN을 유지한다. 실패 시도 기록이 검증 완료를 뜻하지 않는다. 남은 요청 수 재사용·다른 경로 전환은 하지 않았다.
