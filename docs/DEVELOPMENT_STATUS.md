@@ -4,6 +4,8 @@
 
 ## 완료 범위
 
+- 2026-10-25 사용자 승인 [JPYC immutable·빌드 입력 후속 조사](research/2026-10-25-jpyc-immutable-input-research.md)를 완료했다. 공식 주소 재확인·공개 원문4GET 저장·고정 AST ID173의 `__self=address(this)` 구문을 확인했다. 과거 UUPS 원문은 CRLF 차이로 바이트 DIFFERENT이며 현행 배포 원본으로 승격하지 않는다. 실제 배포 build/immutable 제출 근거는 미확보이고, 새 RPC·compiler 실행·대조 실행0이다. 후속 오프라인 입력·검증 계획만 작성했으며 기존 구현체 UNKNOWN·전체 PARTIAL·소비 완료를 유지한다.
+
 - 2026-10-25 사용자 승인 [JPYC Ethereum 단발 읽기](research/2026-10-25-jpyc-token-review-live.md)를 RPC13회로 완료·소비했다. chainId1·블록26264212의 hash pin/종료 재확인과 EIP-1967 구현체 포인터/코드를 관측했다. 저장2입력 컴파일 성공, 프록시 전체 runtime 일치로 해당 블록 소스 연결 CONFIRMED·구현체 immutable 미제공 UNKNOWN·전체 PARTIAL이다. getter/재시도/전환/다운로드0·비용 UNKNOWN·기존 오프라인15파일 불변, 원문/DB/UI·기존 판정 보존. 이는 실제 dispatch·전체 구현체 배포 대응·지원/안전 인증이 아니다.
 
 - 2026-10-25 [JPYC Ethereum 오프라인 소스 분석](research/2026-10-25-jpyc-offline-source-review.md)을 완료했다. 사용자 승인 Chrome metadata/artifact 각1회는 HTTP200이며 solc0.8.11의 고정 hash·전체 버전을 확인하고 [ADR0094](adr/0094-pinned-solc-0811-browser-artifact.md) profile과 좁은 AST 호환성을 추가했다. 저장 proxy/implementation2입력 컴파일 성공·명시 진입점39개 분석, 구현체 immutable 값 미제공으로1.2 보고서는 PARTIAL·배포 binding UNKNOWN이다. 새 RPC/DB/UI0·기존 실패/원문/판정 유지, 검사541개 통과. 다른 PC의 cache 자동 취득은 없다.
