@@ -1,3 +1,4 @@
+import {units} from './market-model.js';
 import {validateRegisteredHistory,sameRegisteredSource} from './registration-model.js';
 export const overviewCoins=['usdc','usdt','rlusd','jpysc','jpyc'];
 const metric='NETWORK_CIRCULATING';
@@ -24,4 +25,22 @@ export function overviewSupplyGroups(details,{period='1y'}={}){
 }
 export function legacyOverviewDetails(market){
  return (market?.supplyHistory??[]).filter(s=>s.provider==='DEFILLAMA'&&s.metric===metric).map(s=>({...s,updatedAt:s.fetchedAt,series:s.networks}));
+}
+
+// Ranking uses each network's last actual observation; no totals or missing-value fill.
+export function overviewNetworkRanking(groups){
+ const sorted=groups.filter(g=>g.rows.length).map(g=>({...g,last:g.rows.at(-1)})).sort((a,b)=>{
+  const av=units(a.last.amount),bv=units(b.last.amount);return av===bv?a.networkId.localeCompare(b.networkId):av>bv?-1:1;
+ });
+ let rank=0,previous;
+ return sorted.map((g,i)=>{const amount=units(g.last.amount);if(amount!==previous)rank=i+1;previous=amount;
+  return {...g,rank,width:sorted.length&&units(sorted[0].last.amount)>0n?Number(amount*10000n/units(sorted[0].last.amount))/100:0};
+ });
+}
+export function supplyQuantityLabel(amount){
+ const value=units(amount),scale=10n**36n;
+ for(const [size,label]of [[1000000000000n,'조'],[100000000n,'억'],[10000n,'만']])if(value>=size*scale){
+  const n=value*100n/(size*scale);return String(n/100n)+(n%100n?'.'+String(n%100n).padStart(2,'0').replace(/0$/,''):'')+label;
+ }
+ const [whole,tail='']=amount.split('.');return whole.replace(/\B(?=(\d{3})+(?!\d))/g,',')+(tail?'.'+tail.slice(0,4)+(tail.length>4?'…':''):'');
 }

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {mkdtemp,writeFile,rm,symlink} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {overviewSupplyGroups,readOverviewHistories,legacyOverviewDetails} from './supply-overview-model.js';
+import {overviewSupplyGroups,readOverviewHistories,legacyOverviewDetails,overviewNetworkRanking,supplyQuantityLabel} from './supply-overview-model.js';
 import {supplyComparisonGeometry,dailySupplySegments} from './market-chart.js';
 import {localRegistrationReader} from '../tools/registration-file-preview.mjs';
 import {parsePreviewArguments,startPreviewServer} from '../tools/ui-preview.mjs';
@@ -49,4 +49,12 @@ test('explicit offline registration bundle validates all pins, discards extra fi
   await writeFile(path,' '.repeat(8*1024*1024+1));await assert.rejects(reader('/registration-index.json'));
   const link=join(dir,'link.json');await symlink(path,link);await assert.rejects(localRegistrationReader(link)('/registration-index.json'));
  }finally{server.closeIdleConnections();await new Promise(r=>server.close(r));await rm(dir,{recursive:true,force:true});}
+});
+
+test('network ranking uses exact latest quantities, ties and independent days; display never changes source amounts',()=>{
+ const group=(networkId,amount,day)=>({key:'usdc:'+networkId,networkId,rows:[{amount:'999999999999999999999',observedAt:'2025-10-23T00:00:00.000Z'},{amount,observedAt:day+'T00:00:00.000Z'}]});
+ const groups=[group('a','9007199254740993.000000000000000001','2026-10-21'),group('b','9007199254740993.000000000000000002','2026-10-22'),group('c','0','2026-10-20'),group('d','9007199254740993.000000000000000002','2026-10-19')],original=structuredClone(groups);
+ const ranked=overviewNetworkRanking(groups);assert.deepEqual(ranked.map(g=>g.networkId),['b','d','a','c']);assert.deepEqual(ranked.map(g=>g.rank),[1,1,3,4]);assert.equal(ranked[3].width,0);assert.equal(ranked[0].width,100);assert.equal(ranked[1].last.observedAt,'2026-10-19T00:00:00.000Z');assert.deepEqual(groups,original);
+ assert.equal(overviewNetworkRanking([group('zero','0','2026-10-22')])[0].width,0);assert.deepEqual(overviewNetworkRanking([]),[]);
+ for(const [amount,label]of [['0','0'],['10000000','1000만'],['100000000','1억'],['44826999999','448.26억'],['1000000000000','1조'],['1234.567891','1,234.5678…']])assert.equal(supplyQuantityLabel(amount),label);
 });
