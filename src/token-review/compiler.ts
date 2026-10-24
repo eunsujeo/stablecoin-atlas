@@ -1,0 +1,62 @@
+import { spawn } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+import solc from 'solc';
+
+export const compilerVersion = String(solc.version());
+export type AstNode = { nodeType: string; id: number; src: string; [key: string]: unknown };
+export interface CompileResult {
+  compiler: string;
+  errors: { severity: string; code: string | null }[];
+  sources: Record<string, { id: number; ast: AstNode }>;
+  selected: { abi: { type: string; name?: string; inputs?: { type: string }[]; outputs?: { type: string }[] }[];
+    evm: { deployedBytecode: { object: string; immutableReferences: Record<string, unknown>; linkReferences: Record<string, unknown> } } } | null;
+}
+export interface CompilerInput { language: 'Solidity'; sources: Record<string, { content: string }>; settings: Record<string, unknown> }
+export function prepareInput(bytes: Buffer, contract: string): { input: CompilerInput; file: string; contractName: string } {
+  const parsed: unknown = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('INVALID_COMPILER_INPUT');
+  const value = parsed as Record<string, unknown>;
+  if (Object.keys(value).some(k => !['language', 'sources', 'settings'].includes(k)) || value.language !== 'Solidity'
+    || !value.sources || typeof value.sources !== 'object' || Array.isArray(value.sources)) throw new Error('INVALID_COMPILER_INPUT');
+  const sources = value.sources as Record<string, { content: string }>;
+  if (!Object.keys(sources).length || Object.keys(sources).length > 32) throw new Error('SOURCE_COUNT_LIMIT');
+  for (const [path, source] of Object.entries(sources)) {
+    if (!/^[a-zA-Z0-9_@./-]{1,240}$/.test(path) || path.startsWith('/') || path.split('/').includes('..')
+      || !source || typeof source !== 'object' || Array.isArray(source)
+      || Object.keys(source).some(k => k !== 'content') || typeof source.content !== 'string') throw new Error('INLINE_SOURCES_REQUIRED');
+  }
+  const colon = contract.lastIndexOf(':');
+  const file = contract.slice(0, colon), contractName = contract.slice(colon + 1);
+  if (colon < 1 || !Object.hasOwn(sources, file) || !/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(contractName)) throw new Error('INVALID_CONTRACT_SELECTION');
+  if (value.settings !== undefined && (!value.settings || typeof value.settings !== 'object' || Array.isArray(value.settings))) throw new Error('INVALID_COMPILER_SETTINGS');
+  const settings = { ...(value.settings as Record<string, unknown> | undefined), outputSelection: {
+    '*': { '': ['ast'], '*': ['abi', 'evm.deployedBytecode.object', 'evm.deployedBytecode.immutableReferences', 'evm.deployedBytecode.linkReferences'] },
+  } };
+  return { input: { language: 'Solidity', sources, settings }, file, contractName };
+}
+export function compile(input: CompilerInput, file: string, contract: string): Promise<CompileResult> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(process.execPath, ['--max-old-space-size=256', fileURLToPath(new URL('./compiler-worker.mjs', import.meta.url))], {
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    const output: Buffer[] = [];
+    let size = 0, failure = false;
+    const fail = () => { failure = true; child.kill('SIGKILL'); };
+    const timer = setTimeout(fail, 20_000);
+    child.stdout.on('data', (chunk: Buffer) => {
+      size += chunk.length;
+      if (size > 8 * 1024 * 1024) fail();
+      else output.push(chunk);
+    });
+    child.stderr.resume(); // Compiler/Node diagnostics may contain input; never forward them.
+    child.stdin.on('error', fail);
+    child.once('error', () => { clearTimeout(timer); reject(new Error('COMPILER_PROCESS_FAILED')); });
+    child.once('close', code => {
+      clearTimeout(timer);
+      if (failure || code !== 0) { reject(new Error('COMPILER_PROCESS_FAILED')); return; }
+      try { resolve(JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(Buffer.concat(output))) as CompileResult); }
+      catch { reject(new Error('COMPILER_OUTPUT_INVALID')); }
+    });
+    child.stdin.end(JSON.stringify({ input, file, contract }));
+  });
+}

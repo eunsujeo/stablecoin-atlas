@@ -12,6 +12,7 @@ const help = `Multi-Chain Asset Compatibility Lab
   npm run assess -- [--chain evm|tron|solana] --network <chain-id|mainnet-beta> --token <contract-or-mint> [--holder <address>] [--token-account <Solana-token-account>] [--spender <TRON-address>] [--out <path>]
   npm run assess -- --chain xrpl --network mainnet --issuer <issuer> --currency <40-hex-code> [--holder <classic-address>] [--out <path>]
   npm run validate -- --file <AssessmentReport1.0.json>
+  npm run review:token -- --config <TokenReviewConfig1.0.json> --out <new-directory>
 
 lab: starts/stops a private Anvil and deploys seven local fixtures. No external transactions.
 assess: read-only; evm uses RPC_URL; tron uses TRON_RPC_URL; solana uses SOLANA_RPC_URL (mint and optional explicit Token Account); xrpl uses XRPL_RPC_URL (issuer and optional holder trust-line). No private keys or signing.
@@ -22,6 +23,10 @@ validate: offline only; exit0 valid report,2 invalid report,1 input/options/infr
 export async function main(args = process.argv.slice(2)): Promise<number> {
   const command = args[0];
   if (!command || command === '--help' || command === 'help') { process.stdout.write(help); return 0; }
+  if (command === 'review-token') {
+    const { reviewCommand } = await import('./token-review/cli.js');
+    return reviewCommand(args.slice(1));
+  }
   if (command === 'validate') {
     const { validateReportCommand } = await import('./report-validation-cli.js');
     return validateReportCommand(args.slice(1));

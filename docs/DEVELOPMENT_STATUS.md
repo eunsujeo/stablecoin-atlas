@@ -4,6 +4,8 @@
 
 ## 완료 범위
 
+- 2026-10-24 사용자 새 기준의 읽기 전용 EVM 토큰 기술 검토 CLI를 추가했다. 명시 chainId/주소·EIP-1898 해시 조회·소스 재현/전체 runtime 비교·AST 검토 자료·getter·감사 원문·별도 JSON/Markdown·SHA256 묶음을 제공한다. 기존 PASS/FAIL·SOURCE_REVIEWED·UI/DB를 변경하지 않는다. 사설 두 EVM 체인/시험 토큰으로 검증하며 실제 다섯 토큰의 외부 배포 검증, 권한 의미/감사 대응 자동 증명, AI/Slither는 미실행이다. [ADR0090](adr/0090-readonly-token-technical-review.md), [실행·미지원 범위](TOKEN_TECHNICAL_REVIEW.md).
+
 - 2026-10-24 사용자 참고 이미지에 따라 Overview 전체를 실제 수치 카드2개, 공급량 추이/네트워크 순위, 전송량 추이/도넛의 공통 그리드로 정리했다. USD/JPY·단일 토큰, 공급량1Y/3M/30D·규모/증감률과 전송량7D·개념 툴팁을 유지한다. 도넛은 동일 집계일의 표시 네트워크 관측량만 사용하고 날짜·원본·누락을 보존한다. 출처/긴 설명은 재추가하지 않았으며 새 수집·API·키·DB 변경은 없다. [ADR0089](adr/0089-balanced-stored-overview.md), 기존 읽기 경로는 [ADR0088](adr/0088-yearly-token-network-overview.md).
 
 - 2026-10-24 사용자 UI 복원 요청으로 `/`·`/index.html`의 기본 화면을 기존 legacy 대시보드로 되돌렸다. `/legacy.html`도 같은 UI이며 다크·라이트와 기존 기능을 유지한다. 통합 분석 화면은 `/atlas.html`에서 별도로 열 수 있다. 외부 수집·DB 변경은 없다.

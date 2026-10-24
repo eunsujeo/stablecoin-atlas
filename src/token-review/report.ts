@@ -1,0 +1,69 @@
+import type { ReviewReport } from './model.js';
+import { Ajv } from 'ajv';
+import { reportSchema } from './schema.js';
+
+const shape = new Ajv({ strict: true }).compile(reportSchema);
+
+const confirmations = { CONFIRMED: '확인됨', NOT_FOUND_IN_SCOPE: '분석 범위에서 미발견', UNKNOWN: '확인 불가', NOT_APPLICABLE: '해당 없음' };
+const categories = { INTENDED_ADMIN_FUNCTION: '의도된 관리 기능', NONSTANDARD_BEHAVIOR: '비표준 동작', VULNERABILITY_CANDIDATE: '취약점 후보', CURRENT_STATE: '현재 운영 상태' };
+// Untrusted text is always plain content, never Markdown links, HTML, or instructions.
+const escape = (v: unknown): string => String(v).replace(/[\r\n\u0000-\u001f\u007f]/g, ' ')
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/([\\`*_[\]{}()#!|])/g, '\\$1');
+export function validateReviewReport(report: ReviewReport): void {
+  if (!shape(report)) throw new Error('REVIEW_SCHEMA_INVALID');
+  const ids = new Set(report.evidence.map(e => e.id));
+  if (ids.size !== report.evidence.length) throw new Error('DUPLICATE_EVIDENCE');
+  const findingIds = new Set(report.findings.map(f => f.id));
+  if (findingIds.size !== report.findings.length) throw new Error('DUPLICATE_FINDING');
+  for (const finding of report.findings) {
+    if (!finding.evidenceRefs.length || finding.evidenceRefs.some(id => !ids.has(id))) throw new Error('DANGLING_EVIDENCE');
+    if (finding.scope === 'CHAIN' && finding.confirmation === 'CONFIRMED' && report.block.consistency !== 'HASH_PINNED_RECHECKED') throw new Error('UNCONFIRMED_CHAIN_FINDING');
+  }
+  for (const source of report.sources) {
+    if (!ids.has(source.inputEvidence) || source.functions.some(f => !ids.has(f.evidenceRef))) throw new Error('DANGLING_SOURCE');
+    if (source.binding.confirmation === 'CONFIRMED' && (report.block.consistency !== 'HASH_PINNED_RECHECKED'
+      || source.binding.runtimeHash !== source.binding.observedRuntimeHash)) throw new Error('INVALID_SOURCE_BINDING');
+  }
+  for (const entry of [...report.contracts, ...report.audits]) if (!ids.has(entry.evidenceRef)) throw new Error('DANGLING_OBSERVATION');
+  for (const failure of report.failures) if (!failure.evidenceRefs.length || failure.evidenceRefs.some(id => !ids.has(id))) throw new Error('DANGLING_FAILURE');
+}
+export function markdown(report: ReviewReport): string {
+  const lines = ['# 토큰 기술 특성 검토', '',
+    `- 네트워크 chainId: ${escape(report.config.network.chainId)}`,
+    `- 토큰: ${escape(report.config.token.address)}${report.config.token.label ? ` / ${escape(report.config.token.label)}` : ''}`,
+    `- 분석 시간: ${escape(report.startedAt)} ~ ${escape(report.finishedAt)}`,
+    `- 기준 블록: ${escape(report.block.number ?? 'UNKNOWN')} / ${escape(report.block.hash ?? 'UNKNOWN')}`,
+    `- 일관성: ${report.block.consistency}; 실행: ${report.execution} (분석 절차의 완료 여부이며 안전성 판정이 아닙니다.)`,
+    `- 도구: ${escape(JSON.stringify(report.tools))}`, '',
+    '## 배포 코드', '', '| 주소 | runtime keccak256 | 근거 |', '|---|---|---|',
+    ...report.contracts.map(c => `| ${escape(c.address)} | ${escape(c.runtimeHash)} | ${c.evidenceRef} |`), '',
+    `프록시 포인터: ${escape(report.proxy?.pattern ?? 'UNKNOWN')} / ${escape(report.proxy?.resolution ?? 'UNRESOLVED')}`,
+    `구현체: ${escape(report.proxy?.implementationAddress.status === 'KNOWN' ? report.proxy.implementationAddress.value : 'UNKNOWN')}`, '',
+    `Beacon: ${escape(report.proxy?.beaconAddress.status === 'KNOWN' ? report.proxy.beaconAddress.value : 'UNKNOWN')}; 관리자 슬롯: ${escape(report.proxy?.adminAddress.status === 'KNOWN' ? report.proxy.adminAddress.value : 'UNKNOWN')} (슬롯 값이며 실제 권한 증명이 아닙니다.)`, '',
+    '## 소스와 배포 연결', '',
+    ...report.sources.map(s => `- ${escape(s.address)} / ${escape(s.contract)}: 컴파일 ${s.compilation}, 배포 연결 ${confirmations[s.binding.confirmation]} (${escape(s.binding.reason)}). 근거 ${s.inputEvidence}`),
+    ...(report.sources.length ? [] : ['소스 자료가 제공되지 않았습니다. 소스 분석·배포 연결은 확인 불가입니다.']), '',
+    '## 확인 사항과 검토 후보', '', '| ID / 범위 | 분류 | 확인 상태 | 내용 | 근거 |', '|---|---|---|---|---|',
+    ...report.findings.map(f => `| ${escape(f.id)} / ${f.scope} | ${f.categories.map(c => categories[c]).join(', ') || '근거·검토 범위'} | ${confirmations[f.confirmation]} | ${escape(f.summary)} | ${f.evidenceRefs.join(', ')} |`), '',
+    '## 소스 함수·권한 경로 검토 자료', '',
+  ];
+  for (const source of report.sources) for (const fn of source.functions) {
+    lines.push(`### ${escape(source.contract)} / ${escape(fn.contract)}.${escape(fn.name)}`, '',
+      `위치: ${escape(fn.location.file)}:${fn.location.line}–${fn.location.endLine}; 근거 ${fn.evidenceRef}. 제공된 소스의 선언이며 현재 배포 적용은 위 연결 상태를 따릅니다.`, '',
+      `- Selector: ${escape(fn.selector ?? '해당 선언에서 없음')}; 매개변수 ${escape(fn.parameters)}; 반환 선언 ${escape(fn.returnParameters)}; 상속 선언 ${fn.inherited}`,
+      `- Modifier: ${fn.modifiers.map(m => `${escape(m.name)} (${m.declaration ? `${escape(m.declaration.file)}:${m.declaration.line}` : '선언 미확인'}): ${escape(m.text)}`).join(', ') || '선언 없음 (권한 없음의 증거가 아님)'}`,
+      `- 조건: ${fn.conditions.map(escape).join('; ') || '함수 본문에서 추출한 조건 없음'}`,
+      `- 호출: ${fn.calls.map(c => `${escape(c.expression)} → ${c.declaration ? `${escape(c.declaration.file)}:${c.declaration.line}` : '선언 미확인/내장 호출'}`).join('; ') || '추출 없음'}`,
+      `- 대입·증감·삭제: ${fn.writes.map(escape).join('; ') || '추출 없음'}`,
+      `- 반환문: ${fn.returns.map(escape).join('; ') || '추출 없음'}; assembly: ${fn.assembly}`, '');
+  }
+  lines.push('## 제출된 감사 자료', '',
+    ...report.audits.map(a => `- ${escape(a.title)} / 제출자 기재 발행자 ${escape(a.publisher)} / ${escape(a.reference ?? '참조 미제공')}: 진위·배포 대응 UNKNOWN. 제출자가 기재한 대상 버전·commit·범위: ${escape(JSON.stringify(a.declaredTarget ?? '미제공'))}. 근거 ${a.evidenceRef}`),
+    ...(report.audits.length ? [] : ['감사 자료 미확보. 미감사로 판정하지 않습니다.']), '',
+    '## 분석 실패', '', ...report.failures.map(f => `- ${escape(f.stage)}: ${f.code}; 근거 ${f.evidenceRefs.join(', ')}`),
+    ...(report.failures.length ? [] : ['기록된 실행 실패 없음. 미확인 항목의 해소를 뜻하지 않습니다.']), '',
+    '## 한계', '', ...report.limitations.map(l => `- ${escape(l)}`), '',
+    '## 근거', '', '원문·컴파일 입출력은 artifacts/, RPC·소스 위치·반환값은 report.json의 evidence에 보존합니다. bundle.json은 파일별 SHA-256을 기록합니다.', '',
+    ...report.evidence.map(e => `- ${e.id}: ${escape(e.kind)}; ${escape(e.observedAt)}; 블록 ${escape(e.observedBlockOrSlot)}`), '');
+  return lines.join('\n');
+}

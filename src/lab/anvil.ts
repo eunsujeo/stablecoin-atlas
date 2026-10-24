@@ -14,9 +14,11 @@ async function freePort(): Promise<number> {
 }
 export class LocalLab {
   private constructor(readonly rpc: Rpc, private process: ChildProcess) {}
-  static async start(): Promise<LocalLab> {
+  static async start(options: { chainId?: string } = {}): Promise<LocalLab> {
+    const chainId = options.chainId ?? '31337';
+    if (!/^[1-9][0-9]{0,9}$/.test(chainId)) throw new Error('Invalid private fixture chain id');
     const port = await freePort();
-    const child = spawn('anvil', ['--host', '127.0.0.1', '--port', String(port), '--chain-id', '31337', '--silent',
+    const child = spawn('anvil', ['--host', '127.0.0.1', '--port', String(port), '--chain-id', chainId, '--silent',
       '--mnemonic', 'test test test test test test test test test test test junk', '--timestamp', '1700000000', '--hardfork', 'shanghai'],
     { stdio: ['ignore', 'ignore', 'pipe'] });
     let failure: string | undefined;
@@ -29,7 +31,7 @@ export class LocalLab {
       try {
         const version = await rpc.request<string>('web3_clientVersion');
         if (!version.toLowerCase().includes('anvil')) throw new Error('Unexpected local server');
-        if (await rpc.request<string>('eth_chainId') !== '0x7a69') throw new Error('Unexpected local chain');
+        if (BigInt(await rpc.request<string>('eth_chainId')) !== BigInt(chainId)) throw new Error('Unexpected local chain');
         rpc.evidence.length = 0;
         return new LocalLab(rpc, child);
       } catch { await delay(50); }

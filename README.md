@@ -2,6 +2,8 @@
 
 다른 PC에서 시작하려면 [새 PC 설정](docs/NEW_PC_SETUP.md), 작업을 이어갈 때는 [현재 개발 상태](docs/DEVELOPMENT_STATUS.md)를 먼저 읽는다.
 
+새 기준의 [읽기 전용 EVM 토큰 기술 검토](docs/TOKEN_TECHNICAL_REVIEW.md)는 `npm run review:token -- --config <설정.json> --out <새 디렉터리>`로 실행한다. 소스·배포 연결·권한/비표준 동작 검토 근거를 별도 JSON·Markdown으로 생성하며 기존 PASS/FAIL과 구분한다.
+
 ```sh
 npm ci
 npm run setup

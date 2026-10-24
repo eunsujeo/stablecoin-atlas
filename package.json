@@ -12,6 +12,7 @@
     "test:unit": "node --use-env-proxy --import tsx --test tests/domain.test.ts",
     "lab": "node --use-env-proxy --import tsx src/cli.ts lab",
     "assess": "node --use-env-proxy --import tsx src/cli.ts assess",
+    "review:token": "node --use-env-proxy --import tsx src/cli.ts review-token",
     "validate": "node --use-env-proxy --import tsx src/cli.ts validate",
     "check": "npm run build && npm test",
     "research:solana-mints": "node --use-env-proxy --import tsx src/research/solana-mint-cli.ts",
