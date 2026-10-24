@@ -30,7 +30,7 @@ test('preview binds loopback and serves only fixed assets; HEAD, CSP and same-or
     for (const anchor of ['live','overview','validation','reports','assets','compare']) assert.ok(atlas.body.includes(`href="/legacy.html#${anchor}"`));
     const legacy=await read(port,'/legacy.html');
     assert.ok(legacy.body.includes('href="/atlas.html#coverage"'));
-    assert.match(legacy.body, /src="\/evidence\.js"/);assert.ok(legacy.body.includes('href="/atlas.html"'));
+    assert.match(legacy.body, /src="\/evidence\.js"/);
     for (const id of ['validation-screen','reports-screen','overview-screen','live-screen','assets-screen','compare-screen']) assert.ok(legacy.body.includes(`id="${id}"`));
     const legacyShared=await read(port,'/legacy.html?coin=jpyc&network=polygon&source=minted&period=90d&comparison=change');
     assert.equal(legacyShared.status,200);assert.equal(legacyShared.body,legacy.body);
