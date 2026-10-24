@@ -27,7 +27,9 @@ ADR0076 live 저장본은 같은 import 명령에 `--execution-authorization PRI
 
 ## 로컬 표시
 
-2026-10-24 사용자 후속 지시로 기본 Overview는 [ADR0087](adr/0087-allium-observed-dashboard.md)의 관측값 전용 화면이다. 코인·체인별 공급량/전송량 추이와 마지막 관측 표, 체인 클릭의 일별 상세를 제공한다. 값이 없는 날짜/지표/체인은 표시 항목을 만들지 않고 날짜 공백의 선을 연결하지 않는다. 실제0은 유지한다. 원래 조사 상태 DTO와 아래의 기존 연구 표 구현은 보존하되 기본 화면의 중복/미확보 상태 표는 숨긴다.
+이후 사용자 정정으로 기본 Overview는 [ADR0088](adr/0088-yearly-token-network-overview.md)의 기존 DeFiLlama 1년 통합 그래프로 복원했다. Allium 자료는 보존한다. 아래는 대체된 ADR0087 화면의 기록이다.
+
+2026-10-24 당시 사용자 후속 지시로 기본 Overview는 [ADR0087](adr/0087-allium-observed-dashboard.md)의 관측값 전용 화면이다. 코인·체인별 공급량/전송량 추이와 마지막 관측 표, 체인 클릭의 일별 상세를 제공한다. 값이 없는 날짜/지표/체인은 표시 항목을 만들지 않고 날짜 공백의 선을 연결하지 않는다. 실제0은 유지한다. 원래 조사 상태 DTO와 아래의 기존 연구 표 구현은 보존하되 기본 화면의 중복/미확보 상태 표는 숨긴다.
 
 명시적 오프라인 JSON 모드: `npm run ui -- --survey-file PRIVATE_REVIEWED_SURVEY_DTO.json`. 기존 공개용 ALLIUM_STORED_SURVEY DTO만 허용하고 파일은128KiB로 제한한다. DB 모드와 함께 지정하지 않는다. 새 PC에 파일이 없으면 값을 만들어 채우지 않는다. 이 명령은 파일을 읽기만 하며 수집·DB 연결·파일 생성을 실행하지 않는다.
 

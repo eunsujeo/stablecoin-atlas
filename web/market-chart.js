@@ -34,7 +34,7 @@ export function sparkline(data,observation){
 export function renderMarketChart(host,data,observation,{period='all',onDetail}={}){
   host.replaceChildren();const rows=chartHistory(data,observation,period);
   if(!rows.length){host.append(el('p','선택한 지표의 저장 이력이 없습니다.','empty-state'));return;}
-  const compact=host.clientWidth<600,right=compact?430:870,bottom=compact?240:280,width=compact?600:1040,height=compact?310:350;
+  const compact=host.clientWidth<600,right=compact?(options.compactWidth?options.compactWidth-130:430):870,bottom=compact?240:280,width=compact?(options.compactWidth??600):1040,height=compact?310:350;
   const unit=observation.unit,zeroBaseline=unit!=='USD',g=chartGeometry(rows,{right,bottom,zeroBaseline}),latest=rows.at(-1),heading=el('div',undefined,'trend-summary');
   heading.append(el('strong',valueLabel(latest.amount,unit),'trend-value'));
   if(rows.length===1)heading.append(el('span','단일 관측 · 추세 미확보','trend-change'));
@@ -99,12 +99,14 @@ export function supplyComparisonGeometry(input,{comparison='amount',right=870,bo
 }
 const percentLabel=value=>{const [whole,tail]=value.split('.');return whole+(tail?'.'+tail.slice(0,2):'')+'%';};
 export function renderNetworkSupplyChart(host,data,coinId,options={}){
-  host.replaceChildren();const groups=sortSupplyGroups(networkSupplySeries(data,coinId,options));
+  host.replaceChildren();const groups=sortSupplyGroups(options.groups??networkSupplySeries(data,coinId,options));
   if(!groups.length){host.append(el('p','선택한 구간의 공급량 자료가 없습니다.','empty-state'));return;}
   const colors=['#36a9ef','#e59827','#a681ee','#20ad8b','#e57796','#8caa39','#df6541','#707be5','#b08a54','#a351a5'];
-  const compact=host.clientWidth<600,right=compact?430:870,bottom=compact?240:280,width=compact?600:1040,height=compact?310:350;
+  const compact=host.clientWidth<600,right=compact?(options.compactWidth?options.compactWidth-130:430):870,bottom=compact?240:280,width=compact?(options.compactWidth??600):1040,height=compact?310:350;
   const rows=groups.flatMap(s=>s.rows).sort((a,b)=>Date.parse(a.observedAt)-Date.parse(b.observedAt));
-  const g=supplyComparisonGeometry(groups,{right,bottom,comparison:options.comparison}),points=new Map(g.points.map(p=>[p.row,p])),relative=options.comparison==='change';
+  const g=supplyComparisonGeometry(groups,{right,bottom,comparison:options.comparison}),relative=options.comparison==='change';
+  if(options.domain){const [from,to]=options.domain.map(Date.parse);for(const p of g.points)p.x=from===to?(32+right)/2:32+(Date.parse(p.row.observedAt)-from)/(to-from)*(right-32);}
+  const points=new Map(g.points.map(p=>[p.row,p]));
   if(relative)host.append(el('p','네트워크별 증감률 (%)','chart-note'));
   if(g.axisScale==='log')host.append(el('p','로그 눈금 · 0은 아래 기준선에 표시','chart-note'));
   if(g.unavailable.length)host.append(el('p',g.unavailable.map(s=>s.network.name).join(' · ')+' · 첫 관측이 0이어서 증감률을 계산할 수 없습니다. 공급량 규모로 확인하세요.','chart-note'));
@@ -114,24 +116,26 @@ export function renderNetworkSupplyChart(host,data,coinId,options={}){
   const axisTitle=svg('text',{x:right+20,y:14,class:'trend-axis network-axis-title'});axisTitle.textContent=relative?'눈금 (%)':'눈금 (tokens)';figure.append(axisTitle);
   for(const tick of g.ticks){figure.append(svg('line',{x1:32,x2:right,y1:tick.y,y2:tick.y,class:'grid-line'}));const text=svg('text',{x:right+20,y:tick.y+4,class:'trend-axis'});text.textContent=relative?percentLabel(tick.amount):tick.exponent!==undefined&&(tick.exponent< -4||tick.exponent>15)?'10^'+tick.exponent:displayAmount(tick.amount).replace(/\.00(?=억$)/,'').replace(/^(\d+)(?=[.억]|$)/,s=>s.replace(/\B(?=(\d{3})+(?!\d))/g,',')).replace(/(\.\d{4})\d+/, '$1…');figure.append(text);}
   g.groups.forEach((group,i)=>{
-    group.points=group.rows.map(row=>points.get(row));const color=colors[i%colors.length],item=el('div',undefined,'network-chart-key'),swatch=el('span',undefined,'network-chart-swatch');swatch.style.background=color;
+    group.points=group.rows.map(row=>points.get(row));const color=group.color??colors[i%colors.length],item=el('div',undefined,'network-chart-key'),swatch=el('span',undefined,'network-chart-swatch');swatch.style.background=color;
     item.append(swatch,el('strong',group.network.name),el('span',displayAmount(group.rows.at(-1).amount)));
     const info=options.profileButton?.(group.deploymentId,group.network.id);if(info)item.append(info);legend.append(item);
     const segments=dailySupplySegments(group.points,['history','minted'].includes(options.source));
     for(const segment of segments){
-      if(segment.length>1)figure.append(svg('polyline',{points:segment.map(p=>`${p.x},${p.y}`).join(' '),fill:'none',stroke:color,'stroke-width':2.5,'stroke-linejoin':'round','data-network':group.network.id}));
-      else figure.append(svg('circle',{cx:segment[0].x,cy:segment[0].y,r:3,fill:color,'data-network':group.network.id}));
+      if(segment.length>1)figure.append(svg('polyline',{points:segment.map(p=>`${p.x},${p.y}`).join(' '),fill:'none',stroke:color,'stroke-width':2.5,'stroke-linejoin':'round','data-network':group.network.id,'stroke-dasharray':group.dash??''}));
+      else figure.append(svg('circle',{cx:segment[0].x,cy:segment[0].y,r:3,fill:color,'data-network':group.network.id,'stroke-dasharray':group.dash??''}));
     }
     const last=group.points.at(-1);figure.append(svg('circle',{cx:last.x,cy:last.y,r:3,fill:color}));
   });
-  for(const index of new Set([0,Math.floor((g.rows.length-1)/2),g.rows.length-1])){const p=points.get(g.rows[index]);if(!p)continue;if(index!==0&&index!==g.rows.length-1&&(p.x-g.points[0].x<120||g.points.at(-1).x-p.x<120))continue;const text=svg('text',{x:p.x,y:bottom+42,'text-anchor':index===0?'start':index===g.rows.length-1?'end':'middle',class:'trend-axis'});text.textContent=['history','minted'].includes(options.source)?p.row.observedAt.slice(0,10):new Date(p.row.observedAt).toLocaleString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false});figure.append(text);}
+  if(options.domain){const [from,to]=options.domain.map(Date.parse);for(const fraction of [0,.5,1]){const text=svg('text',{x:32+(right-32)*fraction,y:bottom+42,'text-anchor':fraction===0?'start':fraction===1?'end':'middle',class:'trend-axis'});text.textContent=new Date(from+(to-from)*fraction).toISOString().slice(0,10);figure.append(text);}}
+  else for(const index of new Set([0,Math.floor((g.rows.length-1)/2),g.rows.length-1])){const p=points.get(g.rows[index]);if(!p)continue;if(index!==0&&index!==g.rows.length-1&&(p.x-g.points[0].x<120||g.points.at(-1).x-p.x<120))continue;const text=svg('text',{x:p.x,y:bottom+42,'text-anchor':index===0?'start':index===g.rows.length-1?'end':'middle',class:'trend-axis'});text.textContent=['history','minted'].includes(options.source)?p.row.observedAt.slice(0,10):new Date(p.row.observedAt).toLocaleString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false});figure.append(text);}
+
   // Keep the latest actual amount on the plot, separate from reference axis ticks.
-  const largest=g.groups[0],lastPoint=largest.points.at(-1),latestLabel=svg('text',{x:lastPoint.x-8,y:Math.max(17,lastPoint.y-14),'text-anchor':'end',class:'network-chart-latest',fill:colors[0]});
+  const largest=g.groups[0],lastPoint=largest.points.at(-1),latestLabel=svg('text',{x:lastPoint.x-8,y:Math.max(17,lastPoint.y-14),'text-anchor':'end',class:'network-chart-latest',fill:largest.color??colors[0]});
   latestLabel.textContent=largest.network.name+' · '+(relative?percentLabel(lastPoint.change):displayAmount(lastPoint.row.amount));
   const latestTitle=svg('title');latestTitle.textContent='최신 '+largest.network.name+' · '+exactDecimal(lastPoint.row.amount)+' tokens · '+lastPoint.row.observedAt.slice(0,10);latestLabel.append(latestTitle);figure.append(latestLabel);
   const plot=el('div',undefined,'network-chart-plot');
   const tip=el('div',undefined,'chart-point-tooltip network-chart-tooltip'),guide=svg('line',{y1:28,y2:bottom,class:'trend-crosshair'}),dot=svg('circle',{r:5,stroke:'var(--panel)','stroke-width':2});tip.hidden=true;tip.setAttribute('aria-live','polite');tip.setAttribute('role','tooltip');figure.append(guide,dot);plot.append(figure,tip);let groupIndex=0,pointIndex=g.groups[0].points.length-1;
-  function select(){const group=g.groups[groupIndex],p=group.points[pointIndex];guide.setAttribute('x1',p.x);guide.setAttribute('x2',p.x);dot.setAttribute('cx',p.x);dot.setAttribute('cy',p.y);dot.setAttribute('fill',colors[groupIndex%colors.length]);tip.replaceChildren(el('strong',group.network.name+' · '+exactDecimal(p.row.amount)+' tokens'),el('span',['history','minted'].includes(options.source)?p.row.observedAt.slice(0,10)+' · 일별 기준':when(p.row.observedAt)));if(relative)tip.append(el('span',percentLabel(p.change)+' · 기준 '+group.rows[0].observedAt.slice(0,10)));}
+  function select(){const group=g.groups[groupIndex],p=group.points[pointIndex];guide.setAttribute('x1',p.x);guide.setAttribute('x2',p.x);dot.setAttribute('cx',p.x);dot.setAttribute('cy',p.y);dot.setAttribute('fill',group.color??colors[groupIndex%colors.length]);tip.replaceChildren(el('strong',group.network.name+' · '+exactDecimal(p.row.amount)+' tokens'),el('span',['history','minted'].includes(options.source)?p.row.observedAt.slice(0,10)+' · 일별 기준':when(p.row.observedAt)));if(relative)tip.append(el('span',percentLabel(p.change)+' · 기준 '+group.rows[0].observedAt.slice(0,10)));if(group.updatedAt)tip.append(el('span','조회 '+when(group.updatedAt)));}
   function pointer(event){const origin=figure.createSVGPoint();origin.x=event.clientX;origin.y=event.clientY;const matrix=figure.getScreenCTM();if(!matrix)return;const q=origin.matrixTransform(matrix.inverse());let distance=Infinity;g.groups.forEach((group,i)=>group.points.forEach((p,j)=>{const d=(p.x-q.x)**2+(p.y-q.y)**2;if(d<distance){distance=d;groupIndex=i;pointIndex=j;}}));select();showAt(event.clientX,event.clientY);}
   function hide(){tip.hidden=true;latestLabel.removeAttribute('visibility');guide.setAttribute('visibility','hidden');dot.setAttribute('visibility','hidden');}
   function showAt(clientX,clientY){
@@ -142,7 +146,7 @@ export function renderNetworkSupplyChart(host,data,coinId,options={}){
   function showPoint(){const p=g.groups[groupIndex].points[pointIndex],matrix=figure.getScreenCTM();if(!matrix)return;const origin=figure.createSVGPoint();origin.x=p.x;origin.y=p.y;const screen=origin.matrixTransform(matrix);showAt(screen.x,screen.y);}
   select();hide();figure.addEventListener('pointermove',pointer);figure.addEventListener('pointerdown',pointer);figure.addEventListener('pointerleave',event=>{if(event.pointerType!=='touch')hide();});figure.addEventListener('focus',showPoint);figure.addEventListener('blur',hide);
   figure.addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End','Escape'].includes(event.key))return;event.preventDefault();if(event.key==='Escape'){hide();return;}if(event.key==='ArrowUp')groupIndex=(groupIndex+g.groups.length-1)%g.groups.length;if(event.key==='ArrowDown')groupIndex=(groupIndex+1)%g.groups.length;const last=g.groups[groupIndex].points.length-1;pointIndex=Math.min(pointIndex,last);if(event.key==='ArrowLeft')pointIndex=Math.max(0,pointIndex-1);if(event.key==='ArrowRight')pointIndex=Math.min(last,pointIndex+1);if(event.key==='Home')pointIndex=0;if(event.key==='End')pointIndex=last;select();showPoint();});
-  host.append(legend,plot,el('p','업데이트 '+(data.registeredSupply&&data.updatedAt?when(data.updatedAt):['history','minted'].includes(options.source)?rows.at(-1).observedAt.slice(0,10)+' · 일별 자료':when(rows.at(-1).observedAt)),'chart-updated'));
+  host.append(...(options.showLegend===false?[]:[legend]),plot,el('p','업데이트 '+(data.registeredSupply&&data.updatedAt?when(data.updatedAt):['history','minted'].includes(options.source)?rows.at(-1).observedAt.slice(0,10)+' · 일별 자료':when(rows.at(-1).observedAt)),'chart-updated'));
 }
 
 export function dailySupplySegments(points,daily=true){

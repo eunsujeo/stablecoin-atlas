@@ -1,3 +1,4 @@
+import {localRegistrationReader} from './registration-file-preview.mjs';
 import {validateStoredSurvey} from '../web/survey-model.js';
 import {boundedRead} from './evidence-store.mjs';
 export const localSurveyReader=path=>async()=>validateStoredSurvey(JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(await boundedRead(path,128*1024))));
@@ -19,6 +20,8 @@ import { databaseMarketReader } from './market-db/preview.mjs';
 import {databaseRegistrationReader,registrationRequest} from './market-db/registration-preview.mjs';
 
 const assets = new Map([
+  ['/supply-overview.js', ['../web/supply-overview.js', 'text/javascript; charset=utf-8']],
+  ['/supply-overview-model.js', ['../web/supply-overview-model.js', 'text/javascript; charset=utf-8']],
   ['/allium-dashboard.js', ['../web/allium-dashboard.js', 'text/javascript; charset=utf-8']],
   ['/allium-dashboard-model.js', ['../web/allium-dashboard-model.js', 'text/javascript; charset=utf-8']],
   ['/atlas.html', ['../web/atlas.html', 'text/html; charset=utf-8']],
@@ -156,11 +159,12 @@ export function parsePreviewArguments(args) {
     if(flag==='--database')result.database=true;
     else if(flag==='--port'&&/^\d{1,5}$/.test(args[i+1]??''))result.port=Number(args[++i]);
     else if(flag==='--fx-dir'&&args[i+1]&&!args[i+1].startsWith('--'))result.fxDirectory=args[++i];
+    else if(flag==='--registration-file'&&args[i+1]&&!args[i+1].startsWith('--'))result.registrationFile=args[++i];
     else if(flag==='--survey-file'&&args[i+1]&&!args[i+1].startsWith('--'))result.surveyFile=args[++i];
     else if(flag==='--database-env'&&args[i+1]&&!args[i+1].startsWith('--'))result.envFile=args[++i];
     else throw new Error('INVALID_ARGUMENTS');
   }
-  if(result.port>65535||result.envFile&&!result.database||result.surveyFile&&result.database)throw new Error('INVALID_ARGUMENTS');
+  if(result.port>65535||result.envFile&&!result.database||(result.surveyFile||result.registrationFile)&&result.database)throw new Error('INVALID_ARGUMENTS');
   return result;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
@@ -169,7 +173,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     // An explicit file is authoritative; inherited writer credentials cannot override it.
     const env=args.database?await workspaceEnvironment(args.envFile,args.envFile?{}:process.env):undefined;
     if(args.database&&!env.DATABASE_URL)throw new Error('DATABASE_CONFIG_REQUIRED');
-    const server = await startPreviewServer(args.port,{fxDirectory:args.fxDirectory,...(args.surveyFile?{surveyReader:localSurveyReader(args.surveyFile)}:{}),...(args.database?{marketReader:databaseMarketReader({env}),registrationReader:databaseRegistrationReader({env}),activityReader:databaseActivityReader({env}),reviewedSupplyReader:databaseReviewedSupplyReader({env}),surveyReader:databaseSurveyReader({env})}:{})});
+    const server = await startPreviewServer(args.port,{fxDirectory:args.fxDirectory,...(args.registrationFile?{registrationReader:localRegistrationReader(args.registrationFile)}:{}),...(args.surveyFile?{surveyReader:localSurveyReader(args.surveyFile)}:{}),...(args.database?{marketReader:databaseMarketReader({env}),registrationReader:databaseRegistrationReader({env}),activityReader:databaseActivityReader({env}),reviewedSupplyReader:databaseReviewedSupplyReader({env}),surveyReader:databaseSurveyReader({env})}:{})});
     console.log(`Local preview: http://127.0.0.1:${server.address().port} (${args.database?'PostgreSQL read-only':'local JSON'})`);
     for (const signal of ['SIGINT', 'SIGTERM']) process.once(signal, () => { server.close(() => { process.exitCode = 0; }); server.closeIdleConnections(); });
   } catch { console.error('Preview could not start. Check the port or use --port 0.'); process.exitCode = 1; }

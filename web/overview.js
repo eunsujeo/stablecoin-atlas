@@ -1,4 +1,4 @@
-import {initializeAlliumDashboard} from './allium-dashboard.js';
+import {initializeSupplyOverview} from './supply-overview.js';
 import {validateStoredSurvey,storedSurveyChoice} from './survey-model.js';
 import {validateGeography,geographyChoice} from './geography-model.js';
 import {renderGeography,initializeGeographyFilters} from './geography.js';
@@ -22,7 +22,7 @@ const savedChart=readChartURL(location.href)??readChartPreferences();
 const state={currency:readCurrency(location.href),fx:null,selectedCoin:savedChart?.coinId??'usdc',selectedSource:savedChart?.source??'history',selectedNetwork:savedChart?.networkId??'all',marketFailed:false,index:null,market:null,loading:false,loaded:false,period:savedChart?.period??'30d',sourceInitialized:!!savedChart,comparison:savedChart?.comparison??'amount',registration:null,detail:null,trendLoading:false,trendError:false,registrationFailed:false};
 let trendSequence=0,trendAbort,trendFinish;
 let survey={data:null,state:'MISSING'};
-const renderAllium=initializeAlliumDashboard($('#overview-allium'));
+const renderSupplyOverview=initializeSupplyOverview($('#overview-supply'),{read:json});
 let geography={data:null,state:'MISSING'};
 initializeGeographyFilters($('#overview-geography'),()=>renderGeography($('#overview-geography'),geography));
 const renderStoredSurvey=()=>renderSurvey($('#overview-survey'),survey);
@@ -220,11 +220,11 @@ async function load(){
   if(results[3].status==='fulfilled')state.fx=results[3].value;
   const selected=providerChoice({primary:results[4].status==='fulfilled'?results[4].value:null,lastGood:activity,failed:results[4].status==='rejected'});activity=selected.data;activityState=selected.state;
   reviewedSupply=reviewedSupplyChoice(reviewedSupply.data,results[5]);
-  survey=storedSurveyChoice(survey.data,results[6]);renderAllium(survey);if(results[6].status==='rejected')failed.push('Allium 저장 자료');
+  survey=storedSurveyChoice(survey.data,results[6]);if(results[6].status==='rejected')failed.push('Allium 저장 자료');
   geography=geographyChoice(geography.data,results[7]);
   state.marketFailed=results[1].status!=='fulfilled';
   renderEvidence();renderMarket();renderEvidenceRankings();renderActivity();renderSupply();renderStoredSurvey();renderGeography($('#overview-geography'),geography);
-  if(state.registration)await loadTrend();
+  await renderSupplyOverview({index:state.registration,market:state.market,indexFailed:state.registrationFailed});
   const collectionFailed=state.market?.collectionState?.state==='FAILED'||state.market?.lastBuildState==='FAILED';
   $('#overview-error').hidden=!failed.length&&!collectionFailed;
   $('#overview-error').textContent=failed.length?`${failed.join(' · ')}를 읽지 못했습니다. 이전 정상 자료가 있으면 원래 시각을 유지해 표시합니다.`:'최근 시장 수집 또는 자료 생성 실패 · 마지막 정상 자료와 원본 관측 시각을 표시합니다.';

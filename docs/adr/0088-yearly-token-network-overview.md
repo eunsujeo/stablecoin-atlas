@@ -1,0 +1,22 @@
+# ADR0088: 기존 1년 유통량으로 토큰×네트워크 통합 그래프 복원
+
+- 상태: 사용자 승인, 2026-10-24. 기존 DeFiLlama 1년 자료 유지와 그래프 구성 개선을 선택했다.
+- ADR0087의 기본 Overview 화면 결정을 대체한다. Allium 원문·연구 DTO·판정과 별도 시장/기술 근거 경로는 보존한다.
+
+## 화면과 지표
+
+기존 등록 저장본의 `NETWORK_CIRCULATING`만 사용해 USDC·USDT·RLUSD·JPYSC·JPYC의 네트워크별 선을 한 그래프에 표시한다. 토큰 색과 네트워크 선 모양, 토큰 버튼과 복합 ID 범례로 각 계열을 표시/숨김한다. 네 개 select와 하단 수량 표를 없애며 기본1Y와3M/30D·공급량 규모/첫 관측 대비 증감률을 유지한다. 기존 공급량 비교 geometry·로그 눈금·정확한 수량 tooltip·키보드 탐색을 재사용한다. 범례 title에는 실제 첫/마지막 관측일·점 수·조회시각이 있다.
+
+공통 종료일은 선택된 저장 source들의 최대 to이며 그 날짜 기준 기간을 먼저 자른다. 같은 x축 구간을 사용하고 계열별 실제 첫 관측을 증감률 기준으로 삼는다. 출시 시기와 관측 기간은 다를 수 있다. 0기준은 증감률 제외, 누락일은 선을 끊는다. 금액은 문자열/bigint이고 SVG 좌표만 제한된 수치로 변환한다. USD/JPY 연동 토큰의 수량 비교이지 가치 비교·합계가 아니며 계약 totalSupply·일별 발행/소각량이 아니다.
+
+## 저장 읽기와 실패
+
+기존 registration index/history endpoint와 validator를 재사용하며 고정5코인을 동시 최대2개로 읽는다. selection/source/from/to/coin/metric 전체 pin이 같은 이전값만 실패 시 유지한다. index 실패는 기존 전체 화면과 실패 상태를 유지하며 새로운 selection으로 바꾸지 않는다. index 교체 시 불일치 이전 계열을 제거하고 응답 sequence가 지난 결과를 버린다. 다른 공급자나 Allium7일 값으로 보충하지 않는다. DB 미설정 JSON 모드에서는 원래 market DTO에 명시된 DeFiLlama history만 사용할 수 있다.
+
+외부 DB 접속 없이 기존 저장 공개 DTO를 표시하려면 `npm run ui -- --registration-file PRIVATE_BUNDLE.json`을 사용한다. `LOCAL_REGISTERED_SUPPLY` v1 bundle은 index와 최대5개 circulation history이며8MiB 상한·일반파일·symlink 거절·모든 source pin을 검사하고 공개 필드만 재구성한다. DB 모드와 동시 지정은 거부한다. 오류는503이며 다른 경로로 전환하지 않는다. 웹/서버 시작에서 파일 생성·외부 수집·키·DB 변경은 실행하지 않는다.
+
+이번 미리보기는 기존 비공개 allium-baseline의 DeFiLlama 공개 DTO5개를 읽어 원래 source/시각/값을 유지한 별도 로컬 bundle이다.5코인/27계열/8,598점, 저장 조회 범위2025-10-23~2026-10-23이며 각 계열의 실제 관측 기간은 다르다. 원본은 수정하거나 Git/웹에 원문으로 게시하지 않는다.
+
+## 검증
+
+공통 기간·bigint 정밀도·음수 증감·0기준·공백·단일점·같은 source 실패/다른 pin 제거·읽기 동시2개·로컬 파일 경계를 검증한다. 브라우저에서 저장본5코인/27계열·기간/증감률·범례/전부 숨김·키보드·503 복구·두 테마/390px·외부요청0을 확인한다. 명령과 결과는 인계문에 기록한다.
