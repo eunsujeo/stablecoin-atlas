@@ -18,6 +18,7 @@ test('preview binds loopback and serves only fixed assets; HEAD, CSP and same-or
       assert.equal(get.status, 200); assert.match(get.headers['content-type'], new RegExp(type)); assert.equal(head.status, get.status); assert.equal(head.headers['content-type'], get.headers['content-type']); assert.equal(head.headers['content-length'], get.headers['content-length']); assert.equal(head.body, '');
       assert.equal(get.headers['x-content-type-options'], 'nosniff'); assert.match(get.headers['content-security-policy'], /connect-src 'self'/); assert.match(get.headers['content-security-policy'], /frame-ancestors 'none'/);
     }
+    for(const path of ['/atlas-dashboard.js','/atlas-dashboard-model.js'])assert.equal((await read(port,path)).status,200);
     const data = JSON.parse((await read(port, '/mock-data.json')).body); assert.equal(data.allValuesAreFictional, true);
     const shared='/?coin=jpyc&network=polygon&source=minted&period=90d&comparison=change';
     const document=await read(port,'/'),link=await read(port,shared),linkHead=await read(port,shared,{method:'HEAD'});
