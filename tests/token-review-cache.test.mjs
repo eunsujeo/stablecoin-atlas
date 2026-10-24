@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { cachedCompiler, jpycCompiler, cachedCompilers, cachedCompilerById, verifyCompilerBytes, readVerifiedCompiler, stageCachedCompiler } from '../src/token-review/compiler-cache.mjs';
+import { cachedCompiler, jpycCompiler, usdtCompiler, cachedCompilers, cachedCompilerById, verifyCompilerBytes, readVerifiedCompiler, stageCachedCompiler } from '../src/token-review/compiler-cache.mjs';
 import { compilerVersion, compilerProfile, compile, prepareInput } from '../src/token-review/compiler.ts';
 import { inventory } from '../src/token-review/source-analysis.ts';
 import { analyzeSource } from '../src/token-review/semantic-analysis.ts';
@@ -65,7 +65,8 @@ test('cached profile registry stays frozen and isolated caches reject missing, c
     const registryFile = join(dir, 'src/token-review/compiler-cache.mjs');
     await writeFile(registryFile, await readFile(new URL('../src/token-review/compiler-cache.mjs', import.meta.url)));
     const isolated = await import(new URL(`file://${registryFile}`));
-    for (const [profile, relative] of [[cachedCompiler, '.state/usdc-source/compiler'], [jpycCompiler, '.state/jpyc-solc-browser-artifact']]) {
+    for (const [profile, relative] of [[cachedCompiler, '.state/usdc-source/compiler'], [jpycCompiler, '.state/jpyc-solc-browser-artifact'],
+      [usdtCompiler, '.state/usdt-solc-0418-visible-browser-v2']]) {
       assert.equal(await isolated.inspectCachedCompiler(profile.version), null);
       const path = join(dir, relative, 'soljson.js'); await mkdir(join(dir, relative), { recursive: true });
       await writeFile(path, 'unverified');

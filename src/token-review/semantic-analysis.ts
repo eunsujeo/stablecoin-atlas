@@ -1,5 +1,6 @@
 import type { AstNode, CompileResult, CompilerInput } from './compiler.js';
-import { nodes, sourceContext } from './ast.js';
+import { nodes, sourceContext, functionKind } from './ast.js';
+import { jpycCompiler, usdtCompiler } from './compiler-cache.mjs';
 import type { Finding } from './model.js';
 import type { BehaviorSite, CallEdge, EntryAnalysis, StateReference, StaticAnalysis, StorageWrite } from './semantic-model.js';
 
@@ -14,10 +15,11 @@ export function analyzeSource(input: CompilerInput, compiled: CompileResult, fil
     if (node?.nodeType !== 'Identifier' || !Number.isInteger(node.referencedDeclaration)) return false;
     const reference = node.referencedDeclaration as number;
     if (reference < 0) return true;
-    // This pinned compiler encodes negative builtin references as uint32 values.
-    // Positive source declarations and unknown compiler encodings stay unresolved.
-    if (compiled.compiler !== '0.8.11+commit.d7f03943.Emscripten.clang'
-      || reference < 0x80000000 || reference > 0xffffffff || byId.has(reference)) return false;
+    // Exact pinned versions only: uint32-encoded builtins (0.8.11) or positive
+    // non-source builtin IDs (0.4.18). Source declarations always take precedence.
+    const supportedEncoding = compiled.compiler === jpycCompiler.version && reference >= 0x80000000 && reference <= 0xffffffff
+      || compiled.compiler === usdtCompiler.version && reference >= 0 && reference < 0x80000000;
+    if (!supportedEncoding || byId.has(reference)) return false;
     const identifier = String((node.typeDescriptions as { typeIdentifier?: string } | undefined)?.typeIdentifier ?? '');
     return node.name === 'msg' && identifier === 't_magic_message'
       || node.name === 'require' && identifier.startsWith('t_function_require_')
@@ -26,10 +28,13 @@ export function analyzeSource(input: CompilerInput, compiled: CompileResult, fil
   const state = (node: AstNode): StateReference => ({ id: node.id, name: String(node.name), type: type(node), location: location(node) });
   const variables = contracts.flatMap(c => (c.nodes as AstNode[]).filter(n => n.nodeType === 'VariableDeclaration' && n.stateVariable === true));
   const entries = new Map<string, AstNode>();
-  // Compiler linearization is derived-first. Overridden base entries are not entrypoints.
+  // Selector-backed overrides use derived-first linearization. Declarations without
+  // selectors remain separate; their actual override entry selection is unresolved.
   for (const contract of contracts) for (const fn of contract.nodes as AstNode[]) {
-    if (fn.nodeType !== 'FunctionDefinition' || !['external', 'public'].includes(String(fn.visibility)) || fn.kind === 'constructor') continue;
-    const key = typeof fn.functionSelector === 'string' ? fn.functionSelector : fn.kind === 'function' ? `unresolved:${fn.id}` : String(fn.kind);
+    const kind = functionKind(fn, compiled.compiler);
+    if (fn.nodeType !== 'FunctionDefinition' || !['external', 'public'].includes(String(fn.visibility)) || kind === 'constructor') continue;
+    const key = typeof fn.functionSelector === 'string' ? fn.functionSelector
+      : ['fallback', 'receive'].includes(kind) ? kind : `unresolved:${fn.id}`;
     if (!entries.has(key)) entries.set(key, fn);
   }
   function references(node: unknown): StateReference[] {
@@ -56,10 +61,15 @@ export function analyzeSource(input: CompilerInput, compiled: CompileResult, fil
       '자동 생성 getter는 명시 함수 그래프에 포함하지 않습니다. 패턴은 소스 구문의 관측이며 수수료·rebase·제한·취약점 확정이 아닙니다.',
     ] };
   for (const entry of [...entries.values()].slice(0, 64)) {
-    const path: EntryAnalysis = { id: entry.id, name: String(entry.name || entry.kind), selector: typeof entry.functionSelector === 'string' ? `0x${entry.functionSelector}` : null,
+    const entryKind = functionKind(entry, compiled.compiler);
+    const path: EntryAnalysis = { id: entry.id, name: String(entry.name || entryKind), selector: typeof entry.functionSelector === 'string' ? `0x${entry.functionSelector}` : null,
       location: location(entry), declarations: [], conditions: [], writes: [], calls: [], behaviors: [], uncertainties: [], authorityConclusion: 'UNKNOWN', evidenceRef: '' };
     const uncertain = new Set<string>();
-    if (entry.kind === 'function' && path.selector === null) uncertain.add('SELECTOR_NOT_ESTABLISHED');
+    if (['function', 'unknown'].includes(entryKind) && path.selector === null) uncertain.add('SELECTOR_NOT_ESTABLISHED');
+    if (entryKind === 'unknown') uncertain.add('FUNCTION_KIND_NOT_ESTABLISHED');
+    if (compiled.compiler === usdtCompiler.version && entryKind === 'function' && path.selector === null) {
+      uncertain.add('OVERRIDE_ENTRY_SELECTION_NOT_ESTABLISHED');
+    }
     const visited = new Set<number>();
     const pending = [{ node: entry, ancestors: [] as number[] }];
     function add<T>(array: T[], value: T, limit: number, flag: string): void {
@@ -85,7 +95,7 @@ export function analyzeSource(input: CompilerInput, compiled: CompileResult, fil
       const fn = current.node;
       if (visited.has(fn.id)) continue;
       if (visited.size >= 32) { uncertain.add('DECLARATION_LIMIT'); break; }
-      visited.add(fn.id); path.declarations.push({ id: fn.id, name: String(fn.name || fn.kind), location: location(fn) });
+      visited.add(fn.id); path.declarations.push({ id: fn.id, name: String(fn.name || functionKind(fn, compiled.compiler)), location: location(fn) });
       if (!fn.body) { uncertain.add('BODY_UNAVAILABLE'); continue; }
       const children = nodes(fn.body);
       if (fn.nodeType === 'ModifierDefinition') {

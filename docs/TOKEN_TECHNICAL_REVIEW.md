@@ -75,7 +75,9 @@ compilerVersion이 `0.6.12+commit.27d51765.Emscripten.clang`이면 고정 regist
 
 [ADR0094](adr/0094-pinned-solc-0811-browser-artifact.md)의 사용자 승인으로 확보한 `0.8.11+commit.d7f03943.Emscripten.clang`도 명시 고정 profile이다. 경로는 `.state/jpyc-solc-browser-artifact/soljson.js`, SHA256은 `64117d4b13bfc5bc6e5f80823519b140e753a0c09e99edd756772dc3029bc1f8`이며 같은 파일/staging/worker 경계를 적용한다. provenance는 `BROWSER_ACQUIRED_PINNED_CACHE`, 독립 인증은 NOT_TESTED다. CLI가 파일을 취득하거나 미확보 cache를 대체하지 않는다. 이 버전의 내장 require/assert/msg uint32 참조는 정확한 compiler 버전·이름·타입·선언 부재 조건으로만 인식한다.
 
-개발용 공식 compiler 취득이 거절될 때의 후속 기본 경로는 사용자 지시로 [새 임시 브라우저 창 가이드](COMPILER_BROWSER_ACQUISITION.md)에 정리했다([ADR0096](adr/0096-browser-compiler-acquisition-guidance.md)). CLI의 자동 다운로드 기능은 아니다. 현재0.4.18은 [직접 metadata 취득 실패](research/2026-10-25-usdt-compiler-acquisition.md) 상태이며 이 가이드 반영만으로 브라우저 취득/profile/구버전 검증이 완료된 것은 아니다.
+[ADR0097](adr/0097-pinned-solc0418-visible-browser-profile.md)의 `0.4.18+commit.9cf6e910.Emscripten.clang`도 명시 고정 profile이다. 경로는 `.state/usdt-solc-0418-visible-browser-v2/soljson.js`, SHA256은 `905e3d253406973f545666d79cd64c5c85985992f68fa35935f60249e311d74f`이며 같은 검사/staging/worker 경계를 사용한다. [사용자 승인 브라우저 취득·사설 검증](research/2026-10-25-usdt-solc0418-browser-success.md)을 완료했고 provenance는 `BROWSER_ACQUIRED_PINNED_CACHE`, 독립 인증은 NOT_TESTED다. 구버전의 isConstructor/name과 선언 없는 양수 builtin 참조는 정확한 전체 버전·이름/type 조건으로만 처리한다. AST selector 없는 선언은 ID별 보존하고 override 진입 선택 미확정을 남기며 `evm.methodIdentifiers`에서 추정 연결하지 않는다.
+
+개발용 공식 compiler 취득이 거절될 때의 후속 기본 경로는 사용자 지시로 [새 임시 브라우저 창 가이드](COMPILER_BROWSER_ACQUISITION.md)에 정리했다([ADR0096](adr/0096-browser-compiler-acquisition-guidance.md)). CLI의 자동 다운로드 기능은 아니다. 0.4.18의 [이전 직접 실패](research/2026-10-25-usdt-compiler-acquisition.md)와 첫 브라우저 준비 실패는 보존하고, 수정본의 새 승인 취득/검증과 구분한다.
 
 ```sh
 node --input-type=module -e 'import solc from "solc"; console.log(solc.version())'

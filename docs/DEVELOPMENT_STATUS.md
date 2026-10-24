@@ -4,6 +4,8 @@
 
 ## 완료 범위
 
+- 2026-10-25 추가 승인 [solc0.4.18 보이는 브라우저 취득·사설 검증](research/2026-10-25-usdt-solc0418-browser-success.md)을 완료했다. metadata/artifact 각1GET·HTTP200·7139666바이트의 두 hash와 worker 전체 버전을 확인하고 [ADR0097](adr/0097-pinned-solc0418-visible-browser-profile.md)의 고정 profile을 추가했다. 구버전 생성자/fallback·selector 없는 ID별 선언·작은 양수 builtin의 제한된 AST 호환성과 guard/실패/정리를 사설 Fixture로 검증했다. 이전 두 실패·원본7파일·기존0.6.12/0.8.11 cache는 보존했다. 실제 USDT 재컴파일/새 RPC0이며 기존 source binding/판정은 변경하지 않았다.
+
 - 2026-10-25 [USDT 보이는 Chrome 준비 실패·로컬 회귀 수정](research/2026-10-25-usdt-browser-preflight.md)을 기록했다. 실제 브라우저는 초기 탭 제어 오류로 공식 Document GET0에서 종료했다. 초기 탭을 추가 target으로 오분류해 닫는 문제를 수정하고 창 준비 helper·회귀2건과 보이는 Chrome loopback4종을 검증했다. 가상 artifact는 실제 compiler가 아니며0.4.18 취득/profile/사설 컴파일은 미완료다. 종료된 소비·deadline을 재사용하지 않았고 새 RPC/실제 USDT 재컴파일0이다.
 
 - 2026-10-25 사용자 지시로 [공식 compiler 거절 시 브라우저 가이드](COMPILER_BROWSER_ACQUISITION.md)·[ADR0096](adr/0096-browser-compiler-acquisition-guidance.md)와 AGENTS 규칙을 반영했다. 후속 취득 작업에서 같은 공식 버전/파일을 보이는 임시 창으로 확인하며 방식 변경만으로 같은 승인을 반복 요청하지 않는다. 직접/브라우저 별도 소비·각2GET·hash/전체 버전·사설 검증과 거절 시 중단을 유지한다. 이번 변경은 문서만이며 브라우저 송신/추가 다운로드0, 현재0.4.18 compiler 확보·검증 미완료 상태를 보존한다.

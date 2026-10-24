@@ -1,5 +1,14 @@
 import type { AstNode, CompileResult, CompilerInput } from './compiler.js';
 import type { SourceLocation } from './model.js';
+import { usdtCompiler } from './compiler-cache.mjs';
+
+export function functionKind(node: AstNode, compiler: string): string {
+  if (['constructor', 'function', 'fallback', 'receive'].includes(String(node.kind))) return String(node.kind);
+  if (compiler === usdtCompiler.version && typeof node.isConstructor === 'boolean' && typeof node.name === 'string') {
+    return node.isConstructor ? 'constructor' : node.name === '' ? 'fallback' : 'function';
+  }
+  return 'unknown';
+}
 
 export function nodes(root: unknown): AstNode[] {
   const result: AstNode[] = [], pending = [root];

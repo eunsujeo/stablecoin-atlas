@@ -1,6 +1,6 @@
 import type { AstNode, CompileResult, CompilerInput } from './compiler.js';
 import type { Finding, FunctionReview } from './model.js';
-import { nodes, sourceContext } from './ast.js';
+import { nodes, sourceContext, functionKind } from './ast.js';
 export { nodes } from './ast.js';
 // This is a declaration/call-site inventory, not a symbolic execution or safety proof.
 export function inventory(input: CompilerInput, compiled: CompileResult, file: string, contractName: string,
@@ -20,7 +20,7 @@ export function inventory(input: CompilerInput, compiled: CompileResult, file: s
         evidenceRef: decl ? evidence('SOURCE_MODIFIER', { location: location(decl), text: text(decl) }) : null };
     });
     const record = {
-      name: String(fn.name || fn.kind), contract: String(contract.name), visibility: String(fn.visibility), mutability: String(fn.stateMutability),
+      name: String(fn.name || functionKind(fn, compiled.compiler)), contract: String(contract.name), visibility: String(fn.visibility), mutability: String(fn.stateMutability),
       selector: typeof fn.functionSelector === 'string' ? `0x${fn.functionSelector}` : null,
       parameters: text(fn.parameters), returnParameters: text(fn.returnParameters), inherited: contract.id !== root.id,
       location: location(fn), implemented: fn.implemented === true, modifiers,

@@ -37,4 +37,4 @@ UTC `2026-10-24T18:53:26.896Z`에 시작해 약1.04초 만에 `CDP_OPERATION_FAI
 
 첫 브라우저 단계는 종료·소비됐고 가이드는 브라우저 단계 최대1회를 정했다. 따라서 수정 후 자동으로 새 root/deadline을 발급하지 않는다. 현재 `.state/usdt-solc-0418-visible-browser-v2/`는 생성하지 않았으며 공식 요청은 첫 단계와 로컬 시험을 합쳐0이다.
 
-후속 제안은 **수정본의 새 브라우저 단계1회**다. 고정 두 URL과 metadata1GET/2MiB·검증 성공 후 artifact1GET/32MiB·전체34MiB/120초·요청30초·재시도/redirect/host 전환0을 유지한다. 새 wx/fsync 소비/receipt에 첫 단계의 실패와 수정된 harness/helper hash를 연결한다. metadata의 중복 key·정확한 버전/경로/유일성·SHA/Keccak 확인 후에만 파일을 받고 두 hash 확인 전 실행/profile 추가하지 않는다. 성공하면 이미 요청된 고정 profile·구버전 사설 호환성 검증을 진행하며 실제 USDT 재컴파일/새 RPC는 계속 제외한다. 이 새 취득 단계는 추가 사용자 지시 전 미실행이다.
+후속 제안은 **수정본의 새 브라우저 단계1회**였다. 고정 두 URL과 metadata1GET/2MiB·검증 성공 후 artifact1GET/32MiB·전체34MiB/120초·요청30초·재시도/redirect/host 전환0을 유지한다. 새 wx/fsync 소비/receipt에 첫 단계의 실패와 수정된 harness/helper hash를 연결한다. metadata의 중복 key·정확한 버전/경로/유일성·SHA/Keccak 확인 후에만 파일을 받고 두 hash 확인 전 실행/profile 추가하지 않는다. 이후 사용자 추가 지시로 [새 취득·사설 검증](2026-10-25-usdt-solc0418-browser-success.md)을 완료했다. 이 문서의 당시 준비 실패/소비는 보존하며 실제 USDT 재컴파일/새 RPC는 계속 제외한다.

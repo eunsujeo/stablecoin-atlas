@@ -13,10 +13,15 @@ export const jpycCompiler = Object.freeze({ id: 'solc-0.8.11-pinned',
   version: '0.8.11+commit.d7f03943.Emscripten.clang',
   sha256: '64117d4b13bfc5bc6e5f80823519b140e753a0c09e99edd756772dc3029bc1f8',
   provenance: 'BROWSER_ACQUIRED_PINNED_CACHE', independentAttestation: 'NOT_TESTED' });
-export const cachedCompilers = Object.freeze([cachedCompiler, jpycCompiler]);
+export const usdtCompiler = Object.freeze({ id: 'solc-0.4.18-pinned',
+  version: '0.4.18+commit.9cf6e910.Emscripten.clang',
+  sha256: '905e3d253406973f545666d79cd64c5c85985992f68fa35935f60249e311d74f',
+  provenance: 'BROWSER_ACQUIRED_PINNED_CACHE', independentAttestation: 'NOT_TESTED' });
+export const cachedCompilers = Object.freeze([cachedCompiler, jpycCompiler, usdtCompiler]);
 const cachePaths = new Map([
   [cachedCompiler.version, new URL('../../.state/usdc-source/compiler/soljson.js', import.meta.url)],
   [jpycCompiler.version, new URL('../../.state/jpyc-solc-browser-artifact/soljson.js', import.meta.url)],
+  [usdtCompiler.version, new URL('../../.state/usdt-solc-0418-visible-browser-v2/soljson.js', import.meta.url)],
 ]);
 export function cachedCompilerById(id) { return cachedCompilers.find(profile => profile.id === id) ?? null; }
 export function verifyCompilerBytes(bytes, expectedHash) {
