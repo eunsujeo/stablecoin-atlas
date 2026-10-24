@@ -53,3 +53,5 @@
 로컬 입력2개 재대조·기존 compiler 실행 경계 읽기·계획 문서화까지 완료했다. 대상 compiler/AST 실행이나 새 네트워크 증거는 없다. Lead `efdb7eca097147ffb6c43674a6bc1ff0`의 proceed는 계획 작성에 한정한다.
 
 후속 확인 대상은 최대2GET compiler 취득·고정 profile 확장·두 입력 오프라인 분석이다. 기존 요청은 계획 구체화까지였고 AGENTS.md의 자동 compiler 다운로드 제외 및 외부 실행 범위 확인 규칙이 적용되므로 실행 승인은 별도로 받는다.
+
+이후 사용자 실행 승인에 따른 [단발 취득 결과](2026-10-25-jpyc-compiler-acquisition.md)는 별도 기록했다. 계획 작성 당시의 위 미실행 상태는 보존한다.

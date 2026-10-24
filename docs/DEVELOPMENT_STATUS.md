@@ -4,6 +4,8 @@
 
 ## 완료 범위
 
+- 2026-10-25 사용자 승인에 따른 [JPYC Ethereum compiler 단발 취득](research/2026-10-25-jpyc-compiler-acquisition.md)은 첫 metadata1GET의 HTTPError로 실패 종료했다. 재시도·artifact 취득·compiler 실행·profile 변경·대상 분석·RPC0이다. HTTP 상태 코드/원인 UNKNOWN과 기존 배포 binding UNKNOWN을 유지한다. [ADR0093](adr/0093-bounded-jpyc-compiler-acquisition.md)의 이번 예외는 소비 완료이며 추가 취득은 새 승인 대상이다.
+
 - 2026-10-25 [JPYC Ethereum compiler 후속 계획](research/2026-10-25-jpyc-compiler-plan.md)을 구체화했다. 저장 후보2개 hash·Solidity6/17개를 재확인하고 solc0.8.11 취득 최대2GET·고정 profile·오프라인 분석의 제안 한도를 정했다. 계획만 완료했으며 다운로드·대상 compiler 실행·profile 변경·RPC0이다. 실제 취득·실행은 추가 사용자 승인 후 진행한다.
 
 - 2026-10-25 사용자 후속 지시에 따라 [JPYC/JPYSC 공개 HTML 취득·선택 소스 검토](research/2026-10-25-jpy-public-html-source-review.md)를 수행했다. 공식2·계약5·표시 구현체4페이지를 비공개 저장하고4배포의 proxy/implementation8묶음·Solidity119파일·import161연결/미해결0을 확보했다. Kaia는 HTML만 확보해 추출 불가/INCONCLUSIVE를 유지한다. 수동 함수/modifier 검토는 별도 SOURCE_REVIEWED이며 compiler/AST·RPC·배포 비교·권한 행사0, 제품 지원·기존 판정/원문·DB/UI 변경0이다. 앞선 로컬 입력 미확보 기록은 과거 결과로 보존한다.
