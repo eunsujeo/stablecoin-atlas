@@ -29,3 +29,11 @@
 승인된 단발 시도는 실패 종료했다. 추가 요청 없이 할 수 있는 기존 소스 수동 검토는 [이전 기록](2026-10-25-jpy-public-html-source-review.md)에 완료되어 있다. compiler profile/AST 분석을 완료하려면 검증 가능한0.8.11 bytes가 필요하다.
 
 재시도를 원할 경우 오류 코드·제한된 오류 응답을 보존하는 별도 단발 계획을 먼저 승인받는다. 제안은 같은 고정 metadata1GET과 성공 시에만 고정 artifact1GET, 기존 크기/시간 한도·재시도0·전환0·검증 후 오프라인2입력이라는 범위다. 새 승인이 없으면 시작하지 않는다. 이번 실패를 새 계획의 허가나 compiler 미지원 확정으로 해석하지 않는다.
+
+## 재시도 전 로컬 보완
+
+사용자의 다음 대응 질문에 따라 기존 실행 스크립트/소비/receipt를 보존하고 `.state/acquire-jpyc-solc-once-v2.py`를 별도로 준비했다. HTTPError status와 최대64KiB 오류 body를 비공개 로컬에 기록하며 body 읽기 실패도 status와 구분한다. 오류 본문·응답 header·예외 문자열은 stdout에 출력하지 않는다. redirect 추종은 여전히0이고 새 전용 root를 사용한다. 실제 네트워크 재요청은 아직 승인받거나 실행하지 않았다.
+
+가짜403/503/302/오류 body 읽기 timeout의4건에서 status 보존·64KiB 절단·실패 후 artifact 미취득·소비된 실행의 재호출 차단을 확인했다(pass4/fail0, 실제 network0). 결과는 `.state/agent-logs/jpyc-solc-v2-offline-tests.json`에 보존한다. 이 검증은 실제 다운로드 원인을 밝혔다는 증거가 아니다.
+
+읽기 timeout 시험에서는 이미 받은4096바이트와 status를 함께 보존했다. 새 root의 소유자/권한을 확인하고 기존 root나 symlink는 배타 생성 단계에서 거절한다. Lead `78868b3a1e90421babbcf03f82a33146`의 proceed는 이 로컬 준비·검증만 허용하며 외부 재요청 승인이 아니다.

@@ -9,3 +9,5 @@
 - 읽을 파일: docs/research/2026-10-25-jpyc-compiler-acquisition.md, docs/adr/0093-bounded-jpyc-compiler-acquisition.md, docs/research/2026-10-25-jpyc-compiler-plan.md
 
 비공개: .state/jpyc-solc-0811-acquisition/consumed.json 및 receipt.json, .state/acquire-jpyc-solc-once.py. 추가 Agent/pane 없음. 이전 untracked docs/handoff/2026-10-22-router-lead-review.md는 보존했다. 질문으로 끝나는 턴이므로 자동 새 대화 예약을 하지 않는다.
+
+후속 로컬 보완: .state/acquire-jpyc-solc-once-v2.py를 별도 준비했다(실행 root는 -v2, 외부 미실행). HTTPError status·최대64KiB body·읽기 실패 시 이미 받은 부분 bytes를 저장한다. 가짜403/503/302/부분읽기timeout pass4/fail0, root symlink 거절 pass1/fail0, 실제 network0. npm run check > .state/agent-logs/jpyc-solc-v2-check.log 2>&1 — rc=0 tests537/pass537/fail0/cancelled0/skipped0. git diff --check rc=0. Lead78868b3a1e90421babbcf03f82a33146 answered/proceed는 로컬 보완만 허용한다. 외부 새 시도 승인은 여전히 필요하며 새 root로 승인 경계를 우회하지 않는다. 작은 후속 수정이므로 자동 새 대화 예약 안 함.
