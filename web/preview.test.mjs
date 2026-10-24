@@ -24,10 +24,11 @@ test('preview binds loopback and serves only fixed assets; HEAD, CSP and same-or
     assert.match(document.body, /src="\/atlas\.js"/);
     assert.ok(document.body.includes('href="/legacy.html">기존 화면</a>'));
     for (const path of ['/atlas.html', '/index.html']) assert.equal((await read(port,path)).body,document.body);
-    for (const anchor of ['live','overview','validation','reports']) assert.ok(document.body.includes(`href="/legacy.html#${anchor}"`));
+    for (const anchor of ['live','overview','validation','reports','assets','compare']) assert.ok(document.body.includes(`href="/legacy.html#${anchor}"`));
     const legacy=await read(port,'/legacy.html');
+    assert.ok(legacy.body.includes('href="/#coverage"'));
     assert.match(legacy.body, /src="\/evidence\.js"/);assert.ok(legacy.body.includes('href="/"'));
-    for (const id of ['validation-screen','reports-screen','overview-screen','live-screen']) assert.ok(legacy.body.includes(`id="${id}"`));
+    for (const id of ['validation-screen','reports-screen','overview-screen','live-screen','assets-screen','compare-screen']) assert.ok(legacy.body.includes(`id="${id}"`));
     const legacyShared=await read(port,'/legacy.html?coin=jpyc&network=polygon&source=minted&period=90d&comparison=change');
     assert.equal(legacyShared.status,200);assert.equal(legacyShared.body,legacy.body);
     assert.equal((await read(port,'/legacy.html?coin='+ 'x'.repeat(2048))).status,404);
