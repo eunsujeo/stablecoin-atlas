@@ -4,6 +4,8 @@
 
 ## 완료 범위
 
+- 2026-10-25 [JPYC Ethereum 오프라인 소스 분석](research/2026-10-25-jpyc-offline-source-review.md)을 완료했다. 사용자 승인 Chrome metadata/artifact 각1회는 HTTP200이며 solc0.8.11의 고정 hash·전체 버전을 확인하고 [ADR0094](adr/0094-pinned-solc-0811-browser-artifact.md) profile과 좁은 AST 호환성을 추가했다. 저장 proxy/implementation2입력 컴파일 성공·명시 진입점39개 분석, 구현체 immutable 값 미제공으로1.2 보고서는 PARTIAL·배포 binding UNKNOWN이다. 새 RPC/DB/UI0·기존 실패/원문/판정 유지, 검사541개 통과. 다른 PC의 cache 자동 취득은 없다.
+
 - 2026-10-25 별도 승인된 [JPYC compiler v2 취득](research/2026-10-25-jpyc-compiler-acquisition.md#사용자-승인-후-v2-실제-실행)은 metadata1GET에서 HTTP403·오류 코드1010을 확보하고 실패 종료했다. 원래 실패와 분리했으며 artifact/compiler/profile/대상 분석·RPC0이다. 거부 주체/정책은 UNKNOWN, 다른 배포 경로는 새 승인 전 미실행이다.
 
 - 2026-10-25 사용자 승인에 따른 [JPYC Ethereum compiler 단발 취득](research/2026-10-25-jpyc-compiler-acquisition.md)은 첫 metadata1GET의 HTTPError로 실패 종료했다. 재시도·artifact 취득·compiler 실행·profile 변경·대상 분석·RPC0이다. HTTP 상태 코드/원인 UNKNOWN과 기존 배포 binding UNKNOWN을 유지한다. [ADR0093](adr/0093-bounded-jpyc-compiler-acquisition.md)의 이번 예외는 소비 완료이며 추가 취득은 새 승인 대상이다.

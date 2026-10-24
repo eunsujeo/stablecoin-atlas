@@ -53,3 +53,5 @@ v2 실제 HTTP1/artifact0·재시도0·redirect 추종0·endpoint 전환0·compi
 같은 host에 추가 요청하지 않는다. 다음 후보는 `https://raw.githubusercontent.com/ethereum/solc-bin/gh-pages/bin/list.json` 및 `https://raw.githubusercontent.com/ethereum/solc-bin/gh-pages/bin/soljson-v0.8.11+commit.d7f03943.js`다. solc-bin 저장소의 원문 제공 후보로 제시하며 이번에는 공식성·제공 상태를 네트워크로 확인하지 않았다. 현재 승인된 endpoint 전환0 경계 밖이므로 사용자 추가 승인 전에는 조회하지 않는다.
 
 승인받을 실행 단위는 새 소비 root에서 위 고정2URL만 최대2GET(metadata1·성공 검증 후 artifact1)·재시도0·redirect0·추가 전환0, 기존2MiB/32MiB·전체120초·요청20초/읽기45초·오류 body64KiB 보존이다. metadata의 정확한 release/build/path/longVersion·유일성·SHA256 검증, artifact hash 대조, 검증 후 기존 staging/worker 경계를 유지하는 고정 profile과 저장2입력 오프라인 분석이라는 후속 범위는 [원래 계획](2026-10-25-jpyc-compiler-plan.md)을 따른다. 같은 출처 hash 일치는 독립 진위 인증이 아니며 새 RPC는 포함하지 않는다. 미승인 상태의 후보 URL·SHA는 실행 pin으로 등록하지 않는다.
+
+후속 사용자는 host 전환 대신 같은 host의 브라우저 metadata 확인과 compiler 파일1개 취득·검증·분석을 승인했다. [브라우저 성공·오프라인 분석 결과](2026-10-25-jpyc-offline-source-review.md)를 별도로 기록하며 위 Python 실패·당시 미확보 상태는 보존한다. 제안한 GitHub 후보로 요청하지 않았다.

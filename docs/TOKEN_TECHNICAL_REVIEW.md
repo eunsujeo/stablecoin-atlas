@@ -73,6 +73,8 @@ compiler 전체 버전은 외부 호출 없이 다음으로 확인한다.
 
 compilerVersion이 `0.6.12+commit.27d51765.Emscripten.clang`이면 고정 registry의 기존 `.state/usdc-source/compiler/soljson.js` 캐시를 사용할 수 있다. SHA256 `3e1956c550ca48e289044c7c0bd892403081b4b5e17e77ce707c815ce6c4228f`와 소유자·regular file·nofollow/32MiB 조건을 확인한 바이트만 전용0700 임시 디렉터리/0600 CJS로 staging한다. worker에서 hash·전체 버전을 재확인하고 parent가 종료/오류/timeout에 정리한다. 캐시가 없거나 다르면 다운로드·다른 버전으로 대체하지 않는다. `COMPILER_PROFILE` 근거에 pin·provenance·독립 인증 NOT_TESTED를 기록한다. 임의 실행 파일/URL/해시를 입력하는 옵션은 없다.
 
+[ADR0094](adr/0094-pinned-solc-0811-browser-artifact.md)의 사용자 승인으로 확보한 `0.8.11+commit.d7f03943.Emscripten.clang`도 명시 고정 profile이다. 경로는 `.state/jpyc-solc-browser-artifact/soljson.js`, SHA256은 `64117d4b13bfc5bc6e5f80823519b140e753a0c09e99edd756772dc3029bc1f8`이며 같은 파일/staging/worker 경계를 적용한다. provenance는 `BROWSER_ACQUIRED_PINNED_CACHE`, 독립 인증은 NOT_TESTED다. CLI가 파일을 취득하거나 미확보 cache를 대체하지 않는다. 이 버전의 내장 require/assert/msg uint32 참조는 정확한 compiler 버전·이름·타입·선언 부재 조건으로만 인식한다.
+
 ```sh
 node --input-type=module -e 'import solc from "solc"; console.log(solc.version())'
 ```

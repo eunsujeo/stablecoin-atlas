@@ -1,13 +1,12 @@
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import solc from 'solc';
-import { cachedCompiler, inspectCachedCompiler, stageCachedCompiler } from './compiler-cache.mjs';
+import { inspectCachedCompiler, stageCachedCompiler } from './compiler-cache.mjs';
 
 export const compilerVersion = String(solc.version());
 export async function compilerProfile(version: string): Promise<{ id: string; version: string; sha256: string | null } | null> {
   if (version === compilerVersion) return { id: 'installed-solc', version, sha256: null };
-  if (version !== cachedCompiler.version) return null;
-  return await inspectCachedCompiler();
+  return await inspectCachedCompiler(version);
 }
 export type AstNode = { nodeType: string; id: number; src: string; [key: string]: unknown };
 export interface CompileResult {
@@ -49,7 +48,7 @@ export async function compile(input: CompilerInput, file: string, contract: stri
   if (!Number.isInteger(timeout) || timeout < 1 || timeout > 20_000) throw new Error('INVALID_COMPILER_BUDGET');
   const profile = await compilerProfile(version);
   if (!profile) throw new Error('COMPILER_VERSION_UNAVAILABLE');
-  const stage = profile.id === cachedCompiler.id ? await stageCachedCompiler() : null;
+  const stage = profile.id === 'installed-solc' ? null : await stageCachedCompiler(profile.version);
   try { return await new Promise<CompileResult>((resolve, reject) => {
     const environment = { ...process.env };
     delete environment.NODE_OPTIONS; delete environment.NODE_PATH;

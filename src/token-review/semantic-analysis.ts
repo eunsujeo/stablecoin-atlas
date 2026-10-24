@@ -10,6 +10,19 @@ export function analyzeSource(input: CompilerInput, compiled: CompileResult, fil
   evidence: (kind: string, data: unknown) => string): StaticAnalysis {
   const context = sourceContext(input, compiled, file, contractName);
   const { byId, location, text, contracts } = context;
+  function builtinIdentifier(node: AstNode | undefined): boolean {
+    if (node?.nodeType !== 'Identifier' || !Number.isInteger(node.referencedDeclaration)) return false;
+    const reference = node.referencedDeclaration as number;
+    if (reference < 0) return true;
+    // This pinned compiler encodes negative builtin references as uint32 values.
+    // Positive source declarations and unknown compiler encodings stay unresolved.
+    if (compiled.compiler !== '0.8.11+commit.d7f03943.Emscripten.clang'
+      || reference < 0x80000000 || reference > 0xffffffff || byId.has(reference)) return false;
+    const identifier = String((node.typeDescriptions as { typeIdentifier?: string } | undefined)?.typeIdentifier ?? '');
+    return node.name === 'msg' && identifier === 't_magic_message'
+      || node.name === 'require' && identifier.startsWith('t_function_require_')
+      || node.name === 'assert' && identifier.startsWith('t_function_assert_');
+  }
   const state = (node: AstNode): StateReference => ({ id: node.id, name: String(node.name), type: type(node), location: location(node) });
   const variables = contracts.flatMap(c => (c.nodes as AstNode[]).filter(n => n.nodeType === 'VariableDeclaration' && n.stateVariable === true));
   const entries = new Map<string, AstNode>();
@@ -97,8 +110,8 @@ export function analyzeSource(input: CompilerInput, compiled: CompileResult, fil
         if (node.nodeType === 'FunctionCall') {
           const original = ast(node.expression);
           const expression = original?.nodeType === 'FunctionCallOptions' ? ast(original.expression) : original;
-          if (expression?.nodeType === 'Identifier' && ['require', 'assert'].includes(String(expression.name)) && Number(expression.referencedDeclaration) < 0) {
-            condition = ast((node.arguments as unknown[])[0]); kind = expression.name === 'require' ? 'REQUIRE' : 'ASSERT';
+          if (builtinIdentifier(expression) && ['require', 'assert'].includes(String(expression?.name))) {
+            condition = ast((node.arguments as unknown[])[0]); kind = expression?.name === 'require' ? 'REQUIRE' : 'ASSERT';
           } else if (node.kind !== 'typeConversion' && node.kind !== 'structConstructorCall') {
             const target = byId.get(expression?.referencedDeclaration as number);
             const libraryPublic = target?.nodeType === 'FunctionDefinition' && ['public', 'external'].includes(String(target.visibility))
@@ -109,7 +122,7 @@ export function analyzeSource(input: CompilerInput, compiled: CompileResult, fil
               const virtual = target.virtual === true || (target.baseFunctions as unknown[] | undefined)?.length || text(expression).startsWith('super.');
               edge(node, fn, target, virtual ? 'VIRTUAL_DECLARATION' : 'INTERNAL_DECLARATION', current.ancestors);
               if ((node.arguments as unknown[] | undefined)?.length) uncertain.add('CALL_ARGUMENTS_NOT_SUBSTITUTED');
-            } else if (!expression || Number(expression.referencedDeclaration) >= 0 || expression.nodeType !== 'Identifier' || !Number.isInteger(expression.referencedDeclaration)) edge(node, fn, target, 'UNRESOLVED', current.ancestors);
+            } else if (!builtinIdentifier(expression)) edge(node, fn, target, 'UNRESOLVED', current.ancestors);
           }
         }
         if (condition) {
@@ -121,7 +134,7 @@ export function analyzeSource(input: CompilerInput, compiled: CompileResult, fil
               const base = ast(sender?.expression);
               const declaration = byId.get(other?.referencedDeclaration as number);
               if (sender?.nodeType === 'MemberAccess' && sender.memberName === 'sender' && base?.nodeType === 'Identifier'
-                && base.name === 'msg' && Number(base.referencedDeclaration) < 0 && declaration?.stateVariable === true
+                && base.name === 'msg' && builtinIdentifier(base) && declaration?.stateVariable === true
                 && /^address(?: payable)?$/.test(type(declaration))) callerEqualityState = state(declaration);
             }
           }
