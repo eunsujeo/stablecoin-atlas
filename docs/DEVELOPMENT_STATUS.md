@@ -64,7 +64,9 @@ Allium은 [Explorer 표본](research/allium-samples/README.md)에 이어 [최근
 
 이어 [Allium 공급량·전송량 오프라인 대조](research/provider-data-use-priorities-2026-10-24.md#allium-저장-공급량전송량의-오프라인-대조)를 완료했다. 기존4개 snapshot의274관측을 당시 DB 조회본과 비교해 차이0·입력42파일 불변을 확인했다. Kaia 미일치/JPYSC3일 누락·십진 문자열/null·정밀도/집계 시간대 미확인을 유지하며 probe_id 접근 표본6건은 제외했다. 현재 DB/브라우저 재검사는 하지 않았다.
 
-[토큰 기본정보·등록·보유자 표본 검토](research/provider-data-use-priorities-2026-10-24.md#토큰-기본정보등록보유자-표본의-오프라인-검토)도 완료했다. 저장4응답의 receipt/고정 요청/원문 hash와 로컬 Ethereum USDC 식별을 대조하고100개 중복 없는 상위 주소 표본의 숫자 문자열을 보존했다. 공급량 정의·전체 보유자 분포·기관 목록 완전성·최소 단위 정확성은 미확인이며 새 API/DB/UI 변경은0이다. 다음은 우선순위5의 저장 전송·지갑형·포지션·시장 목록 표본 오프라인 검토다.
+[토큰 기본정보·등록·보유자 표본 검토](research/provider-data-use-priorities-2026-10-24.md#토큰-기본정보등록보유자-표본의-오프라인-검토)도 완료했다. 저장4응답의 receipt/고정 요청/원문 hash와 로컬 Ethereum USDC 식별을 대조하고100개 중복 없는 상위 주소 표본의 숫자 문자열을 보존했다. 공급량 정의·전체 보유자 분포·기관 목록 완전성·최소 단위 정확성은 미확인이며 새 API/DB/UI 변경은0이다.
+
+[전송·지갑형·포지션·시장 목록 검토](research/provider-data-use-priorities-2026-10-24.md#전송지갑형포지션시장-목록의-오프라인-검토)로 우선순위1~5의 오프라인 검토를 완료했다. 저장4응답·입력9파일 불변을 확인했다. Arkham 전송은 BLUR1건이며 Allium 거래의 전송 자산도 USDC와 다르다. Allium 포지션4개는 USDC 컨트랙트 주소에 대한 공급자 응답이고 시장1개는 USDC quote의 perp 목록이므로 고객 보유/활동·스테이블코인 전송·배포 지원으로 해석하지 않는다. 거래/시장 문자열 cursor와 포지션 null cursor/total·누락·단위 UNKNOWN을 보존했다. API/DB 접속·기존 DB/UI 변경0이며 다음 제품 활용 범위는 사용자 확인이 필요하다.
 
 [ADR0080](adr/0080-bounded-allium-geographic-data.md)의 Allium 지리 자료 수집/UI 요청과 후속 직접 호출 지시를 진행했다. 브라우저 HTML에서 Geo 링크를 확보했지만 문서 로그인이 필요했다. 계정 지리 메타데이터와 공개 공식 geo_balances_daily를 각각 직접1회 조회했으며 합계2run/6HTTP는 HTTP200 뒤 provider `failed`·UNKNOWN으로 종료됐다. 상세 사유는 미확인이다. UI에는 직접 조회한 잔액 INCONCLUSIVE/미확보·사용량/국가간 흐름 NOT_TESTED를 연결했다. 검토된 잔액 집계 표/필터 경로는 가상 자료로만 확인했으며 실제 국가별 숫자는 **미확보**다. 두 슬롯을 재소비하지 않으며 기존 live-once·원문·공급량/전송량을 보존했다. 근거는 [조사 결과](research/allium-geography-availability-2026-10-24.md)를 따른다.
 

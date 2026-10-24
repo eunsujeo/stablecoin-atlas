@@ -112,6 +112,21 @@ Allium 응답은 배열이고 Arkham holders 최상위 필드는 token/totalSupp
 
 비공개 `.state/provider-token-review/20261024-token-holders-observation.json`에4개 FIELD_CONTRACT_OBSERVED와 원문/receipt hash·원래 요청시각·숫자 문자열·한계를 보존했다(파일0600/디렉터리0700). `.state/review-token-holders-offline-20261024.mjs`는 일회성 오프라인 감사이며 제품 parser/importer가 아니다. 입력10파일의 전후 hash가 같고 기존 원문/판정/시각·DB/UI·소비 슬롯 변경과 API/DB 접속은0이다. 이 상태는 제품 PASS·SOURCE_REVIEWED·금액/지원 인증이 아니며 비용 UNCONFIRMED를 유지한다.
 
+## 전송·지갑형·포지션·시장 목록의 오프라인 검토
+
+2026-10-24 우선순위5를 완료했다. ADR0083 저장 응답4개를 앞선 두 가격 검토 보고서의 동일 receipt pin에 결합하고 `reviewCapabilitySources`로 고정 plan·요청 method/path/body hash·단일 HTTP200 JSON 시도·원문 hash/바이트 수·원래 요청시각·파일 보호를 확인했다. 숫자 토큰22개는 lexeme 문자열로, 원래 숫자형 문자열22개와 null·빈 배열은 원래 형태로 비공개 보고서에 보존했다. 금액의 Number 변환·합산·최소 단위 환산은 하지 않았다.
+
+| 저장 표본 | 확인한 관측 | 활용 한계 |
+| --- | --- | --- |
+| Arkham transfers | `base=binance&chains=ethereum&limit=1`의1행은 BLUR이며 고정 USDC 주소와 다르다. 최상위 transfers/count, count는 숫자 토큰 `10000`; blockTimestamp는 UTC 문자열 문법 확인 | 요청에 토큰 필터가 없다. USDC 전송 표본이나 국가간 송금/결제 증거로 사용하지 않음. count의 정확한 의미·상한·전체 이력 범위 UNKNOWN. cursor/total 필드 부재도 완료 증거가 아님 |
+| Allium transactions | items1개, ethereum/address가 요청한 USDC 컨트랙트와 일치. asset_transfers1개의 자산 주소는 USDC와 다름. labels1·activities0. fee의 raw_amount/amount_str 문자열과 amount 숫자를 각각 보존 | 고객 지갑 활동/USDC 전송을 인증하지 않음. 전송 amount.raw_amount는 정수 문자열이지만 asset.decimals·amount_str·amount는 null이므로 환산하지 않음. fee_currency의6필드는 모두 null이며 수수료 자산/단위 UNKNOWN. 비어 있지 않은 문자열 cursor를 보존하고 추가 페이지는 읽지 않음 |
+| Allium positions | items4개의 ethereum/address가 요청한 컨트랙트와 일치. lending1개(aave_v3), staked3개(cbeth/lido_steth/etherfi_weeth). total_value_usd와 수량/USD 문자열, 토큰 decimals 숫자를 보존 | 공급자의 포지션 귀속/가치/고객 보유를 검증하지 않음. lending의 borrows/collateral은 빈 배열이며 전체 차입 부재로 확대하지 않음. staked3개의 pool_address/apy는 null. cursor=null·total=null은 전체 프로토콜 완전성이나 total=0을 뜻하지 않음 |
+| Allium markets | quote_asset.symbol=USDC인 perp 시장 목록1개. market_id/venue/base_asset/quote_asset/settlement/active와 tick_size/contract_size/perp.funding_interval 필드, 비어 있지 않은 문자열 cursor 관측 | 체인/배포 컨트랙트를 인증하는 응답이 아니며 Ethereum USDC 배포와 직접 결합하지 않음. tick/contract/funding 단위 UNKNOWN. 목록 표본을 캔들·가격·거래량·펀딩 이력 지원으로 확대하지 않으며 해당 세부 경로 NOT_TESTED 유지 |
+
+Allium 거래의 block_timestamp와 Arkham blockTimestamp는 이벤트 필드이며 요청시각과 분리했다. 포지션·시장 목록에는 공급자 기준시각을 인증할 필드가 없고, 모든 표본의 현재성·완전성·필드 단위/산식·최소 단위 정확성은 미확인이다. null·빈 배열·부재 필드를0이나 기능 부재로 바꾸지 않는다. 기존 Allium PnL HTTP500·최초 balances HTTP400과 [ADR0084](../adr/0084-single-allium-balance-array-probe.md)의 별도 배열 요청 결과는 이번4개 성공 응답과 합치거나 덮어쓰지 않는다. Arkham 잔액·기관 전체 자료를 이번 조회 범위에 추가하지 않았다.
+
+비공개 `.state/provider-wallet-review/20261024-wallet-market-observation.json`에4개 FIELD_CONTRACT_OBSERVED와 원문/receipt hash·원래 요청시각·숫자 문자열·커서·누락 경로를 보존했다(파일0600/디렉터리0700). `.state/review-wallet-market-offline-20261024.mjs`는 일회성 오프라인 감사이며 제품 parser/importer가 아니다. 입력9파일 전후 hash와 보고서 재독이 일치했다. API/DB 접속·소비 슬롯·기존 DB/UI 변경은0이며 원래 판정/시각과 비용 UNCONFIRMED를 유지한다. 필드 관측은 제품 PASS·SOURCE_REVIEWED·지원/금액 인증이 아니다.
+
 ## 다음 구현 단위
 
-우선순위5의 저장 전송·지갑형·포지션·시장 목록 표본을 오프라인 검토한다. 토큰 컨트랙트 주소 표본을 고객 지갑으로 해석하지 않고, 커서·누락·필드 단위와 확보 범위만 확인한다. 기존 원문/판정/시각·DB/UI를 유지하며 새 API·키·재시도·소비·공급자 전환은 하지 않는다.
+우선순위1~5의 저장 자료 오프라인 검토를 완료했다. 기존 공급량·전송량 연결 외 가격/토큰/상위 보유자/전송/지갑형/시장 목록은 연구 관측이며 새 DB/UI 입력이나 제품 parser 지원으로 승격하지 않았다. 다음 구현은 사용 목적과 대상 필드·단위·누락 계약을 먼저 선택한 뒤 범위를 확정한다. 새 수집·비용·키·재시도·소비·공급자 전환·DB/UI 변경은 별도 사용자 확인이 필요하며, 보류 표의 실패/UNKNOWN·NOT_TESTED를 재시도하지 않는다.
