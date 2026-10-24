@@ -27,6 +27,10 @@ ADR0076 live 저장본은 같은 import 명령에 `--execution-authorization PRI
 
 ## 로컬 표시
 
+2026-10-24 사용자 후속 지시로 기본 Overview는 [ADR0087](adr/0087-allium-observed-dashboard.md)의 관측값 전용 화면이다. 코인·체인별 공급량/전송량 추이와 마지막 관측 표, 체인 클릭의 일별 상세를 제공한다. 값이 없는 날짜/지표/체인은 표시 항목을 만들지 않고 날짜 공백의 선을 연결하지 않는다. 실제0은 유지한다. 원래 조사 상태 DTO와 아래의 기존 연구 표 구현은 보존하되 기본 화면의 중복/미확보 상태 표는 숨긴다.
+
+명시적 오프라인 JSON 모드: `npm run ui -- --survey-file PRIVATE_REVIEWED_SURVEY_DTO.json`. 기존 공개용 ALLIUM_STORED_SURVEY DTO만 허용하고 파일은128KiB로 제한한다. DB 모드와 함께 지정하지 않는다. 새 PC에 파일이 없으면 값을 만들어 채우지 않는다. 이 명령은 파일을 읽기만 하며 수집·DB 연결·파일 생성을 실행하지 않는다.
+
 `npm run ui -- --database --database-env .state/market-db-secrets/reader.env`의 Overview에서 **Allium 다중 체인 · 저장 조사**를 본다. 최신 저장 window의11배포를 자료/토큰/네트워크로 필터링하고, 제목과11×7칸은 해당 기간으로 표시한다. 현재 실제 저장 기간은10/16~22다. 다른 window의 자료로 누락 종류/날짜를 채우지 않는다. 관측 행의 필드 null은 `—`, 해당 날짜 행 부재는 `미확보`, Kaia JPYC의 공급자 미일치는 `INCONCLUSIVE`다. XRPL은 조회하지 않은 NOT_TESTED이며 선택 가능한 조사 대상에 포함하지 않는다.
 
 공급량6개 필드는 tokens/USD와 세 정의를 각각 표시한다. 전송량은 지갑 간 이동량이며 매매 거래량과 다르다. 합산·환산·기본 공급자 전환은 하지 않는다. 관측 근거에서 원래 UTC 조회시각·원문 SHA·공급자 native/조정 제공 플래그를 확인한다. 집계 시간대 UNKNOWN과 최소 단위 정밀도 미검증을 유지한다.
