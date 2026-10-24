@@ -15,7 +15,7 @@ export function initializeSupplyOverview(root,{read}){
   const selectedCoin=selectedCoins[currency],groups=allGroups.filter(g=>g.coinId===selectedCoin);
   for(const group of groups){group.color=networkColors[group.networkId]??'#638bff';group.dash='';group.network.name=index?.networks.find(n=>n.id===group.networkId)?.name??group.networkId.toUpperCase();}
   root.hidden=false;root.replaceChildren();
-  const heading=node('div',undefined,'panel-heading'),title=node('div');title.append(node('p','STABLECOIN SUPPLY','eyebrow'),node('h2',selectedCoin.toUpperCase()+' · 네트워크별 공급량 추이'),node('p','DeFiLlama · '+currency+' 연동 · 체인별 일별 유통량 (tokens)','chart-note'));
+  const heading=node('div',undefined,'panel-heading'),title=node('div');title.append(node('p','STABLECOIN SUPPLY','eyebrow'),node('h2',selectedCoin.toUpperCase()+' · 네트워크별 공급량 추이'));
   const switches=node('div',undefined,'supply-switches');
   const buttons=(label,options,value,change,target=switches)=>{const box=node('div',undefined,'chart-filters');box.setAttribute('role','group');box.setAttribute('aria-label',label);for(const [id,text]of options){const b=node('button',text);b.type='button';b.setAttribute('aria-label',label+' · '+text);b.setAttribute('aria-pressed',String(value===id));b.addEventListener('click',()=>{change(id);render();});box.append(b);}target.append(box);};
   buttons('조회 기간',[['30d','30D'],['90d','3M'],['1y','1Y']],period,v=>period=v);
@@ -45,9 +45,7 @@ export function initializeSupplyOverview(root,{read}){
    button.addEventListener('click',()=>{hidden.has(group.key)?hidden.delete(group.key):hidden.add(group.key);render();});
    for(const event of ['pointerenter','focus'])button.addEventListener(event,()=>emphasize(group.key));for(const event of ['pointerleave','blur'])button.addEventListener(event,()=>emphasize(null));
   }
-  ranking.append(list,node('p','공급량 내림차순 · 클릭하면 그래프 표시 전환. 막대는 최대 관측값 대비 길이입니다.','chart-note'));
-  if(from&&groups.length)root.append(node('p',from+' ~ '+to+' · 공통 조회 기간 / 실제 마지막 관측 '+groups.flatMap(g=>g.rows.map(r=>r.observedAt.slice(0,10))).sort().at(-1),'chart-note'));
-  root.append(node('p','색상은 네트워크입니다. 순위에 마우스를 올리거나 키보드로 이동하면 해당 선을 강조합니다. '+currency+' 연동 토큰의 수량이며 가치 비교나 전체 합계가 아닙니다.','chart-note'),node('p','증감률은 선택 기간 내 각 계열의 첫 관측 대비입니다. 출시 시점·자료 범위에 따라 실제 관측 기간이 다르며 누락 날짜는 연결하지 않습니다. 발행·소각량이나 계약 totalSupply를 뜻하지 않습니다.','chart-note'));
+  ranking.append(list);
   if(focus)[...root.querySelectorAll('[aria-label]')].find(n=>n.getAttribute('aria-label')===focus)?.focus({preventScroll:true});
  }
  let observedWidth=0;

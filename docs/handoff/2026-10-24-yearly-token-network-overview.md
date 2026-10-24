@@ -1,4 +1,5 @@
 # 1년 자료 · 단일 토큰 · 네트워크 순위 Overview
+- 후속 문구 정리: 사용자 요청으로 공급자 출처 문구와 하단 기간/관측일·색상/범위/증감률 설명, 순위 사용 안내를 제거했다. npm run check rc0 tests506/pass506/fail0/cancelled0/skipped0(.state/agent-logs/overview-copy-cleanup-check.log). node .state/overview-copy-cleanup-browser.mjs http://127.0.0.1:4173 rc0 PASS: 삭제 문구/기존 기능·값·두테마390px·외부0/런타임0(.state/agent-logs/overview-copy-cleanup-browser.log). 같은 화면의 작은 수정으로 새대화 예약 안 함.
 - 목표: 기존 DeFiLlama 1년 공급량/증감률, USD/JPY 구분, 단일 토큰 선택과 그래프 옆 네트워크 공급량 순위.
 - 끝난 것: 기존5토큰/27계열/8,598값 보존. 통화별 선택 하나 기억(기본USDC/JPYSC). 네트워크 고정색 실선, 같은색 우측 순위와 최신값/기준일, bigint 정렬/공동순위, 최대관측 대비 막대. 점유율/합계가 아니며 증감률 모드에서도 공급량 순위다. hover/focus 선 강조, 클릭 표시/숨김. 긴 하단 범례 제거, 모바일 순위는 그래프 아래. 만/억/조 표기와 원래 정확값 tooltip. 기본1Y/3M/30D·공통기간/첫관측·0기준 제외·날짜공백·로그눈금·키보드/resize·source pin/실패 보호 유지. 일반 시장그래프 미정의options 참조도 수정하고 회귀 검증했다. 새API/키/DB변경0. 이전Lead4260f19f23a34743afef6ce25a08000b proceed 조건 유지. 추가Agent 없음. 구현 b66b03b push 완료.
 - 변경 파일: web/supply-overview-model.js, web/supply-overview.js, web/supply-overview.test.mjs, web/market-chart.js, web/styles.css, docs/adr/0088-yearly-token-network-overview.md, docs/handoff/2026-10-24-yearly-token-network-overview.md
