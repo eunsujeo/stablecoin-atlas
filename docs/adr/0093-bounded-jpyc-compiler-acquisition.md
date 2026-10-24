@@ -13,3 +13,5 @@ RPC·서명/거래·DB/UI·다른 체인·JPYSC0.8.34는 제외한다. 오프라
 [실행 기록](../research/2026-10-25-jpyc-compiler-acquisition.md): 첫 metadata 요청이 HTTPError로 실패하여 추가 요청 없이 종료했다. artifact0·compiler 실행0·profile 변경0·대상 분석0이다. 새0.8.11 지원은 구현 완료가 아니다. 기존0.6.12와 설치 compiler 동작을 변경하지 않았다.
 
 승인된 두 요청 중 metadata 성공을 조건으로 하는 artifact 요청은 수행하지 않았다. 남은 숫자를 다른 진단/재시도에 사용할 수 없다. 새 시도는 별도 승인된 계획이 필요하다. 실패의 HTTP 상태 코드와 응답 본문은 확보하지 못했으므로 원인은 UNKNOWN으로 보존한다.
+
+이후 사용자가 오류 기록을 보완한 v2의 새 최대2GET을 승인했다. [후속 결과](../research/2026-10-25-jpyc-compiler-acquisition.md#사용자-승인-후-v2-실제-실행)는 첫 metadata HTTP403·응답 코드1010으로 실패 종료했으며 artifact/compiler/profile0이다. 원래 실패와 분리 보존한다. 배포 host 전환은 이 승인에 포함하지 않는다.
