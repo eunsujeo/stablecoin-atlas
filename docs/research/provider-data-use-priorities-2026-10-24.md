@@ -95,6 +95,23 @@ ADR0083의 SQL 접근 성공 표본6건은 원래 receipt의 응답 hash와 대�
 
 비공개 결과는 `.state/provider-survey-review/20261024-supply-volume-comparison.json`에0600으로 새로 보존했다(디렉터리0700). 비교 입력42개 파일은 검사 전후 hash가 같고 차이 목록은 비어 있다. 검사 스크립트는 `.state/review-survey-offline-20261024.mjs`의 일회성 오프라인 감사이며 제품 importer/지원 판정을 추가하지 않는다. 원문/조회본은 Git·웹에 게시하지 않았고 API·키·DB/UI·영속 소비 슬롯을 변경하지 않았다. 이 로컬 hash 연결은 공급자 인증이나 경제적 정확성 증명이 아니다.
 
+## 토큰 기본정보·등록·보유자 표본의 오프라인 검토
+
+2026-10-24 우선순위4를 완료했다. ADR0083 저장 응답4개를 기존 Allium/Arkham 가격 검토 보고서의 동일 receipt pin과 대조했다. 공통 `reviewCapabilitySources`로 고정 plan hash·GET/POST 경로/body hash·단일 HTTP200 JSON 시도·응답 hash/바이트 수·원래 요청시각·파일 보호를 확인했다. `data/asset-registry.json`과 `data/token-profiles.json`의 기존 Ethereum USDC 주소에만 대조했으며 공식 출처를 새로 조회하거나 현재 지원/주소 인증을 수행하지 않았다.
+
+| 저장 표본 | 확인한 관측 | 활용 한계 |
+| --- | --- | --- |
+| Allium token | 배열1개, object=token·ethereum·고정 주소·USDC·decimals6 일치. price와 attributes의13개 숫자를 lexeme 문자열로 보존; token_creation_time은 원래 문자열로 보존 | total_supply의 총/유통/조정 범위·단위/산식·holders_count 모집단·생성시각 의미·가격 통화/변화율 단위·시장 기준시각 UNKNOWN |
+| Arkham token-addresses | 네트워크 key8개, ethereum 주소가 고정 registry와 일치 | 나머지7개 네트워크 주소는 미검증. 등록 응답이 Adapter 지원이나 현재 공식 배포 인증을 뜻하지 않음 |
+| Arkham token-intelligence | identifier의 ethereum·고정 주소·pricingID=usd-coin과 symbol=USDC 일치 | name/symbol은 공급자 metadata이며 발행사 인증·현재성 증거로 확대하지 않음 |
+| Arkham holders | token 식별 일치, totalSupply.ethereum 숫자와 addressTopHolders.ethereum의100행. 주소 형식·ethereum 일치·중복0, 각 balance/usd/pctOfCap 숫자 문법 확인. entityTopHolders는 빈 object | 상위 주소 표본만 확보. 기관 보유 부재·전체 보유자 수/분포·순위 완전성·잔액 정확성을 인증하지 않음. pctOfCap 분모/단위와 totalSupply 산식 UNKNOWN |
+
+Allium total_supply와 Arkham totalSupply.ethereum은 이 저장본에서 각각 소수5자리, Arkham balance는 소수0/2/4/5/6자리다. Allium 속성 숫자는 최대 소수19자리이며 원문 지수 표기 없이 보존했다. decimals6은 토큰 설정 관측이며 USD/변화율 등의 표시 정밀도를6자리로 제한하지 않는다. Number 변환·반올림·최소 단위 환산·합산/점유율 재계산을 하지 않았으며 최소 단위 정확성은 미검증이다. 두 공급량 필드나 기존 전체 코인 유통량을 같은 정의로 합치지 않는다. 필드명에 usd가 있다는 사실과 통화/산식 검증을 구분한다.
+
+Allium 응답은 배열이고 Arkham holders 최상위 필드는 token/totalSupply/addressTopHolders/entityTopHolders뿐이다. 추가 cursor·다음 페이지·전체 보유자 수를 인증할 metadata는 관측하지 못했다. 다음 페이지 표시가 없다는 이유로 전체 수집 완료를 판정하지 않는다. 빈 기관 목록은0명으로, 누락 필드는0으로 바꾸지 않는다. 요청시각을 공급자 기준시각으로 대입하지 않는다.
+
+비공개 `.state/provider-token-review/20261024-token-holders-observation.json`에4개 FIELD_CONTRACT_OBSERVED와 원문/receipt hash·원래 요청시각·숫자 문자열·한계를 보존했다(파일0600/디렉터리0700). `.state/review-token-holders-offline-20261024.mjs`는 일회성 오프라인 감사이며 제품 parser/importer가 아니다. 입력10파일의 전후 hash가 같고 기존 원문/판정/시각·DB/UI·소비 슬롯 변경과 API/DB 접속은0이다. 이 상태는 제품 PASS·SOURCE_REVIEWED·금액/지원 인증이 아니며 비용 UNCONFIRMED를 유지한다.
+
 ## 다음 구현 단위
 
-우선순위4의 저장된 Allium 토큰 기본정보와 Arkham 등록/보유자 표본을 오프라인 검토한다. 기존 고정 Ethereum USDC 식별·필드의 수량/정밀도·공급량 정의·커서/완전성 한계를 확인하고 상위 보유자 표본을 전체 분포로 확대하지 않는다. 원문·기존 판정/시각·DB/UI를 유지하며 새 API·키·재시도·소비·공급자 전환은 하지 않는다.
+우선순위5의 저장 전송·지갑형·포지션·시장 목록 표본을 오프라인 검토한다. 토큰 컨트랙트 주소 표본을 고객 지갑으로 해석하지 않고, 커서·누락·필드 단위와 확보 범위만 확인한다. 기존 원문/판정/시각·DB/UI를 유지하며 새 API·키·재시도·소비·공급자 전환은 하지 않는다.
