@@ -54,7 +54,7 @@
 
 권한 행사는 현 범위의 완료조건이 아니며 역할 계정 수집·실제 전송/승인·서명은 추가하지 않는다. 이번 준비 결과를 이유로 새 RPC·compiler 다운로드·추가 조사를 자동 시작하지 않는다.
 
-후속 제안의 첫 단위는 **0.4.18 compiler 취득·고정 profile·사설 호환성 검증**이다. 새 외부 요청이므로 아직 미승인/미실행이다. 제안 한도는 공식 `https://binaries.soliditylang.org/bin/list.json` 1GET(2MiB)과 같은 host의 정확한 `soljson-v0.4.18+commit.9cf6e910.js` 1GET(32MiB), 합계최대34MiB/120초·요청각30초·재시도0·redirect0·다른 host/경로 전환0이다. metadata에서 해당 path/버전/SHA256/Keccak이 확인되지 않으면 artifact를 받지 않고 종료한다. 현재 metadata나 hash를 확보했다고 표시하지 않는다. 취득 바이트는 새 비공개 디렉터리·별도 소비/receipt에 보존하고 원격 스크립트를 바로 실행하지 않는다. 확인된 hash/전체 버전을 고정하는 명시 profile과 worker 경계·구버전 AST/입출력·실패 경로를 사설 Fixture에서 검증하는 구현을 별도 승인 단위로 함께 제안한다. 실제 USDT 재컴파일/배포 대조·새 RPC는 이 첫 단위에서 제외한다. 외부 접근이 거절되면 자동 대체나 반복 취득을 시작하지 않는다.
+후속 제안의 첫 단위는 **0.4.18 compiler 취득·고정 profile·사설 호환성 검증**이다. 준비 당시에는 미승인/미실행이었으며 이후 사용자 승인으로 [단발 취득](2026-10-25-usdt-compiler-acquisition.md)을 진행했으나 첫 metadata HTTP403으로 실패 종료했다. 아래는 그 제안의 한도이며 남은 요청 수를 재사용하지 않는다. 제안 한도는 공식 `https://binaries.soliditylang.org/bin/list.json` 1GET(2MiB)과 같은 host의 정확한 `soljson-v0.4.18+commit.9cf6e910.js` 1GET(32MiB), 합계최대34MiB/120초·요청각30초·재시도0·redirect0·다른 host/경로 전환0이다. metadata에서 해당 path/버전/SHA256/Keccak이 확인되지 않으면 artifact를 받지 않고 종료한다. metadata나 hash를 확보했다고 표시하지 않는다. 취득 바이트는 새 비공개 디렉터리·별도 소비/receipt에 보존하고 원격 스크립트를 바로 실행하지 않는다. 확인된 hash/전체 버전을 고정하는 명시 profile과 worker 경계·구버전 AST/입출력·실패 경로를 사설 Fixture에서 검증하는 구현을 별도 승인 단위로 함께 제안했다. 실제 USDT 재컴파일/배포 대조·새 RPC는 이 첫 단위에서 제외한다. 외부 접근이 거절되면 자동 대체나 반복 취득을 시작하지 않는다.
 
 ## 비공개 산출물과 검증
 

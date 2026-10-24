@@ -4,6 +4,8 @@
 
 ## 완료 범위
 
+- 2026-10-25 사용자 승인 [USDT solc0.4.18 단발 취득](research/2026-10-25-usdt-compiler-acquisition.md)을 [ADR0095](adr/0095-bounded-usdt-solc0418-acquisition.md)의 경계로 시도했으나 첫 metadata1GET이 HTTP403·응답 코드1010으로 실패 종료했다. 소비/오류/receipt·원본7파일 불변을 보존했고 artifact/compiler/profile/새RPC0이다. **0.4.18 사설 호환성 검증은 미완료/NOT_TESTED**이며 기존 MISMATCH/UNKNOWN을 유지한다. 실패 시도 기록이 검증 완료를 뜻하지 않는다. 남은 요청 수 재사용·다른 경로 전환은 하지 않았다.
+
 - 2026-10-25 사용자 승인 [Ethereum USDT 기술 입력 준비](research/2026-10-25-usdt-technical-input-preparation.md)를 완료했다. 저장7파일 불변과 단일 소스/metadata/ABI 연결·16011바이트 standard JSON 후보를 확인했다. 서비스 재컴파일↔과거 관측 전체 코드는11075바이트 중31바이트 차이로 MISMATCH를 유지한다. 차이는 서비스 CBOR 표시 구간 안이지만 원인/배포 연결 증명으로 승격하지 않는다. 실행에 부족한 것은 허용 solc0.4.18 profile과 현재 archive 규칙의 고정 hash 관측이다. 새 외부 요청·대상 compiler·기술 검토 CLI 실행0, 기존 UNKNOWN/판정/원문 보존이다.
 
 - 2026-10-25 사용자 승인 [JPYC immutable·빌드 입력 후속 조사](research/2026-10-25-jpyc-immutable-input-research.md)를 완료했다. 공식 주소 재확인·공개 원문4GET 저장·고정 AST ID173의 `__self=address(this)` 구문을 확인했다. 과거 UUPS 원문은 CRLF 차이로 바이트 DIFFERENT이며 현행 배포 원본으로 승격하지 않는다. 실제 배포 build/immutable 제출 근거는 미확보이고, 새 RPC·compiler 실행·대조 실행0이다. 후속 오프라인 입력·검증 계획만 작성했으며 기존 구현체 UNKNOWN·전체 PARTIAL·소비 완료를 유지한다.
