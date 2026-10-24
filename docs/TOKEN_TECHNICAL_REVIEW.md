@@ -141,6 +141,8 @@ AI·Slither는 **NOT_RUN**이다. Trail of Bits [token-integration-analyzer](htt
 
 이 사설 시험 자산은 실제 USDC·USDT·RLUSD·JPYSC·JPYC가 아니다. 구현 자동 검사는 외부 RPC/API·새 키·운영 DB를 사용하지 않았다. 후속 사용자 동의로 [Ethereum USDC 실제 단발 읽기](research/2026-10-24-usdc-token-review-live.md)를 별도 수행해 RPC20회·getter7개와 기준 블록/해시 재확인을 확인했다. 소스 compiler0.6.12 미연결로 정적 소스 분석은 NOT_RUN·배포 연결 UNKNOWN, 전체 PARTIAL이며 실제 다섯 토큰 전체의 검증 완료가 아니다. 추가 실제 배포 검토는 명시 입력과 허용된 RPC 범위로 구분한다.
 
+별도 사용자 승인 [JPYC Ethereum 단발 읽기](research/2026-10-25-jpyc-token-review-live.md)는 RPC13회·getter0·고정 블록/종료 재확인으로 완료했다. 고정0.8.11로 저장2입력 컴파일에 성공했고, 해당 블록의 프록시 전체 runtime 일치는 CONFIRMED·구현체 immutable 미제공은 UNKNOWN·전체 PARTIAL이다. 앞선 오프라인 결과를 덮어쓰지 않으며 구현체 소스 연결·실제 dispatch·자산 지원 인증으로 확대하지 않는다.
+
 ```sh
 node --use-env-proxy --import tsx --test tests/token-review.test.ts tests/token-review-expansion.test.ts tests/token-review-cache.test.mjs
 npm run check

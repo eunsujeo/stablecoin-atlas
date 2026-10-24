@@ -4,6 +4,8 @@
 
 ## 완료 범위
 
+- 2026-10-25 사용자 승인 [JPYC Ethereum 단발 읽기](research/2026-10-25-jpyc-token-review-live.md)를 RPC13회로 완료·소비했다. chainId1·블록26264212의 hash pin/종료 재확인과 EIP-1967 구현체 포인터/코드를 관측했다. 저장2입력 컴파일 성공, 프록시 전체 runtime 일치로 해당 블록 소스 연결 CONFIRMED·구현체 immutable 미제공 UNKNOWN·전체 PARTIAL이다. getter/재시도/전환/다운로드0·비용 UNKNOWN·기존 오프라인15파일 불변, 원문/DB/UI·기존 판정 보존. 이는 실제 dispatch·전체 구현체 배포 대응·지원/안전 인증이 아니다.
+
 - 2026-10-25 [JPYC Ethereum 오프라인 소스 분석](research/2026-10-25-jpyc-offline-source-review.md)을 완료했다. 사용자 승인 Chrome metadata/artifact 각1회는 HTTP200이며 solc0.8.11의 고정 hash·전체 버전을 확인하고 [ADR0094](adr/0094-pinned-solc-0811-browser-artifact.md) profile과 좁은 AST 호환성을 추가했다. 저장 proxy/implementation2입력 컴파일 성공·명시 진입점39개 분석, 구현체 immutable 값 미제공으로1.2 보고서는 PARTIAL·배포 binding UNKNOWN이다. 새 RPC/DB/UI0·기존 실패/원문/판정 유지, 검사541개 통과. 다른 PC의 cache 자동 취득은 없다.
 
 - 2026-10-25 별도 승인된 [JPYC compiler v2 취득](research/2026-10-25-jpyc-compiler-acquisition.md#사용자-승인-후-v2-실제-실행)은 metadata1GET에서 HTTP403·오류 코드1010을 확보하고 실패 종료했다. 원래 실패와 분리했으며 artifact/compiler/profile/대상 분석·RPC0이다. 거부 주체/정책은 UNKNOWN, 다른 배포 경로는 새 승인 전 미실행이다.
