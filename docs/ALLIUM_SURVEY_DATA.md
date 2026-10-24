@@ -35,6 +35,8 @@ ADR0076 live 저장본은 같은 import 명령에 `--execution-authorization PRI
 
 ## 실제 저장 검증
 
+2026-10-24 [오프라인 재대조](research/provider-data-use-priorities-2026-10-24.md#allium-저장-공급량전송량의-오프라인-대조)는 최초/live의4개 snapshot을 원문·검토·receipt/archive에서 재구성해 당시 저장한 DB 조회본과 비교했다. 총274관측의 문자열/null·기간·원래 시각/hash가 같았고 Kaia 미일치와 JPYSC3일 누락도 유지됐다. 현재 DB 재접속·브라우저 재검사는 하지 않았다. probe_id만 있는 접근 표본6건은 시계열 입력에서 분리했다. 상세 정밀도·필드 null 및 비공개 검사 경로는 위 검토를 따른다.
+
 ADR0078의 명시 v2 upgrade를 개발 DB에 적용했다. 새 소유 PG17 정본 DDL의 코드 고정 구조와 대조했고, 기존 version1행·source4개·최신137관측·원본 바이트·기존6schema 구조/보안·시장180/전송60/공급14건은 동일했다. source 추가·새 grant·공급자 호출은0이다. 실제로 비어 있는 다음 날짜 읽기는 다른 기간으로 보충하지 않고0snapshot을 반환한다. 브라우저의 새 기간/누락 kind 시험은 가상 DTO만 주입했으며 실제 DB에 입력하지 않았다. 기존 실제 표154날짜칸·필터·실패/복구·두테마/390px·외부요청0/JS오류0도 재확인했다. 결과 수와 미리보기 서비스는 이번 인계문을 따른다.
 
 ADR0077 후속으로 live 공급량/전송량 두 snapshot을 추가하여 source는 **2→4개**다. 이전2개 행과 기존6schema 구조/보안·시장 표본180건·전송량60건·공급량14건의 값/hash를 보존했다. 최신 whole snapshot은 공급량 `2026-10-23T13:27:52.399871Z`, 전송량 `2026-10-23T13:33:40.559550Z`의 원래 queried_at을 사용한다. reader의137 OBSERVED·미일치2행과 모든 값/null/시각/hash를 원래 projection과 대조했고, 두 재입력은 추가0행이다. 실행 근거/승인 원문까지600 archive에서 바이트를 대조했으며 새 Allium 호출·migration/grant는0이다. 기존 Data API 유효 접근 차단을 재확인했고 Dashboard 노출 설정은 계속 UNKNOWN이다. Chrome에서154날짜칸·필터·미확보3일·실패/마지막정상/복구·두테마·390px·외부요청0/JS오류0을 확인했다. 실제 DB는 개발용 비공개 DB이며 브라우저 제공은 loopback이다. 명령·검사 수·미리보기 주소는 이번 인계문을 따른다.

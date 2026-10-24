@@ -60,7 +60,9 @@ Allium은 [Explorer 표본](research/allium-samples/README.md)에 이어 [최근
 
 ## 다음 개발 단위
 
-2026-10-24 저장된 Allium 가격3종의 [오프라인 필드 계약](research/provider-data-use-priorities-2026-10-24.md#재사용-가능한-가격-검토)과 [Arkham 시장·가격 이력 검토](research/provider-data-use-priorities-2026-10-24.md#arkham-시장가격-이력의-오프라인-필드-관측)를 구현했다. 고정 receipt/요청/source hash·숫자 lexeme·UTC/기간·누락/오류를 검사하고 실제5종의 FIELD_CONTRACT_OBSERVED 비공개 보고서를 생성했다. Arkham 시장14개 숫자 필드와 이력1225점을 관측했으며 전체 코인 유통량/총공급량과 체인별 공급량을 구분한다. Arkham 응답 자체 자산 식별·시장 기준시각, 가격 통화·완전성·공급자 정의는 UNKNOWN, 기존 원본/판정/시각을 유지한다. 새 API·키·DB/UI·소비 슬롯·기본 공급자 변경은 없다. 다음은 기존 Allium 공급량·전송량 저장 조사와 로컬 표의 정밀도·기간·누락 의미 오프라인 대조다.
+2026-10-24 저장된 Allium 가격3종의 [오프라인 필드 계약](research/provider-data-use-priorities-2026-10-24.md#재사용-가능한-가격-검토)과 [Arkham 시장·가격 이력 검토](research/provider-data-use-priorities-2026-10-24.md#arkham-시장가격-이력의-오프라인-필드-관측)를 구현했다. 고정 receipt/요청/source hash·숫자 lexeme·UTC/기간·누락/오류를 검사하고 실제5종의 FIELD_CONTRACT_OBSERVED 비공개 보고서를 생성했다. Arkham 시장14개 숫자 필드와 이력1225점을 관측했으며 전체 코인 유통량/총공급량과 체인별 공급량을 구분한다. Arkham 응답 자체 자산 식별·시장 기준시각, 가격 통화·완전성·공급자 정의는 UNKNOWN, 기존 원본/판정/시각을 유지한다. 새 API·키·DB/UI·소비 슬롯·기본 공급자 변경은 없다.
+
+이어 [Allium 공급량·전송량 오프라인 대조](research/provider-data-use-priorities-2026-10-24.md#allium-저장-공급량전송량의-오프라인-대조)를 완료했다. 기존4개 snapshot의274관측을 당시 DB 조회본과 비교해 차이0·입력42파일 불변을 확인했다. Kaia 미일치/JPYSC3일 누락·십진 문자열/null·정밀도/집계 시간대 미확인을 유지하며 probe_id 접근 표본6건은 제외했다. 현재 DB/브라우저 재검사는 하지 않았다. 다음은 우선순위4의 저장 Allium 토큰 기본정보·Arkham 등록/보유자 표본 오프라인 검토다.
 
 [ADR0080](adr/0080-bounded-allium-geographic-data.md)의 Allium 지리 자료 수집/UI 요청과 후속 직접 호출 지시를 진행했다. 브라우저 HTML에서 Geo 링크를 확보했지만 문서 로그인이 필요했다. 계정 지리 메타데이터와 공개 공식 geo_balances_daily를 각각 직접1회 조회했으며 합계2run/6HTTP는 HTTP200 뒤 provider `failed`·UNKNOWN으로 종료됐다. 상세 사유는 미확인이다. UI에는 직접 조회한 잔액 INCONCLUSIVE/미확보·사용량/국가간 흐름 NOT_TESTED를 연결했다. 검토된 잔액 집계 표/필터 경로는 가상 자료로만 확인했으며 실제 국가별 숫자는 **미확보**다. 두 슬롯을 재소비하지 않으며 기존 live-once·원문·공급량/전송량을 보존했다. 근거는 [조사 결과](research/allium-geography-availability-2026-10-24.md)를 따른다.
 

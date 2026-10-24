@@ -78,6 +78,23 @@ node tools/arkham-price-review.mjs <검토한-receipt-sha256> <새-보고서명.
 
 실제 두 응답은 `FIELD_CONTRACT_OBSERVED`이며 `.state/provider-price-review/20261024-arkham-field-contract.json`에 원문/receipt hash·원래 요청시각·원래 숫자/시각을 결합했다. report 생성시각을 새 공급자 관측시각으로 사용하지 않으며 기존 원문/판정은 보존한다. FIELD_CONTRACT_OBSERVED는 제품 PASS·SOURCE_REVIEWED·가격/지원 인증이 아니다. 비용은 UNCONFIRMED다.
 
+## Allium 저장 공급량·전송량의 오프라인 대조
+
+2026-10-24 우선순위3을 완료했다. [기존 저장 검증 기록](../ALLIUM_SURVEY_DATA.md)의 최초 조사와 후속 live 수집 각각 공급량/전송량을 `surveySource`로 재검증하고, 당시 저장한 DB 조회본·live projection·기간 upgrade 후 조회본과 대조했다. 원문·개별 SQL 검토·원래 UNKNOWN receipt와 live 승인 바이트는 기존 content-addressed archive와 일치했다. 4개 snapshot의274관측에서 필드별 십진 문자열/null·원래 시각·기간·source hash 차이는0이었다. 현재 DB 재접속이나 브라우저 재검사는 하지 않았으며, 현재 코드의 DTO/표 변환과 **저장된 조회본**에 대한 검토다.
+
+| 구분 | 원문과 projection | 11배포×7일 표의 의미 |
+| --- | --- | --- |
+| 공급량 | 각 snapshot에70 OBSERVED+Kaia JPYC 미일치1행 | 관측70일·INCONCLUSIVE7일·MISSING0일 |
+| 전송량 | 각 snapshot에67 OBSERVED+Kaia JPYC 미일치1행 | 관측67일·INCONCLUSIVE7일·JPYSC Ethereum10/16~18 MISSING3일 |
+| 필드 null | 공급량6필드는 미일치행에만 null. 전송량의 adjusted_volume_usd는 미일치1행+관측4행이 null | 관측 행의 null은 `—`, 날짜 행 부재는 `미확보`; null을0으로 채우지 않음 |
+| 정밀도 | 공급량 tokens 최대 소수6자리·USD9자리, 전송량 tokens8자리·USD9자리; 건수는 정수 문자열 | `TO_VARCHAR`로 받은 문자열을 DTO·저장 payload·표 textContent까지 유지; 최소 단위 정확성은 미검증 |
+
+두 수집의 실제 관측 금액/건수에는0 문자열이 없었다. 따라서 실제0 표시의 실자료 검증으로 확대하지 않는다. 공급량의 총/유통/조정 및 tokens/USD 필드를 분리하고 전송량을 매매 거래량으로 바꾸지 않는다. 기간은 provider day의2026-10-16 이상~23 미만이며 집계 시간대는 UNKNOWN이다. 조회 UTC 시각을 일별 마감 시각으로 해석하지 않는다. 최신 whole snapshot/동일 window 선택과 다른 기간으로 누락을 채우지 않는 동작은 `tools/market-db/survey.mjs`·`web/survey-model.js`의 기존 계약을 유지한다. XRPL2개 NOT_TESTED·최소 단위 정밀도 미검증·비용 UNCONFIRMED도 유지한다.
+
+ADR0083의 SQL 접근 성공 표본6건은 원래 receipt의 응답 hash와 대조했고 각각 `{probe_id}`1행뿐이었다. deployments/transfers/supply-daily/volume-daily/dex-trades/raw-logs 접근 표본이며 수량·날짜별 시계열을 제공하지 않는다. 기존137관측을 대체하거나 추가 입력하지 않았다. echo 검토가 필요한 기존 상태도 그대로다.
+
+비공개 결과는 `.state/provider-survey-review/20261024-supply-volume-comparison.json`에0600으로 새로 보존했다(디렉터리0700). 비교 입력42개 파일은 검사 전후 hash가 같고 차이 목록은 비어 있다. 검사 스크립트는 `.state/review-survey-offline-20261024.mjs`의 일회성 오프라인 감사이며 제품 importer/지원 판정을 추가하지 않는다. 원문/조회본은 Git·웹에 게시하지 않았고 API·키·DB/UI·영속 소비 슬롯을 변경하지 않았다. 이 로컬 hash 연결은 공급자 인증이나 경제적 정확성 증명이 아니다.
+
 ## 다음 구현 단위
 
-우선순위3의 기존 Allium 공급량·전송량 저장 조사와 로컬 표 연결에서 정밀도·기간·누락 의미를 오프라인으로 대조한다. [기존 저장 검증 기록](../ALLIUM_SURVEY_DATA.md)의 고정 자료와 코드만 읽고, 실제 시계열 입력이 아닌 probe_id 표본6건은 분리한다. 차이가 있으면 원본·기존 DB/UI를 바꾸지 않고 비공개 검토 기록으로 남긴다. 새 실제 수집·스케줄·DB/UI 변경·기본 공급자 전환은 별도 범위다.
+우선순위4의 저장된 Allium 토큰 기본정보와 Arkham 등록/보유자 표본을 오프라인 검토한다. 기존 고정 Ethereum USDC 식별·필드의 수량/정밀도·공급량 정의·커서/완전성 한계를 확인하고 상위 보유자 표본을 전체 분포로 확대하지 않는다. 원문·기존 판정/시각·DB/UI를 유지하며 새 API·키·재시도·소비·공급자 전환은 하지 않는다.

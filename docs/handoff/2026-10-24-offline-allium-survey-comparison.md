@@ -1,0 +1,9 @@
+# 저장된 Allium 공급량·전송량 오프라인 대조
+- 목표: 우선순위3의 저장 조사·로컬 표 연결에서 정밀도·기간·누락 의미를 대조한다.
+- 끝난 것: 최초 조사/live 각각 공급량·전송량4개 snapshot을 기존 surveySource로 재구성했다. 원문·개별 SQL 검토·원래 UNKNOWN receipt와 live 승인 bytes를 기존 archive와 대조했다. 당시 DB 조회본·live projection·기간 upgrade 후 조회본과274관측의 필드 문자열/null·시각·기간/hash가 같고 차이0이다. 각 수집의 공급량70·전송량67 OBSERVED와 별도 Kaia 미일치1행→7일 INCONCLUSIVE, JPYSC 전송량10/16~18 MISSING3일을 유지했다. 조정USD전송량은 관측4행도 null이며 실제 표본의 금액/건수0은 없었다. 집계 시간대 UNKNOWN·최소 단위 미검증·XRPL NOT_TESTED·비용 UNCONFIRMED를 유지했다. 접근 성공 SQL6건은 hash결합 probe_id1행뿐이므로 시계열 입력과 분리했다. 비공개 .state/provider-survey-review/20261024-supply-volume-comparison.json(0600/디렉터리0700)과 일회성 .state/review-survey-offline-20261024.mjs에 보존했다. 입력42파일 불변. 현재 DB/브라우저 재검사는 하지 않았고 API·키·DB/UI·소비 변경0이다.
+- 변경 파일: docs/ALLIUM_SURVEY_DATA.md, docs/DEVELOPMENT_STATUS.md, docs/research/provider-data-use-priorities-2026-10-24.md, docs/handoff/2026-10-24-offline-allium-survey-comparison.md
+- 검증: npm run check rc0 tests492/pass492/fail0/cancelled0/skipped0(.state/agent-logs/survey-offline-check.log). node .state/review-survey-offline-20261024.mjs rc0 snapshot4/274관측/probe6/차이0/입력42불변/API0/DB접속0. 비공개 보고서 재독·0600/0700 검사rc0. git diff --check rc0. 문서 변경이며 제품 코드/시험 추가 없음.
+- 기다리는 것: 없음 — 전체 검사 회수. Lead/추가 Agent 없음. 기존 UI는 상시 서비스. 기존 미추적 docs/handoff/2026-10-22-router-lead-review.md 유지.
+- 다음 행동: 우선순위4의 저장 Allium 토큰 기본정보와 Arkham 등록/보유자 표본을 오프라인 검토한다. 고정 Ethereum USDC 식별·필드의 수량/정밀도·공급량 정의·커서/완전성 한계를 확인하고 상위 보유자 표본을 전체 분포로 확대하지 않는다. 원문/기존 판정·시각/DB/UI를 유지하고 새 API·키·재시도·소비·공급자 전환은 하지 않는다. 저장 원문은 .state/allium-executor/api-capabilities-20261024의 원래 receipt/plan과 hash로 연결한다.
+- 사용자 확인 필요: 아니오 — 승인된 저장 성공 자료의 오프라인 활용만 진행한다. 새 수집/비용/DB/UI 변경은 별도 확인한다.
+- 읽을 파일: docs/research/provider-data-use-priorities-2026-10-24.md, docs/ALLIUM_SURVEY_DATA.md, docs/DEVELOPMENT_STATUS.md, tools/provider-capability-plan.mjs, tools/provider-price-review.mjs, tools/arkham-price-review.mjs
