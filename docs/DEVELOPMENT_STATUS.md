@@ -4,7 +4,7 @@
 
 ## 완료 범위
 
-- 2026-10-24 사용자 정정에 따라 Overview는 기존 DeFiLlama 1년 일별 유통량으로 복원한다. 고정5코인×네트워크를 한 그래프에 표시하고 기본1Y/3M/30D·규모/증감률·범례 토글을 제공하며 select4개와 하단 수량 표를 제거했다. Allium 저장본·기존 시장/근거 경로는 보존한다. 새 수집·API·키·DB 변경은 없다. [ADR0088](adr/0088-yearly-token-network-overview.md).
+- 2026-10-24 사용자 정정에 따라 Overview는 USD/JPY·단일 토큰의 기존 DeFiLlama 1년 공급량 그래프와 네트워크별 순위를 제공한다. 기본1Y/3M/30D·규모/증감률을 유지하고 하단에 같은 토큰의 Allium 저장 전송량 7D 그래프와 순위를 복원했다. select4개·하단 수량 표·출처/긴 설명은 제거했다. 기존 자료·시장/근거 경로를 보존하며 새 수집·API·키·DB 변경은 없다. [ADR0088](adr/0088-yearly-token-network-overview.md).
 
 - 2026-10-24 사용자 UI 복원 요청으로 `/`·`/index.html`의 기본 화면을 기존 legacy 대시보드로 되돌렸다. `/legacy.html`도 같은 UI이며 다크·라이트와 기존 기능을 유지한다. 통합 분석 화면은 `/atlas.html`에서 별도로 열 수 있다. 외부 수집·DB 변경은 없다.
 

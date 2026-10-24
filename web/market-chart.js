@@ -99,8 +99,9 @@ export function supplyComparisonGeometry(input,{comparison='amount',right=870,bo
 }
 const percentLabel=value=>{const [whole,tail]=value.split('.');return whole+(tail?'.'+tail.slice(0,2):'')+'%';};
 export function renderNetworkSupplyChart(host,data,coinId,options={}){
+  const quantityLabel=options.quantityLabel??'공급량';
   host.replaceChildren();const groups=sortSupplyGroups(options.groups??networkSupplySeries(data,coinId,options));
-  if(!groups.length){host.append(el('p','선택한 구간의 공급량 자료가 없습니다.','empty-state'));return;}
+  if(!groups.length){host.append(el('p','선택한 구간의 '+quantityLabel+' 자료가 없습니다.','empty-state'));return;}
   const colors=['#36a9ef','#e59827','#a681ee','#20ad8b','#e57796','#8caa39','#df6541','#707be5','#b08a54','#a351a5'];
   const compact=host.clientWidth<600,width=compact?(options.compactWidth??600):options.tall?Math.max(600,Math.round(host.clientWidth)):1040,
     right=compact?(options.compactWidth?options.compactWidth-130:430):options.tall?width-125:870,bottom=compact?240:options.tall?410:280,height=compact?310:options.tall?480:350;
@@ -110,10 +111,10 @@ export function renderNetworkSupplyChart(host,data,coinId,options={}){
   const points=new Map(g.points.map(p=>[p.row,p]));
   if(relative)host.append(el('p','네트워크별 증감률 (%)','chart-note'));
   if(g.axisScale==='log')host.append(el('p','로그 눈금 · 0은 아래 기준선에 표시','chart-note'));
-  if(g.unavailable.length)host.append(el('p',g.unavailable.map(s=>s.network.name).join(' · ')+' · 첫 관측이 0이어서 증감률을 계산할 수 없습니다. 공급량 규모로 확인하세요.','chart-note'));
+  if(g.unavailable.length)host.append(el('p',g.unavailable.map(s=>s.network.name).join(' · ')+' · 첫 관측이 0이어서 증감률을 계산할 수 없습니다. '+quantityLabel+' 규모로 확인하세요.','chart-note'));
   if(!g.groups.length){host.append(el('p','증감률을 계산할 기준값이 없습니다.','empty-state'));return;}
   const legend=el('div',undefined,'network-chart-legend');legend.setAttribute('aria-label','네트워크별 공급량 내림차순');
-  const figure=svg('svg',{viewBox:`0 0 ${width} ${height}`,role:'group',tabindex:0,'aria-label':`네트워크별 ${relative?'증감률 (%)':'공급량 규모 (tokens)'}. 좌우 화살표로 시각, 위아래 화살표로 네트워크 선택. Home 처음, End 마지막.`});figure.classList.add('market-price-chart');figure.dataset.scale=g.axisScale??'linear';
+  const figure=svg('svg',{viewBox:`0 0 ${width} ${height}`,role:'group',tabindex:0,'aria-label':`네트워크별 ${relative?'증감률 (%)':quantityLabel+' 규모 (tokens)'}. 좌우 화살표로 시각, 위아래 화살표로 네트워크 선택. Home 처음, End 마지막.`});figure.classList.add('market-price-chart');figure.dataset.scale=g.axisScale??'linear';
   const axisTitle=svg('text',{x:right+20,y:14,class:'trend-axis network-axis-title'});axisTitle.textContent=relative?'눈금 (%)':'눈금 (tokens)';figure.append(axisTitle);
   for(const tick of g.ticks){figure.append(svg('line',{x1:32,x2:right,y1:tick.y,y2:tick.y,class:'grid-line'}));const text=svg('text',{x:right+20,y:tick.y+4,class:'trend-axis'});text.textContent=relative?percentLabel(tick.amount):options.amountLabel?options.amountLabel(tick.amount):tick.exponent!==undefined&&(tick.exponent< -4||tick.exponent>15)?'10^'+tick.exponent:displayAmount(tick.amount).replace(/\.00(?=억$)/,'').replace(/^(\d+)(?=[.억]|$)/,s=>s.replace(/\B(?=(\d{3})+(?!\d))/g,',')).replace(/(\.\d{4})\d+/, '$1…');figure.append(text);}
   g.groups.forEach((group,i)=>{
@@ -136,7 +137,7 @@ export function renderNetworkSupplyChart(host,data,coinId,options={}){
   const latestTitle=svg('title');latestTitle.textContent='최신 '+largest.network.name+' · '+exactDecimal(lastPoint.row.amount)+' tokens · '+lastPoint.row.observedAt.slice(0,10);latestLabel.append(latestTitle);figure.append(latestLabel);
   const plot=el('div',undefined,'network-chart-plot');
   const tip=el('div',undefined,'chart-point-tooltip network-chart-tooltip'),guide=svg('line',{y1:28,y2:bottom,class:'trend-crosshair'}),dot=svg('circle',{r:5,stroke:'var(--panel)','stroke-width':2});tip.hidden=true;tip.setAttribute('aria-live','polite');tip.setAttribute('role','tooltip');figure.append(guide,dot);plot.append(figure,tip);let groupIndex=0,pointIndex=g.groups[0].points.length-1;
-  function select(){const group=g.groups[groupIndex],p=group.points[pointIndex];guide.setAttribute('x1',p.x);guide.setAttribute('x2',p.x);dot.setAttribute('cx',p.x);dot.setAttribute('cy',p.y);dot.setAttribute('fill',group.color??colors[groupIndex%colors.length]);tip.replaceChildren(el('strong',group.network.name+' · '+exactDecimal(p.row.amount)+' tokens'),el('span',['history','minted'].includes(options.source)?p.row.observedAt.slice(0,10)+' · 일별 기준':when(p.row.observedAt)));if(relative)tip.append(el('span',percentLabel(p.change)+' · 기준 '+group.rows[0].observedAt.slice(0,10)));if(group.updatedAt)tip.append(el('span','조회 '+when(group.updatedAt)));}
+  function select(){const group=g.groups[groupIndex],p=group.points[pointIndex];guide.setAttribute('x1',p.x);guide.setAttribute('x2',p.x);dot.setAttribute('cx',p.x);dot.setAttribute('cy',p.y);dot.setAttribute('fill',group.color??colors[groupIndex%colors.length]);tip.replaceChildren(el('strong',group.network.name+' · '+exactDecimal(p.row.amount)+' tokens'),el('span',['history','minted'].includes(options.source)?p.row.observedAt.slice(0,10)+' · 일별 기준':when(p.row.observedAt)));if(relative)tip.append(el('span',percentLabel(p.change)+' · 기준 '+group.rows[0].observedAt.slice(0,10)));if(group.dateBasis==='PROVIDER_DAY')tip.append(el('span','공급자 집계일 · 집계 시간대 미확인'));if(group.updatedAt)tip.append(el('span','조회 '+when(group.updatedAt)));}
   function pointer(event){const origin=figure.createSVGPoint();origin.x=event.clientX;origin.y=event.clientY;const matrix=figure.getScreenCTM();if(!matrix)return;const q=origin.matrixTransform(matrix.inverse());let distance=Infinity;g.groups.forEach((group,i)=>group.points.forEach((p,j)=>{const d=(p.x-q.x)**2+(p.y-q.y)**2;if(d<distance){distance=d;groupIndex=i;pointIndex=j;}}));select();showAt(event.clientX,event.clientY);}
   function hide(){tip.hidden=true;latestLabel.removeAttribute('visibility');guide.setAttribute('visibility','hidden');dot.setAttribute('visibility','hidden');}
   function showAt(clientX,clientY){

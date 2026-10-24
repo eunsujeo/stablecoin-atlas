@@ -1,3 +1,5 @@
+import {alliumSeries} from './allium-dashboard-model.js';
+import {surveyWindow} from './survey-model.js';
 import {units} from './market-model.js';
 import {validateRegisteredHistory,sameRegisteredSource} from './registration-model.js';
 export const overviewCoins=['usdc','usdt','rlusd','jpysc','jpyc'];
@@ -43,4 +45,14 @@ export function supplyQuantityLabel(amount){
   const n=value*100n/(size*scale);return String(n/100n)+(n%100n?'.'+String(n%100n).padStart(2,'0').replace(/0$/,''):'')+label;
  }
  const [whole,tail='']=amount.split('.');return whole.replace(/\B(?=(\d{3})+(?!\d))/g,',')+(tail?'.'+tail.slice(0,4)+(tail.length>4?'…':''):'');
+}
+
+export function overviewTransferGroups(data,coinId){
+ const snapshot=data?.snapshots.find(s=>s.survey==='volume');if(!snapshot)return {groups:[],from:null,to:null};
+ const window=data.window??snapshot.window??surveyWindow;
+ return {from:window.from,to:new Date(Date.parse(window.untilExclusive)-86400000).toISOString().slice(0,10),
+  groups:alliumSeries(data,coinId,'volume','transfer_volume').map(s=>({key:s.coinId+':'+s.networkId,coinId:s.coinId,networkId:s.networkId,updatedAt:s.queriedAt,
+   network:{id:s.coinId+':'+s.networkId,name:s.networkId.toUpperCase()},dateBasis:window.dateBasis??'PROVIDER_DAY',aggregateTimezone:window.aggregateTimezone??'UNKNOWN',
+   rows:s.points.map(p=>({amount:p.amount,observedAt:p.day+'T00:00:00.000Z'})),
+  }))};
 }

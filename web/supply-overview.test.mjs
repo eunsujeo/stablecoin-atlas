@@ -1,9 +1,10 @@
+import {surveyDto} from '../tests/survey-fixture.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {mkdtemp,writeFile,rm,symlink} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {overviewSupplyGroups,readOverviewHistories,legacyOverviewDetails,overviewNetworkRanking,supplyQuantityLabel} from './supply-overview-model.js';
+import {overviewSupplyGroups,readOverviewHistories,legacyOverviewDetails,overviewNetworkRanking,supplyQuantityLabel,overviewTransferGroups} from './supply-overview-model.js';
 import {supplyComparisonGeometry,dailySupplySegments} from './market-chart.js';
 import {localRegistrationReader} from '../tools/registration-file-preview.mjs';
 import {parsePreviewArguments,startPreviewServer} from '../tools/ui-preview.mjs';
@@ -57,4 +58,18 @@ test('network ranking uses exact latest quantities, ties and independent days; d
  const ranked=overviewNetworkRanking(groups);assert.deepEqual(ranked.map(g=>g.networkId),['b','d','a','c']);assert.deepEqual(ranked.map(g=>g.rank),[1,1,3,4]);assert.equal(ranked[3].width,0);assert.equal(ranked[0].width,100);assert.equal(ranked[1].last.observedAt,'2026-10-19T00:00:00.000Z');assert.deepEqual(groups,original);
  assert.equal(overviewNetworkRanking([group('zero','0','2026-10-22')])[0].width,0);assert.deepEqual(overviewNetworkRanking([]),[]);
  for(const [amount,label]of [['0','0'],['10000000','1000만'],['100000000','1억'],['44826999999','448.26억'],['1000000000000','1조'],['1234.567891','1,234.5678…']])assert.equal(supplyQuantityLabel(amount),label);
+});
+
+test('restored transfers keep their own stored window, exact volumes, real zero and gaps without supply fallback',async()=>{
+ const dto=await surveyDto(),original=structuredClone(dto),view=overviewTransferGroups(dto,'usdc');
+ assert.equal(view.from,'2026-10-16');assert.equal(view.to,'2026-10-22');assert.equal(view.groups.length,2);
+ assert.equal(view.groups[0].rows[0].amount,'100.000000000000000001');assert.equal(view.groups[0].dateBasis,'PROVIDER_DAY');assert.equal(view.groups[0].aggregateTimezone,'UNKNOWN');assert.deepEqual(dto,original);
+ const volume=dto.snapshots.find(s=>s.survey==='volume');volume.queriedAt='2026-10-23T13:33:40.559550Z';
+ const row=day=>volume.rows.find(r=>r.deploymentId==='usdc-ethereum'&&r.providerDay===day);
+ row('2026-10-17').values.transfer_volume=null;row('2026-10-18').values.transfer_volume='0';volume.rows=volume.rows.filter(r=>!(r.deploymentId==='usdc-ethereum'&&r.providerDay==='2026-10-19'));
+ const ethereum=overviewTransferGroups(dto,'usdc').groups.find(g=>g.networkId==='ethereum');
+ assert.deepEqual(ethereum.rows.map(r=>r.observedAt.slice(0,10)),['2026-10-16','2026-10-18','2026-10-20','2026-10-21','2026-10-22']);assert.equal(ethereum.rows[1].amount,'0');assert.equal(ethereum.updatedAt,volume.queriedAt);
+ assert.deepEqual(dailySupplySegments(ethereum.rows.map(row=>({row}))).map(s=>s.length),[1,1,3]);
+ assert.equal(overviewTransferGroups(dto,'jpysc').groups[0].rows.length,4);assert(!overviewTransferGroups(dto,'jpyc').groups.some(g=>g.networkId==='kaia'));
+ dto.snapshots=dto.snapshots.filter(s=>s.survey==='supply');assert.deepEqual(overviewTransferGroups(dto,'usdc'),{groups:[],from:null,to:null});assert.deepEqual(overviewTransferGroups(null,'usdc').groups,[]);
 });

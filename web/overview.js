@@ -224,7 +224,7 @@ async function load(){
   geography=geographyChoice(geography.data,results[7]);
   state.marketFailed=results[1].status!=='fulfilled';
   renderEvidence();renderMarket();renderEvidenceRankings();renderActivity();renderSupply();renderStoredSurvey();renderGeography($('#overview-geography'),geography);
-  await renderSupplyOverview({index:state.registration,market:state.market,indexFailed:state.registrationFailed});
+  await renderSupplyOverview({index:state.registration,market:state.market,indexFailed:state.registrationFailed,survey});
   const collectionFailed=state.market?.collectionState?.state==='FAILED'||state.market?.lastBuildState==='FAILED';
   $('#overview-error').hidden=!failed.length&&!collectionFailed;
   $('#overview-error').textContent=failed.length?`${failed.join(' · ')}를 읽지 못했습니다. 이전 정상 자료가 있으면 원래 시각을 유지해 표시합니다.`:'최근 시장 수집 또는 자료 생성 실패 · 마지막 정상 자료와 원본 관측 시각을 표시합니다.';

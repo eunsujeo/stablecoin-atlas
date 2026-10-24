@@ -21,6 +21,12 @@
 
 사용자 후속 요청으로 화면의 공급자 출처 문구, 하단 공통 기간/마지막 관측 문단, 색상/증감률/범위 설명과 순위 사용 안내를 제거했다. 원래 데이터와 저장 근거는 유지한다.
 
+## 전송량 복원
+
+사용자가 공급량 중심 전환으로 숨겨진 전송량의 후속 복원을 승인했다. 공급량 아래에 기존 검증 ALLIUM_STORED_SURVEY의 volume snapshot을 사용한 전송량 그래프와 네트워크 순위를 복원한다. USD/JPY·단일 토큰 선택만 공유하고 공급량의 1Y/3M/30D·증감률·숨김 상태를 전송량에 적용하지 않는다. 전송량은 원래 7일 window의 실제 날짜·transfer_volume·queriedAt·PROVIDER_DAY/집계 시간대 UNKNOWN을 유지하며 화면에는 7D로 구분한다. OBSERVED/non-null만 표시하고 실제0·날짜 공백·문자열 수량을 보존한다. 카운트/USD/결제량으로 바꾸지 않는다.
+
+overview.js의 기존 storedSurveyChoice 전체 snapshot/실패 상태를 연결한다. 공급량 index 로딩·실패 분기에서도 전송량 상태를 먼저 갱신한다. LAST_GOOD는 이전 전체 집합과 원래 기간/시각을 유지하고 짧은 실패 상태를 표시한다. 404·빈 종류/필드는 전송량 패널을 숨기며 Ethereum activity 등의 다른 자료로 대체하거나 합치지 않는다. 출처 문구와 제거한 하단 설명은 복원하지 않는다. 기존 --registration-file과 --survey-file의 동시 로컬 읽기로 미리보기를 제공하며 원본 생성·API·DB 호출은 없다. Lead10bec9e777cd400ab2412576a5d044b5의 proceed 조건을 반영했다.
+
 ## 저장 읽기와 실패
 
 기존 registration index/history endpoint와 validator를 재사용하며 고정5코인을 동시 최대2개로 읽는다. selection/source/from/to/coin/metric 전체 pin이 같은 이전값만 실패 시 유지한다. index 실패는 기존 전체 화면과 실패 상태를 유지하며 새로운 selection으로 바꾸지 않는다. index 교체 시 불일치 이전 계열을 제거하고 응답 sequence가 지난 결과를 버린다. 다른 공급자나 Allium7일 값으로 보충하지 않는다. DB 미설정 JSON 모드에서는 원래 market DTO에 명시된 DeFiLlama history만 사용할 수 있다.
