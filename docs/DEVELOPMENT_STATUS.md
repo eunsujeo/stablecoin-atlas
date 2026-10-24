@@ -4,6 +4,8 @@
 
 ## 완료 범위
 
+- 2026-10-24 사용자 동의로 Ethereum USDC 기술 검토 CLI의 실제 단발 읽기를 수행했다. RPC20회·getter7개 관측과 고정 블록/해시 재확인은 성공했다. 소스는 solc0.6.12가 제품 경로에 연결되지 않아 NOT_RUN/배포 연결 UNKNOWN, 전체 PARTIAL이다. 재시도·추가 compiler 실행·새 키·DB/UI 변경은 없으며 비공개 원문을 보존했다. [실제 범위와 한계](research/2026-10-24-usdc-token-review-live.md).
+
 - 2026-10-24 후속 승인으로 기술 검토1.1을 추가했다. 진입 함수별 상속/modifier/내부 호출·조건·저장값 변경, 직접 caller 비교의 소스 구문, 타입 기반 동작 후보, 명시 library 링크·제출 immutable의 조건부 전체 runtime 대조, 감사 source snapshot의 경로/바이트/설정 대조와 무HTTP `--offline`을 제공한다. 권한 보장·생성자 재현·감사 진위/배포 대응은 자동 확정하지 않으며 기존1.0과 실제 저장 근거를 보존한다. [ADR0091](adr/0091-offline-token-static-path-analysis.md). 외부 실제 토큰·다른 compiler 준비는 미실행이다.
 
 - 2026-10-24 사용자 새 기준의 읽기 전용 EVM 토큰 기술 검토 CLI를 추가했다. 명시 chainId/주소·EIP-1898 해시 조회·소스 재현/전체 runtime 비교·AST 검토 자료·getter·감사 원문·별도 JSON/Markdown·SHA256 묶음을 제공한다. 기존 PASS/FAIL·SOURCE_REVIEWED·UI/DB를 변경하지 않는다. 사설 두 EVM 체인/시험 토큰으로 검증하며 실제 다섯 토큰의 외부 배포 검증, 권한 의미/감사 대응 자동 증명, AI/Slither는 미실행이다. [ADR0090](adr/0090-readonly-token-technical-review.md), [실행·미지원 범위](TOKEN_TECHNICAL_REVIEW.md).
