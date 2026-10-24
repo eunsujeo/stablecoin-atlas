@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ko" data-theme="dark">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark light"><meta name="description" content="저장된 스테이블코인 공급량과 전송량, 가격 및 조사 범위">
+  <title>Atlas — 스테이블코인의 규모와 이동</title><link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/atlas.css"><script type="module" src="/atlas.js"></script>
+</head>
+<body>
+  <a class="skip" href="#content">본문으로 이동</a>
+  <header class="masthead"><a class="wordmark" href="/atlas.html" aria-label="Atlas 새 설계 홈"><span class="atlas-symbol" aria-hidden="true">◈</span>Atlas<span class="wordmark-note">Stablecoin research</span></a>
+    <nav aria-label="자료 탐색"><a href="#supply" aria-current="page">공급량</a><a href="#activity">전송량</a><a href="#prices">가격</a><a href="#coverage">조사 범위</a></nav>
+    <button id="theme" class="subtle">라이트 테마</button>
+  </header>
+  <main id="content" tabindex="-1">
+    <div class="page-intro"><div><h1>스테이블코인의 규모와 이동</h1><p>규모를 비교하고, 네트워크의 차이를 살펴보세요.</p></div><div class="read-controls"><span class="saved-tag">로컬 설계 시안</span><button id="reload">저장본 다시 읽기</button></div></div>
+    <p id="read-status" class="status" role="status" aria-live="polite">저장 자료 읽는 중</p>
+    <p id="read-error" class="notice" role="alert" hidden></p>
+
+    <section id="supply" aria-labelledby="supply-title" class="workspace">
+      <div class="workspace-heading"><div><h2 id="supply-title">네트워크에 발행된 공급량</h2><p>체인별 총공급량 · tokens</p></div><label>토큰<select id="coin"><option value="usdc">USDC</option></select></label></div>
+      <div class="supply-layout"><div class="chart-workspace"><div id="periods" class="segmented" role="group" aria-label="공급량 조회 기간"><button data-period="24h" aria-pressed="false">24시간</button><button data-period="7d" aria-pressed="false">7일</button><button data-period="30d" aria-pressed="true">30일</button><button data-period="all" aria-pressed="false">저장 전체</button></div><div id="supply-chart" aria-label="네트워크별 저장 공급량 그래프"></div><p class="explanation">점 위에 포인터를 놓거나 그래프에서 방향키를 눌러 수량과 시각을 확인하세요. 체인별 총공급량은 코인 전체 유통량과 정의가 다릅니다.</p></div>
+      <aside class="comparison"><div class="comparison-heading"><h3>코인 전체 유통량</h3><label><span class="sr-only">유통량 정렬</span><select id="sort"><option value="supply">규모순</option><option value="name">이름순</option></select></label></div><p>연동 통화별로 나누어 비교합니다.</p><div id="coin-list"></div><p class="explanation">JPY·USD 그룹의 수량을 합산하지 않습니다. XRPL obligations는 체인 총공급량에 포함하지 않습니다.</p></aside></div>
+      <details class="definition"><summary>공급량의 범위와 출처</summary><p>코인 전체 유통량은 Arkham의 기존 저장 시장 projection입니다. 체인별 총공급량은 등록된 배포에 대한 저장 관측입니다. 그래프는 현재 화면의 조회 시각이 아닌 원래 관측 시각을 사용합니다. 발행사 준비금·상환 가능성·지원 인증을 뜻하지 않습니다.</p><a href="/#live">기존 시장 근거 자세히 보기</a></details>
+    </section>
+
+    <section id="activity" hidden aria-labelledby="activity-title" class="workspace">
+      <div class="workspace-heading"><div><h2 id="activity-title">지갑 간 이동량</h2><p>Ethereum · Allium · 공급자 기준일별 저장 자료</p></div></div>
+      <p class="context-note">전송량은 매매 거래량이나 실제 결제액과 다릅니다.</p><div class="table-wrap" tabindex="0" role="region" aria-label="일별 전송량 표"><table><caption class="sr-only">코인별 마지막 저장일의 전송량</caption><thead><tr><th scope="col">토큰</th><th scope="col">전송량 (tokens)</th><th scope="col">환산 전송량 (USD)</th><th scope="col">건수</th><th scope="col">기준일</th></tr></thead><tbody id="activity-rows"></tbody></table></div>
+      <p id="activity-state" class="status"></p><p class="explanation">기준일과 조회 시각은 다릅니다. 집계 시간대는 미확인입니다. 누락 값은 0으로 채우지 않습니다.</p><a class="inline-link" href="/#overview">기존 일별 조사 표 보기</a>
+    </section>
+
+    <section id="prices" hidden aria-labelledby="prices-title" class="workspace">
+      <div class="workspace-heading"><div><h2 id="prices-title">가격과 관측 시각</h2><p>기존 승인된 시장 자료의 저장 가격 · USD</p></div><span class="saved-tag">저장 관측</span></div>
+      <div class="table-wrap" tabindex="0" role="region" aria-label="저장 가격 표"><table><caption class="sr-only">코인별 저장 가격과 공급자 기준시각 및 요청시각</caption><thead><tr><th scope="col">토큰</th><th scope="col">저장 가격 (USD)</th><th scope="col">공급자 기준시각</th><th scope="col">개별 요청시각</th><th scope="col">출처</th></tr></thead><tbody id="price-rows"></tbody></table></div>
+      <div class="research-note"><h3>새로 확보한 가격 표본</h3><p>Allium 최신 가격·이력·통계의 필드 계약은 관측했습니다. 가격 통화와 구간 정의가 미확인이라 이 표와 그래프에 연결하지 않았습니다.</p><dl><div><dt>대상</dt><dd>Ethereum USDC</dd></div><div><dt>통화</dt><dd>미확인</dd></div><div><dt>상태</dt><dd>필드 계약 관측</dd></div></dl><a href="#coverage">조사 범위와 한계 보기</a></div>
+      <p class="explanation">저장된 과거 관측입니다. 요청시각을 공급자 기준시각으로 대체하지 않으며, 현재 가격·디페그 여부를 판정하지 않습니다. — 값 미확보.</p>
+    </section>
+
+    <section id="coverage" hidden aria-labelledby="coverage-title" class="workspace">
+      <div class="workspace-heading"><div><h2 id="coverage-title">어디까지 확인했나요?</h2><p>2026-10-24 오프라인 검토 기록 · 현재 화면의 조회 결과와 별도</p></div></div>
+      <div class="coverage-intro"><h3>확보한 자료와<br>확인하지 못한 의미를 함께 봅니다.</h3><p>응답이 있다는 사실은 자산 지원이나 정확성 인증과 다릅니다. 연구 표본과 기존 제품 연결 자료를 구분합니다.</p></div>
+      <div class="table-wrap" tabindex="0" role="region" aria-label="조사 범위 표"><table class="coverage-table"><caption class="sr-only">자료군별 확보 근거와 사용 제한</caption><thead><tr><th scope="col">자료</th><th scope="col">확보한 근거</th><th scope="col">해석의 한계</th></tr></thead><tbody>
+        <tr><th scope="row">가격</th><td>Allium 3종 필드 계약 관측<br>Arkham 시장·이력 1,225점 관측</td><td>새 표본의 통화·기간 완전성 미확인. 기존 승인 가격과 별도.</td></tr>
+        <tr><th scope="row">공급량·전송량</th><td>고정 11배포 · 7일 조사<br>한 snapshot 쌍의 공급량 70 · 전송량 67관측</td><td>Kaia JPYC 미일치 · JPYSC 전송량 3일 미확보. XRPL 2개 NOT_TESTED.</td></tr>
+        <tr><th scope="row">토큰·상위 보유자</th><td>저장 필드·상위 표본 검토</td><td>전체 보유자 분포·현재 공식 주소 인증이 아님.</td></tr>
+        <tr><th scope="row">전송·포지션</th><td>전송 2종 · 포지션 4개 표본</td><td>USDC 전송 표본으로 일반화 불가. 지갑형 조회 주소는 토큰 컨트랙트.</td></tr>
+        <tr><th scope="row">시장 목록</th><td>USDC quote perp 목록 표본</td><td>토큰 배포 식별·세부 시계열 지원이 아님.</td></tr>
+        <tr><th scope="row">국가·지역</th><td>조회 오류 근거 보존</td><td>실제 잔액·국가간 흐름 미확보. 0이나 미지원 판정이 아님.</td></tr>
+      </tbody></table></div>
+      <div class="research-note"><h3>판정은 근거별로 확인하세요</h3><p>필드 관측은 제품 PASS가 아닙니다. UNKNOWN·NOT_TESTED·비적용은 다른 상태입니다. 사설 Fixture 결과는 실제 스테이블코인의 상환·안전성 근거가 아닙니다.</p><a href="/#validation">기술 검증 보기</a> <a href="/#reports">근거 보고서 보기</a></div>
+    </section>
+    <footer><p>Atlas · 저장된 관측을 읽는 스테이블코인 연구 도구</p><a href="/">기존 화면</a><span>웹에서 외부 수집을 실행하지 않습니다.</span></footer>
+  </main>
+</body>
+</html>

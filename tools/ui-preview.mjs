@@ -17,6 +17,9 @@ import { databaseMarketReader } from './market-db/preview.mjs';
 import {databaseRegistrationReader,registrationRequest} from './market-db/registration-preview.mjs';
 
 const assets = new Map([
+  ['/atlas.html', ['../web/atlas.html', 'text/html; charset=utf-8']],
+  ['/atlas.css', ['../web/atlas.css', 'text/css; charset=utf-8']],
+  ['/atlas.js', ['../web/atlas.js', 'text/javascript; charset=utf-8']],
   ['/', ['../web/index.html', 'text/html; charset=utf-8']],
   ['/index.html', ['../web/index.html', 'text/html; charset=utf-8']],
   ['/styles.css', ['../web/styles.css', 'text/css; charset=utf-8']],
