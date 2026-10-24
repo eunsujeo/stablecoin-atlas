@@ -1,7 +1,7 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { keccak256, type Hex } from 'viem';
-import { compilerVersion, compile, prepareInput, prepareSourceBundle, type CompilerInput } from './compiler.js';
+import { compilerVersion, compilerProfile, compile, prepareInput, prepareSourceBundle, type CompilerInput } from './compiler.js';
 import { collect, prepareProbe, recheck } from './collector.js';
 import { parseConfig, readBounded, relativeInput, sha256 } from './input.js';
 import type { ReviewReport, SourceReview } from './model.js';
@@ -12,13 +12,17 @@ import { writeReportAtomically } from '../report-output.js';
 import { analyzeSource, semanticFindings } from './semantic-analysis.js';
 import { compareRuntime } from './runtime-comparison.js';
 import { compareAuditSources } from './audit-comparison.js';
+import { readArchivedObservations } from './archived-observations.js';
 
 export const serialize = (value: unknown): string => JSON.stringify(value, (_, v: unknown) => typeof v === 'bigint' ? v.toString() : v, 2) + '\n';
-export async function reviewToken(configFile: string, rpcUrl: string | undefined, outputDirectory: string, options: { offline?: boolean } = {}): Promise<ReviewReport> {
+export async function reviewToken(configFile: string, rpcUrl: string | undefined, outputDirectory: string, options: { offline?: boolean; observations?: string } = {}): Promise<ReviewReport> {
   const configBytes = await readBounded(configFile, 64 * 1024);
   const config = parseConfig(configBytes);
   // Reject unsupported calls before any RPC request or output mutation.
   for (const probe of config.probes ?? []) prepareProbe(probe);
+  if (options.observations && !options.offline) throw new Error('ARCHIVE_REQUIRES_OFFLINE');
+  const archiveBytes = options.observations ? await readBounded(options.observations, 32 * 1024 * 1024) : null;
+  const archive = archiveBytes ? readArchivedObservations(archiveBytes, config) : null;
   if (!options.offline && !rpcUrl) throw new Error('RPC_URL_REQUIRED');
   const rpc = new ReviewRpc(options.offline ? 'http://127.0.0.1' : rpcUrl!, [config.token.address, ...config.dependencies ?? []]);
   const directory = resolve(outputDirectory);
@@ -26,9 +30,9 @@ export async function reviewToken(configFile: string, rpcUrl: string | undefined
   await mkdir(join(directory, 'artifacts'), { mode: 0o700 });
   const { sources: _sources, audits: _audits, ...publicConfig } = config;
   const report: ReviewReport = {
-    schemaVersion: 'TokenTechnicalReview1.1', mode: options.offline ? 'OFFLINE' : 'READ_ONLY', startedAt: new Date().toISOString(), finishedAt: '', execution: 'COMPLETED',
+    schemaVersion: 'TokenTechnicalReview1.2', archive: null, mode: options.offline ? 'OFFLINE' : 'READ_ONLY', startedAt: new Date().toISOString(), finishedAt: '', execution: 'COMPLETED',
     config: publicConfig,
-    tools: { analyzer: 'token-review/1.1.0', rules: 'token-review-rules/1.1.0', compiler: compilerVersion, ai: 'NOT_RUN', slither: 'NOT_RUN' },
+    tools: { analyzer: 'token-review/1.2.0', rules: 'token-review-rules/1.2.0', compiler: compilerVersion, ai: 'NOT_RUN', slither: 'NOT_RUN' },
     block: { number: null, hash: null, consistency: 'UNKNOWN' }, contracts: [], proxy: null, sources: [], audits: [],
     findings: [], failures: [], evidence: rpc.evidence, artifacts: [], limitations: [
       '기술 특성의 근거 수집·검토 보조 도구입니다. 보안 감사·자산 안전성·지원 승인·지갑 시스템 검증이 아닙니다.',
@@ -40,6 +44,7 @@ export async function reviewToken(configFile: string, rpcUrl: string | undefined
       '관리 기능·EOA 주소·getter 실패·분석 누락·도구 성공을 취약점 또는 안전성으로 판정하지 않습니다. AI/Slither/거래·서명·외부 빌드 스크립트는 실행하지 않습니다.',
       'Trail of Bits token-integration-analyzer의 관리자·비표준 동작 항목을 체크리스트 참고로만 사용했습니다. 전체 스킬·등급·감사 결과를 적용하지 않았습니다.',
       '제출 immutable 값으로 재구성한 runtime이 전체 일치해도 생성자·값 출처는 증명되지 않아 배포 연결 UNKNOWN입니다. 감사 snapshot의 경로/바이트 일치는 감사 문서의 진위·실제 대상 범위·현재 배포 대응 증명이 아닙니다.',
+      '저장 관측은 원래 블록/시각/원본 hash를 보존한 대조 자료입니다. 오프라인 대조는 새 체인 조회나 원본 보고서의 진위 인증이 아니며 배포 연결은 UNKNOWN입니다.',
     ],
   };
   const configuration = rpc.record('REVIEW_CONFIGURATION', { configSha256: sha256(configBytes), ...publicConfig });
@@ -61,6 +66,16 @@ export async function reviewToken(configFile: string, rpcUrl: string | undefined
     const ev = rpc.record('ANALYSIS_FAILURE', { stage, code });
     report.failures.push({ stage, code, evidenceRefs: [ev.id] });
   }
+  const archiveContracts = new Map<string, { address: string; runtimeHash: string; evidenceRef: string }>();
+  if (archive && archiveBytes) {
+    const evidenceRef = await artifact('observations.json', archiveBytes, 'SUPPLIED_ARCHIVED_OBSERVATIONS');
+    report.archive = { ...archive.descriptor, evidenceRef };
+    for (const value of archive.contracts.values()) {
+      const ev = rpc.record('ARCHIVED_CONTRACT_CODE', { ...value, archiveEvidenceRef: evidenceRef,
+        originalBlock: archive.descriptor.block, originalObservedAt: archive.descriptor.sourceFinishedAt });
+      archiveContracts.set(value.address, { address: value.address, runtimeHash: value.runtimeHash, evidenceRef: ev.id });
+    }
+  }
   let collected = false;
   if (options.offline) rpc.record('CHAIN_COLLECTION_NOT_RUN', { reason: 'EXPLICIT_OFFLINE_MODE' });
   else try { await collect(config, report, rpc); collected = true; }
@@ -78,23 +93,28 @@ export async function reviewToken(configFile: string, rpcUrl: string | undefined
       analyzedInputs.set(supplied.address, { input: prepared.input, evidenceRef: source.inputEvidence });
       rpc.record('SOURCE_FILES', { address: supplied.address, files: Object.entries(prepared.input.sources).map(([file, s]) => ({ file,
         sha256: sha256(Buffer.from(s.content)), bytes: Buffer.byteLength(s.content) })), inputEvidence: source.inputEvidence });
-      if (supplied.compilerVersion !== compilerVersion) {
+      let profile;
+      try { profile = await compilerProfile(supplied.compilerVersion); }
+      catch { source.binding.reason = 'COMPILER_CACHE_UNVERIFIED'; failure(`source:${index}`, 'COMPILER_CACHE_UNVERIFIED'); continue; }
+      if (!profile) {
         source.binding.reason = 'COMPILER_VERSION_UNAVAILABLE';
         failure(`source:${index}`, 'COMPILER_VERSION_UNAVAILABLE'); continue;
       }
+      rpc.record('COMPILER_PROFILE', profile);
       await artifact(`source-${index}.compile-request.json`, Buffer.from(serialize(prepared)), 'EFFECTIVE_COMPILER_REQUEST');
       source.compilation = 'FAILED'; source.compilerUsed = 'UNCONFIRMED';
-      const compiled = await compile(prepared.input, prepared.file, prepared.contractName);
+      const compiled = await compile(prepared.input, prepared.file, prepared.contractName, profile.version);
       source.compilerUsed = compiled.compiler;
       const compilationEvidence = await artifact(`source-${index}.compile-result.json`, Buffer.from(serialize(compiled)), 'COMPILER_RESULT');
-      if (compiled.compiler !== compilerVersion || compiled.errors.some(e => e.severity === 'error') || !compiled.selected) {
+      if (compiled.compiler !== profile.version || compiled.errors.some(e => e.severity === 'error') || !compiled.selected) {
         source.compilation = 'FAILED'; source.binding.reason = 'COMPILATION_FAILED';
         failure(`source:${index}`, 'COMPILATION_FAILED'); continue;
       }
       source.compilation = 'SUCCEEDED';
       const runtime = compiled.selected.evm.deployedBytecode;
-      const observed = report.contracts.find(c => c.address === supplied.address);
+      const observed = report.contracts.find(c => c.address === supplied.address) ?? archiveContracts.get(supplied.address);
       const comparison = compareRuntime(runtime, observed?.runtimeHash, supplied.immutableValues);
+      if (archive && comparison.reason === 'EXACT_RUNTIME_PENDING_CHAIN_RECHECK') comparison.reason = 'EXACT_ARCHIVED_RUNTIME_MATCH_NOT_CURRENT_BINDING';
       source.binding.reason = comparison.reason;
       if (/^(?:[0-9a-fA-F]{2})+$/.test(runtime.object)) source.binding.runtimeHash = keccak256(`0x${runtime.object}` as Hex);
       if (observed) source.binding.observedRuntimeHash = observed.runtimeHash;
@@ -103,7 +123,7 @@ export async function reviewToken(configFile: string, rpcUrl: string | undefined
       source.runtimeComparison = { ...comparison, evidenceRef: bindingEvidence.id };
       report.findings.push({ id: `binding-${index}`, rule: 'exact-runtime-binding-v1', scope: 'CHAIN', categories: [], confirmation: 'UNKNOWN',
         summary: `${supplied.contract}: ${source.binding.reason}. metadata를 제거하거나 부분 일치로 배포 연결을 확정하지 않습니다.`, evidenceRefs: [bindingEvidence.id] });
-      if (!['ADDRESS_NOT_OBSERVED', 'EXACT_RUNTIME_PENDING_CHAIN_RECHECK', 'SUBMITTED_IMMUTABLE_RUNTIME_MATCH_CONSTRUCTOR_UNPROVEN'].includes(source.binding.reason)) failure(`source-binding:${index}`, source.binding.reason);
+      if (!['ADDRESS_NOT_OBSERVED', 'EXACT_RUNTIME_PENDING_CHAIN_RECHECK', 'EXACT_ARCHIVED_RUNTIME_MATCH_NOT_CURRENT_BINDING', 'SUBMITTED_IMMUTABLE_RUNTIME_MATCH_CONSTRUCTOR_UNPROVEN'].includes(source.binding.reason)) failure(`source-binding:${index}`, source.binding.reason);
       source.functions = inventory(prepared.input, compiled, prepared.file, prepared.contractName, sourceEvidence);
       report.findings.push(...sourceFindings(source.functions, compiled.selected.abi, `source-${index}`, compilationEvidence));
       source.staticAnalysis = analyzeSource(prepared.input, compiled, prepared.file, prepared.contractName, sourceEvidence);

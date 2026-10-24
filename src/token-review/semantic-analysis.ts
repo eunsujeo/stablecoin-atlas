@@ -16,7 +16,7 @@ export function analyzeSource(input: CompilerInput, compiled: CompileResult, fil
   // Compiler linearization is derived-first. Overridden base entries are not entrypoints.
   for (const contract of contracts) for (const fn of contract.nodes as AstNode[]) {
     if (fn.nodeType !== 'FunctionDefinition' || !['external', 'public'].includes(String(fn.visibility)) || fn.kind === 'constructor') continue;
-    const key = typeof fn.functionSelector === 'string' ? fn.functionSelector : String(fn.kind);
+    const key = typeof fn.functionSelector === 'string' ? fn.functionSelector : fn.kind === 'function' ? `unresolved:${fn.id}` : String(fn.kind);
     if (!entries.has(key)) entries.set(key, fn);
   }
   function references(node: unknown): StateReference[] {
@@ -46,6 +46,7 @@ export function analyzeSource(input: CompilerInput, compiled: CompileResult, fil
     const path: EntryAnalysis = { id: entry.id, name: String(entry.name || entry.kind), selector: typeof entry.functionSelector === 'string' ? `0x${entry.functionSelector}` : null,
       location: location(entry), declarations: [], conditions: [], writes: [], calls: [], behaviors: [], uncertainties: [], authorityConclusion: 'UNKNOWN', evidenceRef: '' };
     const uncertain = new Set<string>();
+    if (entry.kind === 'function' && path.selector === null) uncertain.add('SELECTOR_NOT_ESTABLISHED');
     const visited = new Set<number>();
     const pending = [{ node: entry, ancestors: [] as number[] }];
     function add<T>(array: T[], value: T, limit: number, flag: string): void {
@@ -137,7 +138,7 @@ export function analyzeSource(input: CompilerInput, compiled: CompileResult, fil
           if (variable) {
             const write: StorageWrite = { context: fn.id, operation: String(node.operator), expression: text(node), location: location(node), variable: state(variable) };
             add(path.writes, write, 64, 'WRITE_LIMIT');
-            if (!transferSelectors.has(path.selector ?? '') && /^mapping\(address => uint/.test(type(variable))) behavior('NON_TRANSFER_MAPPING_WRITE', node, fn.id);
+            if (path.selector !== null && !transferSelectors.has(path.selector) && /^mapping\(address => uint/.test(type(variable))) behavior('NON_TRANSFER_MAPPING_WRITE', node, fn.id);
           } else {
             const declaration = byId.get(ast(left)?.referencedDeclaration as number);
             if (declaration?.storageLocation === 'storage' || nodes(left).some(n => n.nodeType === 'IndexAccess' || n.nodeType === 'MemberAccess')) uncertain.add('UNRESOLVED_WRITE_TARGET');

@@ -17,6 +17,7 @@ import { validateReviewReport, markdown } from '../src/token-review/report.js';
 import { ReviewRpc } from '../src/token-review/rpc.js';
 import { prepareProbe } from '../src/token-review/collector.js';
 import type { ReviewConfig, ReviewReport } from '../src/token-review/model.js';
+import { readArchivedObservations } from '../src/token-review/archived-observations.js';
 
 let root: string, lab: LocalLab, second: LocalLab, owner: Address;
 let tokenA: Address, tokenB: Address, proxy: Address;
@@ -298,8 +299,48 @@ test('token review: JSON schema and cross-reference checks reject contradictory 
   const dangling = clone(); dangling.findings[0]!.evidenceRefs = ['absent']; assert.throws(() => validateReviewReport(dangling));
   const inconsistent = clone(); inconsistent.block.consistency = 'UNKNOWN'; assert.throws(() => validateReviewReport(inconsistent));
   const invalid = clone(); invalid.sources[0]!.binding.observedRuntimeHash = keccak256('0x'); assert.throws(() => validateReviewReport(invalid));
-  assert.deepEqual(JSON.parse(await readFile(new URL('../schemas/token-technical-review.v1.1.schema.json', import.meta.url), 'utf8')), reportSchema);
+  assert.deepEqual(JSON.parse(await readFile(new URL('../schemas/token-technical-review.v1.2.schema.json', import.meta.url), 'utf8')), reportSchema);
   assert.deepEqual(JSON.parse(await readFile(new URL('../schemas/token-review-config.v1.1.schema.json', import.meta.url), 'utf8')), configSchema);
+});
+
+test('token review: archived comparison is offline, preserves original bytes/time and never promotes current chain binding', async () => {
+  const original = await run(configA());
+  const file = join(original.dir, 'report.json'); const bytes = await readFile(file);
+  const parsed = readArchivedObservations(bytes, parseConfig(Buffer.from(serialize(configA()))));
+  assert.equal(parsed.descriptor.block.number, original.report.block.number);
+  const output = join(root, `archived-${++next}`);
+  const fetch = globalThis.fetch; let calls = 0;
+  globalThis.fetch = async () => { calls++; throw new Error('No HTTP allowed'); };
+  try {
+    const result = await reviewToken(original.configPath, undefined, output, { offline: true, observations: file });
+    assert.equal(calls, 0); assert.equal(result.mode, 'OFFLINE'); assert.equal(result.execution, 'COMPLETED');
+    assert.equal(result.block.number, null); assert.equal(result.contracts.length, 0);
+    assert.equal(result.archive!.sourceStartedAt, original.report.startedAt); assert.equal(result.archive!.sourceFinishedAt, original.report.finishedAt);
+    assert.equal(result.sources[0]!.runtimeComparison!.matched, true); assert.equal(result.sources[0]!.binding.confirmation, 'UNKNOWN');
+    assert.equal(result.sources[0]!.binding.reason, 'EXACT_ARCHIVED_RUNTIME_MATCH_NOT_CURRENT_BINDING');
+    assert.deepEqual(await readFile(file), bytes);
+    assert.deepEqual(await readFile(join(output, 'artifacts/observations.json')), bytes);
+    assert(markdown(result).includes('원본 진위 인증이 아닙니다'));
+    const bad = structuredClone(result); bad.sources[0]!.binding.confirmation = 'CONFIRMED'; assert.throws(() => validateReviewReport(bad));
+    const badHash = structuredClone(result); badHash.archive!.sha256 = '0'.repeat(64); assert.throws(() => validateReviewReport(badHash));
+    await assert.rejects(reviewToken(original.configPath, 'http://127.0.0.1:1', join(root, `bad-${++next}`), { observations: file }));
+  } finally { globalThis.fetch = fetch; }
+});
+
+test('token review: archived code/identity/header and input corruption fail closed without following archive file references', async () => {
+  const original = await run(configA()); const config = parseConfig(Buffer.from(serialize(configA())));
+  const variant = (change: (r: ReviewReport) => void) => { const r = structuredClone(original.report); change(r); return Buffer.from(serialize(r)); };
+  assert.throws(() => readArchivedObservations(variant(r => { r.config.network.chainId = '1'; }), config));
+  assert.throws(() => readArchivedObservations(variant(r => { r.config.token.address = owner; }), config));
+  assert.throws(() => readArchivedObservations(variant(r => { r.block.hash = `0x${'11'.repeat(32)}`; }), config));
+  assert.throws(() => readArchivedObservations(variant(r => { r.evidence = r.evidence.filter(e => !(e.kind === 'RPC' && (e.data as { method: string }).method === 'eth_getBlockByNumber')); }), config));
+  assert.throws(() => readArchivedObservations(variant(r => { (r.evidence.find(e => e.kind === 'CONTRACT_CODE')!.data as { code: string }).code = '0x6000'; }), config));
+  assert.throws(() => readArchivedObservations(variant(r => { r.contracts.push(r.contracts[0]!); }), config));
+  assert.throws(() => readArchivedObservations(variant(r => { r.mode = 'OFFLINE'; }), config));
+  assert.throws(() => readArchivedObservations(Buffer.from([0xff]), config));
+  assert.throws(() => readArchivedObservations(Buffer.from('[]'), config));
+  const mismatched = { ...config, network: { ...config.network, blockNumber: '0' } };
+  assert.throws(() => readArchivedObservations(Buffer.from(serialize(original.report)), mismatched));
 });
 
 test('token review: CLI produces both reports and manifest, returns partial/error distinctly, and redacts failures', async () => {

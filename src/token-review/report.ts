@@ -6,6 +6,7 @@ import { keccak256, type Hex } from 'viem';
 
 const shape = new Ajv({ strict: true }).compile(reportSchema);
 const legacyShape = new Ajv({ strict: true }).compile(JSON.parse(readFileSync(new URL('../../schemas/token-technical-review.v1.schema.json', import.meta.url), 'utf8')));
+const shape11 = new Ajv({ strict: true }).compile(JSON.parse(readFileSync(new URL('../../schemas/token-technical-review.v1.1.schema.json', import.meta.url), 'utf8')));
 
 const confirmations = { CONFIRMED: '확인됨', NOT_FOUND_IN_SCOPE: '분석 범위에서 미발견', UNKNOWN: '확인 불가', NOT_APPLICABLE: '해당 없음' };
 const categories = { INTENDED_ADMIN_FUNCTION: '의도된 관리 기능', NONSTANDARD_BEHAVIOR: '비표준 동작', VULNERABILITY_CANDIDATE: '취약점 후보', CURRENT_STATE: '현재 운영 상태' };
@@ -13,10 +14,20 @@ const categories = { INTENDED_ADMIN_FUNCTION: '의도된 관리 기능', NONSTAN
 const escape = (v: unknown): string => String(v).replace(/[\r\n\u0000-\u001f\u007f]/g, ' ')
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/([\\`*_[\]{}()#!|])/g, '\\$1');
 export function validateReviewReport(report: ReviewReport): void {
-  if (!(report.schemaVersion === 'TokenTechnicalReview1.0' ? legacyShape(report) : shape(report))) throw new Error('REVIEW_SCHEMA_INVALID');
+  const validator = report.schemaVersion === 'TokenTechnicalReview1.0' ? legacyShape : report.schemaVersion === 'TokenTechnicalReview1.1' ? shape11 : shape;
+  if (!validator(report)) throw new Error('REVIEW_SCHEMA_INVALID');
   if (report.mode === 'OFFLINE' && (report.block.consistency !== 'UNKNOWN' || report.block.number !== null || report.block.hash !== null
     || report.contracts.length || report.proxy !== null || report.evidence.some(e => e.kind === 'RPC' || e.kind === 'GETTER_RESULT'))) throw new Error('INVALID_OFFLINE_OBSERVATION');
   const ids = new Set(report.evidence.map(e => e.id));
+  if (report.archive && (report.mode !== 'OFFLINE' || !ids.has(report.archive.evidenceRef)
+    || report.archive.chainId !== report.config.network.chainId || report.archive.tokenAddress !== report.config.token.address
+    || report.sources.some(s => s.binding.confirmation === 'CONFIRMED'))) throw new Error('INVALID_ARCHIVE_CONTEXT');
+  if (report.archive) {
+    const evidence = report.evidence.find(e => e.id === report.archive!.evidenceRef);
+    const artifact = evidence?.data as { path?: string; sha256?: string; bytes?: number } | undefined;
+    if (evidence?.kind !== 'LOCAL_ARTIFACT' || artifact?.sha256 !== report.archive.sha256
+      || !report.artifacts.some(a => a.path === artifact.path && a.sha256 === artifact.sha256 && a.bytes === artifact.bytes)) throw new Error('ARCHIVE_ARTIFACT_MISMATCH');
+  }
   if (ids.size !== report.evidence.length) throw new Error('DUPLICATE_EVIDENCE');
   const findingIds = new Set(report.findings.map(f => f.id));
   if (findingIds.size !== report.findings.length) throw new Error('DUPLICATE_FINDING');
@@ -60,6 +71,7 @@ export function markdown(report: ReviewReport): string {
     `- 기준 블록: ${escape(report.block.number ?? 'UNKNOWN')} / ${escape(report.block.hash ?? 'UNKNOWN')}`,
     `- 일관성: ${report.block.consistency}; 실행: ${report.execution} (분석 절차의 완료 여부이며 안전성 판정이 아닙니다.)`,
     `- 도구: ${escape(JSON.stringify(report.tools))}`, '',
+    ...(report.archive ? [`- 저장 관측 대조: 원래 ${escape(report.archive.sourceStartedAt)} ~ ${escape(report.archive.sourceFinishedAt)}, 블록 ${escape(report.archive.block.number)} / ${escape(report.archive.block.hash)}. 원본 SHA256 ${report.archive.sha256}, 근거 ${report.archive.evidenceRef}. 새 체인 관측·원본 진위 인증이 아닙니다.`, ''] : []),
     '## 배포 코드', '', '| 주소 | runtime keccak256 | 근거 |', '|---|---|---|',
     ...report.contracts.map(c => `| ${escape(c.address)} | ${escape(c.runtimeHash)} | ${c.evidenceRef} |`), '',
     `프록시 포인터: ${escape(report.proxy?.pattern ?? 'UNKNOWN')} / ${escape(report.proxy?.resolution ?? 'UNRESOLVED')}`,

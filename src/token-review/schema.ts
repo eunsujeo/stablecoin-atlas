@@ -7,7 +7,10 @@ const confirmation = { enum: ['CONFIRMED', 'NOT_FOUND_IN_SCOPE', 'UNKNOWN', 'NOT
 export const reportSchema = {
   $schema: 'http://json-schema.org/draft-07/schema#',
   ...object({
-    schemaVersion: { const: 'TokenTechnicalReview1.1' }, mode: { enum: ['OFFLINE', 'READ_ONLY'] }, startedAt: text, finishedAt: text,
+    schemaVersion: { const: 'TokenTechnicalReview1.2' }, mode: { enum: ['OFFLINE', 'READ_ONLY'] }, startedAt: text, finishedAt: text,
+    archive: nullable(object({ evidenceRef: text, sha256: text, sourceSchema: text, sourceStartedAt: text, sourceFinishedAt: text,
+      chainId: text, tokenAddress: text, block: object({ number: text, hash: text, consistency: { const: 'HASH_PINNED_RECHECKED' } }),
+      provenance: { const: 'SUPPLIED_REPORT_NOT_INDEPENDENTLY_ATTESTED' } })),
     execution: { enum: ['COMPLETED', 'PARTIAL'] },
     config: object({ schemaVersion: { enum: ['TokenReviewConfig1.0', 'TokenReviewConfig1.1'] },
       network: object({ chainId: text, blockNumber: text }, ['chainId']),

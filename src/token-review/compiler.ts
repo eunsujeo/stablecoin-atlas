@@ -1,8 +1,14 @@
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import solc from 'solc';
+import { cachedCompiler, inspectCachedCompiler, stageCachedCompiler } from './compiler-cache.mjs';
 
 export const compilerVersion = String(solc.version());
+export async function compilerProfile(version: string): Promise<{ id: string; version: string; sha256: string | null } | null> {
+  if (version === compilerVersion) return { id: 'installed-solc', version, sha256: null };
+  if (version !== cachedCompiler.version) return null;
+  return await inspectCachedCompiler();
+}
 export type AstNode = { nodeType: string; id: number; src: string; [key: string]: unknown };
 export interface CompileResult {
   compiler: string;
@@ -37,15 +43,23 @@ export function prepareInput(bytes: Buffer, contract: string): { input: Compiler
   if (colon < 1 || !Object.hasOwn(input.sources, file) || !/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(contractName)) throw new Error('INVALID_CONTRACT_SELECTION');
   return { input, file, contractName };
 }
-export function compile(input: CompilerInput, file: string, contract: string): Promise<CompileResult> {
-  return new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, ['--max-old-space-size=256', fileURLToPath(new URL('./compiler-worker.mjs', import.meta.url))], {
-      stdio: ['pipe', 'pipe', 'pipe'],
+export async function compile(input: CompilerInput, file: string, contract: string, version = compilerVersion,
+  limits: { timeoutMs?: number } = {}): Promise<CompileResult> {
+  const timeout = limits.timeoutMs ?? 20_000;
+  if (!Number.isInteger(timeout) || timeout < 1 || timeout > 20_000) throw new Error('INVALID_COMPILER_BUDGET');
+  const profile = await compilerProfile(version);
+  if (!profile) throw new Error('COMPILER_VERSION_UNAVAILABLE');
+  const stage = profile.id === cachedCompiler.id ? await stageCachedCompiler() : null;
+  try { return await new Promise<CompileResult>((resolve, reject) => {
+    const environment = { ...process.env };
+    delete environment.NODE_OPTIONS; delete environment.NODE_PATH;
+    const child = spawn(process.execPath, ['--use-env-proxy', '--max-old-space-size=256', fileURLToPath(new URL('./compiler-worker.mjs', import.meta.url))], {
+      stdio: ['pipe', 'pipe', 'pipe'], env: environment,
     });
     const output: Buffer[] = [];
     let size = 0, failure = false;
     const fail = () => { failure = true; child.kill('SIGKILL'); };
-    const timer = setTimeout(fail, 20_000);
+    const timer = setTimeout(fail, timeout);
     child.stdout.on('data', (chunk: Buffer) => {
       size += chunk.length;
       if (size > 8 * 1024 * 1024) fail();
@@ -60,6 +74,6 @@ export function compile(input: CompilerInput, file: string, contract: string): P
       try { resolve(JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(Buffer.concat(output))) as CompileResult); }
       catch { reject(new Error('COMPILER_OUTPUT_INVALID')); }
     });
-    child.stdin.end(JSON.stringify({ input, file, contract }));
-  });
+    child.stdin.end(JSON.stringify({ input, file, contract, profile: profile.id, stagedCompiler: stage?.path }));
+  }); } finally { await stage?.cleanup(); }
 }

@@ -15,6 +15,7 @@
 - 사용자 새 기술 검토 기준·구현 승인(2026-10-24): ADR0090의 별도 읽기 전용 EVM 토큰 기술 검토 CLI를 허용한다. 명시 chainId/배포 주소·고정 해시 조회·제공 소스/감사 자료·설치 compiler·근거·JSON/Markdown을 사용한다. 분류/확인 상태를 기존 PASS/FAIL·SOURCE_REVIEWED와 분리하고 기존 근거를 삭제/재판정하지 않는다. 사설 Fixture로 구현을 검증하며 새 외부 API/키·운영 DB·AI/Slither 실행·자동 compiler 다운로드·거래/서명·UI/감시를 추가하지 않는다. 실행 경계와 제한은 docs/TOKEN_TECHNICAL_REVIEW.md를 따른다.
 - 사용자 남은 작업 구현 승인(2026-10-24): ADR0091의 오프라인 정적 권한/동작 경로·제출 immutable 조건부 코드 비교·감사 동봉 소스 대조·1.1 보고서를 허용한다. 소스 구문 관계와 전체 권한 보장, 조건부 일치와 생성자/배포 증명, snapshot 일치와 감사 진위를 분리한다. 실제 외부 배포 검증은 정확한 입력·허용 RPC 범위를 확인한 뒤 진행하며 기존1.0·외부 호출/키·운영 데이터·LLM 경계는 유지한다.
 - 사용자 최초 실제 기술 검토 동의(2026-10-24): 기존 등록 Ethereum USDC chainId1·공식 주소·getter7개·기존 workspace RPC로 최대128회/120초·재시도0·endpoint 전환0의 단발 읽기를 진행했다. 고정 plan/wx 소비 후 실제20회로 종료했으며 이 실행은 소비 완료다. 비용 UNKNOWN·compiler0.6.12 미실행·소스 연결 UNKNOWN을 유지하고 원문/URL/키를 Git/웹에 게시하지 않는다. docs/research/2026-10-24-usdc-token-review-live.md를 따른다.
+- 사용자 다음 진행 요청(2026-10-25): ADR0092의 고정 SHA/전체 버전 solc0.6.12 기존 캐시 profile과 저장 관측의 오프라인 대조·별도1.2 보고서를 허용한다. 새 RPC/다운로드/키·임의 compiler 경로·외부 빌드 스크립트·기존 보고서 덮어쓰기는 추가하지 않는다. 원래 시각/블록/hash와 새 분석 시각을 구분하고 archive 정확 일치도 현재 배포 binding/원본 진위로 승격하지 않는다.
 - 증거가 없으면 INCONCLUSIVE, 실행하지 않았으면 NOT_TESTED. UNKNOWN과 NOT_APPLICABLE을 구분한다. 함수 실패로 기능 부재를 단정하지 않는다.
 - 지원 여부와 검증 판정을 분리한다. 수수료·zero-reset·관리자 권한의 존재 자체는 실패나 취약점이 아니다.
 - 공통 도메인에 ERC-20 메서드를 강제하지 않는다. 체인별 실행 의미는 Adapter 안에 둔다.

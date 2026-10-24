@@ -1,6 +1,6 @@
 # 읽기 전용 토큰 기술 검토 CLI
 
-새 기준은 [ADR0090](adr/0090-readonly-token-technical-review.md), 후속1.1은 [ADR0091](adr/0091-offline-token-static-path-analysis.md)이다. 기존 실행 시나리오 PASS/FAIL·연구 판정·대시보드와 별도로 사용한다. 코드의 정적 권한/특수 동작 경로, 명시 getter의 현재 값, 소스/runtime·감사 source snapshot 대조를 JSON·Markdown으로 보존한다. 보안 감사나 안전성/지원 승인이 아니다.
+새 기준은 [ADR0090](adr/0090-readonly-token-technical-review.md), 후속1.1은 [ADR0091](adr/0091-offline-token-static-path-analysis.md), 고정 legacy compiler·저장 관측 대조1.2는 [ADR0092](adr/0092-pinned-legacy-compiler-and-archived-review.md)다. 기존 실행 시나리오 PASS/FAIL·연구 판정·대시보드와 별도로 사용한다. 코드의 정적 권한/특수 동작 경로, 명시 getter의 현재 값, 소스/runtime·감사 source snapshot 대조를 JSON·Markdown으로 보존한다. 보안 감사나 안전성/지원 승인이 아니다.
 
 ## 실행
 
@@ -12,11 +12,15 @@ mkdir -p reports/token-reviews
 npm run review:token -- --config /private/intake/token.json --out reports/token-reviews/review-001
 # 외부 호출 없이 로컬 소스·감사 동봉 소스만 분석 (RPC_URL 불필요)
 npm run review:token -- --offline --config /private/intake/token.json --out reports/token-reviews/offline-001
+# 원래 보고서를 보존하며 원래 블록의 코드와 오프라인 대조
+npm run review:token -- --offline --observations /private/previous/report.json --config /private/intake/token.json --out reports/token-reviews/archived-001
 ```
 
 `--out`은 아직 존재하지 않는 디렉터리여야 한다. 재실행 시 새 경로를 선택한다. 종료코드0은 분석 절차 완료,2는 수집/분석 일부 실패로 보고서가 생성됨,1은 입력/출력 등으로 절차를 완료하지 못함이다. 0이어도 확인 불가 항목이 남을 수 있으며 안전함을 뜻하지 않는다. `bundle.json`이 없으면 완성된 묶음으로 사용하지 않는다.
 
 `--offline`이면 환경변수에 RPC가 있어도 사용하지 않고 체인 조회·재검증을 실행하지 않는다. 보고서 mode=OFFLINE, 기준 블록/체인 관측과 배포 연결은 미확인이다. 명시 chainId/주소는 제출 식별자이며 검증된 현재 배포로 표현하지 않는다.
+
+`--observations`는 명시적인 `--offline`에서만 받는다. 기존 TokenTechnicalReview1.0/1.1/1.2의 실제 READ_ONLY 보고서를32MiB 한도·UTF8·구조/깊이·schema·근거 참조로 검사하고 config의 chainId/주소/명시 블록과 대조한다. 원래 블록/chain 재확인 기록, CONTRACT_CODE의 hash와 동일 EIP-1898 RPC의 반환 바이트를 확인한다. 보고서 안의 경로·URL은 따라가지 않는다. 원본 파일은 새 artifact로 그대로 보존하며 archive에 원래 시각/블록·SHA256을 기록한다. hash·내부 일관성은 원본 진위 인증이 아니므로 `SUPPLIED_REPORT_NOT_INDEPENDENTLY_ATTESTED`다. 새 보고서는 OFFLINE/현재 블록 null이고 정확 byte 일치도 현재 배포 binding UNKNOWN을 유지한다.
 
 ## 입력
 
@@ -67,6 +71,8 @@ compiler 전체 버전은 외부 호출 없이 다음으로 확인한다.
 
 보고서 `tools.compiler`는 설치된 버전이며, 소스별 `compilerUsed`는 반환된 실제 compiler 버전이다. 실행 전 입력 실패/미지원 버전이면 NOT_RUN, worker 실패로 사용 버전을 확정하지 못하면 UNCONFIRMED로 구분한다.
 
+compilerVersion이 `0.6.12+commit.27d51765.Emscripten.clang`이면 고정 registry의 기존 `.state/usdc-source/compiler/soljson.js` 캐시를 사용할 수 있다. SHA256 `3e1956c550ca48e289044c7c0bd892403081b4b5e17e77ce707c815ce6c4228f`와 소유자·regular file·nofollow/32MiB 조건을 확인한 바이트만 전용0700 임시 디렉터리/0600 CJS로 staging한다. worker에서 hash·전체 버전을 재확인하고 parent가 종료/오류/timeout에 정리한다. 캐시가 없거나 다르면 다운로드·다른 버전으로 대체하지 않는다. `COMPILER_PROFILE` 근거에 pin·provenance·독립 인증 NOT_TESTED를 기록한다. 임의 실행 파일/URL/해시를 입력하는 옵션은 없다.
+
 ```sh
 node --input-type=module -e 'import solc from "solc"; console.log(solc.version())'
 ```
@@ -86,7 +92,7 @@ node --input-type=module -e 'import solc from "solc"; console.log(solc.version()
 }
 ```
 
-실제 배포에 사용한 compiler·optimizer·EVM target·libraries·metadata 등의 설정을 제공해야 한다. outputSelection만 도구가 AST·ABI·runtime 출력용으로 교체하며 실효 입력도 저장한다. library는 `settings.libraries[소스 경로][library 이름]`에 정확한 주소를 주고 compiler로 링크한다. 관련 주소의 코드 관측은 명시 `dependencies`를 사용한다. library 코드의 소스 연결·외부 효과는 별도 확인 대상이다. 설치 버전과 다르거나 컴파일 실패, 전체 runtime 불일치, 미확정 링크는 배포 연결 UNKNOWN이다. 오래된 Solidity 버전을 자동 다운로드하거나 pragma를 수정하지 않는다.
+실제 배포에 사용한 compiler·optimizer·EVM target·libraries·metadata 등의 설정을 제공해야 한다. outputSelection만 도구가 AST·ABI·runtime 출력용으로 교체하며 실효 입력도 저장한다. library는 `settings.libraries[소스 경로][library 이름]`에 정확한 주소를 주고 compiler로 링크한다. 관련 주소의 코드 관측은 명시 `dependencies`를 사용한다. library 코드의 소스 연결·외부 효과는 별도 확인 대상이다. 허용 compiler profile이 없거나 컴파일 실패, 전체 runtime 불일치, 미확정 링크는 배포 연결 UNKNOWN이다. 오래된 Solidity 버전을 자동 다운로드하거나 pragma를 수정하지 않는다.
 
 1.1 소스 항목의 선택 `immutableValues`는 compiler가 낸 immutable AST ID를 키로, 정확히32바이트인 `0x` hex를 값으로 받는다. 예: `"immutableValues": { "123": "0x000000000000000000000000000000000000000000000000000000000000002a" }`. 실제 ID는 저장된 compiler 결과를 확인하며 추측하지 않는다. 원본 offset·길이·범위·중첩·0 placeholder·누락/추가 입력을 검사하고 원본/제출값/전체 치환 결과를 저장한다. 배포 코드를 가리거나 metadata를 제거하지 않는다. 전체 일치해도 `SUBMITTED_IMMUTABLE_VALUES` 비교이며 생성자 실행과 값 근거가 미증명이라 배포 연결은 UNKNOWN이다. 값이 없으면 임의로 배포 코드에서 추출하지 않는다.
 
@@ -94,7 +100,7 @@ Getter는 `owner/pendingOwner/admin/masterMinter/blacklister/pauser/feeRecipient
 
 ## 결과와 해석
 
-- `report.json`: [1.1 결과 Schema](../schemas/token-technical-review.v1.1.schema.json), 모드·시각·블록·주소·코드 해시·도구/규칙 버전·분류·확인 상태·실패·근거 참조. 기존 [1.0 결과 Schema](../schemas/token-technical-review.v1.schema.json)와 기록도 보존하고 검증에서 구분한다.
+- `report.json`: [1.2 결과 Schema](../schemas/token-technical-review.v1.2.schema.json), 모드·시각·블록·주소·코드 해시·도구/규칙 버전·archive·분류·확인 상태·실패·근거 참조. 기존 [1.0](../schemas/token-technical-review.v1.schema.json)/[1.1](../schemas/token-technical-review.v1.1.schema.json) 결과와 schema도 보존하고 검증에서 구분한다.
 - `report.md`: 배포 구조, 소스/runtime 대조, 소스 선언·정적 진입 경로·저장값별 변경 진입점·동작 후보·감사 동봉 소스 차이·실패·한계.
 - `artifacts/`: 제공된 소스 standard JSON·실효 compiler 요청·compiler 결과·감사 원문. JSON evidence에 각 SHA256/바이트 수와 RPC 요청/검증된 반환값을 기록한다.
 - `bundle.json`: 위 파일들의 SHA256과 길이. 완료 시 마지막으로 기록한다. 소유 디렉터리0700/파일0600이며 Git이나 웹에 자동 게시하지 않는다.
@@ -102,6 +108,8 @@ Getter는 `owner/pendingOwner/admin/masterMinter/blacklister/pauser/feeRecipient
 분류와 확인 상태는 별도다. 관리 기능·비표준 동작·취약점 후보·현재 상태를 중복 분류할 수 있다. 이름으로 찾은 관리 기능과 저수준 호출 검토 지점은 UNKNOWN이며 취약점 확정이 아니다. 선언·ABI 차이·정적 관계와 내장 require의 직접 `msg.sender == 주소형 저장값` 구문은 SOURCE 사실로 확인한다. 이 조건이 모든 경로에 적용된다는 뜻은 아니다. OR 우회와 사용자 함수 require는 같은 직접 caller 조건으로 확정하지 않는다.
 
 `sources[].staticAnalysis`는 compiler 선언 ID·타입·상속 순서로 진입 함수에서 modifier·내부 호출·조건·저장값 변경을 추적한다. 같은 selector는 가장 구체적인 상속 선언을 진입점으로 선택한다. 관련 선언/조건과 저장값별 변경 진입점이 보고서에 함께 나타난다. virtual/super·인자 미치환·외부 호출·storage alias·assembly·순환·modifier _ 전후/다중 실행·절단은 `uncertainties`에 남기고 `authorityConclusion=UNKNOWN`을 유지한다. 연관 선언 목록은 실제 실행 순서나 도달성 증명이 아니다.
+
+compiler가 selector를 제공하지 않는 함수는 서로 합치거나 transfer 여부를 추측하지 않고 별도 진입점·SELECTOR_NOT_ESTABLISHED로 남긴다. sourceUnit/ABI의 미지원 형태를 기능 부재로 판정하지 않는다.
 
 타입 기반 구문 패턴은 false 반환, 승인 경로의 중첩 mapping0비교, 주소 조건, 곱셈/나눗셈, 외부 호출/assembly, 전송 selector 밖의 address→uint mapping 대입을 표시한다. 수수료·rebase·잔액 의미·주소 제한·콜백 취약점은 여전히 후보이며 UNKNOWN이다. snippet400자, 기존 선언 inventory의 호출·조건·대입·반환 각32개/modifier16개 제한이 있다. 정적 그래프는 진입64개·선언32/진입·조건32/진입·쓰기64/진입·호출64/진입·패턴64/진입·저장 변수256을 제한한다. 한도 도달은 별도 실패로 보존하며 전체 소스는 유지한다. 추출되지 않음을 미발견/안전으로 바꾸지 않는다.
 
@@ -115,7 +123,7 @@ SOURCE 사실은 제공된 소스 범위이며 배포 연결과 다르다. CHAIN
 
 ## 한도와 미지원
 
-RPC 최대128회·120초·각 응답2MiB/합계8MiB·요청10초·재시도0·redirect 거절이다. eth_call은 인식한 주소·고정 getter/프록시 조회만, gas500,000/value0/고정 해시로 실행한다. 설정64KiB·소스 최대8묶음/각1MiB/가상 소스32개·감사4개/각2MiB·명시 의존성8개·getter24개다. 컴파일 worker는 각20초·heap256MiB·입력2MiB/출력8MiB이며 외부 스크립트를 실행하지 않는다. 함수256개/묶음·소스 분석 근거 합계4MiB·최종 JSON32MiB를 제한한다. 실패 원문·RPC 인증정보를 로그에 출력하지 않는다.
+RPC 최대128회·120초·각 응답2MiB/합계8MiB·요청10초·재시도0·redirect 거절이다. eth_call은 인식한 주소·고정 getter/프록시 조회만, gas500,000/value0/고정 해시로 실행한다. 설정64KiB·소스 최대8묶음/각1MiB/가상 소스32개·감사4개/각2MiB·명시 의존성8개·getter24개다. 컴파일 worker는 각20초·V8 heap256MiB·입력2MiB/출력8MiB다. heap 한도는 전체 RSS/보안 sandbox 보장이 아니다. child의 NODE_OPTIONS/NODE_PATH 주입을 제거하며 관리형 proxy 변수는 유지한다. 외부 빌드 스크립트·package hook을 실행하지 않는다. 함수256개/묶음·소스 분석 근거 합계4MiB·최종 JSON32MiB를 제한한다. 저장 관측은32MiB·깊이128·노드500,000으로 제한한다. 실패 원문·RPC 인증정보를 로그에 출력하지 않는다.
 
 AI·Slither는 **NOT_RUN**이다. Trail of Bits [token-integration-analyzer](https://github.com/trailofbits/skills/blob/main/plugins/building-secure-contracts/skills/token-integration-analyzer/SKILL.md)의 관리자 권한·비표준 동작 항목을 참고했다. upstream commit은 이 구현에서 고정/실행하지 않았으며 자체 규칙 버전으로 추적한다. 전체 스킬·분포/상장 평가·예시 위험 등급을 적용하지 않고 Trail of Bits의 직접 감사로 표현하지 않는다.
 
@@ -127,9 +135,11 @@ AI·Slither는 **NOT_RUN**이다. Trail of Bits [token-integration-analyzer](htt
 
 후속 `tests/token-review-expansion.test.ts`와 사설 배포 시험은 상속 guard/내부 함수·OR 우회/가짜 require·override/super·modifier 실행 순서/중복·순환·storage alias·assembly·그래프 한도, 특수 동작 후보, library 실제 링크, immutable 전체 치환 일치/불일치와 범위 오류, 감사 파일 내용/경로/설정 차이, 무HTTP 오프라인 및1.0 보존을 확인한다. 실제 권한 행사를 실행한 증거로 쓰지 않는다.
 
+`tests/token-review-cache.test.mjs`와 저장 관측 시험은 cache hash/소유·타입·symlink 거절, 변조 파일 미실행, preload 제거, timeout/임시 정리, 로컬 캐시가 있을 때0.6.12 실제 컴파일/AST와 없을 때 미지원 보존, archive identity/hash/헤더 오류·무HTTP·원문 불변·1.0/1.1 보존을 검사한다. 실제 USDC 저장 소스의 [2026-10-25 오프라인 분석](research/2026-10-25-usdc-offline-source-review.md)은 컴파일·정적 분석 성공과 전체 runtime 불일치를 분리한다. 새 RPC는0회이며 배포 연결 UNKNOWN은 해소하지 않았다.
+
 이 사설 시험 자산은 실제 USDC·USDT·RLUSD·JPYSC·JPYC가 아니다. 구현 자동 검사는 외부 RPC/API·새 키·운영 DB를 사용하지 않았다. 후속 사용자 동의로 [Ethereum USDC 실제 단발 읽기](research/2026-10-24-usdc-token-review-live.md)를 별도 수행해 RPC20회·getter7개와 기준 블록/해시 재확인을 확인했다. 소스 compiler0.6.12 미연결로 정적 소스 분석은 NOT_RUN·배포 연결 UNKNOWN, 전체 PARTIAL이며 실제 다섯 토큰 전체의 검증 완료가 아니다. 추가 실제 배포 검토는 명시 입력과 허용된 RPC 범위로 구분한다.
 
 ```sh
-node --use-env-proxy --import tsx --test tests/token-review.test.ts tests/token-review-expansion.test.ts
+node --use-env-proxy --import tsx --test tests/token-review.test.ts tests/token-review-expansion.test.ts tests/token-review-cache.test.mjs
 npm run check
 ```

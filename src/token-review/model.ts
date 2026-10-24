@@ -3,6 +3,7 @@ import type { ProxyObservation } from '../evm/proxy.js';
 import type { StaticAnalysis } from './semantic-model.js';
 import type { RuntimeComparison } from './runtime-comparison.js';
 import type { AuditSourceComparison } from './audit-comparison.js';
+import type { ArchivedObservation } from './archived-observations.js';
 
 export type Confirmation = 'CONFIRMED' | 'NOT_FOUND_IN_SCOPE' | 'UNKNOWN' | 'NOT_APPLICABLE';
 export type Category = 'INTENDED_ADMIN_FUNCTION' | 'NONSTANDARD_BEHAVIOR' | 'VULNERABILITY_CANDIDATE' | 'CURRENT_STATE';
@@ -42,7 +43,8 @@ export interface FunctionReview {
   conditions: string[]; writes: string[]; returns: string[]; assembly: boolean;
 }
 export interface ReviewReport {
-  schemaVersion: 'TokenTechnicalReview1.0' | 'TokenTechnicalReview1.1';
+  schemaVersion: 'TokenTechnicalReview1.0' | 'TokenTechnicalReview1.1' | 'TokenTechnicalReview1.2';
+  archive?: ArchivedObservation | null;
   mode?: 'OFFLINE' | 'READ_ONLY';
   startedAt: string; finishedAt: string;
   execution: 'COMPLETED' | 'PARTIAL';

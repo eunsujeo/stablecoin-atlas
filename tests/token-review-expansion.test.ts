@@ -12,6 +12,7 @@ import { reviewToken, serialize } from '../src/token-review/review.js';
 import { parseConfig } from '../src/token-review/input.js';
 import { validateReviewReport, markdown } from '../src/token-review/report.js';
 import type { ReviewConfig } from '../src/token-review/model.js';
+import { nodes } from '../src/token-review/ast.js';
 
 let root: string, input: CompilerInput, compiled: CompileResult;
 const address = '0x1111111111111111111111111111111111111111';
@@ -101,6 +102,15 @@ test('graph declaration and entry limits are explicit and never converted into f
   assert.equal(limited.entries.length, 64); assert(limited.coverage.entryLimitReached);
 });
 
+test('missing compiler selectors preserve separate entries and uncertainty instead of guessing transfer classification', () => {
+  const altered = structuredClone(compiled);
+  for (const unit of Object.values(altered.sources)) for (const fn of nodes(unit.ast)) if (fn.nodeType === 'FunctionDefinition') delete fn.functionSelector;
+  const a = analyzeSource(input, altered, 'Rules.sol', 'ReviewRuleToken', () => 'proof');
+  assert(a.entries.length > 1);
+  assert(a.entries.every(e => e.selector === null && e.uncertainties.includes('SELECTOR_NOT_ESTABLISHED')));
+  assert(!a.entries.some(e => e.behaviors.some(b => b.pattern === 'NON_TRANSFER_MAPPING_WRITE')));
+});
+
 test('runtime reconstruction validates compiler ranges and exact values without pretending constructor proof', () => {
   const original = '60' + '00'.repeat(32) + 'ff';
   const value = `0x${'0'.repeat(62)}2a`;
@@ -167,6 +177,7 @@ test('1.1 reports validate nested evidence and preserve 1.0 input/schema interpr
   const authority = structuredClone(report); (authority.sources[0]!.staticAnalysis!.entries[0]! as { authorityConclusion: string }).authorityConclusion = 'CONFIRMED'; assert.throws(() => validateReviewReport(authority));
   const missing = structuredClone(report); missing.audits[0]!.sourceComparison!.snapshotEvidence = 'absent'; assert.throws(() => validateReviewReport(missing));
   const legacy = structuredClone(report); legacy.schemaVersion = 'TokenTechnicalReview1.0'; delete legacy.mode;
+  delete legacy.archive;
   legacy.config.schemaVersion = 'TokenReviewConfig1.0';
   for (const s of legacy.sources) { delete s.staticAnalysis; delete s.runtimeComparison; }
   for (const a of legacy.audits) delete a.sourceComparison;
