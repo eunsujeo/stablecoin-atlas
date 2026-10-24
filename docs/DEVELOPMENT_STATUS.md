@@ -4,6 +4,8 @@
 
 ## 완료 범위
 
+- 2026-10-25 [JPYC Ethereum compiler 후속 계획](research/2026-10-25-jpyc-compiler-plan.md)을 구체화했다. 저장 후보2개 hash·Solidity6/17개를 재확인하고 solc0.8.11 취득 최대2GET·고정 profile·오프라인 분석의 제안 한도를 정했다. 계획만 완료했으며 다운로드·대상 compiler 실행·profile 변경·RPC0이다. 실제 취득·실행은 추가 사용자 승인 후 진행한다.
+
 - 2026-10-25 사용자 후속 지시에 따라 [JPYC/JPYSC 공개 HTML 취득·선택 소스 검토](research/2026-10-25-jpy-public-html-source-review.md)를 수행했다. 공식2·계약5·표시 구현체4페이지를 비공개 저장하고4배포의 proxy/implementation8묶음·Solidity119파일·import161연결/미해결0을 확보했다. Kaia는 HTML만 확보해 추출 불가/INCONCLUSIVE를 유지한다. 수동 함수/modifier 검토는 별도 SOURCE_REVIEWED이며 compiler/AST·RPC·배포 비교·권한 행사0, 제품 지원·기존 판정/원문·DB/UI 변경0이다. 앞선 로컬 입력 미확보 기록은 과거 결과로 보존한다.
 
 - 2026-10-25 [JPYC/JPYSC 5배포 로컬 기술 입력 점검](research/2026-10-25-jpy-technical-input-inventory.md)을 완료했다. 저장 주소·chainId와 시장 원문 hash 연결은 확인했으나 실제 계약 소스·의존 closure·전체 compiler/settings·소스 provenance 연결은 미확보다. 이름이 발견된 사설 smoke Fixture는 제외하고 NOT_TESTED/UNKNOWN을 유지했다. 새 외부 조회·컴파일·DB/UI 변경은 없으며 다음 기술 검토 대상과 제공 입력 확인이 필요하다.
