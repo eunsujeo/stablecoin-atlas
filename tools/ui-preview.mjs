@@ -20,8 +20,9 @@ const assets = new Map([
   ['/atlas.html', ['../web/atlas.html', 'text/html; charset=utf-8']],
   ['/atlas.css', ['../web/atlas.css', 'text/css; charset=utf-8']],
   ['/atlas.js', ['../web/atlas.js', 'text/javascript; charset=utf-8']],
-  ['/', ['../web/index.html', 'text/html; charset=utf-8']],
-  ['/index.html', ['../web/index.html', 'text/html; charset=utf-8']],
+  ['/', ['../web/atlas.html', 'text/html; charset=utf-8']],
+  ['/index.html', ['../web/atlas.html', 'text/html; charset=utf-8']],
+  ['/legacy.html', ['../web/index.html', 'text/html; charset=utf-8']],
   ['/styles.css', ['../web/styles.css', 'text/css; charset=utf-8']],
   ['/app.js', ['../web/app.js', 'text/javascript; charset=utf-8']],
   ['/evidence.js', ['../web/evidence.js', 'text/javascript; charset=utf-8']],
@@ -120,9 +121,9 @@ export function createPreviewServer({ evidenceDirectory, marketDirectory, market
       } catch { fail(503, 'EVIDENCE_UNAVAILABLE'); }
       return;
     }
-    // Only the fixed document accepts UI query parameters. API and asset paths
+    // Only fixed document routes accept UI query parameters. API and asset paths
     // retain their existing exact allowlists; query values never become paths.
-    const assetPath=typeof req.url==='string'&&req.url.length<=2048&&req.url.startsWith('/?')?'/':req.url;
+    const assetPath=typeof req.url==='string'&&req.url.length<=2048&&/^(?:\/|\/index\.html|\/atlas\.html|\/legacy\.html)\?/.test(req.url)?req.url.split('?')[0]:req.url;
     const asset = assets.get(assetPath);
     if (!asset) { fail(404, 'NOT_FOUND'); return; }
     try {

@@ -13,7 +13,7 @@ test('preview binds loopback and serves only fixed assets; HEAD, CSP and same-or
   const server = await startPreviewServer(0), port = server.address().port;
   try {
     assert.equal(server.address().address, '127.0.0.1');
-    for (const [path, type] of [['/', 'text/html'], ['/atlas.html', 'text/html'], ['/atlas.js', 'text/javascript'], ['/atlas.css', 'text/css'], ['/app.js', 'text/javascript'], ['/model.js', 'text/javascript'], ['/styles.css', 'text/css'], ['/mock-data.json', 'application/json']]) {
+    for (const [path, type] of [['/', 'text/html'], ['/index.html', 'text/html'], ['/legacy.html', 'text/html'], ['/atlas.html', 'text/html'], ['/atlas.js', 'text/javascript'], ['/atlas.css', 'text/css'], ['/app.js', 'text/javascript'], ['/model.js', 'text/javascript'], ['/styles.css', 'text/css'], ['/mock-data.json', 'application/json']]) {
       const get = await read(port, path), head = await read(port, path, { method: 'HEAD' });
       assert.equal(get.status, 200); assert.match(get.headers['content-type'], new RegExp(type)); assert.equal(head.status, get.status); assert.equal(head.headers['content-type'], get.headers['content-type']); assert.equal(head.headers['content-length'], get.headers['content-length']); assert.equal(head.body, '');
       assert.equal(get.headers['x-content-type-options'], 'nosniff'); assert.match(get.headers['content-security-policy'], /connect-src 'self'/); assert.match(get.headers['content-security-policy'], /frame-ancestors 'none'/);
@@ -21,6 +21,16 @@ test('preview binds loopback and serves only fixed assets; HEAD, CSP and same-or
     const data = JSON.parse((await read(port, '/mock-data.json')).body); assert.equal(data.allValuesAreFictional, true);
     const shared='/?coin=jpyc&network=polygon&source=minted&period=90d&comparison=change';
     const document=await read(port,'/'),link=await read(port,shared),linkHead=await read(port,shared,{method:'HEAD'});
+    assert.match(document.body, /src="\/atlas\.js"/);
+    assert.ok(document.body.includes('href="/legacy.html">기존 화면</a>'));
+    for (const path of ['/atlas.html', '/index.html']) assert.equal((await read(port,path)).body,document.body);
+    for (const anchor of ['live','overview','validation','reports']) assert.ok(document.body.includes(`href="/legacy.html#${anchor}"`));
+    const legacy=await read(port,'/legacy.html');
+    assert.match(legacy.body, /src="\/evidence\.js"/);assert.ok(legacy.body.includes('href="/"'));
+    for (const id of ['validation-screen','reports-screen','overview-screen','live-screen']) assert.ok(legacy.body.includes(`id="${id}"`));
+    const legacyShared=await read(port,'/legacy.html?coin=jpyc&network=polygon&source=minted&period=90d&comparison=change');
+    assert.equal(legacyShared.status,200);assert.equal(legacyShared.body,legacy.body);
+    assert.equal((await read(port,'/legacy.html?coin='+ 'x'.repeat(2048))).status,404);
     assert.equal(link.status,200);assert.equal(link.body,document.body);assert.equal(linkHead.status,200);assert.equal(linkHead.body,'');assert.equal(linkHead.headers['content-length'],link.headers['content-length']);
     assert.equal((await read(port,'/?coin='+ 'x'.repeat(2048))).status,404);
     for (const path of ['/../.env', '/%2e%2e/.env', '/docs/ui/mock-dashboard-data.json', '/package.json', '/mock-data.json?url=other', '/app.js/../index.html', '/styles.css?x=1', '/.git/config']) { const response = await read(port, path); assert.equal(response.status, 404); assert.equal(response.body, 'NOT_FOUND'); }
