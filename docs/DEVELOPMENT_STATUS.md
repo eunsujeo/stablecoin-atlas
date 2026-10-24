@@ -4,7 +4,7 @@
 
 ## 완료 범위
 
-- 2026-10-25 기존 pin의 solc0.6.12를 고정 cache profile로 연결하고 USDC 저장 관측을 RPC0회로 오프라인 분석했다. 소스 컴파일·함수91/진입43 추적은 성공했으나, 명시 library 설정을 반영한 별도 후보도 전체 runtime이 불일치해 배포 연결 UNKNOWN·PARTIAL을 유지한다. 기존 실제 보고서/소비·원문·1.0/1.1을 보존한다. [ADR0092](adr/0092-pinned-legacy-compiler-and-archived-review.md), [구체적 결과](research/2026-10-25-usdc-offline-source-review.md).
+- 2026-10-25 기존 pin의 solc0.6.12를 고정 cache profile로 연결하고 USDC 저장 관측을 RPC0회로 오프라인 분석했다. 소스 컴파일·함수91/진입43 추적은 성공했으나, 명시 library 설정을 반영한 별도 후보도 전체 runtime이 불일치해 배포 연결 UNKNOWN·PARTIAL을 유지한다. 기존 실제 보고서/소비·원문·1.0/1.1을 보존한다. 후속 후보 소스 검토표에 발행/소각·정지/제한·역할·승인/서명 경로·초기화/복구를 정리했으며 V2_2 override를 반영했다. SOURCE_REVIEWED는 후보 소스만의 연구 상태이고 proxy 업그레이드·감사 대응은 UNKNOWN이다. [ADR0092](adr/0092-pinned-legacy-compiler-and-archived-review.md), [구체적 결과](research/2026-10-25-usdc-offline-source-review.md).
 
 - 2026-10-24 사용자 동의로 Ethereum USDC 기술 검토 CLI의 실제 단발 읽기를 수행했다. RPC20회·getter7개 관측과 고정 블록/해시 재확인은 성공했다. 소스는 solc0.6.12가 제품 경로에 연결되지 않아 NOT_RUN/배포 연결 UNKNOWN, 전체 PARTIAL이다. 재시도·추가 compiler 실행·새 키·DB/UI 변경은 없으며 비공개 원문을 보존했다. [실제 범위와 한계](research/2026-10-24-usdc-token-review-live.md).
 
