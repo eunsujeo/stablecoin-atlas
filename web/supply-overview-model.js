@@ -52,7 +52,21 @@ export function overviewTransferGroups(data,coinId){
  const window=data.window??snapshot.window??surveyWindow;
  return {from:window.from,to:new Date(Date.parse(window.untilExclusive)-86400000).toISOString().slice(0,10),
   groups:alliumSeries(data,coinId,'volume','transfer_volume').map(s=>({key:s.coinId+':'+s.networkId,coinId:s.coinId,networkId:s.networkId,updatedAt:s.queriedAt,
-   network:{id:s.coinId+':'+s.networkId,name:s.networkId.toUpperCase()},dateBasis:window.dateBasis??'PROVIDER_DAY',aggregateTimezone:window.aggregateTimezone??'UNKNOWN',
+   network:{id:s.coinId+':'+s.networkId,name:s.networkId.toUpperCase()},dateBasis:snapshot.window?.dateBasis??null,aggregateTimezone:snapshot.window?.aggregateTimezone??null,sourceHash:snapshot.sourceHash,sourceWindow:{from:window.from,untilExclusive:window.untilExclusive},
    rows:s.points.map(p=>({amount:p.amount,observedAt:p.day+'T00:00:00.000Z'})),
   }))};
+}
+
+// A composition is one token, one pinned source/window and one explicit provider day.
+export function transferComposition(groups,selectedDay=null,hidden=new Set()){
+ if(selectedDay!==null&&(!/^\d{4}-\d\d-\d\d$/.test(selectedDay)||!Number.isFinite(Date.parse(selectedDay))||new Date(selectedDay).toISOString().slice(0,10)!==selectedDay))throw Error('INVALID_TRANSFER_DAY');
+ const first=groups[0];
+ if(first&&(!/^[a-f0-9]{64}$/.test(first.sourceHash)||!first.sourceWindow?.from||!first.sourceWindow?.untilExclusive||new Set(groups.map(g=>g.networkId)).size!==groups.length||groups.some(g=>g.coinId!==first.coinId||g.sourceHash!==first.sourceHash||g.sourceWindow?.from!==first.sourceWindow.from||g.sourceWindow?.untilExclusive!==first.sourceWindow.untilExclusive||g.updatedAt!==first.updatedAt||g.dateBasis!=='PROVIDER_DAY'||g.aggregateTimezone!=='UNKNOWN')))throw Error('INVALID_TRANSFER_COMPOSITION_SCOPE');
+ const day=selectedDay??groups.flatMap(g=>g.rows.map(r=>r.observedAt.slice(0,10))).sort().at(-1)??null;
+ const entries=groups.flatMap(g=>{const matching=g.rows.filter(r=>r.observedAt.slice(0,10)===day);if(matching.length>1)throw Error('DUPLICATE_TRANSFER_DAY');return matching.length?[{...g,row:matching[0],hidden:hidden.has(g.key)}]:[];}).sort((a,b)=>units(a.row.amount)>units(b.row.amount)?-1:units(a.row.amount)<units(b.row.amount)?1:a.networkId.localeCompare(b.networkId));
+ const visible=entries.filter(e=>!e.hidden),total=visible.reduce((n,e)=>n+units(e.row.amount),0n),scale=10n**36n;
+ const state=!entries.length?'MISSING':!visible.length?'FILTERED':total===0n?'ZERO':'OBSERVED';
+ const tail=String(total%scale).padStart(36,'0').replace(/0+$/,'');
+ return {day,state,totalAmount:visible.length?String(total/scale)+(tail?'.'+tail:''):null,dateBasis:first?.dateBasis??null,aggregateTimezone:first?.aggregateTimezone??null,
+  entries:entries.map(e=>{const basis=total>0n&&!e.hidden?(units(e.row.amount)*10000n+total/2n)/total:null;return {...e,share:basis===null?null:String(basis/100n)+'.'+String(basis%100n).padStart(2,'0'),arc:basis===null?0:Number(units(e.row.amount)*1000000n/total)/10000};})};
 }

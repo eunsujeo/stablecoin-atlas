@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import {mkdtemp,writeFile,rm,symlink} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {overviewSupplyGroups,readOverviewHistories,legacyOverviewDetails,overviewNetworkRanking,supplyQuantityLabel,overviewTransferGroups} from './supply-overview-model.js';
+import {overviewSupplyGroups,readOverviewHistories,legacyOverviewDetails,overviewNetworkRanking,supplyQuantityLabel,overviewTransferGroups,transferComposition} from './supply-overview-model.js';
 import {supplyComparisonGeometry,dailySupplySegments} from './market-chart.js';
 import {localRegistrationReader} from '../tools/registration-file-preview.mjs';
 import {parsePreviewArguments,startPreviewServer} from '../tools/ui-preview.mjs';
@@ -72,4 +72,18 @@ test('restored transfers keep their own stored window, exact volumes, real zero 
  assert.deepEqual(dailySupplySegments(ethereum.rows.map(row=>({row}))).map(s=>s.length),[1,1,3]);
  assert.equal(overviewTransferGroups(dto,'jpysc').groups[0].rows.length,4);assert(!overviewTransferGroups(dto,'jpyc').groups.some(g=>g.networkId==='kaia'));
  dto.snapshots=dto.snapshots.filter(s=>s.survey==='supply');assert.deepEqual(overviewTransferGroups(dto,'usdc'),{groups:[],from:null,to:null});assert.deepEqual(overviewTransferGroups(null,'usdc').groups,[]);
+});
+
+test('transfer composition pins token/source/window/day and never carries missing networks or invents zero shares',async()=>{
+ const dto=await surveyDto(),groups=overviewTransferGroups(dto,'usdc').groups,original=structuredClone(groups);
+ groups[0].rows[0].amount='9007199254740993.000000000000000001';groups[1].rows[0].amount='3002399751580331.000000000000000001';
+ const view=transferComposition(groups,'2026-10-16');assert.equal(view.totalAmount,'12009599006321324.000000000000000002');assert.equal(view.entries[0].share,'75.00');assert.equal(view.entries[1].share,'25.00');assert.equal(view.dateBasis,'PROVIDER_DAY');assert.equal(view.aggregateTimezone,'UNKNOWN');
+ const thirds=structuredClone(groups);thirds.push({...structuredClone(thirds[0]),networkId:'third',key:'usdc:third'});for(const group of thirds)group.rows[0].amount='1';assert.deepEqual(transferComposition(thirds,'2026-10-16').entries.map(e=>e.share),['33.33','33.33','33.33']);
+ const missing=transferComposition(groups,'2026-10-15');assert.equal(missing.state,'MISSING');assert.equal(missing.totalAmount,null);assert.equal(missing.day,'2026-10-15');
+ const partial=structuredClone(groups);partial[1].rows=partial[1].rows.slice(1);const one=transferComposition(partial,'2026-10-16');assert.equal(one.entries.length,1);assert.equal(one.entries[0].share,'100.00');
+ const hidden=transferComposition(groups,'2026-10-16',new Set(groups.map(g=>g.key)));assert.equal(hidden.state,'FILTERED');assert.equal(hidden.totalAmount,null);assert(hidden.entries.every(e=>e.share===null));
+ const zero=structuredClone(groups);for(const g of zero)g.rows[0].amount='0';const emptyValue=transferComposition(zero,'2026-10-16');assert.equal(emptyValue.state,'ZERO');assert.equal(emptyValue.totalAmount,'0');assert(emptyValue.entries.every(e=>e.share===null&&e.arc===0));
+ for(const field of ['coinId','sourceHash','updatedAt','dateBasis','aggregateTimezone']){const mixed=structuredClone(groups);mixed[1][field]='different';assert.throws(()=>transferComposition(mixed));}
+ const mixedWindow=structuredClone(groups);mixedWindow[1].sourceWindow.from='2026-10-17';assert.throws(()=>transferComposition(mixedWindow));assert.throws(()=>transferComposition(groups,'2026-02-30'));
+ const unchanged=overviewTransferGroups(dto,'usdc').groups;assert.deepEqual(unchanged,original);const saved=structuredClone(groups);transferComposition(groups);assert.deepEqual(groups,saved);
 });
