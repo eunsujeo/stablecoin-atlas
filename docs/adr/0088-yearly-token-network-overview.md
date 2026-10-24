@@ -27,6 +27,8 @@
 
 overview.js의 기존 storedSurveyChoice 전체 snapshot/실패 상태를 연결한다. 공급량 index 로딩·실패 분기에서도 전송량 상태를 먼저 갱신한다. LAST_GOOD는 이전 전체 집합과 원래 기간/시각을 유지하고 짧은 실패 상태를 표시한다. 404·빈 종류/필드는 전송량 패널을 숨기며 Ethereum activity 등의 다른 자료로 대체하거나 합치지 않는다. 출처 문구와 제거한 하단 설명은 복원하지 않는다. 기존 --registration-file과 --survey-file의 동시 로컬 읽기로 미리보기를 제공하며 원본 생성·API·DB 호출은 없다. Lead10bec9e777cd400ab2412576a5d044b5의 proceed 조건을 반영했다.
 
+사용자 후속 요청으로 공급량/전송량 제목 옆에 개념 설명 툴팁을 추가했다. hover·키보드 focus·터치 클릭으로 열고 Escape/외부 클릭으로 닫는다. 공급량은 날짜별 유통 잔액, 전송량은 일별 토큰 이동량으로 설명하며 상시 문단이나 출처 문구는 다시 표시하지 않는다.
+
 ## 저장 읽기와 실패
 
 기존 registration index/history endpoint와 validator를 재사용하며 고정5코인을 동시 최대2개로 읽는다. selection/source/from/to/coin/metric 전체 pin이 같은 이전값만 실패 시 유지한다. index 실패는 기존 전체 화면과 실패 상태를 유지하며 새로운 selection으로 바꾸지 않는다. index 교체 시 불일치 이전 계열을 제거하고 응답 sequence가 지난 결과를 버린다. 다른 공급자나 Allium7일 값으로 보충하지 않는다. DB 미설정 JSON 모드에서는 원래 market DTO에 명시된 DeFiLlama history만 사용할 수 있다.

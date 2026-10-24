@@ -5,6 +5,19 @@ import {renderNetworkSupplyChart} from './market-chart.js';
 const colors={usdc:'#638bff',usdt:'#22a98b',rlusd:'#b17de0',jpysc:'#dc9638',jpyc:'#de6884'};
 const node=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
 const networkColors={ethereum:'#547aef',solana:'#149b91',tron:'#8b5cba',xrpl:'#cc8d28',polygon:'#527e31',avalanche:'#d56b32',kaia:'#ba5874',base:'#8959cd',arbitrum:'#cf5d78',bsc:'#b17a19',stellar:'#8b6983','hyperliquid-l1':'#be8331',arc:'#387a96',plasma:'#187c72',ton:'#9a5c35',aptos:'#9465a5',mantle:'#88862a'};
+let helpSequence=0;
+function metricTitle(text,kind){
+ const label=kind==='volume'?'전송량':'공급량',row=node('div',undefined,'metric-title-row'),wrap=node('span',undefined,'metric-help'),button=node('button','i','metric-help-button'),tip=node('span',kind==='volume'?'선택한 토큰이 해당 네트워크에서 하루 동안 이동한 수량입니다. 일별 전송 활동을 토큰 단위로 보여주며, 매매 거래량·결제액과 구분합니다.':'선택한 토큰이 해당 네트워크에서 유통 중인 것으로 집계된 수량입니다. 날짜별 유통 잔액을 토큰 단위로 보여줍니다.','metric-help-tooltip');
+ tip.id='metric-help-'+(++helpSequence);tip.popover='auto';tip.setAttribute('role','tooltip');button.type='button';button.setAttribute('aria-label',label+' 설명');button.setAttribute('aria-describedby',tip.id);button.setAttribute('aria-controls',tip.id);button.setAttribute('aria-expanded','false');button.popoverTargetElement=tip;let pinned=false,closeTimer;
+ const show=()=>{clearTimeout(closeTimer);if(!tip.isConnected)return;if(!tip.matches(':popover-open'))tip.showPopover();const anchor=button.getBoundingClientRect(),box=tip.getBoundingClientRect();tip.style.left=Math.max(12,Math.min(anchor.left-12,innerWidth-box.width-12))+'px';const below=anchor.bottom+8+box.height<=innerHeight-12;tip.dataset.placement=below?'below':'above';tip.style.top=(below?anchor.bottom+8:Math.max(12,anchor.top-box.height-8))+'px';button.setAttribute('aria-expanded','true');};
+ const hide=()=>{clearTimeout(closeTimer);if(tip.matches(':popover-open'))tip.hidePopover();button.setAttribute('aria-expanded','false');pinned=false;};
+ const deferHide=()=>{clearTimeout(closeTimer);closeTimer=setTimeout(()=>{if(!pinned&&!wrap.matches(':hover')&&!tip.matches(':hover')&&!button.matches(':focus-visible'))hide();},200);};
+ button.addEventListener('click',event=>{event.preventDefault();pinned=!pinned;pinned?show():hide();});
+ wrap.addEventListener('pointerenter',event=>{if(event.pointerType!=='touch')show();});wrap.addEventListener('pointerleave',deferHide);tip.addEventListener('pointerenter',show);tip.addEventListener('pointerleave',deferHide);
+ button.addEventListener('focus',()=>{if(button.matches(':focus-visible'))show();});button.addEventListener('blur',()=>{pinned=false;deferHide();});wrap.addEventListener('keydown',event=>{if(event.key==='Escape')hide();});
+ tip.addEventListener('toggle',()=>{const open=tip.matches(':popover-open');button.setAttribute('aria-expanded',String(open));if(!open)pinned=false;});
+ wrap.append(button,tip);row.append(node('h2',text),wrap);return row;
+}
 export function initializeSupplyOverview(root,{read}){
  let details=[],index=null,currency='USD',period='1y',comparison='amount',failed=false,loading=false,sequence=0;
  let transferSurvey={data:null,state:'MISSING'};
@@ -39,7 +52,7 @@ export function initializeSupplyOverview(root,{read}){
   const selectedCoin=selectedCoins[currency],groups=allGroups.filter(g=>g.coinId===selectedCoin),transfers=overviewTransferGroups(transferSurvey.data,selectedCoin);
   for(const group of [...groups,...transfers.groups]){group.color=networkColors[group.networkId]??'#638bff';group.dash='';group.network.name=index?.networks.find(n=>n.id===group.networkId)?.name??group.networkId.toUpperCase();}
   root.hidden=false;root.replaceChildren();
-  const heading=node('div',undefined,'panel-heading'),title=node('div');title.append(node('p','STABLECOIN SUPPLY','eyebrow'),node('h2',selectedCoin.toUpperCase()+' · 네트워크별 공급량 추이'));
+  const heading=node('div',undefined,'panel-heading'),title=node('div');title.append(node('p','STABLECOIN SUPPLY','eyebrow'),metricTitle(selectedCoin.toUpperCase()+' · 네트워크별 공급량 추이','supply'));
   const switches=node('div',undefined,'supply-switches');
   const buttons=(label,options,value,change,target=switches)=>{const box=node('div',undefined,'chart-filters');box.setAttribute('role','group');box.setAttribute('aria-label',label);for(const [id,text]of options){const b=node('button',text);b.type='button';b.setAttribute('aria-label',label+' · '+text);b.setAttribute('aria-pressed',String(value===id));b.addEventListener('click',()=>{change(id);render();});box.append(b);}target.append(box);};
   buttons('조회 기간',[['30d','30D'],['90d','3M'],['1y','1Y']],period,v=>period=v);
@@ -54,7 +67,7 @@ export function initializeSupplyOverview(root,{read}){
   metricLayout(root,groups,{coinId:selectedCoin,from,to,kind:'supply',comparison,hidden});
   if(transfers.groups.length){
    const section=node('section',undefined,'supply-volume-section');section.setAttribute('aria-label',selectedCoin.toUpperCase()+' 전송량');
-   const header=node('div',undefined,'panel-heading'),label=node('h2',selectedCoin.toUpperCase()+' · 네트워크별 전송량 추이'),window=node('span','7D','supply-volume-window');
+   const header=node('div',undefined,'panel-heading'),label=metricTitle(selectedCoin.toUpperCase()+' · 네트워크별 전송량 추이','volume'),window=node('span','7D','supply-volume-window');
    window.title=transfers.from+' ~ '+transfers.to;header.append(label,window);section.append(header);
    if(transferSurvey.state==='LAST_GOOD'){const status=node('p','전송량 읽기 실패 · 이전 정상 자료 표시','chart-note');status.setAttribute('role','status');section.append(status);}
    root.append(section);metricLayout(section,transfers.groups,{coinId:selectedCoin,from:transfers.from,to:transfers.to,kind:'volume',hidden:hiddenTransfers});
