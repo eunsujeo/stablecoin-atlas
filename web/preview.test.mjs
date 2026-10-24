@@ -13,7 +13,7 @@ test('preview binds loopback and serves only fixed assets; HEAD, CSP and same-or
   const server = await startPreviewServer(0), port = server.address().port;
   try {
     assert.equal(server.address().address, '127.0.0.1');
-    for (const [path, type] of [['/', 'text/html'], ['/index.html', 'text/html'], ['/legacy.html', 'text/html'], ['/atlas.html', 'text/html'], ['/atlas.js', 'text/javascript'], ['/atlas.css', 'text/css'], ['/app.js', 'text/javascript'], ['/model.js', 'text/javascript'], ['/styles.css', 'text/css'], ['/mock-data.json', 'application/json']]) {
+    for (const [path, type] of [['/', 'text/html'], ['/index.html', 'text/html'], ['/legacy.html', 'text/html'], ['/atlas.html', 'text/html'], ['/atlas.js', 'text/javascript'], ['/atlas-evidence.js', 'text/javascript'], ['/atlas.css', 'text/css'], ['/app.js', 'text/javascript'], ['/model.js', 'text/javascript'], ['/styles.css', 'text/css'], ['/mock-data.json', 'application/json']]) {
       const get = await read(port, path), head = await read(port, path, { method: 'HEAD' });
       assert.equal(get.status, 200); assert.match(get.headers['content-type'], new RegExp(type)); assert.equal(head.status, get.status); assert.equal(head.headers['content-type'], get.headers['content-type']); assert.equal(head.headers['content-length'], get.headers['content-length']); assert.equal(head.body, '');
       assert.equal(get.headers['x-content-type-options'], 'nosniff'); assert.match(get.headers['content-security-policy'], /connect-src 'self'/); assert.match(get.headers['content-security-policy'], /frame-ancestors 'none'/);

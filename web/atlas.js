@@ -2,6 +2,7 @@ import {validateMarket,displayAmount} from './market-model.js';
 import {overviewMarketRows} from './overview-market-model.js';
 import {renderNetworkSupplyChart} from './market-chart.js';
 import {validateActivity} from './activity-model.js';
+import './atlas-evidence.js';
 
 const $=s=>document.querySelector(s);
 const element=(tag,text,cls)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(cls)e.className=cls;return e;};
@@ -66,11 +67,14 @@ async function load(){
  state.loading=false;$('#reload').disabled=false;
 }
 function navigate(){
- const page=['supply','activity','prices','coverage'].includes(location.hash.slice(1))?location.hash.slice(1):'supply';
+ const page=['supply','activity','prices','coverage','assets','compare'].includes(location.hash.slice(1))?location.hash.slice(1):'supply';
  for(const section of document.querySelectorAll('.workspace'))section.hidden=section.id!==page;
- for(const link of document.querySelectorAll('nav a')){if(link.hash==='#'+page)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');}
+ const group=['assets','compare'].includes(page)?'coverage':page;
+ for(const link of document.querySelectorAll('nav a')){if(link.hash==='#'+group)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');}
  if(page==='supply')chart();
  window.scrollTo({top:0,behavior:'instant'});
+ const heading={assets:'#profile-title',compare:'#native-compare-title',coverage:'#coverage-title'}[page];
+ if(heading)$(heading).focus({preventScroll:true});
 }
 $('#coin').addEventListener('change',()=>{state.coin=$('#coin').value;renderMarket();});
 $('#sort').addEventListener('change',()=>{state.sort=$('#sort').value;renderMarket();});

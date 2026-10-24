@@ -38,12 +38,12 @@
     </section>
 
     <section id="coverage" hidden aria-labelledby="coverage-title" class="workspace">
-      <div class="workspace-heading"><div><h2 id="coverage-title">조사 범위와 자산별 근거</h2><p>자산별 보고서를 살펴보고, 자료의 확보 범위와 한계를 확인하세요.</p></div></div>
+      <div class="workspace-heading"><div><h2 id="coverage-title" tabindex="-1">조사 범위와 자산별 근거</h2><p>자산별 보고서를 살펴보고, 자료의 확보 범위와 한계를 확인하세요.</p></div></div>
       <section class="evidence-entry" aria-labelledby="evidence-entry-title">
-        <div class="evidence-entry-heading"><h3 id="evidence-entry-title">무엇을 확인하고 싶으신가요?</h3><p>기존에 보존된 검토 근거 화면으로 이동합니다.</p></div>
+        <div class="evidence-entry-heading"><h3 id="evidence-entry-title">무엇을 확인하고 싶으신가요?</h3><p>보존된 검토 근거를 바탕으로 자산을 살펴봅니다.</p></div>
         <div class="evidence-entry-primary">
-          <a class="evidence-entry-link" href="/legacy.html#assets"><span class="entry-label">하나의 자산을 자세히</span><strong>자산 프로필 <span aria-hidden="true">→</span></strong><span>자산·체인별 저장 보고서와 항목별 근거를 확인합니다.</span></a>
-          <a class="evidence-entry-link" href="/legacy.html#compare"><span class="entry-label">여러 자산을 나란히</span><strong>자산 비교 <span aria-hidden="true">→</span></strong><span>같은 자료 범위에서 2~3개 보고서의 시나리오를 비교합니다.</span></a>
+          <a class="evidence-entry-link" href="#assets"><span class="entry-label">하나의 자산을 자세히</span><strong>자산 프로필 <span aria-hidden="true">→</span></strong><span>자산·체인별 저장 보고서와 항목별 근거를 확인합니다.</span></a>
+          <a class="evidence-entry-link" href="#compare"><span class="entry-label">여러 자산을 나란히</span><strong>자산 비교 <span aria-hidden="true">→</span></strong><span>같은 자료 범위에서 2~3개 보고서의 시나리오를 비교합니다.</span></a>
         </div>
         <p class="entry-context">승인량·위임·인가는 체인마다 의미가 다릅니다. 비교 결과는 개별 시나리오의 관측이며 자산 지원·안전성 인증이 아닙니다.</p>
         <div class="evidence-entry-secondary" role="group" aria-label="판정과 원본 근거 탐색">
@@ -62,6 +62,25 @@
         <tr><th scope="row">국가·지역</th><td>조회 오류 근거 보존</td><td>실제 잔액·국가간 흐름 미확보. 0이나 미지원 판정이 아님.</td></tr>
       </tbody></table></div>
       <div class="research-note"><h3>판정은 근거별로 확인하세요</h3><p>필드 관측은 제품 PASS가 아닙니다. UNKNOWN·NOT_TESTED·비적용은 다른 상태입니다. 사설 Fixture 결과는 실제 스테이블코인의 상환·안전성 근거가 아닙니다.</p></div>
+    </section>
+    <section id="assets" hidden aria-labelledby="profile-title" class="workspace">
+      <div class="workspace-heading"><div><a href="#coverage">← 조사 범위</a><h2 id="profile-title" tabindex="-1">자산 프로필</h2><p>실제 자산 · 저장된 읽기 보고서 · 체인별 식별과 개별 시나리오</p></div><button class="atlas-evidence-reload">근거 다시 읽기</button></div>
+      <p class="atlas-evidence-status status" role="status" aria-live="polite">근거 화면에 진입하면 저장 목록을 읽습니다.</p>
+      <p class="atlas-evidence-error notice" role="alert" hidden></p>
+      <div class="native-selection"><label for="profile-report">저장 보고서</label><select id="profile-report" disabled><option value="">보고서를 선택하세요</option></select></div>
+      <p class="context-note">저장 당시의 식별·관측입니다. 현재 공식 주소·실제 권한·지원 인증을 뜻하지 않습니다.</p>
+      <div class="native-profile-layout"><aside id="profile-identity" aria-label="선택 보고서의 자산 식별"></aside><div class="native-profile-results"><h3>항목별 시나리오</h3><div class="table-wrap" role="region" tabindex="0" aria-label="선택 자산의 시나리오 결과"><table><caption class="sr-only">판정·지원 여부·실행 상태를 구분한 결과</caption><thead><tr><th scope="col">항목 / 시나리오</th><th scope="col">판정</th><th scope="col">지원</th><th scope="col">실행</th></tr></thead><tbody id="profile-results"></tbody></table></div></div></div>
+      <p class="context-note">원본 관측과 제약은 공개용 근거 문서에서 확인하세요. <a href="/legacy.html#assets">기존 프로필 화면 보기</a></p>
+    </section>
+    <section id="compare" hidden aria-labelledby="native-compare-title" class="workspace">
+      <div class="workspace-heading"><div><a href="#coverage">← 조사 범위</a><h2 id="native-compare-title" tabindex="-1">자산 비교</h2><p>같은 저장 읽기 범위에서 서로 다른 보고서 2~3개를 비교합니다.</p></div><button class="atlas-evidence-reload">근거 다시 읽기</button></div>
+      <p class="atlas-evidence-status status" role="status" aria-live="polite">근거 화면에 진입하면 저장 목록을 읽습니다.</p>
+      <p class="atlas-evidence-error notice" role="alert" hidden></p>
+      <div class="native-compare-selectors"><label>보고서 1<select id="compare-report-1" disabled></select></label><label>보고서 2<select id="compare-report-2" disabled></select></label><label>보고서 3 · 선택 사항<select id="compare-report-3" disabled></select></label></div>
+      <p class="context-note">승인량(EVM/TRON)·위임(Solana)·인가(XRPL)는 의미가 다릅니다. 공통 항목만으로 같은 기능·전송 가능성을 판정하지 않습니다. 미수록은 기능 부재가 아닙니다.</p>
+      <p id="native-comparison-message" class="status" role="status"></p>
+      <div class="table-wrap native-comparison" role="region" tabindex="0" aria-label="보고서별 기능과 시나리오 비교"><table><caption class="sr-only">체인별 의미·판정·지원·실행 상태 비교</caption><thead id="native-comparison-head"></thead><tbody id="native-comparison-body"></tbody></table></div>
+      <p class="context-note">PASS는 개별 시나리오의 성공이며 자산 안전성·취급 승인이 아닙니다. <a href="/legacy.html#compare">기존 비교 화면 보기</a></p>
     </section>
     <footer><p>Atlas · 저장된 관측을 읽는 스테이블코인 연구 도구</p><a href="/legacy.html">기존 화면</a><span>웹에서 외부 수집을 실행하지 않습니다.</span></footer>
   </main>

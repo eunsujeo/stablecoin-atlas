@@ -20,6 +20,7 @@ const assets = new Map([
   ['/atlas.html', ['../web/atlas.html', 'text/html; charset=utf-8']],
   ['/atlas.css', ['../web/atlas.css', 'text/css; charset=utf-8']],
   ['/atlas.js', ['../web/atlas.js', 'text/javascript; charset=utf-8']],
+  ['/atlas-evidence.js', ['../web/atlas-evidence.js', 'text/javascript; charset=utf-8']],
   ['/', ['../web/atlas.html', 'text/html; charset=utf-8']],
   ['/index.html', ['../web/atlas.html', 'text/html; charset=utf-8']],
   ['/legacy.html', ['../web/index.html', 'text/html; charset=utf-8']],
