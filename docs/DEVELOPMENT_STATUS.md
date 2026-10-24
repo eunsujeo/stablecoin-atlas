@@ -4,6 +4,8 @@
 
 ## 완료 범위
 
+- 2026-10-25 사용자 승인 [USDT 오프라인 재컴파일](research/2026-10-25-usdt-offline-recompile.md)을 완료했다. 저장된 standard JSON 후보를 고정 solc0.4.18로1회 컴파일해 runtime11075바이트·소스 함수31개·정적 entry29개를 얻었다. 새 RPC/다운로드0이며 원본7파일·후보·compiler cache3개 불변을 확인했다. 구버전 출력의 immutableReferences 누락을 보충하지 않아 별도1.2 보고서는 INVALID_RELOCATION_DATA·PARTIAL, 배포 연결 UNKNOWN이다. 기존 전체 MISMATCH/판정은 유지하며 실제 배포 대조는 이번 범위에서 실행하지 않았다.
+
 - 2026-10-25 추가 승인 [solc0.4.18 보이는 브라우저 취득·사설 검증](research/2026-10-25-usdt-solc0418-browser-success.md)을 완료했다. metadata/artifact 각1GET·HTTP200·7139666바이트의 두 hash와 worker 전체 버전을 확인하고 [ADR0097](adr/0097-pinned-solc0418-visible-browser-profile.md)의 고정 profile을 추가했다. 구버전 생성자/fallback·selector 없는 ID별 선언·작은 양수 builtin의 제한된 AST 호환성과 guard/실패/정리를 사설 Fixture로 검증했다. 이전 두 실패·원본7파일·기존0.6.12/0.8.11 cache는 보존했다. 실제 USDT 재컴파일/새 RPC0이며 기존 source binding/판정은 변경하지 않았다.
 
 - 2026-10-25 [USDT 보이는 Chrome 준비 실패·로컬 회귀 수정](research/2026-10-25-usdt-browser-preflight.md)을 기록했다. 실제 브라우저는 초기 탭 제어 오류로 공식 Document GET0에서 종료했다. 초기 탭을 추가 target으로 오분류해 닫는 문제를 수정하고 창 준비 helper·회귀2건과 보이는 Chrome loopback4종을 검증했다. 가상 artifact는 실제 compiler가 아니며0.4.18 취득/profile/사설 컴파일은 미완료다. 종료된 소비·deadline을 재사용하지 않았고 새 RPC/실제 USDT 재컴파일0이다.

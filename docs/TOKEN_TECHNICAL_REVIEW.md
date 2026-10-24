@@ -137,6 +137,8 @@ AI·Slither는 **NOT_RUN**이다. Trail of Bits [token-integration-analyzer](htt
 
 ## 실제 검증한 범위
 
+사용자 승인 [USDT 저장 소스 오프라인 재컴파일](research/2026-10-25-usdt-offline-recompile.md)은 고정0.4.18로1회 성공했다. 구버전 출력의 immutableReferences 누락을 현재 비교기가 INVALID_RELOCATION_DATA로 기록하므로 전체 보고서는 PARTIAL·배포 연결 UNKNOWN이다. 누락 필드를 빈 객체로 보충하거나 숫자tag 관측을 archive로 변환하지 않았다. 새 RPC·다운로드·실제 배포 대조는 실행하지 않았으며 기존 MISMATCH/판정을 유지한다.
+
 `tests/token-review.test.ts`는 새로 생성하고 폐기하는 사설 Anvil chainId31337·31338에서 서로 다른 시험 토큰과 프록시/구현체의 전체 경로를 실행한다. 소스·배포 runtime 일치, 상속 modifier, 큰 정수, 비표준 선언 반환형, 읽기 method/gas/hash 고정, 상태 불변을 확인한다. 재조직·최종 조회 실패·다른 체인·소스 불일치·getter 실패/비정상 bool·해시 pin 거절·compiler 미확보/import/문법 오류·immutable·자료 누락·악성 문구·크기 한도·파일 hash/권한·덮어쓰기 거절·CLI·근거 참조를 검사한다.
 
 후속 `tests/token-review-expansion.test.ts`와 사설 배포 시험은 상속 guard/내부 함수·OR 우회/가짜 require·override/super·modifier 실행 순서/중복·순환·storage alias·assembly·그래프 한도, 특수 동작 후보, library 실제 링크, immutable 전체 치환 일치/불일치와 범위 오류, 감사 파일 내용/경로/설정 차이, 무HTTP 오프라인 및1.0 보존을 확인한다. 실제 권한 행사를 실행한 증거로 쓰지 않는다.
