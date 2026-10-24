@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { constants } from 'node:fs';
+import { constants, readFileSync } from 'node:fs';
 import { open } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { Ajv } from 'ajv';
@@ -10,7 +10,7 @@ const address = { type: 'string', pattern: '^0x[0-9a-fA-F]{40}$' };
 const text = { type: 'string', minLength: 1, maxLength: 200 };
 export const configSchema = {
   type: 'object', additionalProperties: false, required: ['schemaVersion', 'network', 'token'], properties: {
-    schemaVersion: { const: 'TokenReviewConfig1.0' },
+    schemaVersion: { const: 'TokenReviewConfig1.1' },
     network: { type: 'object', additionalProperties: false, required: ['chainId'], properties: {
       chainId: { type: 'string', pattern: '^[1-9][0-9]{0,77}$' },
       blockNumber: { type: 'string', pattern: '^(0|[1-9][0-9]{0,19})$' },
@@ -19,12 +19,16 @@ export const configSchema = {
     dependencies: { type: 'array', maxItems: 8, uniqueItems: true, items: address },
     sources: { type: 'array', maxItems: 8, items: {
       type: 'object', additionalProperties: false, required: ['address', 'contract', 'compilerVersion', 'inputFile'],
-      properties: { address, contract: text, compilerVersion: text, inputFile: { ...text, maxLength: 1024 } },
+      properties: { address, contract: text, compilerVersion: text, inputFile: { ...text, maxLength: 1024 },
+        immutableValues: { type: 'object', maxProperties: 128, propertyNames: { pattern: '^[1-9][0-9]{0,9}$' }, additionalProperties: { type: 'string', pattern: '^0x[0-9a-fA-F]{64}$' } } },
     } },
     audits: { type: 'array', maxItems: 4, items: { type: 'object', additionalProperties: false, required: ['file'],
       properties: { file: { ...text, maxLength: 1024 }, title: text, publisher: text, reference: { ...text, maxLength: 1024 },
+        sourceSnapshotFile: { ...text, maxLength: 1024 }, compareToAddress: address,
         declaredTarget: { type: 'object', additionalProperties: false, properties: { version: text, commit: text,
-          scope: { type: 'array', maxItems: 32, items: text } } } } } },
+          scope: { type: 'array', maxItems: 32, items: text } } } }, dependencies: {
+          sourceSnapshotFile: ['compareToAddress'], compareToAddress: ['sourceSnapshotFile'],
+        } } },
     probes: { type: 'array', maxItems: 24, items: {
       type: 'object', additionalProperties: false, required: ['id', 'address', 'signature', 'args'],
       properties: { id: { type: 'string', pattern: '^[a-zA-Z0-9_-]{1,64}$' }, address,
@@ -34,6 +38,7 @@ export const configSchema = {
   },
 };
 const validate = new Ajv({ strict: true }).compile(configSchema);
+const legacyValidate = new Ajv({ strict: true }).compile(JSON.parse(readFileSync(new URL('../../schemas/token-review-config.v1.schema.json', import.meta.url), 'utf8')));
 export const sha256 = (bytes: Uint8Array | string): string => createHash('sha256').update(bytes).digest('hex');
 
 // Files are explicitly supplied by the operator; their content cannot request additional files.
@@ -54,7 +59,8 @@ export async function readBounded(path: string, limit: number): Promise<Buffer> 
 }
 export function parseConfig(bytes: Buffer): ReviewConfig {
   const config: unknown = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
-  if (!validate(config)) throw new Error('INVALID_CONFIG');
+  const legacy = config && typeof config === 'object' && 'schemaVersion' in config && config.schemaVersion === 'TokenReviewConfig1.0';
+  if (!(legacy ? legacyValidate(config) : validate(config))) throw new Error('INVALID_CONFIG');
   const result = config as unknown as ReviewConfig;
   result.token.address = getAddress(result.token.address);
   result.dependencies = (result.dependencies ?? []).map(a => getAddress(a));
@@ -63,9 +69,12 @@ export function parseConfig(bytes: Buffer): ReviewConfig {
   for (const p of result.probes ?? []) p.address = getAddress(p.address);
   if (new Set((result.sources ?? []).map(s => s.address)).size !== (result.sources ?? []).length
     || new Set((result.probes ?? []).map(p => p.id)).size !== (result.probes ?? []).length) throw new Error('DUPLICATE_CONFIG_ENTRY');
-  for (const a of result.audits ?? []) if (a.reference) {
-    const url = new URL(a.reference);
-    if (url.protocol !== 'https:' || url.username || url.password || url.search || url.hash) throw new Error('INVALID_DOCUMENT_REFERENCE');
+  for (const a of result.audits ?? []) {
+    if (a.compareToAddress) a.compareToAddress = getAddress(a.compareToAddress);
+    if (a.reference) {
+      const url = new URL(a.reference);
+      if (url.protocol !== 'https:' || url.username || url.password || url.search || url.hash) throw new Error('INVALID_DOCUMENT_REFERENCE');
+    }
   }
   return result;
 }

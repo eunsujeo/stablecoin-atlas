@@ -1,42 +1,11 @@
 import type { AstNode, CompileResult, CompilerInput } from './compiler.js';
-import type { Finding, FunctionReview, SourceLocation } from './model.js';
-
-export function nodes(root: unknown): AstNode[] {
-  const result: AstNode[] = [], pending = [root];
-  while (pending.length) {
-    const value = pending.pop();
-    if (!value || typeof value !== 'object') continue;
-    if (Array.isArray(value)) { pending.push(...value); continue; }
-    const object = value as Record<string, unknown>;
-    if (typeof object.nodeType === 'string' && typeof object.src === 'string' && typeof object.id === 'number') result.push(object as AstNode);
-    pending.push(...Object.values(object));
-    if (result.length > 100_000) throw new Error('AST_NODE_LIMIT');
-  }
-  return result;
-}
+import type { Finding, FunctionReview } from './model.js';
+import { nodes, sourceContext } from './ast.js';
+export { nodes } from './ast.js';
 // This is a declaration/call-site inventory, not a symbolic execution or safety proof.
 export function inventory(input: CompilerInput, compiled: CompileResult, file: string, contractName: string,
   evidence: (kind: string, data: unknown) => string): FunctionReview[] {
-  const all = Object.values(compiled.sources).flatMap(s => nodes(s.ast));
-  const byId = new Map(all.map(n => [n.id, n]));
-  const files = new Map(Object.entries(compiled.sources).map(([name, s]) => [s.id, name]));
-  function location(node: AstNode): SourceLocation {
-    const [start = 0, length = 0, id = -1] = node.src.split(':').map(Number);
-    const name = files.get(id) ?? 'UNKNOWN';
-    const content = Buffer.from(input.sources[name]?.content ?? '');
-    return { file: name, start, length,
-      line: content.subarray(0, start).toString('utf8').split('\n').length,
-      endLine: content.subarray(0, start + length).toString('utf8').split('\n').length };
-  }
-  function text(node: unknown): string {
-    if (!node || typeof node !== 'object' || !('src' in node)) return '';
-    const loc = location(node as AstNode);
-    return Buffer.from(input.sources[loc.file]?.content ?? '').subarray(loc.start, loc.start + loc.length).toString('utf8').slice(0, 400);
-  }
-  const root = nodes(compiled.sources[file]?.ast).find(n => n.nodeType === 'ContractDefinition' && n.name === contractName);
-  if (!root || !Array.isArray(root.linearizedBaseContracts)) throw new Error('AST_SELECTED_CONTRACT_MISSING');
-  const hierarchy = new Set(root.linearizedBaseContracts as number[]);
-  const contracts = all.filter(n => n.nodeType === 'ContractDefinition' && hierarchy.has(n.id));
+  const { all, byId, location, text, root, contracts } = sourceContext(input, compiled, file, contractName);
   evidence('SOURCE_SCOPE', { file, contractName, linearizedInheritance: (root.linearizedBaseContracts as number[]).map(id => {
     const node = byId.get(id); return { name: node?.name ?? 'UNKNOWN', location: node ? location(node) : null };
   }), imports: all.filter(n => n.nodeType === 'ImportDirective').map(n => ({ location: location(n), source: n.file, absolutePath: n.absolutePath })) });

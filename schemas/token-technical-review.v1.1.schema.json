@@ -1,0 +1,1280 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "mode",
+    "startedAt",
+    "finishedAt",
+    "execution",
+    "config",
+    "tools",
+    "block",
+    "contracts",
+    "proxy",
+    "sources",
+    "audits",
+    "findings",
+    "failures",
+    "evidence",
+    "artifacts",
+    "limitations"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "TokenTechnicalReview1.1"
+    },
+    "mode": {
+      "enum": [
+        "OFFLINE",
+        "READ_ONLY"
+      ]
+    },
+    "startedAt": {
+      "type": "string"
+    },
+    "finishedAt": {
+      "type": "string"
+    },
+    "execution": {
+      "enum": [
+        "COMPLETED",
+        "PARTIAL"
+      ]
+    },
+    "config": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "network",
+        "token"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "enum": [
+            "TokenReviewConfig1.0",
+            "TokenReviewConfig1.1"
+          ]
+        },
+        "network": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "chainId"
+          ],
+          "properties": {
+            "chainId": {
+              "type": "string"
+            },
+            "blockNumber": {
+              "type": "string"
+            }
+          }
+        },
+        "token": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "address"
+          ],
+          "properties": {
+            "address": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            }
+          }
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "probes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "address",
+              "signature",
+              "args"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "address": {
+                "type": "string"
+              },
+              "signature": {
+                "type": "string"
+              },
+              "args": {
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "boolean"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "tools": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "analyzer",
+        "rules",
+        "compiler",
+        "ai",
+        "slither"
+      ],
+      "properties": {
+        "analyzer": {
+          "type": "string"
+        },
+        "rules": {
+          "type": "string"
+        },
+        "compiler": {
+          "type": "string"
+        },
+        "ai": {
+          "const": "NOT_RUN"
+        },
+        "slither": {
+          "const": "NOT_RUN"
+        }
+      }
+    },
+    "block": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "number",
+        "hash",
+        "consistency"
+      ],
+      "properties": {
+        "number": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "consistency": {
+          "enum": [
+            "UNKNOWN",
+            "HASH_PINNED_RECHECKED"
+          ]
+        }
+      }
+    },
+    "contracts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "address",
+          "runtimeHash",
+          "evidenceRef"
+        ],
+        "properties": {
+          "address": {
+            "type": "string"
+          },
+          "runtimeHash": {
+            "type": "string"
+          },
+          "evidenceRef": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "proxy": {
+      "anyOf": [
+        {
+          "type": "object",
+          "required": [
+            "pattern",
+            "resolution",
+            "implementationAddress",
+            "limitations"
+          ],
+          "properties": {
+            "pattern": {
+              "type": "string"
+            },
+            "resolution": {
+              "enum": [
+                "RESOLVED",
+                "UNRESOLVED"
+              ]
+            },
+            "implementationAddress": {
+              "type": "object"
+            },
+            "limitations": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "address",
+          "contract",
+          "inputEvidence",
+          "compilation",
+          "compilerRequested",
+          "compilerUsed",
+          "binding",
+          "functions",
+          "staticAnalysis",
+          "runtimeComparison"
+        ],
+        "properties": {
+          "address": {
+            "type": "string"
+          },
+          "contract": {
+            "type": "string"
+          },
+          "inputEvidence": {
+            "type": "string"
+          },
+          "compilation": {
+            "enum": [
+              "SUCCEEDED",
+              "FAILED",
+              "NOT_RUN"
+            ]
+          },
+          "compilerRequested": {
+            "type": "string"
+          },
+          "compilerUsed": {
+            "type": "string"
+          },
+          "binding": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "confirmation",
+              "reason"
+            ],
+            "properties": {
+              "confirmation": {
+                "enum": [
+                  "CONFIRMED",
+                  "NOT_FOUND_IN_SCOPE",
+                  "UNKNOWN",
+                  "NOT_APPLICABLE"
+                ]
+              },
+              "reason": {
+                "type": "string"
+              },
+              "runtimeHash": {
+                "type": "string"
+              },
+              "observedRuntimeHash": {
+                "type": "string"
+              }
+            }
+          },
+          "functions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/function"
+            }
+          },
+          "staticAnalysis": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/analysis"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "runtimeComparison": {
+            "anyOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "matched",
+                  "reason",
+                  "originalRuntime",
+                  "reconstructedRuntime",
+                  "immutableValues",
+                  "ranges",
+                  "runtimeHash",
+                  "evidenceRef"
+                ],
+                "properties": {
+                  "kind": {
+                    "enum": [
+                      "RAW_RUNTIME",
+                      "SUBMITTED_IMMUTABLE_VALUES"
+                    ]
+                  },
+                  "matched": {
+                    "anyOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "reason": {
+                    "type": "string"
+                  },
+                  "originalRuntime": {
+                    "type": "string"
+                  },
+                  "reconstructedRuntime": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "immutableValues": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  },
+                  "ranges": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "id",
+                        "start",
+                        "length"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "start": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "length": {
+                          "const": 32
+                        }
+                      }
+                    }
+                  },
+                  "runtimeHash": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "evidenceRef": {
+                    "type": "string"
+                  }
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "audits": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "evidenceRef",
+          "title",
+          "publisher",
+          "reference",
+          "declaredTarget",
+          "authenticity",
+          "deploymentMapping",
+          "sourceComparison"
+        ],
+        "properties": {
+          "evidenceRef": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "publisher": {
+            "type": "string"
+          },
+          "reference": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "declaredTarget": {
+            "anyOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [],
+                "properties": {
+                  "version": {
+                    "type": "string"
+                  },
+                  "commit": {
+                    "type": "string"
+                  },
+                  "scope": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "authenticity": {
+            "const": "UNKNOWN"
+          },
+          "deploymentMapping": {
+            "const": "UNKNOWN"
+          },
+          "sourceComparison": {
+            "anyOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "address",
+                  "sourceMatch",
+                  "settingsMatch",
+                  "files",
+                  "analyzedInputEvidence",
+                  "snapshotEvidence",
+                  "evidenceRef",
+                  "associationWithAudit"
+                ],
+                "properties": {
+                  "address": {
+                    "type": "string"
+                  },
+                  "sourceMatch": {
+                    "enum": [
+                      "MATCH",
+                      "MISMATCH"
+                    ]
+                  },
+                  "settingsMatch": {
+                    "enum": [
+                      "MATCH",
+                      "MISMATCH"
+                    ]
+                  },
+                  "files": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "path",
+                        "analyzedSha256",
+                        "snapshotSha256",
+                        "status"
+                      ],
+                      "properties": {
+                        "path": {
+                          "type": "string"
+                        },
+                        "analyzedSha256": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "snapshotSha256": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "status": {
+                          "enum": [
+                            "SAME",
+                            "DIFFERENT",
+                            "MISSING_IN_SNAPSHOT",
+                            "EXTRA_IN_SNAPSHOT"
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  "analyzedInputEvidence": {
+                    "type": "string"
+                  },
+                  "snapshotEvidence": {
+                    "type": "string"
+                  },
+                  "evidenceRef": {
+                    "type": "string"
+                  },
+                  "associationWithAudit": {
+                    "const": "UNKNOWN"
+                  }
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "rule",
+          "scope",
+          "categories",
+          "confirmation",
+          "summary",
+          "evidenceRefs"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "rule": {
+            "type": "string"
+          },
+          "scope": {
+            "enum": [
+              "SOURCE",
+              "CHAIN",
+              "AUDIT",
+              "COVERAGE"
+            ]
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "INTENDED_ADMIN_FUNCTION",
+                "NONSTANDARD_BEHAVIOR",
+                "VULNERABILITY_CANDIDATE",
+                "CURRENT_STATE"
+              ]
+            }
+          },
+          "confirmation": {
+            "enum": [
+              "CONFIRMED",
+              "NOT_FOUND_IN_SCOPE",
+              "UNKNOWN",
+              "NOT_APPLICABLE"
+            ]
+          },
+          "summary": {
+            "type": "string"
+          },
+          "evidenceRefs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "failures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "stage",
+          "code",
+          "evidenceRefs"
+        ],
+        "properties": {
+          "stage": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "evidenceRefs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "provenance",
+          "observedAt",
+          "observedBlockOrSlot",
+          "kind",
+          "data"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "provenance": {
+            "enum": [
+              "DOCUMENTED",
+              "OBSERVED",
+              "INFERRED"
+            ]
+          },
+          "observedAt": {
+            "type": "string"
+          },
+          "observedBlockOrSlot": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "data": {}
+        }
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "sha256",
+          "bytes",
+          "kind"
+        ],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string"
+          },
+          "bytes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "kind": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "$defs": {
+    "state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "type",
+        "location"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "location": {
+          "$ref": "#/$defs/location"
+        }
+      }
+    },
+    "analysis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "stateVariables",
+        "coverage",
+        "limitations",
+        "entries"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": "SourceStaticAnalysis1.0"
+        },
+        "stateVariables": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/state"
+          }
+        },
+        "coverage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "entryLimitReached",
+            "stateVariableLimitReached",
+            "semantics",
+            "scope"
+          ],
+          "properties": {
+            "entryLimitReached": {
+              "type": "boolean"
+            },
+            "stateVariableLimitReached": {
+              "type": "boolean"
+            },
+            "semantics": {
+              "const": "NOT_PROVEN"
+            },
+            "scope": {
+              "const": "SELECTED_CONTRACT_EXPLICIT_FUNCTIONS"
+            }
+          }
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "entries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "selector",
+              "location",
+              "declarations",
+              "conditions",
+              "writes",
+              "calls",
+              "behaviors",
+              "uncertainties",
+              "authorityConclusion",
+              "evidenceRef"
+            ],
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "name": {
+                "type": "string"
+              },
+              "selector": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "location": {
+                "$ref": "#/$defs/location"
+              },
+              "declarations": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "name",
+                    "location"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "$ref": "#/$defs/location"
+                    }
+                  }
+                }
+              },
+              "conditions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "context",
+                    "kind",
+                    "expression",
+                    "location",
+                    "stateReferences",
+                    "callerEqualityState"
+                  ],
+                  "properties": {
+                    "context": {
+                      "type": "integer"
+                    },
+                    "kind": {
+                      "enum": [
+                        "REQUIRE",
+                        "ASSERT",
+                        "BRANCH"
+                      ]
+                    },
+                    "expression": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "$ref": "#/$defs/location"
+                    },
+                    "stateReferences": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/$defs/state"
+                      }
+                    },
+                    "callerEqualityState": {
+                      "anyOf": [
+                        {
+                          "$ref": "#/$defs/state"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              "writes": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "context",
+                    "operation",
+                    "expression",
+                    "location",
+                    "variable"
+                  ],
+                  "properties": {
+                    "context": {
+                      "type": "integer"
+                    },
+                    "operation": {
+                      "type": "string"
+                    },
+                    "expression": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "$ref": "#/$defs/location"
+                    },
+                    "variable": {
+                      "$ref": "#/$defs/state"
+                    }
+                  }
+                }
+              },
+              "calls": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "from",
+                    "to",
+                    "expression",
+                    "location",
+                    "kind",
+                    "targetLocation"
+                  ],
+                  "properties": {
+                    "from": {
+                      "type": "integer"
+                    },
+                    "to": {
+                      "anyOf": [
+                        {
+                          "type": "integer"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "expression": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "$ref": "#/$defs/location"
+                    },
+                    "kind": {
+                      "enum": [
+                        "MODIFIER",
+                        "INTERNAL_DECLARATION",
+                        "VIRTUAL_DECLARATION",
+                        "EXTERNAL",
+                        "UNRESOLVED"
+                      ]
+                    },
+                    "targetLocation": {
+                      "anyOf": [
+                        {
+                          "$ref": "#/$defs/location"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              "behaviors": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "pattern",
+                    "expression",
+                    "location",
+                    "context"
+                  ],
+                  "properties": {
+                    "pattern": {
+                      "enum": [
+                        "FALSE_RETURN",
+                        "NESTED_MAPPING_ZERO_CONDITION",
+                        "ADDRESS_CONDITION",
+                        "MULTIPLY_DIVIDE_EXPRESSION",
+                        "EXTERNAL_CALL",
+                        "ASSEMBLY",
+                        "NON_TRANSFER_MAPPING_WRITE"
+                      ]
+                    },
+                    "expression": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "$ref": "#/$defs/location"
+                    },
+                    "context": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              },
+              "uncertainties": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "authorityConclusion": {
+                "const": "UNKNOWN"
+              },
+              "evidenceRef": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "location": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "file",
+        "line",
+        "endLine",
+        "start",
+        "length"
+      ],
+      "properties": {
+        "file": {
+          "type": "string"
+        },
+        "line": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "endLine": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "start": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "length": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "function": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "contract",
+        "visibility",
+        "mutability",
+        "location",
+        "selector",
+        "parameters",
+        "returnParameters",
+        "inherited",
+        "implemented",
+        "evidenceRef",
+        "modifiers",
+        "calls",
+        "conditions",
+        "writes",
+        "returns",
+        "assembly"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "contract": {
+          "type": "string"
+        },
+        "visibility": {
+          "type": "string"
+        },
+        "mutability": {
+          "type": "string"
+        },
+        "location": {
+          "$ref": "#/$defs/location"
+        },
+        "selector": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "parameters": {
+          "type": "string"
+        },
+        "returnParameters": {
+          "type": "string"
+        },
+        "inherited": {
+          "type": "boolean"
+        },
+        "implemented": {
+          "type": "boolean"
+        },
+        "evidenceRef": {
+          "type": "string"
+        },
+        "modifiers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "declaration",
+              "text",
+              "evidenceRef"
+            ],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "declaration": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/location"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "text": {
+                "type": "string"
+              },
+              "evidenceRef": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "calls": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "expression",
+              "declaration"
+            ],
+            "properties": {
+              "expression": {
+                "type": "string"
+              },
+              "declaration": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/location"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "conditions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "writes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "returns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "assembly": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

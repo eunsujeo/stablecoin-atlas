@@ -12,7 +12,7 @@ const help = `Multi-Chain Asset Compatibility Lab
   npm run assess -- [--chain evm|tron|solana] --network <chain-id|mainnet-beta> --token <contract-or-mint> [--holder <address>] [--token-account <Solana-token-account>] [--spender <TRON-address>] [--out <path>]
   npm run assess -- --chain xrpl --network mainnet --issuer <issuer> --currency <40-hex-code> [--holder <classic-address>] [--out <path>]
   npm run validate -- --file <AssessmentReport1.0.json>
-  npm run review:token -- --config <TokenReviewConfig1.0.json> --out <new-directory>
+  npm run review:token -- --config <TokenReviewConfig1.0-or-1.1.json> --out <new-directory> [--offline]
 
 lab: starts/stops a private Anvil and deploys seven local fixtures. No external transactions.
 assess: read-only; evm uses RPC_URL; tron uses TRON_RPC_URL; solana uses SOLANA_RPC_URL (mint and optional explicit Token Account); xrpl uses XRPL_RPC_URL (issuer and optional holder trust-line). No private keys or signing.

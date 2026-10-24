@@ -12,7 +12,7 @@ export interface CompileResult {
     evm: { deployedBytecode: { object: string; immutableReferences: Record<string, unknown>; linkReferences: Record<string, unknown> } } } | null;
 }
 export interface CompilerInput { language: 'Solidity'; sources: Record<string, { content: string }>; settings: Record<string, unknown> }
-export function prepareInput(bytes: Buffer, contract: string): { input: CompilerInput; file: string; contractName: string } {
+export function prepareSourceBundle(bytes: Buffer): CompilerInput {
   const parsed: unknown = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
   if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('INVALID_COMPILER_INPUT');
   const value = parsed as Record<string, unknown>;
@@ -25,14 +25,17 @@ export function prepareInput(bytes: Buffer, contract: string): { input: Compiler
       || !source || typeof source !== 'object' || Array.isArray(source)
       || Object.keys(source).some(k => k !== 'content') || typeof source.content !== 'string') throw new Error('INLINE_SOURCES_REQUIRED');
   }
-  const colon = contract.lastIndexOf(':');
-  const file = contract.slice(0, colon), contractName = contract.slice(colon + 1);
-  if (colon < 1 || !Object.hasOwn(sources, file) || !/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(contractName)) throw new Error('INVALID_CONTRACT_SELECTION');
   if (value.settings !== undefined && (!value.settings || typeof value.settings !== 'object' || Array.isArray(value.settings))) throw new Error('INVALID_COMPILER_SETTINGS');
   const settings = { ...(value.settings as Record<string, unknown> | undefined), outputSelection: {
     '*': { '': ['ast'], '*': ['abi', 'evm.deployedBytecode.object', 'evm.deployedBytecode.immutableReferences', 'evm.deployedBytecode.linkReferences'] },
   } };
-  return { input: { language: 'Solidity', sources, settings }, file, contractName };
+  return { language: 'Solidity', sources, settings };
+}
+export function prepareInput(bytes: Buffer, contract: string): { input: CompilerInput; file: string; contractName: string } {
+  const input = prepareSourceBundle(bytes);
+  const colon = contract.lastIndexOf(':'), file = contract.slice(0, colon), contractName = contract.slice(colon + 1);
+  if (colon < 1 || !Object.hasOwn(input.sources, file) || !/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(contractName)) throw new Error('INVALID_CONTRACT_SELECTION');
+  return { input, file, contractName };
 }
 export function compile(input: CompilerInput, file: string, contract: string): Promise<CompileResult> {
   return new Promise((resolve, reject) => {

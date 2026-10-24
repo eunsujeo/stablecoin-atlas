@@ -2,6 +2,8 @@
 
 상태: 사용자 구현 승인, 2026-10-24. 계획 검토 Lead `96c98758894a4003bbeeac1518132fc9`: proceed 조건 반영.
 
+후속 정적 경로·조건부 runtime·감사 소스 대조·오프라인 및1.1 형식은 [ADR0091](0091-offline-token-static-path-analysis.md)을 따른다. 이 문서의1.0 결정·근거는 보존한다.
+
 ## 결정
 
 사용자가 새로 제시하고 보완안을 승인한 기술 검토 기준을 `TokenTechnicalReview1.0`의 기준으로 삼는다. 과거 `AssessmentReport1.0`, PASS/FAIL, SOURCE_REVIEWED와 근거는 변경하지 않는다. [ADR0026](0026-source-based-compatibility-scope.md)의 선택 소스 검토는 여전히 별도 근거이며 현재 배포본 일치나 실제 권한 증명이 아니다.

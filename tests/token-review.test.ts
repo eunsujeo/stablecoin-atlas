@@ -174,6 +174,51 @@ test('token review: reorg and final recheck failure invalidate all chain conclus
   }
 });
 
+test('token review: immutable reconstruction can match deployed bytes while constructor/deployment proof remains unknown', async () => {
+  const content = await readFile(new URL('./fixtures/TokenReviewRules.sol', import.meta.url), 'utf8');
+  const input = { language: 'Solidity', sources: { 'Rules.sol': { content } }, settings: { evmVersion: 'shanghai' } };
+  const result = JSON.parse(solc.compile(serialize({ ...input, settings: { ...input.settings, outputSelection: { '*': { '*': ['evm.bytecode.object', 'evm.deployedBytecode.immutableReferences'] } } } })));
+  const selected = result.contracts['Rules.sol'].ReviewImmutable;
+  const receipt = await send(lab.rpc, { from: owner, data: `0x${selected.evm.bytecode.object}${encodeAbiParameters([{ type: 'uint256' }], [42n]).slice(2)}`, gas: '0x7a1200' });
+  assert(receipt.contractAddress); assert.equal(receipt.status, '0x1');
+  const id = Object.keys(selected.evm.deployedBytecode.immutableReferences)[0]!;
+  const file = join(root, 'immutable-input.json'); await writeFile(file, serialize(input));
+  const config: ReviewConfig = { schemaVersion: 'TokenReviewConfig1.1', network: { chainId: '31337' }, token: { address: receipt.contractAddress },
+    sources: [{ address: receipt.contractAddress, contract: 'Rules.sol:ReviewImmutable', compilerVersion, inputFile: file, immutableValues: { [id]: `0x${'2a'.padStart(64, '0')}` } }],
+    probes: [{ id: 'cap', address: receipt.contractAddress, signature: 'function cap() view returns (uint256)', args: [] }] };
+  const { report } = await run(config);
+  const source = report.sources[0]!;
+  assert.equal(source.runtimeComparison!.matched, true); assert.equal(source.runtimeComparison!.kind, 'SUBMITTED_IMMUTABLE_VALUES');
+  assert.equal(source.binding.confirmation, 'UNKNOWN'); assert.equal(report.block.consistency, 'HASH_PINNED_RECHECKED');
+  assert(source.binding.reason.includes('CONSTRUCTOR_UNPROVEN'));
+  const forged = structuredClone(report); forged.sources[0]!.runtimeComparison!.kind = 'RAW_RUNTIME';
+  forged.sources[0]!.binding.confirmation = 'CONFIRMED'; forged.sources[0]!.binding.runtimeHash = source.binding.observedRuntimeHash!;
+  assert.throws(() => validateReviewReport(forged));
+  config.sources![0]!.immutableValues![id] = `0x${'2b'.padStart(64, '0')}`;
+  const wrong = await run(config); assert.equal(wrong.report.sources[0]!.runtimeComparison!.matched, false);
+  assert.equal(wrong.report.sources[0]!.binding.confirmation, 'UNKNOWN');
+});
+
+test('token review: explicitly linked library build reproduces full runtime and keeps library effects as separate uncertainty', async () => {
+  const content = await readFile(new URL('./fixtures/TokenReviewRules.sol', import.meta.url), 'utf8');
+  const compileInput = (libraries: object) => ({ language: 'Solidity', sources: { 'Rules.sol': { content } }, settings: { evmVersion: 'shanghai', libraries } });
+  const build = (input: object) => JSON.parse(solc.compile(serialize({ ...input, settings: { ...(input as { settings: object }).settings, outputSelection: { '*': { '*': ['evm.bytecode.object'] } } } })));
+  const libraryBuild = build(compileInput({}));
+  const library = await send(lab.rpc, { from: owner, data: `0x${libraryBuild.contracts['Rules.sol'].ReviewMath.evm.bytecode.object}`, gas: '0x7a1200' });
+  assert(library.contractAddress); assert.equal(library.status, '0x1');
+  const input = compileInput({ 'Rules.sol': { ReviewMath: library.contractAddress } });
+  const linkedBuild = build(input);
+  const token = await send(lab.rpc, { from: owner, data: `0x${linkedBuild.contracts['Rules.sol'].ReviewLinked.evm.bytecode.object}`, gas: '0x7a1200' });
+  assert(token.contractAddress); assert.equal(token.status, '0x1');
+  const file = join(root, 'linked-input.json'); await writeFile(file, serialize(input));
+  const config: ReviewConfig = { schemaVersion: 'TokenReviewConfig1.1', network: { chainId: '31337' }, token: { address: token.contractAddress }, dependencies: [library.contractAddress],
+    sources: [{ address: token.contractAddress, contract: 'Rules.sol:ReviewLinked', compilerVersion, inputFile: file }] };
+  const { report } = await run(config);
+  assert.equal(report.sources[0]!.binding.confirmation, 'CONFIRMED'); assert.equal(report.sources[0]!.runtimeComparison!.kind, 'RAW_RUNTIME');
+  assert.equal(report.contracts.length, 2);
+  assert(report.sources[0]!.staticAnalysis!.entries[0]!.uncertainties.includes('EXTERNAL_EFFECTS_NOT_PROVEN'));
+});
+
 test('token review: mismatching bytecode, wrong chain, getter errors and hash-pin unsupported remain unknown without fallback', async () => {
   for (const fault of ['mismatch', 'chain', 'getter', 'no-hash-support', 'bad-bool'] as const) {
     const { report, requests } = await run(configA(), fault);
@@ -253,8 +298,8 @@ test('token review: JSON schema and cross-reference checks reject contradictory 
   const dangling = clone(); dangling.findings[0]!.evidenceRefs = ['absent']; assert.throws(() => validateReviewReport(dangling));
   const inconsistent = clone(); inconsistent.block.consistency = 'UNKNOWN'; assert.throws(() => validateReviewReport(inconsistent));
   const invalid = clone(); invalid.sources[0]!.binding.observedRuntimeHash = keccak256('0x'); assert.throws(() => validateReviewReport(invalid));
-  assert.deepEqual(JSON.parse(await readFile(new URL('../schemas/token-technical-review.v1.schema.json', import.meta.url), 'utf8')), reportSchema);
-  assert.deepEqual(JSON.parse(await readFile(new URL('../schemas/token-review-config.v1.schema.json', import.meta.url), 'utf8')), configSchema);
+  assert.deepEqual(JSON.parse(await readFile(new URL('../schemas/token-technical-review.v1.1.schema.json', import.meta.url), 'utf8')), reportSchema);
+  assert.deepEqual(JSON.parse(await readFile(new URL('../schemas/token-review-config.v1.1.schema.json', import.meta.url), 'utf8')), configSchema);
 });
 
 test('token review: CLI produces both reports and manifest, returns partial/error distinctly, and redacts failures', async () => {

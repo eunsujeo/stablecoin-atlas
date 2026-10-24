@@ -4,6 +4,8 @@
 
 ## 완료 범위
 
+- 2026-10-24 후속 승인으로 기술 검토1.1을 추가했다. 진입 함수별 상속/modifier/내부 호출·조건·저장값 변경, 직접 caller 비교의 소스 구문, 타입 기반 동작 후보, 명시 library 링크·제출 immutable의 조건부 전체 runtime 대조, 감사 source snapshot의 경로/바이트/설정 대조와 무HTTP `--offline`을 제공한다. 권한 보장·생성자 재현·감사 진위/배포 대응은 자동 확정하지 않으며 기존1.0과 실제 저장 근거를 보존한다. [ADR0091](adr/0091-offline-token-static-path-analysis.md). 외부 실제 토큰·다른 compiler 준비는 미실행이다.
+
 - 2026-10-24 사용자 새 기준의 읽기 전용 EVM 토큰 기술 검토 CLI를 추가했다. 명시 chainId/주소·EIP-1898 해시 조회·소스 재현/전체 runtime 비교·AST 검토 자료·getter·감사 원문·별도 JSON/Markdown·SHA256 묶음을 제공한다. 기존 PASS/FAIL·SOURCE_REVIEWED·UI/DB를 변경하지 않는다. 사설 두 EVM 체인/시험 토큰으로 검증하며 실제 다섯 토큰의 외부 배포 검증, 권한 의미/감사 대응 자동 증명, AI/Slither는 미실행이다. [ADR0090](adr/0090-readonly-token-technical-review.md), [실행·미지원 범위](TOKEN_TECHNICAL_REVIEW.md).
 
 - 2026-10-24 사용자 참고 이미지에 따라 Overview 전체를 실제 수치 카드2개, 공급량 추이/네트워크 순위, 전송량 추이/도넛의 공통 그리드로 정리했다. USD/JPY·단일 토큰, 공급량1Y/3M/30D·규모/증감률과 전송량7D·개념 툴팁을 유지한다. 도넛은 동일 집계일의 표시 네트워크 관측량만 사용하고 날짜·원본·누락을 보존한다. 출처/긴 설명은 재추가하지 않았으며 새 수집·API·키·DB 변경은 없다. [ADR0089](adr/0089-balanced-stored-overview.md), 기존 읽기 경로는 [ADR0088](adr/0088-yearly-token-network-overview.md).
