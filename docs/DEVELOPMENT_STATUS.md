@@ -4,6 +4,8 @@
 
 ## 완료 범위
 
+- 2026-10-25 사용자 승인 [Ethereum USDT 기술 입력 준비](research/2026-10-25-usdt-technical-input-preparation.md)를 완료했다. 저장7파일 불변과 단일 소스/metadata/ABI 연결·16011바이트 standard JSON 후보를 확인했다. 서비스 재컴파일↔과거 관측 전체 코드는11075바이트 중31바이트 차이로 MISMATCH를 유지한다. 차이는 서비스 CBOR 표시 구간 안이지만 원인/배포 연결 증명으로 승격하지 않는다. 실행에 부족한 것은 허용 solc0.4.18 profile과 현재 archive 규칙의 고정 hash 관측이다. 새 외부 요청·대상 compiler·기술 검토 CLI 실행0, 기존 UNKNOWN/판정/원문 보존이다.
+
 - 2026-10-25 사용자 승인 [JPYC immutable·빌드 입력 후속 조사](research/2026-10-25-jpyc-immutable-input-research.md)를 완료했다. 공식 주소 재확인·공개 원문4GET 저장·고정 AST ID173의 `__self=address(this)` 구문을 확인했다. 과거 UUPS 원문은 CRLF 차이로 바이트 DIFFERENT이며 현행 배포 원본으로 승격하지 않는다. 실제 배포 build/immutable 제출 근거는 미확보이고, 새 RPC·compiler 실행·대조 실행0이다. 후속 오프라인 입력·검증 계획만 작성했으며 기존 구현체 UNKNOWN·전체 PARTIAL·소비 완료를 유지한다.
 
 - 2026-10-25 사용자 승인 [JPYC Ethereum 단발 읽기](research/2026-10-25-jpyc-token-review-live.md)를 RPC13회로 완료·소비했다. chainId1·블록26264212의 hash pin/종료 재확인과 EIP-1967 구현체 포인터/코드를 관측했다. 저장2입력 컴파일 성공, 프록시 전체 runtime 일치로 해당 블록 소스 연결 CONFIRMED·구현체 immutable 미제공 UNKNOWN·전체 PARTIAL이다. getter/재시도/전환/다운로드0·비용 UNKNOWN·기존 오프라인15파일 불변, 원문/DB/UI·기존 판정 보존. 이는 실제 dispatch·전체 구현체 배포 대응·지원/안전 인증이 아니다.
