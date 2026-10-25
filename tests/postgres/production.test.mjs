@@ -37,6 +37,25 @@ test('owned PG17 fixture proves reader-only session, writer/inherited/PUBLIC/col
     await assert.rejects(reader.query('CREATE TABLE atlas_market.forbidden(x int)'),e=>e.code==='42501');
     // Test-only transport injection: fixture has no TLS; production config still requires TLS.
     const connector=productionConnector({DATABASE_URL:'postgresql://reader:fixture-only@fixture.invalid/db?sslmode=verify-full'},{limit:1,queueLimit:0,open:()=>connectDatabase({DATABASE_URL:readerURL})});
-    const lease=await connector.connect();await assert.rejects(connector.connect(),/BUSY/);await lease.end();assert.equal(connector.active,0);await connector.close();
+    try{
+      const lease=await connector.connect();await assert.rejects(connector.connect(),/BUSY/);
+      const pid=(await lease.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;
+      await lease.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');
+      assert.equal((await lease.query('SELECT count(*)::text AS count FROM atlas_market.coin')).rows[0].count,'0');
+      await f.admin.query("INSERT INTO atlas_market.coin(code,symbol,name) VALUES('x','X','X')");
+      assert.equal((await lease.query('SELECT count(*)::text AS count FROM atlas_market.coin')).rows[0].count,'0');
+      await lease.query('COMMIT');await lease.end();assert.equal(connector.active,0);
+      const reused=await connector.connect();assert.equal((await reused.query('SELECT pg_backend_pid() AS pid')).rows[0].pid,pid);
+      assert.equal((await reused.query('SHOW default_transaction_read_only')).rows[0].default_transaction_read_only,'on');
+      assert.equal((await reused.query('SELECT count(*)::text AS count FROM atlas_market.coin')).rows[0].count,'1');
+      await assert.rejects(lease.query('SELECT 1'),/LEASE_CLOSED/);await reused.end();
+      // A reused connection must detect grants changed after its previous lease.
+      await f.admin.query('GRANT UPDATE(name) ON atlas_market.coin TO PUBLIC');
+      await assert.rejects(connector.connect(),/READER_UNAVAILABLE/);
+      await f.admin.query('REVOKE UPDATE(name) ON atlas_market.coin FROM PUBLIC');
+      const recovered=await connector.connect();
+      await assert.rejects(recovered.query("UPDATE atlas_market.coin SET name='forbidden'"),e=>['25006','42501'].includes(e.code));
+      await recovered.end();
+    }finally{await connector.close();}
   }finally{await Promise.allSettled(clients.map(c=>c.end()));await f.stop();}
 });

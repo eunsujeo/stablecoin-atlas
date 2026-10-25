@@ -5,6 +5,7 @@ import { verifySchema, verifyRuntimeAccess } from './schema.mjs';
 import { canonical, fail } from './plan.mjs';
 import { boundedJson, publishedMarketStatus } from '../market-store.mjs';
 import { validateMarket, validateRegistry } from '../../web/market-model.js';
+import {marketCacheTiming} from '../web-timing.mjs';
 
 const stamp = column => `to_char(${column} AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"')`;
 const registryPath = new URL('../../data/asset-registry.json', import.meta.url);
@@ -92,12 +93,14 @@ export async function databaseMarket(client, registry, { now = Date.now() } = {}
   }, {readonly:true,repeatableRead:true});
 }
 
-// At most one connection/query in flight and one short-lived successful response.
-export function databaseMarketReader({env,marketDirectory,connect=connectDatabase,read=databaseMarket,now=Date.now,includeLocalStatus=true}={}) {
+// One <=2MiB successful response, refreshed on demand; never serve an expired value.
+export function databaseMarketReader({env,marketDirectory,connect=connectDatabase,read=databaseMarket,now=Date.now,includeLocalStatus=true,ttlMs=300000}={}) {
+  if(!Number.isInteger(ttlMs)||ttlMs<1||ttlMs>300000)throw Error('MARKET_CACHE_TTL_INVALID');
   let pending, cached, expires=0;
   return async () => {
-    if (cached && now() < expires) return cached;
-    if (pending) return pending;
+    if (cached && now() < expires) {marketCacheTiming('HIT');return cached;}
+    if (pending) {marketCacheTiming('COALESCED');return pending;}
+    marketCacheTiming('MISS');cached=undefined;
     pending = (async () => {
       let client;
       try {
@@ -105,7 +108,7 @@ export function databaseMarketReader({env,marketDirectory,connect=connectDatabas
         client = await connect(env);
         const data = {...await read(client,registry,{now:now()}),...(includeLocalStatus?await publishedMarketStatus(marketDirectory):{})};
         if (Buffer.byteLength(JSON.stringify(data)) > byteLimit) fail('QUERY_RESPONSE_LIMIT');
-        cached=data; expires=now()+10000; return data;
+        cached=data; expires=now()+ttlMs; return data;
       } finally { await client?.end().catch(()=>{}); }
     })();
     try { return await pending; } finally { pending=undefined; }

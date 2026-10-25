@@ -66,7 +66,7 @@ test('production template fails closed on layout drift and configuration never a
   }finally{await rm(root,{recursive:true,force:true});}
 });
 test('all readers share a bounded connector, queued saturation and failures release slots without logging credentials',async()=>{
-  let opened=0;const connector=productionConnector(env,{limit:1,queueLimit:1,queueTimeout:50,open:async()=>{opened++;return {end:async()=>{opened--;}};},verify:async()=>{}});
+  let opened=0;const connector=productionConnector(env,{limit:1,queueLimit:1,queueTimeout:50,open:async()=>{opened++;return {query:async()=>({rows:[]}),end:async()=>{opened--;}};},verify:async()=>{}});
   const a=await connector.connect(),pending=connector.connect();await assert.rejects(connector.connect(),/BUSY/);assert.equal(opened,1);
   await a.end();const b=await pending;assert.equal(opened,1);await b.end();await b.end();assert.equal(connector.active,0);
   const c=await connector.connect();await assert.rejects(connector.connect(),/BUSY/);await c.end();await connector.close();

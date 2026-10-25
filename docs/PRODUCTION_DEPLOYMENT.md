@@ -75,7 +75,7 @@ sudoedit /etc/atlas-web/web.json /etc/atlas-web/reader.env
 
 원격 TLS의 `rejectUnauthorized=true`를 강제하며 검증 실패 시 중단한다. `NODE_TLS_REJECT_UNAUTHORIZED=0`은 거부한다. web의 각 DB 연결은 reader 등록·실제 로그인과 모든 `atlas_*` 앱 schema의 직접/상속/PUBLIC/컬럼 쓰기권한·소유권·sequence·실행 함수 경로를 검사하고 세션을 읽기 전용으로 설정한다. 기존 invoker `trigger` 반환형 함수만 직접 호출 불가능한 경로로 구분한다. 일반 함수·procedure·event_trigger·security definer trigger는 callable이면 거부한다. 거절될 때 서비스가 GRANT를 고치거나 schema를 변경하지 않는다.
 
-웹 전체 reader가 동시에 최대2개 연결, 대기 최대8개/10초를 공유한다. 기존 DB 접속5초·client query15초·statement10초·transaction60초 제한을 재사용한다. 등록 history의 기존 cache/한도도 유지한다. 운영용 웹 계정은 collector의 credential/receipt/archive에 파일 접근도 할 수 없다.
+웹 전체 reader가 동시에 최대2개 물리 연결을 재사용하며 대기 최대8개/10초를 공유한다. 매 checkout 전체 Reader 권한을 재확인하고 반환 전 세션 상태를 초기화하며 오류 세션을 폐기한다. idle30초/수명5분이다. 기존 DB 접속5초·client query15초·statement10초·transaction60초 제한을 재사용한다. 시장 성공 캐시 기본5분·단일2MiB·동시 refresh 병합이며 만료 후 오류는503이다. 다른 cache와 등록 history 한도는 유지한다. API별 연결/쿼리/응답 시간은 비밀 없는 `ATLAS_API_TIMING` journal 로그로 남긴다([정의/검증/한계](research/2026-10-25-web-reader-performance.md)). 운영용 웹 계정은 collector의 credential/receipt/archive에 파일 접근도 할 수 없다.
 
 collector의 기존 writer.env/registered-writer.env는 `/etc/atlas-collector`의 atlascollector 소유0600으로 분리한다. admin은 어느 서비스에도 전달하지 않는다. 실제 값을 명령행·journal·Git·브라우저에 붙이지 않는다.
 

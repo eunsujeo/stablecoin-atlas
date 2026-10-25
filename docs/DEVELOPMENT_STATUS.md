@@ -1,5 +1,7 @@
 # 현재 개발 상태
 
+Web Reader의 첫 페이지 성능 개선으로 시장 성공 캐시 기본5분·최대2개 DB 세션 재사용·API별 연결/권한/쿼리/응답 계측을 추가했다. 매 대여 권한 검사·기존 응답/장애/갱신 정책을 유지한다. [ADR0109](adr/0109-web-reader-performance.md)·[수행/검증/미확인](research/2026-10-25-web-reader-performance.md). 운영 Mac mini/Supabase에 적용하지 않았으며 Collector·스케줄러·FX 서비스는 변경하지 않았다.
+
 Arkham 수집기를 기본1h/24예약의 설정형 UTC 스케줄러로 변경했다. 별도 정책 스키마·미래 UTC일 owner 전환·읽기 전용 진단을 추가하며 기존 history v4 Reader·이력·Receipt/Archive를 유지한다. [운영 설정/정확한 전환·롤백 명령](ARKHAM_SCHEDULER.md)·[ADR0108](adr/0108-configurable-arkham-scheduler.md)·[수행/검증](research/2026-10-25-configurable-arkham-scheduler.md)을 따른다. 운영 DB·Mac mini·실제 API 변경은 미실행이다. 아래 과거5분/288 기록은 당시 정책이다.
 
 `collector-current` 심볼릭 링크 실행 시 CLI가 조용히 종료되던 진입점 판정을 수정했다. systemd의 Node CLI6종에서 실행 파일과 모듈 경로를 모두 realpath로 비교하며 기존 주기·상한·Receipt/Archive 정책은 유지한다. [재현·검증 기록](research/2026-10-25-collector-symlink-entrypoint.md). 실제 Fedora 적용은 미검증이다.

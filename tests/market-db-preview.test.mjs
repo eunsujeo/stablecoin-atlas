@@ -11,7 +11,7 @@ test('DB read cache shares only a successful bounded response, closes clients on
   const reader=databaseMarketReader({marketDirectory:directory,now:()=>at,connect:async()=>{connections++;return{end:async()=>{ends++;}};},read:async()=>{reads++;await gate;if(fail)throw Error('private-database-secret');return{test:'only-db'};}});
   try {
     const a=reader(),b=reader();release();assert.deepEqual(await a,await b);assert.equal(connections,1);assert.equal(ends,1);assert.equal(reads,1);
-    await reader();assert.equal(connections,1);at+=10001;fail=true;await assert.rejects(reader(),/private-database-secret/);assert.equal(ends,2);
+    await reader();assert.equal(connections,1);at+=299999;await reader();assert.equal(connections,1);at++;fail=true;await assert.rejects(reader(),/private-database-secret/);assert.equal(ends,2);
     // Expired success must not be returned after failure.
     await assert.rejects(reader());assert.equal(connections,3);assert.equal(ends,3);
     const large=databaseMarketReader({marketDirectory:directory,connect:async()=>({end:async()=>{ends++;}}),read:async()=>({x:'x'.repeat(2*1024*1024)})});await assert.rejects(large(),/QUERY_RESPONSE_LIMIT/);assert.equal(ends,4);

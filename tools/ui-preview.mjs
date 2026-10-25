@@ -1,4 +1,5 @@
 import {allowedProductionPath,productionDocument,validatePublicHosts} from './production-policy.mjs';
+import {timedAPI} from './web-timing.mjs';
 import {localRegistrationReader} from './registration-file-preview.mjs';
 import {validateStoredSurvey} from '../web/survey-model.js';
 import {boundedRead} from './evidence-store.mjs';
@@ -62,12 +63,12 @@ const assets = new Map([
   ['/mock-data.json', ['../docs/ui/mock-dashboard-data.json', 'application/json; charset=utf-8']],
 ]);
 const csp = "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; object-src 'none'";
-export function createPreviewServer({ evidenceDirectory, marketDirectory, marketReader, registrationReader, fxDirectory, activityReader, reviewedSupplyReader, surveyReader, fxReader, production, geographyReader } = {}) {
+export function createPreviewServer({ evidenceDirectory, marketDirectory, marketReader, registrationReader, fxDirectory, activityReader, reviewedSupplyReader, surveyReader, fxReader, production, geographyReader, onTiming } = {}) {
   const publicHosts=production?validatePublicHosts(production.hosts):null;
   if(production&&!/^[a-f0-9]{40}$/.test(production.commit??''))throw Error('COMMIT_INVALID');
   if(!production)geographyReader??=storedGeographyReader();
   if(production&&(!marketReader||!registrationReader||!activityReader||!reviewedSupplyReader||!surveyReader||!fxReader))throw Error('PUBLIC_READERS_REQUIRED');
-  const server = createServer(async (req, res) => {
+  const server = createServer(timedAPI(async (req, res) => {
     res.setHeader('Content-Security-Policy', csp);
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Referrer-Policy', 'no-referrer');
@@ -160,7 +161,7 @@ export function createPreviewServer({ evidenceDirectory, marketDirectory, market
       res.writeHead(200, { 'Content-Type': asset[1], 'Content-Length': bytes.length });
       res.end(req.method === 'HEAD' ? undefined : bytes);
     } catch { fail(500, 'ASSET_UNAVAILABLE'); }
-  });
+  },onTiming));
   if(production){server.headersTimeout=10000;server.requestTimeout=15000;server.keepAliveTimeout=5000;server.maxHeadersCount=40;server.maxConnections=128;}
   return server;
 }

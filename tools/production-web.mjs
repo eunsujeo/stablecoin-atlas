@@ -24,17 +24,21 @@ export async function productionSettings({configFile,readerFile,revisionFile}){
   if(!/^[a-f0-9]{40}$/.test(commit))throw Error('COMMIT_INVALID');
   return {config,env,commit};
 }
-export async function startProduction({config,env,commit},{connector=productionConnector(env)}={}){
+export async function startProduction({config,env,commit},{connector=productionConnector(env),onTiming=value=>console.log(JSON.stringify(value))}={}){
   if(!/^[a-f0-9]{40}$/.test(commit))throw Error('COMMIT_INVALID');
   // Fail before listening if a writer/owner or missing reader is configured.
-  const probe=await connector.connect();await probe.end();
-  const connect=connector.connect;
-  const server=await startPreviewServer(config.port,{
-    production:{hosts:config.hosts,commit},
-    marketReader:databaseMarketReader({env,connect,includeLocalStatus:false}),registrationReader:databaseRegistrationReader({env,connect}),
-    activityReader:databaseActivityReader({env,connect}),reviewedSupplyReader:databaseReviewedSupplyReader({env,connect}),surveyReader:databaseSurveyReader({env,connect}),
-    fxReader:()=>readPublicFX(config.fxFile),
-  });
+  let server;
+  try{
+    const probe=await connector.connect();await probe.end();
+    const connect=connector.connect;
+    server=await startPreviewServer(config.port,{
+      production:{hosts:config.hosts,commit},
+      onTiming,
+      marketReader:databaseMarketReader({env,connect,includeLocalStatus:false}),registrationReader:databaseRegistrationReader({env,connect}),
+      activityReader:databaseActivityReader({env,connect}),reviewedSupplyReader:databaseReviewedSupplyReader({env,connect}),surveyReader:databaseSurveyReader({env,connect}),
+      fxReader:()=>readPublicFX(config.fxFile),
+    });
+  }catch(error){await connector.close().catch(()=>{});throw error;}
   let stopping;
   const stop=()=>stopping??=(async()=>{
     const timer=setTimeout(()=>server.closeAllConnections(),20000);timer.unref();
