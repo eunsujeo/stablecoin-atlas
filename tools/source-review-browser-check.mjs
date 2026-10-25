@@ -48,9 +48,15 @@ try {
   await send('Page.navigate',{url:'about:blank'});await send('Page.navigate',{url:base+route});
   await until("document.querySelector('[data-source-review]')?.dataset.reviewId==='usdc-ethereum'");
   const isAtlas=route.includes('atlas.html');
+  const archive=isAtlas?'#atlas-read-archive':'#asset-read-archive';
+  assert.equal(await evaluate(`document.querySelector('${archive}').open`),false);
+  assert.equal(await evaluate("document.querySelector('[role=tab][aria-selected=true]').textContent"),'검증 결과');
+  assert(!(await evaluate("document.querySelector('[data-source-review]').innerText")).includes('UNKNOWN'));
+  if(!isAtlas)assert.equal(await evaluate("getComputedStyle(document.querySelector('#evidence-metrics')).display"),'none');
   await until(isAtlas?"!document.querySelector('#assets .atlas-evidence-reload').disabled":"!document.querySelector('#evidence-reload').disabled");
   const countExpr=isAtlas?"document.querySelectorAll('#profile-report option').length":"document.querySelectorAll('#asset-cards button').length";
   const before=await evaluate(countExpr);assert(before>0);
+  assert(!(await evaluate(`document.querySelector('${isAtlas?'#assets':'#assets-screen'}').innerText`)).includes('UNKNOWN'),'default profile must use source status');
   const readRowsExpr=isAtlas?"Array.from(document.querySelectorAll('#profile-results tr')).map(r=>r.textContent)":"Array.from(document.querySelectorAll('#asset-detail tbody tr')).map(r=>r.textContent)";
   const originalReadRows=await evaluate(readRowsExpr);assert(originalReadRows.length>0);
   const seen=[];
@@ -71,8 +77,16 @@ try {
    }
    assert.equal(await evaluate(countExpr),before);
    assert.deepEqual(await evaluate(readRowsExpr),originalReadRows);
+   await evaluate("document.querySelector('[role=tab][id$=\"-behavior-tab\"]').click()");
+   const sourceVisible=await evaluate("document.querySelector('[data-source-review]').innerText");
+   assert(sourceVisible.includes('소스 확인 완료'));assert(!sourceVisible.includes('UNKNOWN'));
+   assert.equal(await evaluate(`document.querySelector('${archive}').open`),false);
    assert.equal(await evaluate("document.querySelector('.source-review-detail a').getAttribute('href')"),'/source-review-notes.html#'+p.id);
   }
+  await evaluate(`document.querySelector('${archive}').open=true`);
+  assert.deepEqual(await evaluate(readRowsExpr),originalReadRows);
+  assert((await evaluate(`document.querySelector('${archive}').innerText`)).includes('UNKNOWN'),'raw UNKNOWN must remain in expanded archive');
+  await evaluate(`document.querySelector('${archive}').open=false`);
   views.push(seen);
   // Search matches stored chain and full address, preserves selection, and recovers from no results.
   for(const [query,expected]of [['Kaia',['jpyc']],[profiles[1].address,['usdt']],['no-matching-asset',[]],['',['usdc','usdt','rlusd','jpyc','jpysc']]]){
@@ -154,5 +168,5 @@ try {
   assert.equal(await evaluate("document.querySelector('[data-source-review]').dataset.reviewId"),'jpysc-ethereum');
  }
  assert.deepEqual(errors,[]);assert.deepEqual(requests.filter(u=>!u.startsWith(base+'/')&&!u.startsWith('data:')),[]);
- console.log('PASS source profiles and technical overview: 5 tokens/8 deployments, itemized source results/status/evidence links, preserved read rows, compact 5 asset cards and 8/8 source summary, preserved read grade/verdict counts and detail navigation, search/network/tabs/keyboard, evidence failure isolation, dark/light/390px, JS errors=0/external requests=0');
+ console.log('PASS source profiles and technical overview: 5 tokens/8 deployments, itemized source results/status/evidence links, source-first default with no visible UNKNOWN, preserved raw UNKNOWN/read rows in collapsible archive, compact 5 asset cards and 8/8 source summary, preserved read grade/verdict counts and detail navigation, search/network/tabs/keyboard, evidence failure isolation, dark/light/390px, JS errors=0/external requests=0');
 }finally{try{await send('Fetch.disable');await send('Browser.close',{},false);}catch{}chrome.kill();await new Promise(resolve=>{if(chrome.exitCode!==null)resolve();else chrome.once('exit',resolve);});await rm(profile,{recursive:true,force:true});}

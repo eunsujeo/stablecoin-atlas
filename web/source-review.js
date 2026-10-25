@@ -3,10 +3,10 @@ const node=(tag,text,cls)=>{const el=document.createElement(tag);if(text!==undef
 const coins=[...new Set(sourceReviewProfiles.map(p=>p.coinId))];
 const sections=[['overview','개요'],['behavior','검증 결과'],['evidence','근거·한계']];
 export function initializeSourceReview(root){
-  let coinId=coins[0],chainId='1',activeSection='overview';
+  let coinId=coins[0],chainId='1',activeSection='behavior';
   const rememberedChains=new Map();
   const heading=node('div',undefined,'source-review-heading');
-  heading.append(node('h2','자산별 기술 프로필'),node('p',`저장 소스 검토 · ${sourceReviewDate} 기준`));
+  heading.append(node('h2','자산별 기술 프로필'),node('p',`소스 기준 · ${sourceReviewDate} 검토`));
   const layout=node('div',undefined,'source-review-layout'),directory=node('aside',undefined,'source-review-directory');
   directory.setAttribute('aria-label','검토 자산 선택');
   const directoryHeading=node('div',undefined,'source-review-directory-heading');
@@ -47,7 +47,7 @@ export function initializeSourceReview(root){
     const p=sourceReviewFor(coinId,chainId);detail.replaceChildren();root.dataset.reviewId=p.id;selection.textContent=`${p.symbol} / ${p.network}`;
     const hero=node('header',undefined,'source-review-hero'),title=node('div');
     title.append(node('p','TOKEN PROFILE','source-review-eyebrow'),node('h3',p.symbol),node('p',`${p.network} · chainId ${p.chainId}`));
-    hero.append(title);detail.append(hero);
+    const scope=node('div',undefined,'source-review-completion');scope.append(node('strong',p.sourceReviewStatus==='SOURCE_REVIEWED'?'소스 확인 완료':'소스 검토 전'),node('span',`기능 ${p.functions.length} · 권한 ${p.authorities.length}`));hero.append(title,scope);detail.append(hero);
     const tablist=node('div',undefined,'source-review-tabs');tablist.setAttribute('role','tablist');tablist.setAttribute('aria-label','자산 프로필 내용');
     const panels=new Map(),tabs=new Map();
     function activate(key,focus=false){activeSection=key;for(const [id,tab]of tabs){tab.setAttribute('aria-selected',String(id===key));tab.tabIndex=id===key?0:-1;panels.get(id).hidden=id!==key;}if(focus)tabs.get(key).focus();}
