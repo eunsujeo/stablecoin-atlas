@@ -1,7 +1,7 @@
 import {sourceReviewProfiles,sourceReviewDate,sourceReviewNotice,sourceReviewFor} from './source-review-data.js';
 const node=(tag,text,cls)=>{const el=document.createElement(tag);if(text!==undefined)el.textContent=text;if(cls)el.className=cls;return el;};
 const coins=[...new Set(sourceReviewProfiles.map(p=>p.coinId))];
-const sections=[['overview','개요'],['behavior','기능·권한'],['evidence','근거·한계']];
+const sections=[['overview','개요'],['behavior','검증 결과'],['evidence','근거·한계']];
 export function initializeSourceReview(root){
   let coinId=coins[0],chainId='1',activeSection='overview';
   const rememberedChains=new Map();
@@ -64,10 +64,24 @@ export function initializeSourceReview(root){
     }detail.append(tablist,...panels.values());
     const overview=panels.get('overview');
     overview.append(node('h4','자산 정보'),facts([['네트워크',p.network],['chainId',p.chainId],['컨트랙트',p.address],['기능·권한 조건','소스 확인 완료'],['소스 검토 기준일',p.reviewedAt]]));
-    const summary=node('div',undefined,'source-review-summary');summary.append(node('h4','소스 확인 범위'),node('p','전송·승인·발행과 발행사 제어·권한 조건. 세부 내용은 기능·권한 탭에서 확인할 수 있습니다.'));
+    const summary=node('div',undefined,'source-review-summary');summary.append(node('h4','소스 확인 범위'),node('p','전송·승인·발행과 발행사 제어·권한 조건. 항목별 확인 내용은 검증 결과 탭에서 확인할 수 있습니다.'));
     overview.append(summary,node('p',sourceReviewNotice,'source-review-notice'));
-    const columns=node('div',undefined,'source-review-columns');columns.append(items('전송·승인·발행 조건',p.functions),items('발행사 제어·권한 조건',p.authorities));
-    panels.get('behavior').append(node('p','소스 확인 완료 · 아래 함수와 권한 조건을 저장 소스에서 확인했습니다.','source-review-notice'),columns);
+    const results=node('section',undefined,'source-review-results');
+    results.append(node('h4','항목별 검증 결과'),node('p','저장 소스의 함수·modifier·조건 확인 결과입니다. 실행 보고서의 PASS/FAIL과 별도로 표시합니다.','source-review-result-note'));
+    const table=node('table'),caption=node('caption',`${p.symbol} / ${p.network} · 소스 확인 결과`);caption.className='sr-only';
+    const head=node('thead'),heading=node('tr');
+    for(const title of ['검토 항목','확인 상태','확인 내용']){const cell=node('th',title);cell.scope='col';heading.append(cell);}head.append(heading);
+    const body=node('tbody');
+    for(const [category,values]of [['기능',p.functions],['권한',p.authorities]]){
+      for(const [index,text]of values.entries()){
+        const row=node('tr');row.dataset.reviewStatus=p.sourceReviewStatus;
+        const title=node('th',`${category} ${index+1}`);title.scope='row';
+        const status=node('td');status.dataset.label='확인 상태';status.append(node('span',p.sourceReviewStatus==='SOURCE_REVIEWED'?'소스 확인 완료':'소스 검토 전','source-review-result-status'));
+        const content=node('td',text);content.dataset.label='확인 내용';
+        row.append(title,status,content);body.append(row);
+      }
+    }
+    table.append(caption,head,body);results.append(table);panels.get('behavior').append(results);
     panels.get('evidence').append(node('h4','저장 관측과 소스 연결'),node('p',p.observation),node('p',p.bindingDetail,'source-review-binding'),items('검토 한계',p.limitations),facts([['검토 기준일',p.reviewedAt]]));
     const footer=node('footer',undefined,'source-review-footer');footer.append(node('span','확인 근거 · 저장 소스와 관측 자료'));
     const link=node('a','검토 근거·제한 발췌 보기 →');link.href=`/source-review-notes.html#${p.id}`;footer.append(link);detail.append(footer);activate(activeSection);

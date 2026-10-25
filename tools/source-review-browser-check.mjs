@@ -51,18 +51,26 @@ try {
   await until(isAtlas?"!document.querySelector('#assets .atlas-evidence-reload').disabled":"!document.querySelector('#evidence-reload').disabled");
   const countExpr=isAtlas?"document.querySelectorAll('#profile-report option').length":"document.querySelectorAll('#asset-cards button').length";
   const before=await evaluate(countExpr);assert(before>0);
+  const readRowsExpr=isAtlas?"Array.from(document.querySelectorAll('#profile-results tr')).map(r=>r.textContent)":"Array.from(document.querySelectorAll('#asset-detail tbody tr')).map(r=>r.textContent)";
+  const originalReadRows=await evaluate(readRowsExpr);assert(originalReadRows.length>0);
   const seen=[];
   for(const p of profiles){
    await evaluate(`(()=>{const r=document.querySelector('[data-source-review]');r.querySelector('[data-coin-id="${p.coinId}"]').click();const n=r.querySelector('[aria-label="소스 검토 네트워크"]');n.value=${JSON.stringify(p.chainId)};n.dispatchEvent(new Event('change'));})()`);
    assert.equal(await evaluate("document.querySelector('[data-source-review]').dataset.reviewId"),p.id);
    const text=await evaluate("document.querySelector('.source-review-detail').textContent");assert(text.includes(p.address));assert(!text.includes('미확인 (UNKNOWN)'));assert(!text.includes('전체 배포 연결'));assert.equal(await evaluate("document.querySelectorAll('.source-review-badge').length"),0);seen.push(text);
-   for(const label of ['개요','기능·권한','근거·한계']){
+   for(const label of ['개요','검증 결과','근거·한계']){
     await evaluate(`Array.from(document.querySelectorAll('[role=tab]')).find(t=>t.textContent===${JSON.stringify(label)}).click()`);
     assert.equal(await evaluate("document.querySelectorAll('[role=tabpanel]:not([hidden])').length"),1);
     const visible=await evaluate("document.querySelector('[role=tabpanel]:not([hidden])').innerText");
-    for(const value of label==='기능·권한'?[...p.functions,...p.authorities]:label==='근거·한계'?[...p.limitations,p.observation,p.bindingDetail]:[p.address,p.chainId,'소스 확인 완료'])assert(visible.includes(value),p.id+' missing '+value);
+    for(const value of label==='검증 결과'?[...p.functions,...p.authorities]:label==='근거·한계'?[...p.limitations,p.observation,p.bindingDetail]:[p.address,p.chainId,'소스 확인 완료'])assert(visible.includes(value),p.id+' missing '+value);
+   }
+   const resultRows=await evaluate("Array.from(document.querySelectorAll('.source-review-results tbody tr')).map(r=>({text:r.textContent,status:r.dataset.reviewStatus}))");
+   assert.equal(resultRows.length,p.functions.length+p.authorities.length);
+   for(const [index,text]of [...p.functions,...p.authorities].entries()){
+    assert(resultRows[index].text.includes(text));assert(resultRows[index].text.includes('소스 확인 완료'));assert.equal(resultRows[index].status,p.sourceReviewStatus);
    }
    assert.equal(await evaluate(countExpr),before);
+   assert.deepEqual(await evaluate(readRowsExpr),originalReadRows);
    assert.equal(await evaluate("document.querySelector('.source-review-detail a').getAttribute('href')"),'/source-review-notes.html#'+p.id);
   }
   views.push(seen);
@@ -80,7 +88,7 @@ try {
   assert.equal(await evaluate("document.querySelector('[data-source-review]').dataset.reviewId"),'jpyc-kaia');
   // Native focus plus roving tab navigation, with correct panel ownership.
   await evaluate("document.querySelector('[role=tab]').click();document.querySelector('[role=tab]').focus()");
-  for(const [keyboard,code,virtual,label]of [['ArrowRight','ArrowRight',39,'기능·권한'],['End','End',35,'근거·한계'],['ArrowRight','ArrowRight',39,'개요'],['ArrowLeft','ArrowLeft',37,'근거·한계'],['Home','Home',36,'개요']]){
+  for(const [keyboard,code,virtual,label]of [['ArrowRight','ArrowRight',39,'검증 결과'],['End','End',35,'근거·한계'],['ArrowRight','ArrowRight',39,'개요'],['ArrowLeft','ArrowLeft',37,'근거·한계'],['Home','Home',36,'개요']]){
    await key(keyboard,code,virtual);
    assert.equal(await evaluate("document.activeElement.textContent"),label);
    assert(await evaluate("document.activeElement.getAttribute('aria-selected')==='true'&&document.querySelector('[role=tabpanel]:not([hidden])').getAttribute('aria-labelledby')===document.activeElement.id"));
@@ -90,14 +98,14 @@ try {
   for(const mode of ['dark','light']){
    await evaluate(`document.documentElement.dataset.theme='${mode}'`);
    await send('Emulation.setDeviceMetricsOverride',{width:1440,height:1100,deviceScaleFactor:1,mobile:false});
-   await evaluate("document.querySelector('[data-source-review]').scrollIntoView({block:'start'})");await screenshot('profile-redesign-'+(isAtlas?'atlas-':'legacy-')+mode);
+   await evaluate("document.querySelector('[role=tab][id$=\"-behavior-tab\"]').click();document.querySelector('[data-source-review]').scrollIntoView({block:'start'})");await screenshot('profile-redesign-'+(isAtlas?'atlas-':'legacy-')+mode);
    await send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
    assert(await evaluate('document.documentElement.scrollWidth<=innerWidth+1'));
    for(const tab of ['overview','behavior','evidence']){
     await evaluate(`document.querySelector('[role=tab][id$="-${tab}-tab"]').click()`);
     assert(await evaluate('document.documentElement.scrollWidth<=innerWidth+1'));
    }
-   await evaluate("document.querySelector('[role=tab]').click();document.querySelector('[data-source-review]').scrollIntoView({block:'start',behavior:'instant'})");await screenshot('profile-redesign-'+(isAtlas?'atlas-':'legacy-')+mode+'-mobile');
+   await evaluate("document.querySelector('[role=tab][id$=\"-behavior-tab\"]').click();document.querySelector('.source-review-results').scrollIntoView({block:'start',behavior:'instant'})");await screenshot('profile-redesign-'+(isAtlas?'atlas-':'legacy-')+mode+'-mobile');
   }
  }
  assert.deepEqual(views[0],views[1]);
@@ -146,5 +154,5 @@ try {
   assert.equal(await evaluate("document.querySelector('[data-source-review]').dataset.reviewId"),'jpysc-ethereum');
  }
  assert.deepEqual(errors,[]);assert.deepEqual(requests.filter(u=>!u.startsWith(base+'/')&&!u.startsWith('data:')),[]);
- console.log('PASS source profiles and technical overview: 5 tokens/8 deployments, source conditions/status/evidence links, compact 5 asset cards and 8/8 source summary, preserved read grade/verdict counts and detail navigation, search/network/tabs/keyboard, evidence failure isolation, dark/light/390px, JS errors=0/external requests=0');
+ console.log('PASS source profiles and technical overview: 5 tokens/8 deployments, itemized source results/status/evidence links, preserved read rows, compact 5 asset cards and 8/8 source summary, preserved read grade/verdict counts and detail navigation, search/network/tabs/keyboard, evidence failure isolation, dark/light/390px, JS errors=0/external requests=0');
 }finally{try{await send('Fetch.disable');await send('Browser.close',{},false);}catch{}chrome.kill();await new Promise(resolve=>{if(chrome.exitCode!==null)resolve();else chrome.once('exit',resolve);});await rm(profile,{recursive:true,force:true});}
