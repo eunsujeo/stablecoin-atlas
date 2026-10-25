@@ -1,3 +1,4 @@
+import {prefetchValidation} from './validation-batch.mjs';
 import pg from 'pg';
 import {boundedRead} from '../evidence-store.mjs';
 import {fail} from './plan.mjs';
@@ -31,14 +32,19 @@ export async function transaction(client,operation,{readonly=false,repeatableRea
   finally{activeTransactions.delete(client);}
 }
 export async function safeRole(client,role){
-  const {rows}=await client.query(`WITH RECURSIVE memberships AS (
+  const checks=[
+    `WITH RECURSIVE memberships AS (
     SELECT oid,rolname,rolsuper,rolbypassrls,rolcreaterole,rolcreatedb,rolreplication,rolcanlogin FROM pg_roles WHERE rolname=$1
     UNION SELECT r.oid,r.rolname,r.rolsuper,r.rolbypassrls,r.rolcreaterole,r.rolcreatedb,r.rolreplication,r.rolcanlogin FROM memberships m JOIN pg_auth_members a ON a.member=m.oid JOIN pg_roles r ON r.oid=a.roleid
   ) SELECT count(*)::int AS count,bool_or(rolname=$1 AND rolcanlogin) AS login,coalesce(bool_or(rolsuper OR rolbypassrls OR rolcreaterole OR rolcreatedb OR rolreplication OR rolname ~ '^pg_'
     OR oid=(SELECT nspowner FROM pg_namespace WHERE nspname='atlas_market')
-    OR oid=(SELECT datdba FROM pg_database WHERE datname=current_database())),true) AS elevated FROM memberships`,[role]);
+    OR oid=(SELECT datdba FROM pg_database WHERE datname=current_database())),true) AS elevated FROM memberships`,
+    "SELECT has_schema_privilege($1,'atlas_market','CREATE') OR has_database_privilege($1,current_database(),'CREATE') AS ddl"
+  ];
+  await prefetchValidation(client,checks,[role]);
+  const {rows}=await client.query(checks[0],[role]);
   if(rows[0].count===0||!rows[0].login||rows[0].elevated||/^(?:postgres|anon|authenticated|authenticator|service_role|supabase.*|pg_.*)$/.test(role))fail('DATABASE_ROLE_UNSAFE');
-  const permissions=(await client.query("SELECT has_schema_privilege($1,'atlas_market','CREATE') OR has_database_privilege($1,current_database(),'CREATE') AS ddl",[role])).rows[0];
+  const permissions=(await client.query(checks[1],[role])).rows[0];
   if(permissions.ddl)fail('DATABASE_ROLE_UNSAFE');
 }
 export async function runtimeRole(client){

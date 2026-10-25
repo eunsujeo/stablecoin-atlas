@@ -1,3 +1,4 @@
+import {prefetchValidation} from './validation-batch.mjs';
 import {readFile} from 'node:fs/promises';
 import {transaction,runtimeRole,safeRole} from './connection.mjs';
 import {structureHash,verifySchema,verifyRuntimeAccess} from './schema.mjs';
@@ -20,40 +21,57 @@ async function owner(client){
 async function verifyCatalog(client){
   const {rows}=await client.query("SELECT version,encode(migration_hash,'hex') AS migration_hash,encode(structure_hash,'hex') AS structure_hash FROM atlas_catalog.schema_version");
   if(rows.length!==1||rows[0].version!==1||rows[0].migration_hash!==digest(await readFile(migration))||rows[0].structure_hash!==await structureHash(client,'atlas_catalog'))fail('CATALOG_SCHEMA_MISMATCH');
-  const ownerId=(await client.query("SELECT nspowner::text AS id FROM pg_namespace WHERE nspname='atlas_catalog'")).rows[0].id;
-  const roles=(await client.query('SELECT g.role_name,r.oid::text AS id FROM atlas_catalog.reader_grant g JOIN pg_roles r ON r.rolname=g.role_name ORDER BY g.role_name')).rows;
+  const checks=[
+    "SELECT nspowner::text AS id FROM pg_namespace WHERE nspname='atlas_catalog'",
+    'SELECT g.role_name,r.oid::text AS id FROM atlas_catalog.reader_grant g JOIN pg_roles r ON r.rolname=g.role_name ORDER BY g.role_name',
+    `SELECT c.relname AS table,p.polname AS name,p.polcmd::text AS command,array_to_string(p.polroles,',') AS id,
+    pg_get_expr(p.polqual,p.polrelid) AS using,pg_get_expr(p.polwithcheck,p.polrelid) AS check FROM pg_policy p JOIN pg_class c ON c.oid=p.polrelid
+    WHERE c.relnamespace='atlas_catalog'::regnamespace AND p.polpermissive`,
+    "SELECT 1 FROM pg_policy p JOIN pg_class c ON c.oid=p.polrelid WHERE c.relnamespace='atlas_catalog'::regnamespace AND NOT p.polpermissive",
+    "SELECT 1 FROM pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid WHERE c.relnamespace='atlas_catalog'::regnamespace AND NOT t.tgisinternal AND t.tgenabled<>'O'",
+    `SELECT 1 FROM pg_namespace n CROSS JOIN LATERAL aclexplode(coalesce(n.nspacl,acldefault('n',n.nspowner))) a WHERE n.nspname='atlas_catalog' AND a.grantee=0
+    UNION ALL SELECT 1 FROM pg_class c CROSS JOIN LATERAL aclexplode(coalesce(c.relacl,acldefault('r',c.relowner))) a WHERE c.relnamespace='atlas_catalog'::regnamespace AND a.grantee=0
+    UNION ALL SELECT 1 FROM pg_proc p CROSS JOIN LATERAL aclexplode(coalesce(p.proacl,acldefault('f',p.proowner))) a WHERE p.pronamespace='atlas_catalog'::regnamespace AND a.grantee=0`,
+    `SELECT 1 FROM pg_roles r WHERE r.rolname IN ('anon','authenticated','authenticator','service_role') AND (
+    has_schema_privilege(r.oid,'atlas_catalog','USAGE,CREATE') OR EXISTS(SELECT 1 FROM pg_class c WHERE c.relnamespace='atlas_catalog'::regnamespace AND has_table_privilege(r.oid,c.oid,'SELECT,INSERT,UPDATE,DELETE,TRUNCATE'))
+    OR EXISTS(SELECT 1 FROM pg_proc p WHERE p.pronamespace='atlas_catalog'::regnamespace AND has_function_privilege(r.oid,p.oid,'EXECUTE')))`,
+    "SELECT current_setting('pgrst.db_schemas',true) AS schemas"
+  ];
+  await prefetchValidation(client,checks);
+  const ownerId=(await client.query(checks[0])).rows[0].id;
+  const roles=(await client.query(checks[1])).rows;
   const expected=[];for(const table of tables){
     expected.push({table,name:'installer',command:'*',id:ownerId,using:'true',check:'true'});
     for(const r of roles)expected.push({table,name:'app_'+digest(r.role_name).slice(0,12)+'_s_'+table,command:'r',id:r.id,using:'true',check:null});
   }
-  const actual=(await client.query(`SELECT c.relname AS table,p.polname AS name,p.polcmd::text AS command,array_to_string(p.polroles,',') AS id,
-    pg_get_expr(p.polqual,p.polrelid) AS using,pg_get_expr(p.polwithcheck,p.polrelid) AS check FROM pg_policy p JOIN pg_class c ON c.oid=p.polrelid
-    WHERE c.relnamespace='atlas_catalog'::regnamespace AND p.polpermissive`)).rows;
+  const actual=(await client.query(checks[2])).rows;
   const sort=rows=>rows.sort((a,b)=>(a.table+':'+a.name).localeCompare(b.table+':'+b.name));
   if(canonical(sort(actual))!==canonical(sort(expected)))fail('CATALOG_POLICIES_UNSAFE');
-  const bad=(await client.query("SELECT 1 FROM pg_policy p JOIN pg_class c ON c.oid=p.polrelid WHERE c.relnamespace='atlas_catalog'::regnamespace AND NOT p.polpermissive")).rowCount;
+  const bad=(await client.query(checks[3])).rowCount;
   if(bad)fail('CATALOG_POLICIES_UNSAFE');
-  if((await client.query("SELECT 1 FROM pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid WHERE c.relnamespace='atlas_catalog'::regnamespace AND NOT t.tgisinternal AND t.tgenabled<>'O'")).rowCount)fail('CATALOG_SCHEMA_MISMATCH');
-  const publicAcl=(await client.query(`SELECT 1 FROM pg_namespace n CROSS JOIN LATERAL aclexplode(coalesce(n.nspacl,acldefault('n',n.nspowner))) a WHERE n.nspname='atlas_catalog' AND a.grantee=0
-    UNION ALL SELECT 1 FROM pg_class c CROSS JOIN LATERAL aclexplode(coalesce(c.relacl,acldefault('r',c.relowner))) a WHERE c.relnamespace='atlas_catalog'::regnamespace AND a.grantee=0
-    UNION ALL SELECT 1 FROM pg_proc p CROSS JOIN LATERAL aclexplode(coalesce(p.proacl,acldefault('f',p.proowner))) a WHERE p.pronamespace='atlas_catalog'::regnamespace AND a.grantee=0`)).rowCount;
+  if((await client.query(checks[4])).rowCount)fail('CATALOG_SCHEMA_MISMATCH');
+  const publicAcl=(await client.query(checks[5])).rowCount;
   if(publicAcl)fail('CATALOG_PRIVILEGES_UNSAFE');
-  const exposed=(await client.query(`SELECT 1 FROM pg_roles r WHERE r.rolname IN ('anon','authenticated','authenticator','service_role') AND (
-    has_schema_privilege(r.oid,'atlas_catalog','USAGE,CREATE') OR EXISTS(SELECT 1 FROM pg_class c WHERE c.relnamespace='atlas_catalog'::regnamespace AND has_table_privilege(r.oid,c.oid,'SELECT,INSERT,UPDATE,DELETE,TRUNCATE'))
-    OR EXISTS(SELECT 1 FROM pg_proc p WHERE p.pronamespace='atlas_catalog'::regnamespace AND has_function_privilege(r.oid,p.oid,'EXECUTE')))`)).rowCount;
+  const exposed=(await client.query(checks[6])).rowCount;
   if(exposed)fail('CATALOG_PRIVILEGES_UNSAFE');
-  const configured=(await client.query("SELECT current_setting('pgrst.db_schemas',true) AS schemas")).rows[0].schemas;
+  const configured=(await client.query(checks[7])).rows[0].schemas;
   if(configured?.split(',').some(s=>s.trim()==='atlas_catalog'))fail('CATALOG_PRIVILEGES_UNSAFE');
 }
 async function readerPrivileges(client,role){
   await safeRole(client,role);
-  const {rows:[schema]}=await client.query("SELECT has_schema_privilege($1,'atlas_catalog','USAGE') AS usage,has_schema_privilege($1,'atlas_catalog','CREATE') AS create",[role]);
-  if(!schema.usage||schema.create)fail('CATALOG_ACCESS_DENIED');
-  const rows=(await client.query(`SELECT has_table_privilege($1,c.oid,'SELECT') AS readable,has_table_privilege($1,c.oid,'INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER') AS mutation,
+  const checks=[
+    "SELECT has_schema_privilege($1,'atlas_catalog','USAGE') AS usage,has_schema_privilege($1,'atlas_catalog','CREATE') AS create",
+    `SELECT has_table_privilege($1,c.oid,'SELECT') AS readable,has_table_privilege($1,c.oid,'INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER') AS mutation,
     has_column_privilege($1,c.oid,a.attnum,'INSERT,UPDATE,REFERENCES') AS column_mutation FROM pg_class c JOIN pg_attribute a ON a.attrelid=c.oid
-    WHERE c.relnamespace='atlas_catalog'::regnamespace AND c.relkind='r' AND a.attnum>0 AND NOT a.attisdropped`,[role])).rows;
+    WHERE c.relnamespace='atlas_catalog'::regnamespace AND c.relkind='r' AND a.attnum>0 AND NOT a.attisdropped`,
+    "SELECT 1 FROM pg_proc WHERE pronamespace='atlas_catalog'::regnamespace AND has_function_privilege($1,oid,'EXECUTE')"
+  ];
+  await prefetchValidation(client,checks,[role]);
+  const {rows:[schema]}=await client.query(checks[0],[role]);
+  if(!schema.usage||schema.create)fail('CATALOG_ACCESS_DENIED');
+  const rows=(await client.query(checks[1],[role])).rows;
   if(!rows.length||rows.some(r=>!r.readable||r.mutation||r.column_mutation))fail('CATALOG_PRIVILEGES_UNSAFE');
-  if((await client.query("SELECT 1 FROM pg_proc WHERE pronamespace='atlas_catalog'::regnamespace AND has_function_privilege($1,oid,'EXECUTE')",[role])).rowCount)fail('CATALOG_PRIVILEGES_UNSAFE');
+  if((await client.query(checks[2],[role])).rowCount)fail('CATALOG_PRIVILEGES_UNSAFE');
 }
 export async function initializeCatalog(client){return transaction(client,async()=>{
   await lock(client);await owner(client);

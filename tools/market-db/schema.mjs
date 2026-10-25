@@ -1,3 +1,4 @@
+import {prefetchValidation} from './validation-batch.mjs';
 import {readFile} from 'node:fs/promises';
 import {digest,canonical,fail} from './plan.mjs';
 import {transaction,safeRole} from './connection.mjs';
@@ -30,8 +31,17 @@ export async function structureHash(client,namespace=schema){
   return digest(canonical(rows));
 }
 async function verifyPolicies(client){
-  const owner=(await client.query("SELECT nspowner::text AS id FROM pg_namespace WHERE nspname='atlas_market'")).rows[0].id;
-  const grants=(await client.query('SELECT g.role_name,g.access_mode,r.oid::text AS id FROM atlas_market.access_grant g JOIN pg_roles r ON r.rolname=g.role_name ORDER BY g.role_name')).rows;
+  const checks=[
+    "SELECT nspowner::text AS id FROM pg_namespace WHERE nspname='atlas_market'",
+    'SELECT g.role_name,g.access_mode,r.oid::text AS id FROM atlas_market.access_grant g JOIN pg_roles r ON r.rolname=g.role_name ORDER BY g.role_name',
+    `SELECT c.relname AS table,p.polname AS name,p.polcmd::text AS command,array_to_string(p.polroles,',') AS id,
+    pg_get_expr(p.polqual,p.polrelid) AS using,pg_get_expr(p.polwithcheck,p.polrelid) AS check
+    FROM pg_policy p JOIN pg_class c ON c.oid=p.polrelid WHERE c.relnamespace='atlas_market'::regnamespace AND p.polpermissive`,
+    `SELECT 1 FROM pg_policy p JOIN pg_class c ON c.oid=p.polrelid WHERE c.relnamespace='atlas_market'::regnamespace AND NOT p.polpermissive`
+  ];
+  await prefetchValidation(client,checks);
+  const owner=(await client.query(checks[0])).rows[0].id;
+  const grants=(await client.query(checks[1])).rows;
   const expected=[];const add=(table,name,command,id,using,check)=>expected.push({table,name,command,id,using,check});
   for(const table of readTables)add(table,'installer','*',owner,'true','true');
   for(const g of grants){const prefix='app_'+digest(g.role_name).slice(0,12)+'_';
@@ -41,12 +51,10 @@ async function verifyPolicies(client){
       for(const table of Object.keys(columnsUpdate))add(table,prefix+'u_'+table,'w',g.id,'true','true');
     }
   }
-  const actual=(await client.query(`SELECT c.relname AS table,p.polname AS name,p.polcmd::text AS command,array_to_string(p.polroles,',') AS id,
-    pg_get_expr(p.polqual,p.polrelid) AS using,pg_get_expr(p.polwithcheck,p.polrelid) AS check
-    FROM pg_policy p JOIN pg_class c ON c.oid=p.polrelid WHERE c.relnamespace='atlas_market'::regnamespace AND p.polpermissive`)).rows;
+  const actual=(await client.query(checks[2])).rows;
   const sort=rows=>rows.sort((a,b)=>(a.table+':'+a.name).localeCompare(b.table+':'+b.name));
   if(canonical(sort(actual))!==canonical(sort(expected)))fail('DATABASE_POLICIES_MISMATCH');
-  const bad=(await client.query(`SELECT 1 FROM pg_policy p JOIN pg_class c ON c.oid=p.polrelid WHERE c.relnamespace='atlas_market'::regnamespace AND NOT p.polpermissive`)).rowCount;
+  const bad=(await client.query(checks[3])).rowCount;
   if(bad)fail('DATABASE_POLICIES_MISMATCH');
 }
 export async function verifySchema(client){
@@ -106,18 +114,24 @@ export async function grantAccess(client,role,mode){identifier(role);if(!['reade
   });
 }
 async function verifyRolePrivileges(client,role,mode){
-  const {rows}=await client.query(`SELECT c.relname,a.attname,has_column_privilege($1,c.oid,a.attnum,'UPDATE') AS update,
+  const checks=[
+    `SELECT c.relname,a.attname,has_column_privilege($1,c.oid,a.attnum,'UPDATE') AS update,
     has_table_privilege($1,c.oid,'DELETE,TRUNCATE,TRIGGER,REFERENCES') AS forbidden,
     has_table_privilege($1,c.oid,'SELECT') AS readable,has_table_privilege($1,c.oid,'INSERT') AS insert
     FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace JOIN pg_attribute a ON a.attrelid=c.oid
-    WHERE n.nspname='atlas_market' AND c.relkind IN ('r','p') AND a.attnum>0 AND NOT a.attisdropped`,[role]);
+    WHERE n.nspname='atlas_market' AND c.relkind IN ('r','p') AND a.attnum>0 AND NOT a.attisdropped`,
+    `SELECT c.oid FROM pg_class c WHERE c.relnamespace='atlas_market'::regnamespace AND c.relispartition
+    AND has_table_privilege($1,c.oid,'SELECT,INSERT,UPDATE,DELETE,TRUNCATE')`,
+    `SELECT has_sequence_privilege($1,c.oid,'SELECT,UPDATE') AS mutation,
+    has_sequence_privilege($1,c.oid,'USAGE') AS usage FROM pg_class c WHERE c.relnamespace='atlas_market'::regnamespace AND c.relkind='S'`
+  ];
+  await prefetchValidation(client,checks,[role]);
+  const {rows}=await client.query(checks[0],[role]);
   for(const row of rows){const allowedUpdate=mode==='writer'&&(columnsUpdate[row.relname]??[]).includes(row.attname),allowedInsert=mode==='writer'&&insertTables.includes(row.relname);
     if(row.forbidden||(row.update!==allowedUpdate)||(row.insert!==allowedInsert)||(readTables.includes(row.relname)&&!row.readable))fail('DATABASE_PRIVILEGES_UNSAFE');}
-  const children=(await client.query(`SELECT c.oid FROM pg_class c WHERE c.relnamespace='atlas_market'::regnamespace AND c.relispartition
-    AND has_table_privilege($1,c.oid,'SELECT,INSERT,UPDATE,DELETE,TRUNCATE')`,[role])).rows;
+  const children=(await client.query(checks[1],[role])).rows;
   if(children.length)fail('DATABASE_PRIVILEGES_UNSAFE');
-  const sequences=(await client.query(`SELECT has_sequence_privilege($1,c.oid,'SELECT,UPDATE') AS mutation,
-    has_sequence_privilege($1,c.oid,'USAGE') AS usage FROM pg_class c WHERE c.relnamespace='atlas_market'::regnamespace AND c.relkind='S'`,[role])).rows;
+  const sequences=(await client.query(checks[2],[role])).rows;
   if(sequences.some(s=>s.mutation||s.usage!==(mode==='writer')))fail('DATABASE_PRIVILEGES_UNSAFE');
 }
 export async function verifyRuntimeAccess(client,write=false){

@@ -1,3 +1,4 @@
+import {prefetchValidation,withValidationBatch} from './validation-batch.mjs';
 import {readHistory} from './history.mjs';
 import {readCatalog} from './catalog.mjs';
 import { connectDatabase, transaction, runtimeRole } from './connection.mjs';
@@ -11,13 +12,20 @@ const stamp = column => `to_char(${column} AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24
 const registryPath = new URL('../../data/asset-registry.json', import.meta.url);
 const seriesLimit = 24, byteLimit = 2 * 1024 * 1024;
 export async function registryMatches(client, registry) {
-  const coins = (await client.query('SELECT code,symbol,name FROM atlas_market.coin ORDER BY code LIMIT 257')).rows;
-  const networks = (await client.query('SELECT code,family,network_identity FROM atlas_market.network ORDER BY code LIMIT 257')).rows;
-  const deployments = (await client.query(`SELECT d.code,c.code AS coin,n.code AS network,d.identity_display AS identity,d.origin
-    FROM atlas_market.deployment d JOIN atlas_market.coin c ON c.id=d.coin_id JOIN atlas_market.network n ON n.id=d.network_id ORDER BY d.code LIMIT 257`)).rows;
-  const identifiers = (await client.query(`SELECT p.code AS provider,i.namespace,i.external_id,c.code AS coin,n.code AS network
+  const checks=[
+    'SELECT code,symbol,name FROM atlas_market.coin ORDER BY code LIMIT 257',
+    'SELECT code,family,network_identity FROM atlas_market.network ORDER BY code LIMIT 257',
+    `SELECT d.code,c.code AS coin,n.code AS network,d.identity_display AS identity,d.origin
+    FROM atlas_market.deployment d JOIN atlas_market.coin c ON c.id=d.coin_id JOIN atlas_market.network n ON n.id=d.network_id ORDER BY d.code LIMIT 257`,
+    `SELECT p.code AS provider,i.namespace,i.external_id,c.code AS coin,n.code AS network
     FROM atlas_market.provider_identifier i JOIN atlas_market.provider p ON p.id=i.provider_id JOIN atlas_market.subject s ON s.id=i.subject_id
-    LEFT JOIN atlas_market.coin c ON c.id=s.coin_id LEFT JOIN atlas_market.network n ON n.id=s.network_id ORDER BY p.code,i.namespace,i.external_id LIMIT 513`)).rows;
+    LEFT JOIN atlas_market.coin c ON c.id=s.coin_id LEFT JOIN atlas_market.network n ON n.id=s.network_id ORDER BY p.code,i.namespace,i.external_id LIMIT 513`
+  ];
+  await prefetchValidation(client,checks);
+  const coins = (await client.query(checks[0])).rows;
+  const networks = (await client.query(checks[1])).rows;
+  const deployments = (await client.query(checks[2])).rows;
+  const identifiers = (await client.query(checks[3])).rows;
   const sorted = rows => [...rows].sort((a,b) => canonical(a).localeCompare(canonical(b)));
   const same = (a,b) => canonical(sorted(a)) === canonical(sorted(b));
   if (!same(coins,registry.coins.map(c=>({code:c.id,symbol:c.symbol,name:c.name}))) ||
@@ -28,11 +36,11 @@ export async function registryMatches(client, registry) {
 }
 
 // All values and provenance come from one DB snapshot. Static registry supplies display names only.
-export async function databaseMarket(client, registry, { now = Date.now() } = {}) {
+export async function databaseMarket(client, registry, { now = Date.now(), batchValidation = true } = {}) {
   validateRegistry(registry);
   if (!Number.isFinite(now) || !Number.isFinite(new Date(now).getTime())) fail('INVALID_TIMESTAMP');
   const to = new Date(now).toISOString(), from = new Date(now - 30 * 86400000).toISOString();
-  return transaction(client, async () => {
+  return transaction(client, () => withValidationBatch(client, async client => {
     await runtimeRole(client); await verifySchema(client); await verifyRuntimeAccess(client);
     const access = (await client.query('SELECT access_mode FROM atlas_market.access_grant WHERE role_name=current_user')).rows[0];
     if (access?.access_mode !== 'reader') fail('DATABASE_READER_REQUIRED');
@@ -81,7 +89,10 @@ export async function databaseMarket(client, registry, { now = Date.now() } = {}
       )head ON true ORDER BY n.code LIMIT 257`)).rows;
     const { rows: [health] } = await client.query(`WITH latest AS (
       SELECT DISTINCT ON (d.provider_id,d.endpoint_path,d.target_subject_id) q.id,q.observed_at,q.state
-      FROM atlas_market.request_definition d JOIN atlas_market.collection_request q ON q.definition_id=d.id
+      FROM atlas_market.request_definition d JOIN LATERAL (
+        SELECT id,observed_at,state FROM atlas_market.collection_request WHERE definition_id=d.id
+        ORDER BY observed_at DESC,id DESC LIMIT 1
+      ) q ON true
       ORDER BY d.provider_id,d.endpoint_path,d.target_subject_id,q.observed_at DESC,q.id DESC
     ) SELECT (SELECT count(*)::int FROM latest WHERE state NOT IN ('SUCCESS','RECORDED')) AS failures,
       (SELECT count(*)::int FROM latest q JOIN atlas_market.observation o ON o.request_id=q.id AND o.observed_at=q.observed_at WHERE o.state='MISSING') AS missing`);
@@ -90,7 +101,7 @@ export async function databaseMarket(client, registry, { now = Date.now() } = {}
         sampled:counts.some(c=>BigInt(c.count)>BigInt(pointsPerSeries)),latestRequestFailures:health.failures,latestMissingFields:health.missing} });
     if (Buffer.byteLength(JSON.stringify(data)) > byteLimit) fail('QUERY_RESPONSE_LIMIT');
     return data;
-  }, {readonly:true,repeatableRead:true});
+  },batchValidation), {readonly:true,repeatableRead:true});
 }
 
 // One <=2MiB successful response, refreshed on demand; never serve an expired value.
