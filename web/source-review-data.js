@@ -1,3 +1,4 @@
+import {top10SourceProfiles} from './source-review-top10-data.js';
 // Reviewed public excerpts of the stored 2026-10-25 research. No source archives or RPC inputs.
 export const sourceReviewDate='2026-10-25';
 export const sourceReviewNotice='저장 소스에서 함수·권한 조건을 확인했습니다. 확인 기준은 각 항목에 적힌 소스의 함수·modifier·조건입니다.';
@@ -15,7 +16,7 @@ const jpyc={
   ],
   limitations:['서명 기반 permit/authorization·취소는 소스 조건만 검토했으며 서명·거래를 실행하지 않음.','상환·준비자산·입출금 서비스 운영은 검토 범위 밖.'],
 };
-export const sourceReviewProfiles=[
+const existingSourceProfiles=[
   {
     id:'usdc-ethereum',coinId:'usdc',symbol:'USDC',network:'Ethereum',chainId:'1',address:'0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
     functions:['transfer / transferFrom: pause·주소 제한 조건.','V2.2 approve·승인 증감·철회: pause 조건. 선택 override에는 주소 제한 modifier가 없음.','승인 zero-reset을 강제하지 않음.'],
@@ -72,7 +73,11 @@ export const sourceReviewProfiles=[
     references:['2026-10-25-jpy-public-html-source-review','2026-10-25-jpysc-initialize-manual-review','2026-10-25-rlusd-jpysc-offline-source-review'],
   },
 ].map(profile=>({...profile,reviewedAt:sourceReviewDate,sourceReviewStatus:'SOURCE_REVIEWED',deploymentBinding:'UNKNOWN'}));
-export function sourceReviewFor(coinId,chainId){return sourceReviewProfiles.find(p=>p.coinId===coinId&&p.chainId===chainId);}
+export const sourceReviewProfiles=[...existingSourceProfiles,...top10SourceProfiles];
+export const sourceProfileKey=p=>p.networkKey??p.chainId;
+export const sourceProfileStatus=p=>p.scopeLabel??'소스 확인 완료';
+export const sourceScopeSummary=profiles=>{const counts=new Map();for(const p of profiles){const label=p.scopeLabel??'기존 소스 확인';counts.set(label,(counts.get(label)??0)+1);}return [...counts].map(([label,count])=>`${label} ${count}곳`).join(' · ');};
+export function sourceReviewFor(coinId,key){return sourceReviewProfiles.find(p=>p.coinId===coinId&&sourceProfileKey(p)===key);}
 
 // Source-path capabilities, independent of Assessment verdicts and deployment binding.
 export const sourceFeatureCatalog=[
@@ -169,8 +174,9 @@ const sourceFeatures={
     fee:pending('전송 수수료 차감 유무는 기존 선택 경로 발췌에서 결론 내리지 않음.'),
   },
 };
-export const sourceFeatureLabels={PRESENT:'있음',ABSENT_IN_REVIEWED_PATH:'없음',NOT_REVIEWED:'추가 검토'};
+export const sourceFeatureLabels={PRESENT:'있음',ABSENT_IN_REVIEWED_PATH:'없음',NOT_REVIEWED:'추가 검토',SOURCE_PRESENT:'소스 조건 확인',NOT_IN_REVIEWED_PATH:'없음(검토 경로)',PROTOCOL_CAPABILITY:'공통 프로토콜 기능',DOCUMENTED_ONLY:'공식 문서 기재',INPUT_REQUIRED:'추가 근거 필요',NOT_APPLICABLE:'해당 없음',STORED_SETTING:'과거 설정 관측'};
 export function sourceFeaturesFor(coinId,chainId){
   const profile=sourceReviewFor(coinId,chainId);if(!profile)return [];
+  if(profile.features)return profile.features.map(feature=>({...feature,profileId:profile.id}));
   return sourceFeatureCatalog.map(feature=>({...feature,...(sourceFeatures[coinId]?.[feature.id]??pending('해당 기능의 저장 소스 근거를 추가로 검토해야 합니다.')),profileId:profile.id}));
 }

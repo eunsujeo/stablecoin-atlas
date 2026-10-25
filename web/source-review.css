@@ -49,3 +49,6 @@
 
 
 .source-review-toolbar p{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}.source-review-toolbar p strong{font-size:16px;color:var(--ink)}.source-review-toolbar p span{font-size:11px;color:var(--muted)}.source-review-tabs{margin-top:0;margin-bottom:18px}
+
+.source-review-result-status.feature-source_present{color:var(--profile-accent)}
+.source-review-result-status.feature-input_required,.source-review-result-status.feature-documented_only{color:var(--muted)}

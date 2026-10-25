@@ -16,7 +16,7 @@ import {renderNetworkSupplyChart, networkSupplySeries} from './market-chart.js';
 import { dashboardEvidence, VERDICTS, reportLinks } from './evidence-model.js';
 import { validateMarket, displayAmount, ratio, units } from './market-model.js';
 import { overviewSummary, overviewEvidenceRanking } from './overview-model.js';
-import {sourceReviewProfiles,sourceReviewDate} from './source-review-data.js';
+import {sourceReviewProfiles,sourceReviewDate,sourceScopeSummary} from './source-review-data.js';
 const $=selector=>document.querySelector(selector);
 const node=(tag,text,cls)=>{const el=document.createElement(tag);if(text!==undefined)el.textContent=String(text);if(cls)el.className=cls;return el;};
 const savedChart=readChartURL(location.href)??readChartPreferences();
@@ -60,11 +60,11 @@ async function json(path,{signal,optional=false,revalidate=false}={}){
   return JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes));
 }
 function renderSourceReview(){
-  const assets=new Set(sourceReviewProfiles.map(p=>p.coinId)),networks=new Set(sourceReviewProfiles.map(p=>p.chainId));
+  const assets=new Set(sourceReviewProfiles.map(p=>p.coinId)),networks=new Set(sourceReviewProfiles.map(p=>p.chainId??p.networkKey));
   const confirmed=sourceReviewProfiles.filter(p=>p.sourceReviewStatus==='SOURCE_REVIEWED');
   const metrics=$('#overview-source-metrics');metrics.replaceChildren();
   for(const [label,value,note] of [
-    ['소스 확인 완료',`${confirmed.length} / ${sourceReviewProfiles.length}`,'기능·권한 조건 확인'],
+    ['기존 소스 확인',`${confirmed.length} / ${sourceReviewProfiles.length}`,'기존 확인 프로필 / 전체 검토 프로필'],
     ['검토 자산',`${assets.size}개`,[...assets].map(id=>id.toUpperCase()).join(' · ')],
     ['검토 네트워크',`${networks.size}개`,[...new Set(sourceReviewProfiles.map(p=>p.network))].join(' · ')],
   ]){const card=node('article',undefined,'metric-card'),valueRow=node('div',undefined,'metric-value');valueRow.append(node('strong',value));card.append(node('p',label),valueRow,node('p',note));metrics.append(card);}
@@ -73,14 +73,14 @@ function renderSourceReview(){
   const gradeNote=node('p','저장 보고서 로딩 중');gradeNote.id='overview-read-grade-note';
   const gradeRow=node('div',undefined,'metric-value');gradeRow.append(gradeValue);
   gradeCard.append(node('p','읽기 실행 등급'),gradeRow,gradeNote);metrics.append(gradeCard);
-  $('#overview-source-note').textContent=`${sourceReviewDate} 기준 · 소스에서 확인한 기능·권한`;
+  $('#overview-source-note').textContent=`${sourceReviewDate,sourceScopeSummary} 기준 · 저장 소스·문서 검토 범위`;
   const rows=$('#overview-source-rows');rows.replaceChildren();
   for(const coinId of assets){
     const profiles=sourceReviewProfiles.filter(p=>p.coinId===coinId);
     const complete=profiles.filter(p=>p.sourceReviewStatus==='SOURCE_REVIEWED').length;
     const card=node('article',undefined,'overview-source-asset');card.dataset.sourceCoin=coinId;
     const heading=node('div',undefined,'overview-source-asset-heading');
-    heading.append(node('h3',profiles[0].symbol),node('span',complete===profiles.length?'소스 확인 완료':'소스 검토 중','overview-source-status'));
+    heading.append(node('h3',profiles[0].symbol),node('span',complete===profiles.length?'소스 확인 완료':'검토 종류별 근거 확인','overview-source-status'));
     const networks=node('p',profiles.map(p=>p.network).join(' · '),'overview-source-networks');
     const footer=node('div',undefined,'overview-source-asset-footer');
     const link=node('a','상세 보기 →');link.href='#assets';
@@ -89,7 +89,7 @@ function renderSourceReview(){
       const search=root.querySelector('input[type="search"]');search.value='';search.dispatchEvent(new Event('input'));
       root.querySelector(`[data-coin-id="${coinId}"]`)?.click();
     });
-    footer.append(node('span',`${complete} / ${profiles.length}개 프로필 확인`),link);
+    footer.append(node('span',sourceScopeSummary(profiles)),link);
     card.append(heading,networks,footer);rows.append(card);
   }
 }

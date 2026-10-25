@@ -21,6 +21,7 @@ import {databaseRegistrationReader,registrationRequest} from './market-db/regist
 
 const assets = new Map([
   ['/source-review.js', ['../web/source-review.js', 'text/javascript; charset=utf-8']],
+  ['/source-review-top10-data.js', ['../web/source-review-top10-data.js', 'text/javascript; charset=utf-8']],
   ['/source-review-data.js', ['../web/source-review-data.js', 'text/javascript; charset=utf-8']],
   ['/source-review.css', ['../web/source-review.css', 'text/css; charset=utf-8']],
   ['/source-review-notes.html', ['../web/source-review-notes.html', 'text/html; charset=utf-8']],

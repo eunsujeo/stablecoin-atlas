@@ -39,7 +39,7 @@ async function screenshot(name) { await evaluate('new Promise(resolve => setTime
 async function until(expression){for(let i=0;i<180;i++){if(await evaluate(expression))return;await new Promise(r=>setTimeout(r,60));}throw new Error('Not ready '+expression+' '+await evaluate("document.querySelector('[data-source-review]')?.innerText.slice(0,600)"));}
 async function key(key,code,virtual){await send('Input.dispatchKeyEvent',{type:'keyDown',key,code,windowsVirtualKeyCode:virtual});await send('Input.dispatchKeyEvent',{type:'keyUp',key,code,windowsVirtualKeyCode:virtual});}
 
-const {sourceReviewProfiles:profiles,sourceFeaturesFor,sourceFeatureLabels}=await import('../web/source-review-data.js');
+const {sourceReviewProfiles:profiles,sourceFeaturesFor,sourceFeatureLabels,sourceProfileKey,sourceProfileStatus}=await import('../web/source-review-data.js');
 const views=[];
 try {
  const target=await send('Target.createTarget',{url:'about:blank'},false);session=(await send('Target.attachToTarget',{targetId:target.targetId,flatten:true},false)).sessionId;
@@ -60,22 +60,22 @@ try {
   assert(!(await evaluate(`document.querySelector('${isAtlas?'#assets':'#assets-screen'}').textContent`)).includes('과거 읽기 실행 기록'));
   const seen=[];
   for(const p of profiles){
-   await evaluate(`(()=>{const r=document.querySelector('[data-source-review]');r.querySelector('[data-coin-id="${p.coinId}"]').click();const n=r.querySelector('[aria-label="소스 검토 네트워크"]');n.value=${JSON.stringify(p.chainId)};n.dispatchEvent(new Event('change'));})()`);
+   await evaluate(`(()=>{const r=document.querySelector('[data-source-review]');r.querySelector('[data-coin-id="${p.coinId}"]').click();const n=r.querySelector('[aria-label="소스 검토 네트워크"]');n.value=${JSON.stringify(sourceProfileKey(p))};n.dispatchEvent(new Event('change'));})()`);
    assert.equal(await evaluate("document.querySelector('[data-source-review]').dataset.reviewId"),p.id);
    const text=await evaluate("document.querySelector('.source-review-detail').textContent");assert(text.includes(p.address));assert(!text.includes('미확인 (UNKNOWN)'));assert(!text.includes('전체 배포 연결'));assert.equal(await evaluate("document.querySelectorAll('.source-review-badge').length"),0);seen.push(text);
-   const features=sourceFeaturesFor(p.coinId,p.chainId);
+   const features=sourceFeaturesFor(p.coinId,sourceProfileKey(p));
    for(const label of ['개요','검증 결과','근거·한계']){
     await evaluate(`Array.from(document.querySelectorAll('[role=tab]')).find(t=>t.textContent===${JSON.stringify(label)}).click()`);
     assert.equal(await evaluate("document.querySelectorAll('[role=tabpanel]:not([hidden])').length"),1);
     const visible=await evaluate("document.querySelector('[role=tabpanel]:not([hidden])').innerText");
-    for(const value of label==='검증 결과'?features.flatMap(f=>[f.label,f.detail,f.evidence,sourceFeatureLabels[f.status]]):label==='근거·한계'?['소스 검토 근거',p.reviewedAt,...(['jpyc','jpysc','rlusd'].includes(p.coinId)?p.limitations:[])]:[p.address,p.chainId,'소스 확인 완료'])assert(visible.includes(value),p.id+' missing '+value);
+    for(const value of label==='검증 결과'?features.flatMap(f=>[f.label,f.detail,f.evidence,sourceFeatureLabels[f.status]]):label==='근거·한계'?['소스 검토 근거',p.reviewedAt,...(p.scopeLabel||['jpyc','jpysc','rlusd'].includes(p.coinId)?p.limitations:[])]:[p.address,...(p.chainId?[p.chainId]:[]),sourceProfileStatus(p)])assert(visible.includes(value),p.id+' missing '+value);
    }
    const resultRows=await evaluate("Array.from(document.querySelectorAll('.source-review-results tbody tr')).map(r=>({text:r.textContent,status:r.dataset.featureStatus,id:r.dataset.featureId}))");
-   assert.equal(resultRows.length,14);
+   assert.equal(resultRows.length,features.length);
    for(const [index,feature]of features.entries()){
     assert(resultRows[index].text.includes(feature.label));assert(resultRows[index].text.includes(feature.detail));assert(resultRows[index].text.includes(feature.evidence));assert.equal(resultRows[index].status,feature.status);assert.equal(resultRows[index].id,feature.id);
    }
-   for(const status of ['PRESENT','ABSENT_IN_REVIEWED_PATH','NOT_REVIEWED','ALL']){
+   for(const status of [...(p.features?new Set(features.map(f=>f.status)):['PRESENT','ABSENT_IN_REVIEWED_PATH','NOT_REVIEWED']),'ALL']){
     await evaluate(`document.querySelector('[data-feature-filter="${status}"]').click()`);
     const expected=features.filter(f=>status==='ALL'||f.status===status).map(f=>f.id);
     assert.deepEqual(await evaluate("Array.from(document.querySelectorAll('.source-review-results tbody tr:not([hidden])')).map(r=>r.dataset.featureId)"),expected);
@@ -83,11 +83,12 @@ try {
    assert(!text.includes(p.observation));assert(!text.includes(p.bindingDetail));
    await evaluate("document.querySelector('[role=tab][id$=\"-behavior-tab\"]').click()");
    const sourceVisible=await evaluate("document.querySelector('[data-source-review]').innerText");
-   assert(sourceVisible.includes('검토한 소스 경로 기준'));assert(!/기능 [0-9]|권한 [0-9]/.test(sourceVisible));assert(!sourceVisible.includes('UNKNOWN'));
+   assert(sourceVisible.includes('검토한 소스 경로 기준'));if(!p.features)assert(!/기능 [0-9]|권한 [0-9]/.test(sourceVisible));assert(!sourceVisible.includes('UNKNOWN'));
 
    assert.equal(await evaluate("document.querySelector('.source-review-detail a').getAttribute('href')"),'/source-review-notes.html#'+p.id);
   }
   views.push(seen);
+  await evaluate(`document.querySelector('[data-coin-id="jpysc"]').click()`);
   // Search matches stored chain and full address, preserves selection, and recovers from no results.
   for(const [query,expected]of [['Kaia',['jpyc']],[profiles[1].address,['usdt']],['no-matching-asset',[]],['',['usdc','usdt','rlusd','jpyc','jpysc']]]){
    await evaluate(`(()=>{const s=document.querySelector('.source-review-search input');s.value=${JSON.stringify(query)};s.dispatchEvent(new Event('input'));})()`);
@@ -97,7 +98,7 @@ try {
   }
   // Each asset remembers its own chain. Switching USDC must never retain Kaia's identity.
   await evaluate(`(()=>{document.querySelector('[data-coin-id="jpyc"]').click();const s=document.querySelector('[aria-label="소스 검토 네트워크"]');s.value='8217';s.dispatchEvent(new Event('change'));document.querySelector('[data-coin-id="usdc"]').click();})()`);
-  assert.equal(await evaluate("document.querySelector('[data-source-review]').dataset.reviewId"),'usdc-ethereum');
+  assert.equal(await evaluate("document.querySelector('[data-source-review]').dataset.reviewId"),'usdc-arc');
   await evaluate("document.querySelector('[data-coin-id=jpyc]').click()");
   assert.equal(await evaluate("document.querySelector('[data-source-review]').dataset.reviewId"),'jpyc-kaia');
   // Native focus plus roving tab navigation, with correct panel ownership.
@@ -124,6 +125,18 @@ try {
    await evaluate("document.querySelector('[data-source-review]').scrollIntoView({block:'start',behavior:'instant'})");
    assert(await evaluate("(()=>{const gap=document.querySelector('.source-review-tabs').getBoundingClientRect().top-document.querySelector('.source-review-toolbar').getBoundingClientRect().bottom;return gap>=-1&&gap<12;})()"));
    await screenshot('profile-header-'+(isAtlas?'atlas-':'legacy-')+mode+'-mobile');
+   // New scope types must fit independently of the legacy ERC-20 profiles.
+   for(const p of profiles.filter(p=>p.features)){
+    await evaluate(`(()=>{document.querySelector('[data-coin-id="${p.coinId}"]').click();const n=document.querySelector('[aria-label="소스 검토 네트워크"]');n.value=${JSON.stringify(sourceProfileKey(p))};n.dispatchEvent(new Event('change'));})()`);
+    for(const tab of ['overview','behavior','evidence']){
+     await evaluate(`document.querySelector('[role=tab][id$="-${tab}-tab"]').click()`);
+     assert(await evaluate('document.documentElement.scrollWidth<=innerWidth+1'),p.id+' mobile '+tab);
+    }
+    assert((await evaluate("document.querySelector('[role=tabpanel]:not([hidden])').innerText")).includes(p.scopeLabel));
+   }
+   await evaluate(`document.querySelector('[role=tab][id$="-behavior-tab"]').click();document.querySelector('.source-review-results').scrollIntoView({block:'start',behavior:'instant'})`);
+   await screenshot('top10-'+(isAtlas?'atlas-':'legacy-')+mode+'-mobile');
+   await evaluate("document.querySelector('[data-coin-id=jpyc]').click()");
   }
   await evaluate("location.hash='#compare'");
   await until(isAtlas?"!document.querySelector('#compare-report-1').disabled&&document.querySelectorAll('#native-comparison-body tr').length>0":"document.querySelectorAll('#comparison-body tr').length>0");
@@ -133,11 +146,11 @@ try {
  await send('Page.navigate',{url:'about:blank'});await send('Page.navigate',{url:base+'/#overview'});
  await until("document.querySelectorAll('#overview-source-rows article').length===5&&!document.querySelector('#overview-reload').disabled");
  assert.equal(await evaluate("document.querySelector('#overview-read-history').open"),false);
- assert.deepEqual(await evaluate("Array.from(document.querySelectorAll('#overview-source-metrics strong')).slice(0,3).map(e=>e.textContent)"),['8 / 8','5개','4개']);
+ assert.deepEqual(await evaluate("Array.from(document.querySelectorAll('#overview-source-metrics strong')).slice(0,3).map(e=>e.textContent)"),['8 / 26','5개',`${new Set(profiles.map(p=>p.chainId??p.networkKey)).size}개`]);
  for(const coinId of new Set(profiles.map(p=>p.coinId))){
   const selected=profiles.filter(p=>p.coinId===coinId);
   const row=await evaluate(`document.querySelector('#overview-source-rows [data-source-coin="${coinId}"]').textContent`);
-  for(const value of [selected[0].symbol,'소스 확인 완료',...selected.map(p=>p.network)])assert(row.includes(value),coinId+' overview missing '+value);
+  for(const value of [selected[0].symbol,selected.every(p=>!p.features)?'소스 확인 완료':'검토 종류별 근거 확인',...selected.map(p=>p.network)])assert(row.includes(value),coinId+' overview missing '+value);
   for(const p of selected)for(const detail of [...p.functions,...p.authorities])assert(!row.includes(detail),'overview should stay compact');
   await evaluate("(()=>{const s=document.querySelector('.source-review-search input');s.value='no-match';s.dispatchEvent(new Event('input'));})()");
   await evaluate(`document.querySelector('#overview-source-rows [data-source-coin="${coinId}"] a').click()`);
@@ -175,5 +188,5 @@ try {
   assert.equal(await evaluate("document.querySelector('[data-source-review]').dataset.reviewId"),'jpysc-ethereum');
  }
  assert.deepEqual(errors,[]);assert.deepEqual(requests.filter(u=>!u.startsWith(base+'/')&&!u.startsWith('data:')),[]);
- console.log('PASS source profiles and technical overview: 5 tokens/8 deployments, compact title toolbar and reviewed-network scope labels, 14 shared functional categories, presence/path absence/pending and filters, source evidence links, source-only profiles, no archive or historical diagnostics in DOM, comparison path preserved, compact 5 asset cards and 8/8 source summary, preserved read grade/verdict counts and detail navigation, search/network/tabs/keyboard, evidence failure isolation, dark/light/390px, JS errors=0/external requests=0');
+ console.log('PASS source profiles: 5 assets/26 profiles, original 8 preserved, added 18 scoped features and states, 8/26 summary, network keys/search/tabs/filters, evidence links, read grade/verdict counts preserved, both routes/dark/light/390px, JS errors=0/external requests=0');
 }finally{try{await send('Fetch.disable');await send('Browser.close',{},false);}catch{}chrome.kill();await new Promise(resolve=>{if(chrome.exitCode!==null)resolve();else chrome.once('exit',resolve);});await rm(profile,{recursive:true,force:true});}
