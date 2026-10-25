@@ -1,4 +1,5 @@
 import {CAPABILITY_LABELS, dashboardEvidence, filterItems, comparisonRows, reportLinks} from './evidence-model.js';
+import {beginLoading} from './loading.js';
 
 const $ = selector => document.querySelector(selector);
 const text = value => typeof value === 'string' || typeof value === 'number' ? String(value) : '미수록';
@@ -127,6 +128,10 @@ function status(message, error = '') {
 async function load() {
   if (state.loading) return;
   state.loading = true;state.attempted = true;
+  const finishes=[
+    beginLoading($('#assets'),{ready:!!state.index,targets:[['#profile-identity','rows'],['#profile-results','rows']]}),
+    beginLoading($('#compare'),{ready:!!state.index,targets:[['#native-comparison-body','rows']]}),
+  ];
   for (const button of document.querySelectorAll('.atlas-evidence-reload')) button.disabled = true;
   status(state.index ? `근거 다시 읽는 중 · 문서 생성 ${text(state.index.generatedAt)} 유지` : '공개용 저장 근거 읽는 중');
   try {
@@ -145,6 +150,7 @@ async function load() {
   } catch {
     status(state.index ? `조회 실패 · 마지막 정상 근거 유지 · 문서 생성 ${text(state.index.generatedAt)}` : '근거 조회 실패 · 아직 표시할 정상 목록이 없습니다.', state.index ? '근거 목록을 읽지 못했습니다. 기존 자료·시각·선택을 유지합니다.' : '저장 근거가 없거나 읽을 수 없습니다. 판정·지원 여부를 추정하지 않습니다.');
   } finally {
+    for(const finish of finishes)finish();
     state.loading = false;
     for (const button of document.querySelectorAll('.atlas-evidence-reload')) button.disabled = false;
   }

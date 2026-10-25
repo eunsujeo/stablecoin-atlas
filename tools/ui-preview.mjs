@@ -20,6 +20,7 @@ import { databaseMarketReader } from './market-db/preview.mjs';
 import {databaseRegistrationReader,registrationRequest} from './market-db/registration-preview.mjs';
 
 const assets = new Map([
+  ['/loading.css', ['../web/loading.css', 'text/css; charset=utf-8']],
   ['/supply-overview.js', ['../web/supply-overview.js', 'text/javascript; charset=utf-8']],
   ['/supply-overview-model.js', ['../web/supply-overview-model.js', 'text/javascript; charset=utf-8']],
   ['/allium-dashboard.js', ['../web/allium-dashboard.js', 'text/javascript; charset=utf-8']],
