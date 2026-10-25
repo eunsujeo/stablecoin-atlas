@@ -51,6 +51,20 @@ Lead `f817a18f46de4c36b73c10eed6dd2a2d`는 proceed로 정상 페이지 리소스
 
 ## 검증
 
+### 구현체 소스 표시의 사용자 정정과 재관측
+
+사용자는 [구현체의 같은 계약 탭](https://kaiascan.io/ko/address/0xafac17fc3936a29ca2d2787ced3c5d1c52007d2e?tabId=contract&page=1)에 소스가 표시된다고 알려주었다. **사용자 화면의 소스 표시와 도구의 미취득을 구분한다.** 앞선 계약 검증 화면 관측은 소스 부재나 미공개를 확정한 결과가 아니다.
+
+UTC `2026-10-25T02:07:33.637Z`~`02:08:01.138Z`에 새 비로그인 visible Chrome/profile로 같은 URL을 재관측했다. GET100/GET용OPTIONS8·관측encoded4553071바이트이며, 같은45초/120요청/32MiB 제한 안에서 종료했다. 이번 DOM에도 계약 소스코드 탭은 있지만 본문에는 계약 검증/사용자 정의 ABI만 관측됐고 코드 보기 버튼은 찾지 못했다. 쿠키 설정 모달도 표시됐다. 버튼/모달 존재와 Solidity 본문 확보 여부를 혼동하지 않는다.
+
+페이지가 실제 요청한 해당 주소의 contract-codes GET은 브라우저에서 ERR_FAILED로 끝났다. preflight HTTP200은 소스 본문의200이 아니다. 이후 **그때 관측된 정확한 URL을 로그인/키 없이 직접1회** 읽은 결과는 UTC `02:08:26.628245+00:00`~`02:08:26.759761+00:00` HTTP401이었다. 이 결과로 로그인 필수·소스 부재·검증 불가능이나 사용자 화면의 오류를 단정하지 않는다. 두 조회 방식이 실패한 원인과 사용자 화면과의 차이는 미확인이다. 추가 로그인·키 취득·우회·RPC·다른 URL 추측은 진행하지 않았다.
+
+원문/DOM/화면/receipt는 `.state/kaia-code-view-implementation-user-confirm-20261025/`에 비공개 보존했다. `receipt.json`의 networkResponses/bodyErrors는 상태와 본문 취득 실패를 따로 기록한다. harness가 동시 응답 저장에 같은 파일명을 선택할 가능성도 발견해 응답 번호를 await 전에 예약하도록 수정했다. 과거 파일/실패를 덮어쓰지 않았으며 이 보완만으로 이번 소스가 취득되지는 않았다. 마지막 사용자 확인 실행의 최초/최종 text 길이는1055이고 clicks는null이다. 이는 실제 코드 읽기 성공을 뜻하지 않는다. 소유 Chrome은 종료했고 임시 profile은 정리했다.
+
+Lead `0ad66d135f1a41b3bddc2d52d50ce1ab`: proceed. 관측 차이·401/ERR_FAILED를 구분해 기록하고 추가 재시도 없이 종료하며, 사용자 화면에서 내려받은 원본 Solidity 또는 표준 입력 JSON/설정을 전달받는 경로를 검토했다. 제공 자료는 소스 검토에 사용하며 새 컴파일/배포 대조 승인으로 간주하지 않는다. 이전 프록시6파일 취득·기존 UNKNOWN·원본 build 필수 제외 결정은 그대로다.
+
+이번 재관측의 Python 재독은 rc0/PASS(본문/버튼 상태·GET100/OPTIONS8·직접401·소스응답미확보·권한·기존134hash 불변)다. `npm run check`: rc0·tests564/pass564/fail0/cancelled0/skipped0 (`.state/agent-logs/kaia-implementation-recheck.log`)。`git diff --check`: rc0.
+
 `python3 .state/extract-kaia-code-view-20261025.py`: rc0/PASS. 중복 JSON 키/위험 경로 거절, 응답→input/source/settings 일관성,6소스·5import·ABI4, Ethereum 원본 차이/CRLF 진단, 기존134파일 불변·0700/0600을 검증했다. 별도 Python 재독도 rc0/PASS로 소스/input hash·4개 임시 profile 정리 기록/파일 권한·기존134파일·문서 링크를 확인했다. 새 compiler/RPC/배포 대조0이다.
 
 `npm run check`: rc0·tests564/pass564/fail0/cancelled0/skipped0 (`.state/agent-logs/kaia-code-view-check.log`)。`git diff --check`: rc0. 사용자 후속 요청의 작업 과정 기록 원칙도 AGENTS.md에 반영했다.
