@@ -26,10 +26,10 @@
 .source-review-summary{border-top:1px solid var(--line);padding-top:22px}.source-review-summary p{margin:0 0 16px}.source-review-summary .source-review-eyebrow{margin-top:22px}
 .source-review-detail .source-review-notice{margin:20px 0 0;font-size:12px;line-height:1.8;color:var(--muted)}
 .source-review-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px;margin-top:24px}.source-review-section{margin-bottom:24px;min-width:0}
-.source-review-binding{padding:14px 16px;margin:18px 0 24px;background:var(--control,var(--track));border-radius:8px}
+
 .source-review-detail .source-review-footer{padding:20px 0 0;margin-top:28px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--muted)}
 .source-review-footer a{display:inline-flex;align-items:center;min-height:44px;font-size:12px;color:var(--profile-accent)}
-.source-review :focus-visible{outline:3px solid var(--profile-accent);outline-offset:3px}.source-review-observation-heading{margin:28px 0 14px;font-size:18px}
+.source-review :focus-visible{outline:3px solid var(--profile-accent);outline-offset:3px}
 @media(max-width:1100px){.source-review-layout{grid-template-columns:200px minmax(0,1fr)}.source-review-columns{grid-template-columns:minmax(0,1fr);gap:0}.source-review-toolbar{padding:16px 20px}.source-review-detail{padding:24px 20px}}
 @media(max-width:720px){.source-review-heading{padding:20px}.source-review-layout{grid-template-columns:minmax(0,1fr)}.source-review-directory{padding:18px 16px;border-right:0;border-bottom:1px solid var(--line)}.source-review-directory-heading{flex-direction:row;justify-content:space-between;align-items:baseline;padding:0}.source-review-search{margin:14px 0}.source-review-asset-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.source-review .source-review-asset{min-height:48px;padding:10px 8px;gap:8px}.source-review-mark{width:26px;height:26px;font-size:11px}.source-review-asset small{display:none}.source-review-directory-note{margin:14px 0 0;font-size:11px}.source-review-toolbar{padding:14px 18px}.source-review-toolbar label{width:100%;justify-content:space-between}.source-review-toolbar select{min-width:0;max-width:70%}.source-review-detail{padding:24px 18px}.source-review-hero{align-items:flex-start;gap:12px}.source-review-hero h3{font-size:30px}.source-review-tabs{gap:24px}.source-review-tabs button{font-size:13px}.source-review-detail .source-review-identity{grid-template-columns:minmax(0,1fr);gap:4px}.source-review-identity dd{margin-bottom:10px}.source-review-tabpanel{min-height:0}.source-review-detail .source-review-footer{margin-top:20px}.source-review-footer a{font-size:11px}}
 
@@ -40,6 +40,6 @@
 @media(max-width:720px){.source-review-results table,.source-review-results tbody,.source-review-results tr,.source-review-results th,.source-review-results td{display:block;width:auto!important}.source-review-results thead{display:none}.source-review-results tr{padding:16px 0;border-bottom:1px solid var(--line)}.source-review-results th,.source-review-results td{border:0;padding:3px 0}.source-review-results td:last-child{padding-top:8px}.source-review-results th{font-size:13px}}
 
 .source-review-completion{display:flex;flex-direction:column;gap:8px;align-items:flex-end;flex:none}.source-review-completion strong{font-size:13px;color:var(--profile-accent)}.source-review-completion span{font-size:11px;color:var(--muted)}
-.source-review-archive{padding:20px;border:1px solid var(--line);border-radius:12px;margin:24px 0;background:var(--panel);color:var(--ink)}.source-review-archive>summary{cursor:pointer;font-size:13px;font-weight:600}.source-review-archive>p{font-size:12px;line-height:1.8;color:var(--muted);margin:16px 0 24px}
-#evidence-workspace[data-view=assets]>.evidence-metrics,#evidence-workspace[data-view=assets]>#evidence-status{display:none}
-@media(max-width:720px){.source-review-completion strong{font-size:11px}.source-review-completion span{font-size:10px}.source-review-archive{padding:16px}}
+
+#evidence-workspace[data-view=assets]>.evidence-metrics,#evidence-workspace[data-view=assets]>#evidence-status,#evidence-workspace[data-view=assets]>#evidence-error,#evidence-workspace[data-view=assets] #evidence-reload{display:none}
+@media(max-width:720px){.source-review-completion strong{font-size:11px}.source-review-completion span{font-size:10px}}

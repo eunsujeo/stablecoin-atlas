@@ -27,7 +27,7 @@ test('preview binds loopback and serves only fixed assets; HEAD, CSP and same-or
     const atlas=await read(port,'/atlas.html');
     assert.match(atlas.body, /src="\/atlas\.js"/);
     assert.ok(atlas.body.includes('href="/legacy.html">기존 화면</a>'));
-    for (const anchor of ['live','overview','validation','reports','assets','compare']) assert.ok(atlas.body.includes(`href="/legacy.html#${anchor}"`));
+    for (const anchor of ['live','overview','validation','reports','compare']) assert.ok(atlas.body.includes(`href="/legacy.html#${anchor}"`));
     const legacy=await read(port,'/legacy.html');
     assert.ok(legacy.body.includes('href="/atlas.html#coverage"'));
     assert.match(legacy.body, /src="\/evidence\.js"/);

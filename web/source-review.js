@@ -82,8 +82,14 @@ export function initializeSourceReview(root){
       }
     }
     table.append(caption,head,body);results.append(table);panels.get('behavior').append(results);
-    panels.get('evidence').append(node('h4','저장 관측과 소스 연결'),node('p',p.observation),node('p',p.bindingDetail,'source-review-binding'),items('검토 한계',p.limitations),facts([['검토 기준일',p.reviewedAt]]));
-    const footer=node('footer',undefined,'source-review-footer');footer.append(node('span','확인 근거 · 저장 소스와 관측 자료'));
+    // Source-only scope notes; historical observation/binding diagnostics remain in research records.
+    const sourceLimits=['jpyc','jpysc','rlusd'].includes(p.coinId)?p.limitations:[];
+    panels.get('evidence').append(node('h4','소스 검토 근거'),node('p',sourceReviewNotice),items('검토 범위',[
+      '확인 대상은 선택한 저장 소스의 함수·modifier·조건입니다.',
+      '실제 실행·현재 배포 설정·서비스 운영은 이 소스 검토의 확인 대상에 포함하지 않습니다.',
+      ...sourceLimits,
+    ]),facts([['검토 기준일',p.reviewedAt]]));
+    const footer=node('footer',undefined,'source-review-footer');footer.append(node('span','확인 근거 · 저장 소스 검토'));
     const link=node('a','검토 근거·제한 발췌 보기 →');link.href=`/source-review-notes.html#${p.id}`;footer.append(link);detail.append(footer);activate(activeSection);
   }
   search.addEventListener('input',renderDirectory);network.addEventListener('change',()=>{chainId=network.value;render();});renderDirectory();networks();render();

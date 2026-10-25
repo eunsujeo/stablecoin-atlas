@@ -48,17 +48,11 @@ try {
   await send('Page.navigate',{url:'about:blank'});await send('Page.navigate',{url:base+route});
   await until("document.querySelector('[data-source-review]')?.dataset.reviewId==='usdc-ethereum'");
   const isAtlas=route.includes('atlas.html');
-  const archive=isAtlas?'#atlas-read-archive':'#asset-read-archive';
-  assert.equal(await evaluate(`document.querySelector('${archive}').open`),false);
+  assert.equal(await evaluate("document.querySelectorAll('#asset-read-archive,#atlas-read-archive,#asset-cards,#asset-detail,#profile-report,#profile-identity,#profile-results').length"),0);
   assert.equal(await evaluate("document.querySelector('[role=tab][aria-selected=true]').textContent"),'검증 결과');
   assert(!(await evaluate("document.querySelector('[data-source-review]').innerText")).includes('UNKNOWN'));
-  if(!isAtlas)assert.equal(await evaluate("getComputedStyle(document.querySelector('#evidence-metrics')).display"),'none');
-  await until(isAtlas?"!document.querySelector('#assets .atlas-evidence-reload').disabled":"!document.querySelector('#evidence-reload').disabled");
-  const countExpr=isAtlas?"document.querySelectorAll('#profile-report option').length":"document.querySelectorAll('#asset-cards button').length";
-  const before=await evaluate(countExpr);assert(before>0);
-  assert(!(await evaluate(`document.querySelector('${isAtlas?'#assets':'#assets-screen'}').innerText`)).includes('UNKNOWN'),'default profile must use source status');
-  const readRowsExpr=isAtlas?"Array.from(document.querySelectorAll('#profile-results tr')).map(r=>r.textContent)":"Array.from(document.querySelectorAll('#asset-detail tbody tr')).map(r=>r.textContent)";
-  const originalReadRows=await evaluate(readRowsExpr);assert(originalReadRows.length>0);
+  if(!isAtlas){await until("!document.querySelector('#evidence-reload').disabled");assert.equal(await evaluate("getComputedStyle(document.querySelector('#evidence-metrics')).display"),'none');}
+  assert(!(await evaluate(`document.querySelector('${isAtlas?'#assets':'#assets-screen'}').textContent`)).includes('과거 읽기 실행 기록'));
   const seen=[];
   for(const p of profiles){
    await evaluate(`(()=>{const r=document.querySelector('[data-source-review]');r.querySelector('[data-coin-id="${p.coinId}"]').click();const n=r.querySelector('[aria-label="소스 검토 네트워크"]');n.value=${JSON.stringify(p.chainId)};n.dispatchEvent(new Event('change'));})()`);
@@ -68,25 +62,20 @@ try {
     await evaluate(`Array.from(document.querySelectorAll('[role=tab]')).find(t=>t.textContent===${JSON.stringify(label)}).click()`);
     assert.equal(await evaluate("document.querySelectorAll('[role=tabpanel]:not([hidden])').length"),1);
     const visible=await evaluate("document.querySelector('[role=tabpanel]:not([hidden])').innerText");
-    for(const value of label==='검증 결과'?[...p.functions,...p.authorities]:label==='근거·한계'?[...p.limitations,p.observation,p.bindingDetail]:[p.address,p.chainId,'소스 확인 완료'])assert(visible.includes(value),p.id+' missing '+value);
+    for(const value of label==='검증 결과'?[...p.functions,...p.authorities]:label==='근거·한계'?['소스 검토 근거',p.reviewedAt,...(['jpyc','jpysc','rlusd'].includes(p.coinId)?p.limitations:[])]:[p.address,p.chainId,'소스 확인 완료'])assert(visible.includes(value),p.id+' missing '+value);
    }
    const resultRows=await evaluate("Array.from(document.querySelectorAll('.source-review-results tbody tr')).map(r=>({text:r.textContent,status:r.dataset.reviewStatus}))");
    assert.equal(resultRows.length,p.functions.length+p.authorities.length);
    for(const [index,text]of [...p.functions,...p.authorities].entries()){
     assert(resultRows[index].text.includes(text));assert(resultRows[index].text.includes('소스 확인 완료'));assert.equal(resultRows[index].status,p.sourceReviewStatus);
    }
-   assert.equal(await evaluate(countExpr),before);
-   assert.deepEqual(await evaluate(readRowsExpr),originalReadRows);
+   assert(!text.includes(p.observation));assert(!text.includes(p.bindingDetail));
    await evaluate("document.querySelector('[role=tab][id$=\"-behavior-tab\"]').click()");
    const sourceVisible=await evaluate("document.querySelector('[data-source-review]').innerText");
    assert(sourceVisible.includes('소스 확인 완료'));assert(!sourceVisible.includes('UNKNOWN'));
-   assert.equal(await evaluate(`document.querySelector('${archive}').open`),false);
+
    assert.equal(await evaluate("document.querySelector('.source-review-detail a').getAttribute('href')"),'/source-review-notes.html#'+p.id);
   }
-  await evaluate(`document.querySelector('${archive}').open=true`);
-  assert.deepEqual(await evaluate(readRowsExpr),originalReadRows);
-  assert((await evaluate(`document.querySelector('${archive}').innerText`)).includes('UNKNOWN'),'raw UNKNOWN must remain in expanded archive');
-  await evaluate(`document.querySelector('${archive}').open=false`);
   views.push(seen);
   // Search matches stored chain and full address, preserves selection, and recovers from no results.
   for(const [query,expected]of [['Kaia',['jpyc']],[profiles[1].address,['usdt']],['no-matching-asset',[]],['',['usdc','usdt','rlusd','jpyc','jpysc']]]){
@@ -121,6 +110,8 @@ try {
    }
    await evaluate("document.querySelector('[role=tab][id$=\"-behavior-tab\"]').click();document.querySelector('.source-review-results').scrollIntoView({block:'start',behavior:'instant'})");await screenshot('profile-redesign-'+(isAtlas?'atlas-':'legacy-')+mode+'-mobile');
   }
+  await evaluate("location.hash='#compare'");
+  await until(isAtlas?"!document.querySelector('#compare-report-1').disabled&&document.querySelectorAll('#native-comparison-body tr').length>0":"document.querySelectorAll('#comparison-body tr').length>0");
  }
  assert.deepEqual(views[0],views[1]);
  // Overview summarizes source status by asset and preserves the existing read grade.
@@ -162,11 +153,12 @@ try {
  for(const route of ['/#assets','/atlas.html#assets']){
   await send('Page.navigate',{url:'about:blank'});await send('Page.navigate',{url:base+route});
   await until("document.querySelector('[data-source-review]')?.dataset.reviewId==='usdc-ethereum'");
-  await until(route.includes('atlas.html')?"!document.querySelector('#assets .atlas-evidence-error').hidden":"!document.querySelector('#evidence-error').hidden");
+  if(!route.includes('atlas.html'))await until("!document.querySelector('#evidence-error').hidden");
+  assert.equal(await evaluate("document.querySelectorAll('#asset-read-archive,#atlas-read-archive,#asset-detail,#profile-results').length"),0);
   assert.equal(await evaluate("document.querySelectorAll('.source-review-asset').length"),5);
   await evaluate("document.querySelector('[data-coin-id=jpysc]').click()");
   assert.equal(await evaluate("document.querySelector('[data-source-review]').dataset.reviewId"),'jpysc-ethereum');
  }
  assert.deepEqual(errors,[]);assert.deepEqual(requests.filter(u=>!u.startsWith(base+'/')&&!u.startsWith('data:')),[]);
- console.log('PASS source profiles and technical overview: 5 tokens/8 deployments, itemized source results/status/evidence links, source-first default with no visible UNKNOWN, preserved raw UNKNOWN/read rows in collapsible archive, compact 5 asset cards and 8/8 source summary, preserved read grade/verdict counts and detail navigation, search/network/tabs/keyboard, evidence failure isolation, dark/light/390px, JS errors=0/external requests=0');
+ console.log('PASS source profiles and technical overview: 5 tokens/8 deployments, itemized source results/status/evidence links, source-only profiles, no archive or historical diagnostics in DOM, comparison path preserved, compact 5 asset cards and 8/8 source summary, preserved read grade/verdict counts and detail navigation, search/network/tabs/keyboard, evidence failure isolation, dark/light/390px, JS errors=0/external requests=0');
 }finally{try{await send('Fetch.disable');await send('Browser.close',{},false);}catch{}chrome.kill();await new Promise(resolve=>{if(chrome.exitCode!==null)resolve();else chrome.once('exit',resolve);});await rm(profile,{recursive:true,force:true});}

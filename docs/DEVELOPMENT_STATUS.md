@@ -1,6 +1,6 @@
 # 현재 개발 상태
 
-자산 프로필은 [소스 기준 기본 화면](research/2026-10-25-source-first-profiles.md)으로 검증 결과·소스 확인 상태를 먼저 표시한다. 과거 읽기 UNKNOWN/진단은 원본을 유지한 접힌 실행 기록에서 확인한다.
+자산 프로필은 [소스 기준 기본 화면](research/2026-10-25-source-first-profiles.md)으로 검증 결과·소스 확인 상태를 먼저 표시한다. 과거 읽기 UNKNOWN/진단은 [사용자 후속 요청](research/2026-10-25-remove-profile-diagnostics.md)에 따라 자산 프로필에서 제거했다. 연구 원본은 별도 보존한다.
 
 
 자산 프로필의 검증 결과 탭에 [항목별 소스 확인 결과](research/2026-10-25-profile-item-results.md)를 표시한다. 기존 보고서 표는 저장된 읽기 실행 결과로 명명하고 원래 판정을 유지한다.
