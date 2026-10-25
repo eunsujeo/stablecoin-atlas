@@ -101,7 +101,36 @@ try {
   }
  }
  assert.deepEqual(views[0],views[1]);
+ // Overview uses the same reviewed source content and keeps the old read results intact.
+ await send('Page.navigate',{url:'about:blank'});await send('Page.navigate',{url:base+'/#overview'});
+ await until("document.querySelectorAll('#overview-source-rows tr').length===8&&!document.querySelector('#overview-reload').disabled");
+ await evaluate("document.querySelector('#overview-technical').open=true");
+ assert.equal(await evaluate("document.querySelector('#overview-read-history').open"),false);
+ assert.deepEqual(await evaluate("Array.from(document.querySelectorAll('#overview-source-metrics strong')).map(e=>e.textContent)"),['5','4','8','소스']);
+ for(const p of profiles){
+  const row=await evaluate(`document.querySelector('#overview-source-rows [data-review-id="${p.id}"]').textContent`);
+  for(const value of [p.symbol,p.network,'소스 확인 완료',...p.functions,...p.authorities])assert(row.includes(value),p.id+' overview missing '+value);
+  assert.equal(await evaluate(`document.querySelector('#overview-source-rows [data-review-id="${p.id}"] a').getAttribute('href')`),'/source-review-notes.html#'+p.id);
+ }
+ const {dashboardEvidence}=await import('../web/evidence-model.js'),{overviewSummary}=await import('../web/overview-model.js');
+ const original=overviewSummary(dashboardEvidence(await(await fetch(base+'/evidence/index.json')).json()));
+ await evaluate("document.querySelector('#overview-read-history').open=true");
+ assert.deepEqual(await evaluate("Array.from(document.querySelectorAll('#overview-verdicts strong')).map(e=>Number(e.textContent))"),['PASS','FAIL','INCONCLUSIVE','NOT_TESTED','NOT_APPLICABLE','UNSUPPORTED'].map(v=>original.counts[v]));
+ await evaluate("document.querySelector('#overview-read-history').open=false");
+ for(const mode of ['dark','light']){
+  await evaluate(`document.documentElement.dataset.theme='${mode}'`);
+  for(const width of [1440,390]){
+   await send('Emulation.setDeviceMetricsOverride',{width,height:1000,deviceScaleFactor:1,mobile:width===390});
+   await evaluate("document.querySelector('#overview-technical').scrollIntoView({block:'start'})");
+   assert(await evaluate('document.documentElement.scrollWidth<=innerWidth+1'));
+   await screenshot('overview-source-'+mode+'-'+width);
+   assert(await evaluate("Array.from(document.querySelectorAll('#overview-source-rows li')).every(e=>e.scrollWidth<=e.clientWidth+1)"),'source conditions must wrap inside each column');
+  }
+ }
  failEvidence=true;
+ await send('Page.navigate',{url:'about:blank'});await send('Page.navigate',{url:base+'/#overview'});
+ await until("document.querySelectorAll('#overview-source-rows tr').length===8&&!document.querySelector('#overview-error').hidden");
+ assert.equal(await evaluate("document.querySelectorAll('#overview-source-rows td>strong').length"),8);
  for(const route of ['/#assets','/atlas.html#assets']){
   await send('Page.navigate',{url:'about:blank'});await send('Page.navigate',{url:base+route});
   await until("document.querySelector('[data-source-review]')?.dataset.reviewId==='usdc-ethereum'");
@@ -111,5 +140,5 @@ try {
   assert.equal(await evaluate("document.querySelector('[data-source-review]').dataset.reviewId"),'jpysc-ethereum');
  }
  assert.deepEqual(errors,[]);assert.deepEqual(requests.filter(u=>!u.startsWith(base+'/')&&!u.startsWith('data:')),[]);
- console.log('PASS redesigned pages: search/address/no results, per-asset network memory, all tab content, keyboard/focus, 5 tokens/8 deployments, identical reviewed content, exact addresses/chains, existing report counts unchanged, evidence failure isolation, dark/light/390px, JS errors=0/external requests=0');
+ console.log('PASS source profiles and technical overview: 5 tokens/8 deployments, source conditions/status/evidence links, overview metrics 5/4/8, preserved original read verdict counts, search/network/tabs/keyboard, evidence failure isolation, dark/light/390px, JS errors=0/external requests=0');
 }finally{try{await send('Fetch.disable');await send('Browser.close',{},false);}catch{}chrome.kill();await new Promise(resolve=>{if(chrome.exitCode!==null)resolve();else chrome.once('exit',resolve);});await rm(profile,{recursive:true,force:true});}
