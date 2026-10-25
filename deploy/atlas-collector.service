@@ -7,11 +7,12 @@ StartLimitBurst=3
 
 [Service]
 Type=exec
+EnvironmentFile=/etc/atlas-collector/schedule.env
 User=atlascollector
 Group=atlascollector
 WorkingDirectory=/opt/multi-chain-asset-compatibility
 ExecStartPre=/usr/bin/env node tools/collector-deploy.mjs check --kind arkham --env-file /etc/atlas-collector/writer.env --state-root /var/lib/atlas-collector
-ExecStart=/usr/bin/env node --use-env-proxy tools/collector-worker.mjs run --env-file /etc/atlas-collector/writer.env --state-dir /var/lib/atlas-collector/receipts --archive-dir /var/lib/atlas-collector/archive --market-dir /var/lib/atlas-collector/market-store --arkham-runs-per-day 288 --skip-daily-history
+ExecStart=/usr/bin/env node --use-env-proxy tools/collector-worker.mjs run --env-file /etc/atlas-collector/writer.env --state-dir /var/lib/atlas-collector/receipts --archive-dir /var/lib/atlas-collector/archive --market-dir /var/lib/atlas-collector/market-store --skip-daily-history
 Restart=on-failure
 RestartSec=60
 TimeoutStopSec=45

@@ -1,5 +1,7 @@
 # 현재 개발 상태
 
+Arkham 수집기를 기본1h/24예약의 설정형 UTC 스케줄러로 변경했다. 별도 정책 스키마·미래 UTC일 owner 전환·읽기 전용 진단을 추가하며 기존 history v4 Reader·이력·Receipt/Archive를 유지한다. [운영 설정/정확한 전환·롤백 명령](ARKHAM_SCHEDULER.md)·[ADR0108](adr/0108-configurable-arkham-scheduler.md)·[수행/검증](research/2026-10-25-configurable-arkham-scheduler.md)을 따른다. 운영 DB·Mac mini·실제 API 변경은 미실행이다. 아래 과거5분/288 기록은 당시 정책이다.
+
 `collector-current` 심볼릭 링크 실행 시 CLI가 조용히 종료되던 진입점 판정을 수정했다. systemd의 Node CLI6종에서 실행 파일과 모듈 경로를 모두 realpath로 비교하며 기존 주기·상한·Receipt/Archive 정책은 유지한다. [재현·검증 기록](research/2026-10-25-collector-symlink-entrypoint.md). 실제 Fedora 적용은 미검증이다.
 
 운영 수집기/FX 복구 요청에 따라 기존 예약·상한·독립 collector 릴리스를 유지하고, 저장 FX의 읽기 전용 진단·공개 만료 거절·원자적 게시 내구성·Overview의 production 지리 null 예외와 FX 실패 안내를 보완했다. [적용 절차](COLLECTOR_PRODUCTION_RECOVERY.md)·[ADR0107](adr/0107-collector-fx-recovery.md)·[검증 기록](research/2026-10-25-collector-fx-recovery.md)을 따른다. 실제 서버 배포·외부 수집·운영 DB 변경은 하지 않는다.

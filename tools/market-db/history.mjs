@@ -1,3 +1,4 @@
+import {verifySchedulerSchema,grantSchedulerRead} from './scheduler-policy.mjs';
 import {importDaily,readDaily} from './daily-history.mjs';
 import {readFile} from 'node:fs/promises';
 import {transaction,runtimeRole,safeRole} from './connection.mjs';
@@ -163,7 +164,7 @@ export async function grantHistoryWriter(client,role){identifier(role);return tr
    if(insertTables.includes(table)){await client.query(`GRANT INSERT ON atlas_history.${table} TO ${identifier(role)}`);await client.query(`CREATE POLICY ${identifier('app_'+digest(role).slice(0,12)+'_i_'+table)} ON atlas_history.${table} FOR INSERT TO ${identifier(role)} WITH CHECK(true)`);}
    if(updateColumns[table]){await client.query(`GRANT UPDATE(${updateColumns[table].join(',')}) ON atlas_history.${table} TO ${identifier(role)}`);await client.query(`CREATE POLICY ${identifier('app_'+digest(role).slice(0,12)+'_u_'+table)} ON atlas_history.${table} FOR UPDATE TO ${identifier(role)} USING(true) WITH CHECK(true)`);}
   }await client.query('INSERT INTO atlas_history.writer_grant VALUES($1)',[role]);
- }await writerPrivileges(client,role);await verifyHistory(client);return {state:prior?'UNCHANGED':'GRANTED',access:'writer'};
+ }if((await client.query("SELECT to_regnamespace('atlas_scheduler') IS NOT NULL AS present")).rows[0].present){await grantSchedulerRead(client,role);await verifySchedulerSchema(client);}await writerPrivileges(client,role);await verifyHistory(client);return {state:prior?'UNCHANGED':'GRANTED',access:'writer'};
 });}
 export async function normalizeHistory(client,registry){return transaction(client,async()=>{
  await lock(client);await owner(client);const version=await verifyHistory(client);if(version>=3)return {state:'UNCHANGED',version};if(version!==2)fail('HISTORY_UPGRADE_REQUIRED');
@@ -189,3 +190,39 @@ export async function enableContinuousHistory(client){return transaction(client,
  await client.query('INSERT INTO atlas_history.schema_version VALUES(4,$1,$2)',[Buffer.from(digest(sql),'hex'),Buffer.from(await structureHash(client,'atlas_history'),'hex')]);
  await verifyHistory(client);await verifySchema(client);return {state:'UPGRADED',version:4,day,previousBudget:previous,budget:288};
 });}
+
+// Separate, explicit owner operation. Never edits existing day/run records.
+export async function upgradeScheduler(client){return transaction(client,async()=>{
+ await lock(client);await owner(client);const version=await verifyHistory(client);
+ if(await verifySchedulerSchema(client,{required:false}))return {state:'UNCHANGED',version:1};if(version!==4)fail('HISTORY_UPGRADE_REQUIRED');
+ await schedulerOwnerLocks(client);
+ const originalHash=await structureHash(client,'atlas_history');
+ const sql=await readFile(new URL('../../db/scheduler/001-configurable-schedule.sql',import.meta.url));await client.query(sql.toString('utf8'));
+ const role=(await client.query('SELECT current_user AS name')).rows[0].name;
+ for(const table of ['schema_version','arkham_policy'])await client.query(`CREATE POLICY installer ON atlas_scheduler.${table} TO ${identifier(role)} USING(true) WITH CHECK(true)`);
+ for(const r of (await client.query('SELECT role_name FROM atlas_history.writer_grant')).rows)await grantSchedulerRead(client,r.role_name);
+ const historyHash=await structureHash(client,'atlas_history');
+ await client.query('UPDATE atlas_history.schema_version SET structure_hash=$1 WHERE version=4',[Buffer.from(historyHash,'hex')]);
+ await client.query('INSERT INTO atlas_scheduler.schema_version VALUES(1,$1,$2,$3,$4)',[Buffer.from(digest(sql),'hex'),Buffer.from(await structureHash(client,'atlas_scheduler'),'hex'),Buffer.from(originalHash,'hex'),Buffer.from(historyHash,'hex')]);
+ await verifyHistory(client);await verifySchedulerSchema(client);await verifySchema(client);return {state:'UPGRADED',version:1};
+});}
+
+async function schedulerOwnerLocks(client){
+ if(!(await client.query('SELECT pg_try_advisory_xact_lock(18471234,405) AS locked')).rows[0].locked)fail('SCHEDULER_LOCKED');
+ await client.query('SELECT pg_advisory_xact_lock(18471234,404)');
+ if((await client.query("SELECT 1 FROM atlas_history.scheduler_run WHERE job='ARKHAM' AND state='CLAIMED' LIMIT 1")).rowCount)fail('SCHEDULER_RECONCILE_REQUIRED');
+}
+export async function configureScheduler(client,{effectiveDay,schedule}){
+ if(typeof effectiveDay!=='string'||!/^\d{4}-\d\d-\d\d$/.test(effectiveDay)||!Number.isFinite(Date.parse(effectiveDay))||new Date(effectiveDay).toISOString().slice(0,10)!==effectiveDay||!schedule?.dailyRunLimit)fail('SCHEDULER_CONFIG_INVALID');
+ const {arkhamSchedule}=await import('../arkham-schedule.mjs');schedule=arkhamSchedule({interval:schedule.interval,dailyRunLimit:schedule.dailyRunLimit});
+ return transaction(client,async()=>{
+  await lock(client);await owner(client);if(await verifyHistory(client)!==4)fail('HISTORY_UPGRADE_REQUIRED');await verifySchedulerSchema(client);await schedulerOwnerLocks(client);
+  const today=(await client.query("SELECT to_char(clock_timestamp() AT TIME ZONE 'UTC','YYYY-MM-DD') AS day")).rows[0].day;
+  if(effectiveDay<=today)fail('SCHEDULER_POLICY_CONFLICT');
+  const prior=(await client.query("SELECT interval_ms,budget FROM atlas_scheduler.arkham_policy WHERE effective_day=$1::date",[effectiveDay])).rows[0];
+  if(prior){if(prior.interval_ms!==schedule.intervalMs||prior.budget!==schedule.dailyRunLimit)fail('SCHEDULER_POLICY_CONFLICT');return {state:'UNCHANGED',effectiveDay,schedule};}
+  if((await client.query("SELECT 1 FROM atlas_scheduler.arkham_policy WHERE effective_day>$1::date UNION ALL SELECT 1 FROM atlas_history.scheduler_day WHERE job='ARKHAM' AND day>=$1::date LIMIT 1",[effectiveDay])).rowCount)fail('SCHEDULER_POLICY_CONFLICT');
+  await client.query('INSERT INTO atlas_scheduler.arkham_policy(effective_day,interval_ms,budget) VALUES($1,$2,$3)',[effectiveDay,schedule.intervalMs,schedule.dailyRunLimit]);
+  return {state:'CONFIGURED',effectiveDay,schedule};
+ });
+}

@@ -11,8 +11,9 @@ test('deployment doctor checks local private configuration without changing file
   for(const n of ['receipts','archive','market-store'])await mkdir(join(root,n),{mode:0o700});
   const envFile=join(root,'writer.env'),contents='DATABASE_URL=postgresql://writer:example@127.0.0.1:5432/db\nARKM_API_KEY=example-not-live\n';await writeFile(envFile,contents,{mode:0o600});
   const args=['check','--kind','arkham','--state-root',root,'--env-file',envFile],before=await readdir(root);
-  const r=await main(args);assert.equal(r.state,'READY');assert.equal(r.databaseAccessChecked,false);assert.equal(r.providerRequests,0);assert.deepEqual(await readdir(root),before);assert.equal(await readFile(envFile,'utf8'),contents);
+  const r=await main(args);assert.equal(r.state,'READY');assert.equal(r.databaseAccessChecked,false);assert.equal(r.providerRequests,0);assert.equal(r.schedule.interval,'1h');assert.deepEqual(await readdir(root),before);assert.equal(await readFile(envFile,'utf8'),contents);
   await assert.rejects(main(['check','--kind','registered','--selection','a'.repeat(64),'--state-root',root,'--env-file',envFile]),/DEPLOY_ENV_INVALID/);
+  const scheduleFile=join(root,'schedule.env');await writeFile(scheduleFile,'ARKHAM_COLLECTION_INTERVAL=15m\nARKHAM_DAILY_RUN_LIMIT=48\n');assert.equal((await main([...args,'--schedule-file',scheduleFile],{})).schedule.interval,'15m');await writeFile(scheduleFile,'ARKHAM_COLLECTION_INTERVAL=bad\n');await assert.rejects(main([...args,'--schedule-file',scheduleFile],{}),/SCHEDULER_CONFIG_INVALID/);
   await chmod(envFile,0o644);await assert.rejects(main(args),/DEPLOY_PATH_UNSAFE/);await chmod(envFile,0o600);
   await rm(join(root,'receipts'),{recursive:true});await symlink(join(root,'archive'),join(root,'receipts'));await assert.rejects(main(args),/DEPLOY_PATH_UNSAFE/);
  }finally{await rm(root,{recursive:true,force:true});}
@@ -25,7 +26,7 @@ test('deployment validates Node/proxy flag support and explicit credentials befo
 });
 test('systemd commands use current separate collectors and the same persistent recovery paths',async()=>{
  const arkham=await readFile(new URL('../deploy/atlas-collector.service',import.meta.url),'utf8'),daily=await readFile(new URL('../deploy/atlas-registered-collector@.service',import.meta.url),'utf8');
- const command=s=>s.match(/^ExecStart=(.+)$/m)[1].split(' '),args=command(arkham),a=parseCollectorArguments(args.slice(args.indexOf('run')));assert(a.skipDailyHistory);assert.equal(a.marketDirectory,'/var/lib/atlas-collector/market-store');
+ const command=s=>s.match(/^ExecStart=(.+)$/m)[1].split(' '),args=command(arkham),a=parseCollectorArguments(args.slice(args.indexOf('run')));assert(a.skipDailyHistory);assert.equal(a.arkhamInterval,'1h');assert.equal(a.arkhamRunsPerDay,24);assert.match(arkham,/^EnvironmentFile=\/etc\/atlas-collector\/schedule.env$/m);assert(!arkham.includes('--arkham-runs-per-day'));assert(!daily.includes('schedule.env'));assert.equal(a.marketDirectory,'/var/lib/atlas-collector/market-store');
  const d=command(daily).map(x=>x==='%i'?'a'.repeat(64):x),b=registeredCollectorArguments(d.slice(d.indexOf('run')));assert.equal(a.stateDirectory,b.stateDirectory);assert.equal(a.archiveRoot,b.archiveRoot);
  for(const s of [arkham,daily]){assert.match(s,/^Restart=on-failure$/m);assert.match(s,/^StateDirectoryMode=0700$/m);assert.match(s,/^ProtectSystem=strict$/m);assert.match(s,/^ReadWritePaths=\/var\/lib\/atlas-collector$/m);assert(!s.includes('reports/market-store'));}
  for(const name of ['atlas-collector.service','atlas-registered-collector@.service','atlas-fx.service']){

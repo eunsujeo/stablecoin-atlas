@@ -3,7 +3,7 @@ import {parseCollectorArguments,processScheduledJob} from '../tools/collector-wo
 const slot='2026-10-22T06:00:00.000Z',reservation={job:'ARKHAM',slot,state:'CLAIMED'};
 const proof={sourceName:'12345678-1234-1234-1234-123456789012.json',sourceHash:'a'.repeat(64)};
 test('worker arguments have explicit finite daily credit budgets, disable switch and no interval/retry/URL overrides',()=>{
- assert.equal(parseCollectorArguments(['run']).arkhamRunsPerDay,288);assert.equal(parseCollectorArguments(['run','--once','--arkham-runs-per-day','0']).once,true);assert.equal(parseCollectorArguments(['run','--arkham-runs-per-day','288']).arkhamRunsPerDay,288);
+ assert.equal(parseCollectorArguments(['run']).arkhamRunsPerDay,24);assert.equal(parseCollectorArguments(['run','--once','--arkham-runs-per-day','0']).once,true);assert.equal(parseCollectorArguments(['run','--arkham-interval','5m','--arkham-runs-per-day','288']).arkhamRunsPerDay,288);
  for(const args of [['run','--arkham-runs-per-day','289'],['run','--arkham-runs-per-day','-1'],['run','--once','--once'],['run','--interval','1'],['run','--url','https://example.com'],['status','--once']])assert.throws(()=>parseCollectorArguments(args));
 });
 test('durable receipts are private, immutable and scoped; invalid paths, wrong jobs and changed contents fail before recovery',async()=>{

@@ -1,0 +1,11 @@
+# Arkham 설정형 UTC 스케줄러
+- 목표: 기본1h/24예약·운영 설정 분리·과거 원장/Receipt와 기존 Web 호환. 로컬 구현/검증·commit/push 범위이며 운영 DB/API/SSH/서비스 변경0.
+- 끝난 것:8주기/CLI>env>schedule-file>기본 검증. 별도 atlas_scheduler v1·미래 UTC일 owner 정책·403/405/404 잠금·직접 SQL guard·읽기 전용 status/doctor. history v4와1~4 migration bytes 유지, guard 추가 구조 hash만 갱신하고 원 hash 보존. 기존54합성 예약/UNCONFIRMED/288예산·변경 전 Reader 호환·Receipt/Archive·재시작/자정/COMMIT 유실 시험 통과. 초기288 기대값/registry 미주입/미래day 충돌 배치/index 권한 검사 오류는 수정했으며 수행 기록에 남김. Lead f934c0a5396048078e372fe98d63c4f9 proceed,9784cceac9bc4fb190cc6082b05b7458 revise_plan의 GUC 비인증 조건 반영. FX/등록/Web 정책 유지.
+- 변경 파일: tools/arkham-schedule.mjs, tools/collector-worker.mjs, tools/collector-deploy.mjs, tools/market-db/{scheduler,scheduler-policy,history,history-cli,schema,errors}.mjs, db/scheduler/001-configurable-schedule.sql, deploy/atlas-collector{.service,.service.d/production.conf,.schedule.env}, tests/{arkham-schedule,collector-worker,collector-deploy}.test.mjs, tests/fixtures/history-v4-reader.mjs, tests/postgres/{configurable-scheduler,persistent-collector}.test.mjs, docs/ARKHAM_SCHEDULER.md, docs/adr/0108-configurable-arkham-scheduler.md, docs/COLLECTOR{_SERVICE,_PRODUCTION_RECOVERY}.md, docs/DEVELOPMENT_STATUS.md, docs/research/2026-10-25-configurable-arkham-scheduler.md, 이 인계문.
+- 검증: npm run check rc0 tests610/pass610/fail0/cancelled0/skipped0; npm run check:db rc0 tests58/pass58/fail0/cancelled0/skipped0; npm run check:production rc0 tests15/pass15/fail0/cancelled0/skipped0; node --test --test-reporter=tap tests/postgres/configurable-scheduler.test.mjs rc0 tests2/pass2/fail0; git diff --check rc0. 로그 .state/agent-logs/configurable-scheduler-{check,db-full,production}.log 및 scheduler-postgres-final.log. Mac Node25.2.1·소유 PG17이며 실제 Fedora/운영 적용 NOT_TESTED.
+- 기다리는 것: 없음
+- 다음 행동: 사용자가 제공한 새 SHA의 Fedora stage/doctor/status 결과를 정본과 대조해 기록한다. 운영 DB 정책 설치·미래일 전환·서비스 활성화는 별도 명시 승인 없이 실행하지 않는다. 현재 구현 범위 추가 작업 없음.
+- 사용자 확인 필요: 예 — 운영 적용 결과 또는 구체적인 후속 작업 요청 필요.
+- 읽을 파일: docs/ARKHAM_SCHEDULER.md, docs/research/2026-10-25-configurable-arkham-scheduler.md, docs/adr/0108-configurable-arkham-scheduler.md.
+
+기존 untracked docs/handoff/2026-10-22-router-lead-review.md는 이번 커밋에서 제외한다. GitHub push는 서버 적용이 아니다.

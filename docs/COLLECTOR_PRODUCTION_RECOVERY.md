@@ -1,5 +1,7 @@
 # Mac mini 수집기 준비와 FX 복구
 
+Arkham의 현재 기본 주기는1h/24예약이다. 새 schedule.env·별도 정책 설치·미래 UTC일 전환·Arkham만의 포인터/설정/호환 코드 롤백은 [스케줄 운영 정본](ARKHAM_SCHEDULER.md)을 먼저 따른다. 아래 기존 복구 절차의 FX/등록 unit 재설치·전체 서비스 정지는 이번 Arkham 설정 전환에 적용하지 않는다. Web/FX/등록 서비스는 유지한다.
+
 이 절차는 운영자가 서버에서 적용할 인계 지침이다. 이번 구현 작업은 로컬 수정·시험·Git push만 수행하며, 서버 접속·DB 변경·공급자 호출·서비스 활성화는 하지 않는다. 사용자가 보고한 웹/Reader/Tunnel 정상과 FX503·공개 파일0바이트는 사용자 관측이다. 여기서 직접 재관측한 결과가 아니다. [배포 정본](PRODUCTION_DEPLOYMENT.md)과 [기존 수집 계약](COLLECTOR_SERVICE.md)을 함께 따른다.
 
 ## 1. 수집하지 않는 준비
@@ -34,14 +36,14 @@ sudo -u atlasweb test ! -r /var/lib/atlas-collector/archive
 
 마지막 세 명령은 파일/디렉터리가 **존재하는 것을 먼저 확인한 뒤** 수행한다. 성공은 웹 계정이 읽을 수 없음을 뜻한다. writer 두 파일은 atlascollector 소유0600, 상위 디렉터리0700이다. CA만 root 소유0644로 분리한다. writer는 LoadCredential로 옮기지 않으며 기존 env-file 읽기 정책을 유지한다. Web unit/reader 파일에 writer·공급자 키를 넣지 않는다. 환경 파일 내용이나 URI를 출력하지 않는다.
 
-기존 DB에 연결했던 수집기가 있다면 모든 호스트의 해당 worker와 legacy `market:watch`를 정상 정지한 뒤 receipts·archive·market-store를 한 묶음으로 이관한다. 원래 hash·파일명·시각과 미완료 예약을 보존한다. 비어 있는 archive로 기존 DB 수집을 시작하지 않는다. 로컬 파일과 DB 상태의 일관성이 불명확하면 활성화하지 않는다. 상세 복구는 수집 정본을 따른다. 이번 변경은 migration·grant·continuous·예약 초기화를 요구하지 않는다.
+기존 DB에 연결했던 수집기가 있다면 모든 호스트의 해당 worker와 legacy `market:watch`를 정상 정지한 뒤 receipts·archive·market-store를 한 묶음으로 이관한다. 원래 hash·파일명·시각과 미완료 예약을 보존한다. 비어 있는 archive로 기존 DB 수집을 시작하지 않는다. 로컬 파일과 DB 상태의 일관성이 불명확하면 활성화하지 않는다. 상세 복구는 수집 정본을 따른다. FX 복구 자체는 migration·grant·continuous·예약 초기화를 요구하지 않는다. 새 Arkham 스케줄 전환에는 별도 정본의 owner migration을 따른다.
 
 ```sh
-sudo -u atlascollector /usr/bin/node "$RELEASE/tools/collector-deploy.mjs" check --kind arkham --env-file /etc/atlas-collector/writer.env --state-root /var/lib/atlas-collector
+sudo -u atlascollector /usr/bin/node "$RELEASE/tools/collector-deploy.mjs" check --kind arkham --env-file /etc/atlas-collector/writer.env --schedule-file /etc/atlas-collector/schedule.env --state-root /var/lib/atlas-collector
 sudo -u atlascollector /usr/bin/node "$RELEASE/tools/collector-deploy.mjs" check --kind registered --selection "$SELECTION" --env-file /etc/atlas-collector/registered-writer.env --state-root /var/lib/atlas-collector
 ```
 
-doctor는 DB/HTTP/파일 생성0의 로컬 검사다. 실제 DB 상태 확인은 별도 운영자 승인 후 기존 `collector-worker.mjs status`와 `registered-collector.mjs status --selection ...`에 각각의 `--env-file`을 전달한다. 두 명령은 조회만 하며 수집을 실행하지 않는다. session/direct 연결을 사용한다. transaction pooler는 지원하지 않는다. 동일 DB의 worker 잠금405(5분)·407(등록 일별)은 호스트/selection이 달라도 같은 종류의 두 번째 실행을 거부한다. 서로 다른 두 종류는 의도한 구성이다. 잠금 보유는 건강 보장이 아니며, status 한 번으로 미래 중복 실행 부재를 보장하지 않는다.
+doctor는 DB/HTTP/파일 생성0의 로컬 검사다. 실제 DB 상태 확인은 별도 운영자 승인 후 기존 `collector-worker.mjs status`와 `registered-collector.mjs status --selection ...`에 각각의 `--env-file`을 전달한다. 두 명령은 조회만 하며 수집을 실행하지 않는다. session/direct 연결을 사용한다. transaction pooler는 지원하지 않는다. 동일 DB의 worker 잠금405(Arkham)·407(등록 일별)은 호스트/selection이 달라도 같은 종류의 두 번째 실행을 거부한다. 서로 다른 두 종류는 의도한 구성이다. 잠금 보유는 건강 보장이 아니며, status 한 번으로 미래 중복 실행 부재를 보장하지 않는다.
 
 ## 2. 기존 FX 저장본의 오프라인 복구
 
@@ -122,9 +124,9 @@ sudo systemctl enable --now atlas-collector.service atlas-registered-collector@"
 sudo systemctl list-timers atlas-fx.timer
 ```
 
-최초 설치는 옛 포인터가 없어 readlink가 실패한다. 그 사실을 기록하고 기존 포인터를 무조건 삭제하지 않는다. 등록 서비스는 selection 하나만 시작한다. timer의 `Persistent=true`는 예정 시각이 지난 최초 활성화에 즉시 ECB 요청을 일으킬 수 있어 timer 활성화도 수집 승인 대상이다. FX는 UTC00:10, Arkham은5분/하루288예약/최대2016GET, 등록은 하루5GET을 유지한다.
+최초 설치는 옛 포인터가 없어 readlink가 실패한다. 그 사실을 기록하고 기존 포인터를 무조건 삭제하지 않는다. 등록 서비스는 selection 하나만 시작한다. timer의 `Persistent=true`는 예정 시각이 지난 최초 활성화에 즉시 ECB 요청을 일으킬 수 있어 timer 활성화도 수집 승인 대상이다. FX는 UTC00:10, Arkham은 기본1시간/하루24예약/최대168GET, 등록은 하루5GET을 유지한다.
 
-collector 롤백은 같은 stop/종료 확인→doctor를 통과한 옛 release로 같은 원자적 포인터 전환→같은 서비스 재개 순서다. DB/receipt/archive/market-store/fx-store/claim은 되돌리지 않으며 옛 코드와 호환성을 확인한다. 최초 실패는 정지 상태에서 원인을 조사하고 존재하지 않는 옛 버전으로 돌리지 않는다. `.writer-lock`를 자동 삭제하지 않는다.
+Arkham은 스케줄 정본의 DB 정책 호환 조건을 먼저 만족해야 한다. collector 롤백은 같은 stop/종료 확인→doctor를 통과한 옛 release로 같은 원자적 포인터 전환→같은 서비스 재개 순서다. DB/receipt/archive/market-store/fx-store/claim은 되돌리지 않으며 옛 코드와 호환성을 확인한다. 최초 실패는 정지 상태에서 원인을 조사하고 존재하지 않는 옛 버전으로 돌리지 않는다. `.writer-lock`를 자동 삭제하지 않는다.
 
 Web 갱신은 `sudo /usr/local/sbin/atlas-release activate "$SHA"`, Web 롤백은 `sudo /usr/local/sbin/atlas-release rollback previous`이며 collector-current·timer는 바꾸지 않는다. collector 포인터 전환은 Web current를 바꾸지 않는다. Web 변경 후 health SHA와6API를 확인하고 FX만503이면 다른 정상 자료·USD 표시·FX 안내를 확인한다.
 
