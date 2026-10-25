@@ -1,6 +1,6 @@
 # Atlas 저장 관측 대시보드
 
-2026-10-24 사용자 UI 복원 요청 후 이 통합 분석 화면은 `/atlas.html`에서 제공한다. 기본 `/`·`/index.html`은 기존 legacy 대시보드이며 `/legacy.html`도 같은 화면을 제공한다.
+2026-10-25 사용자 요청으로 이 별도 화면과 전용 모듈을 제거했다([ADR0104](adr/0104-legacy-only-preview.md)). 현재 `/`·`/index.html`·`/legacy.html`은 같은 기존 UI를 제공하며 `/atlas.html`은404다. 아래는 과거 구현·검증 기록이다.
 
 개인 개발용 로컬 스테이블코인 탐색 화면이다. [ADR0086](adr/0086-unified-stored-observation-dashboard.md)이 데이터 의미와 경계를 고정한다.
 

@@ -20,7 +20,6 @@ import { databaseMarketReader } from './market-db/preview.mjs';
 import {databaseRegistrationReader,registrationRequest} from './market-db/registration-preview.mjs';
 
 const assets = new Map([
-  ...['comparison.js','comparison-model.js','comparison.css'].map(name=>['/'+name,['../web/'+name,name.endsWith('.css')?'text/css; charset=utf-8':'text/javascript; charset=utf-8']]),
   ['/source-review.js', ['../web/source-review.js', 'text/javascript; charset=utf-8']],
   ['/source-review-top10-data.js', ['../web/source-review-top10-data.js', 'text/javascript; charset=utf-8']],
   ['/source-review-data.js', ['../web/source-review-data.js', 'text/javascript; charset=utf-8']],
@@ -31,12 +30,6 @@ const assets = new Map([
   ['/supply-overview-model.js', ['../web/supply-overview-model.js', 'text/javascript; charset=utf-8']],
   ['/allium-dashboard.js', ['../web/allium-dashboard.js', 'text/javascript; charset=utf-8']],
   ['/allium-dashboard-model.js', ['../web/allium-dashboard-model.js', 'text/javascript; charset=utf-8']],
-  ['/atlas.html', ['../web/atlas.html', 'text/html; charset=utf-8']],
-  ['/atlas.css', ['../web/atlas.css', 'text/css; charset=utf-8']],
-  ['/atlas.js', ['../web/atlas.js', 'text/javascript; charset=utf-8']],
-  ['/atlas-evidence.js', ['../web/atlas-evidence.js', 'text/javascript; charset=utf-8']],
-  ['/atlas-dashboard.js', ['../web/atlas-dashboard.js', 'text/javascript; charset=utf-8']],
-  ['/atlas-dashboard-model.js', ['../web/atlas-dashboard-model.js', 'text/javascript; charset=utf-8']],
   ['/', ['../web/index.html', 'text/html; charset=utf-8']],
   ['/index.html', ['../web/index.html', 'text/html; charset=utf-8']],
   ['/legacy.html', ['../web/index.html', 'text/html; charset=utf-8']],
@@ -140,7 +133,7 @@ export function createPreviewServer({ evidenceDirectory, marketDirectory, market
     }
     // Only fixed document routes accept UI query parameters. API and asset paths
     // retain their existing exact allowlists; query values never become paths.
-    const assetPath=typeof req.url==='string'&&req.url.length<=2048&&/^(?:\/|\/index\.html|\/atlas\.html|\/legacy\.html)\?/.test(req.url)?req.url.split('?')[0]:req.url;
+    const assetPath=typeof req.url==='string'&&req.url.length<=2048&&/^(?:\/|\/index\.html|\/legacy\.html)\?/.test(req.url)?req.url.split('?')[0]:req.url;
     const asset = assets.get(assetPath);
     if (!asset) { fail(404, 'NOT_FOUND'); return; }
     try {

@@ -9,7 +9,7 @@ await mkdir('.state/agent-logs',{recursive:true});
 if (!/^http:\/\/127\.0\.0\.1:\d+$/.test(base)) throw new Error('Local URL required');
 const profile = await mkdtemp(join(tmpdir(), 'atlas-browser-'));
 const chrome = spawn('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', ['--headless=new', '--remote-debugging-pipe', '--disable-background-networking', '--disable-component-update', '--disable-sync', '--disable-default-apps', '--disable-extensions', '--no-first-run', '--no-default-browser-check', `--user-data-dir=${profile}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe', 'pipe', 'pipe'] });
-let failEvidence=false,id=0,buffer='',session;const requests=[],errors=[],pending=new Map();
+let failEvidence=false,id=0,buffer='',session;const requests=[],errors=[],pending=new Map(),fetchWork=new Set();
 chrome.stderr.on('data', () => {});
 chrome.stdio[4].on('data', data => {
   buffer += data.toString(); let end;
@@ -21,13 +21,28 @@ chrome.stdio[4].on('data', data => {
     if(value.method==='Fetch.requestPaused'){
       const {requestId,request}=value.params;
       const call=!request.url.startsWith(base+'/')?send('Fetch.failRequest',{requestId,errorReason:'BlockedByClient'}):failEvidence&&request.url.endsWith('/evidence/index.json')?send('Fetch.fulfillRequest',{requestId,responseCode:503,body:Buffer.from('UNAVAILABLE').toString('base64')}):send('Fetch.continueRequest',{requestId});
-      call.catch(e=>errors.push(e.message));
+      fetchWork.add(call);
+      call.then(()=>fetchWork.delete(call),e=>{fetchWork.delete(call);errors.push(e.message);});
     }
     if (value.method === 'Runtime.exceptionThrown') errors.push(value.params.exceptionDetails.text);
   }
 });
-function send(method, params = {}, page = true) {
+function rawSend(method, params = {}, page = true) {
   return new Promise((resolve, reject) => { const n = ++id, timer = setTimeout(() => { pending.delete(n); reject(new Error(`CDP timeout ${method}`)); }, 15000); pending.set(n, { resolve, reject, timer }); chrome.stdio[3].write(JSON.stringify({ id: n, method, params, ...(page && session ? { sessionId: session } : {}) }) + '\0'); });
+}
+async function drainFetch(){
+  const deadline=Date.now()+15000;
+  do{
+    if(Date.now()>=deadline)throw new Error('Fetch drain timeout');
+    let timer;
+    try{await Promise.race([Promise.allSettled([...fetchWork]),new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('Fetch drain timeout')),deadline-Date.now());})]);}
+    finally{clearTimeout(timer);}
+    await new Promise(resolve=>setTimeout(resolve,0));
+  }while(fetchWork.size);
+}
+async function send(method,params={},page=true){
+  if(['Page.navigate','Page.reload','Fetch.disable','Browser.close'].includes(method))await drainFetch();
+  return rawSend(method,params,page);
 }
 async function evaluate(expression) {
   const result = await send('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true });
@@ -44,10 +59,9 @@ const views=[];
 try {
  const target=await send('Target.createTarget',{url:'about:blank'},false);session=(await send('Target.attachToTarget',{targetId:target.targetId,flatten:true},false)).sessionId;
  await send('Runtime.enable');await send('Page.enable');await send('Network.enable');await send('Fetch.enable',{patterns:[{urlPattern:'*'}]});
- for(const route of ['/#assets','/atlas.html#assets']){
+ for(const route of ['/#assets','/legacy.html#assets']){
   await send('Page.navigate',{url:'about:blank'});await send('Page.navigate',{url:base+route});
   await until("document.querySelector('[data-source-review]')?.dataset.reviewId==='usdc-ethereum'");
-  const isAtlas=route.includes('atlas.html');
   assert.equal(await evaluate("document.querySelectorAll('.source-review-hero,.source-review-completion').length"),0);
   assert(!(await evaluate("document.querySelector('[data-source-review]').textContent")).includes('TOKEN PROFILE'));
   assert((await evaluate("document.querySelector('.source-review-toolbar label').textContent")).includes('검토 네트워크'));
@@ -56,8 +70,8 @@ try {
   assert.equal(await evaluate("document.querySelectorAll('#asset-read-archive,#atlas-read-archive,#asset-cards,#asset-detail,#profile-report,#profile-identity,#profile-results').length"),0);
   assert.equal(await evaluate("document.querySelector('[role=tab][aria-selected=true]').textContent"),'검증 결과');
   assert(!(await evaluate("document.querySelector('[data-source-review]').innerText")).includes('UNKNOWN'));
-  if(!isAtlas){await until("!document.querySelector('#evidence-reload').disabled");assert.equal(await evaluate("getComputedStyle(document.querySelector('#evidence-metrics')).display"),'none');}
-  assert(!(await evaluate(`document.querySelector('${isAtlas?'#assets':'#assets-screen'}').textContent`)).includes('과거 읽기 실행 기록'));
+  {await until("!document.querySelector('#evidence-reload').disabled");assert.equal(await evaluate("getComputedStyle(document.querySelector('#evidence-metrics')).display"),'none');}
+  assert(!(await evaluate(`document.querySelector('#assets-screen').textContent`)).includes('과거 읽기 실행 기록'));
   const seen=[];
   for(const p of profiles){
    await evaluate(`(()=>{const r=document.querySelector('[data-source-review]');r.querySelector('[data-coin-id="${p.coinId}"]').click();const n=r.querySelector('[aria-label="소스 검토 네트워크"]');n.value=${JSON.stringify(sourceProfileKey(p))};n.dispatchEvent(new Event('change'));})()`);
@@ -134,22 +148,22 @@ try {
    await evaluate(`document.documentElement.dataset.theme='${mode}'`);
    await send('Emulation.setDeviceMetricsOverride',{width:1440,height:1100,deviceScaleFactor:1,mobile:false});
    assert(await evaluate("document.querySelector('.source-review-tabs').getBoundingClientRect().top-document.querySelector('.source-review-toolbar').getBoundingClientRect().bottom<12"),'tabs must immediately follow compact toolbar');
-   await evaluate("document.querySelector('[role=tab][id$=\"-behavior-tab\"]').click();document.querySelector('[data-source-review]').scrollIntoView({block:'start'})");await screenshot('profile-redesign-'+(isAtlas?'atlas-':'legacy-')+mode);
+   await evaluate("document.querySelector('[role=tab][id$=\"-behavior-tab\"]').click();document.querySelector('[data-source-review]').scrollIntoView({block:'start'})");await screenshot('profile-redesign-'+(route.startsWith('/legacy')?'legacy-':'root-')+mode);
    await send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
    assert(await evaluate('document.documentElement.scrollWidth<=innerWidth+1'));
    await evaluate("(()=>{const s=document.querySelector('.source-review-search input');s.value='Solana';s.dispatchEvent(new Event('input'));document.querySelector('.source-review-matches').scrollIntoView({block:'start',behavior:'instant'});})()");
    assert(await evaluate("Array.from(document.querySelectorAll('.source-review-match')).every(e=>e.scrollWidth<=e.clientWidth+1&&e.getBoundingClientRect().height>=44)"));
    assert(await evaluate('document.documentElement.scrollWidth<=innerWidth+1'));
-   await screenshot('profile-search-'+(isAtlas?'atlas-':'legacy-')+mode+'-mobile');
+   await screenshot('profile-search-'+(route.startsWith('/legacy')?'legacy-':'root-')+mode+'-mobile');
    await evaluate("(()=>{const s=document.querySelector('.source-review-search input');s.value='';s.dispatchEvent(new Event('input'));})()");
    for(const tab of ['overview','behavior','evidence']){
     await evaluate(`document.querySelector('[role=tab][id$="-${tab}-tab"]').click()`);
     assert(await evaluate('document.documentElement.scrollWidth<=innerWidth+1'));
    }
-   await evaluate("document.querySelector('[role=tab][id$=\"-behavior-tab\"]').click();document.querySelector('.source-review-results').scrollIntoView({block:'start',behavior:'instant'})");await screenshot('profile-redesign-'+(isAtlas?'atlas-':'legacy-')+mode+'-mobile');
+   await evaluate("document.querySelector('[role=tab][id$=\"-behavior-tab\"]').click();document.querySelector('.source-review-results').scrollIntoView({block:'start',behavior:'instant'})");await screenshot('profile-redesign-'+(route.startsWith('/legacy')?'legacy-':'root-')+mode+'-mobile');
    await evaluate("document.querySelector('[data-source-review]').scrollIntoView({block:'start',behavior:'instant'})");
    assert(await evaluate("(()=>{const gap=document.querySelector('.source-review-tabs').getBoundingClientRect().top-document.querySelector('.source-review-toolbar').getBoundingClientRect().bottom;return gap>=-1&&gap<12;})()"));
-   await screenshot('profile-header-'+(isAtlas?'atlas-':'legacy-')+mode+'-mobile');
+   await screenshot('profile-header-'+(route.startsWith('/legacy')?'legacy-':'root-')+mode+'-mobile');
    // New scope types must fit independently of the legacy ERC-20 profiles.
    for(const p of profiles.filter(p=>p.features)){
     await evaluate(`(()=>{document.querySelector('[data-coin-id="${p.coinId}"]').click();const n=document.querySelector('[aria-label="소스 검토 네트워크"]');n.value=${JSON.stringify(sourceProfileKey(p))};n.dispatchEvent(new Event('change'));})()`);
@@ -160,11 +174,9 @@ try {
     assert((await evaluate("document.querySelector('[role=tabpanel]:not([hidden])').innerText")).includes(p.scopeLabel));
    }
    await evaluate(`document.querySelector('[role=tab][id$="-behavior-tab"]').click();document.querySelector('.source-review-results').scrollIntoView({block:'start',behavior:'instant'})`);
-   await screenshot('top10-'+(isAtlas?'atlas-':'legacy-')+mode+'-mobile');
+   await screenshot('top10-'+(route.startsWith('/legacy')?'legacy-':'root-')+mode+'-mobile');
    await evaluate("document.querySelector('[data-coin-id=jpyc]').click()");
   }
-  await evaluate("location.hash='#compare'");
-  await until(isAtlas?"!document.querySelector('#compare-report-1').disabled&&document.querySelectorAll('#native-comparison-body tr').length>0":"document.querySelectorAll('#comparison-body tr').length>0");
  }
  assert.deepEqual(views[0],views[1]);
  // Overview summarizes source status by asset and preserves the existing read grade.
@@ -198,20 +210,28 @@ try {
    assert(await evaluate("Array.from(document.querySelectorAll('.overview-source-asset')).every(e=>e.scrollWidth<=e.clientWidth+1)"),'summary cards must fit');
   }
  }
+ // Removed validation/comparison deep links safely use the overview without reviving pages.
+ for(const route of ['/#validation','/legacy.html#validation','/#compare','/legacy.html#compare']){
+  await send('Page.navigate',{url:'about:blank'});await send('Page.navigate',{url:base+route});
+  await until("document.querySelector('#overview-screen')?.hidden===false&&document.querySelectorAll('#overview-source-rows article').length===5");
+  assert.equal(await evaluate("document.querySelectorAll('#validation-screen,[data-screen=validation],a[href=\"#validation\"],#compare-screen,[data-screen=compare],a[href=\"#compare\"]').length"),0);
+  assert.equal(await evaluate("document.querySelectorAll('#overview-verdicts button,.overview-evidence-row:is(button)').length"),0);
+ }
  failEvidence=true;
  await send('Page.navigate',{url:'about:blank'});await send('Page.navigate',{url:base+'/#overview'});
  await until("document.querySelectorAll('#overview-source-rows article').length===5&&!document.querySelector('#overview-error').hidden");
  assert.equal(await evaluate("document.querySelectorAll('#overview-source-rows .overview-source-status').length"),5);
  assert.equal(await evaluate("document.querySelector('#overview-read-grade').textContent"),'미산정');
- for(const route of ['/#assets','/atlas.html#assets']){
+ for(const route of ['/#assets','/legacy.html#assets']){
   await send('Page.navigate',{url:'about:blank'});await send('Page.navigate',{url:base+route});
   await until("document.querySelector('[data-source-review]')?.dataset.reviewId==='usdc-ethereum'");
-  if(!route.includes('atlas.html'))await until("!document.querySelector('#evidence-error').hidden");
+  await until("!document.querySelector('#evidence-error').hidden");
   assert.equal(await evaluate("document.querySelectorAll('#asset-read-archive,#atlas-read-archive,#asset-detail,#profile-results').length"),0);
   assert.equal(await evaluate("document.querySelectorAll('.source-review-asset').length"),5);
   await evaluate("document.querySelector('[data-coin-id=jpysc]').click()");
   assert.equal(await evaluate("document.querySelector('[data-source-review]').dataset.reviewId"),'jpysc-ethereum');
  }
+ await drainFetch();
  assert.deepEqual(errors,[]);assert.deepEqual(requests.filter(u=>!u.startsWith(base+'/')&&!u.startsWith('data:')),[]);
- console.log('PASS source profiles: 5 assets/26 profiles, exact search selection by keyboard and scope labels, original 8 preserved, added 18 scoped features and states, 8/26 summary, network keys/search/tabs/filters, evidence links, read grade/verdict counts preserved, both routes/dark/light/390px, JS errors=0/external requests=0');
+ console.log('PASS legacy-only navigation (removed validation/compare fallback), report data preserved; source profiles: 5 assets/26 profiles, exact search selection by keyboard and scope labels, original 8 preserved, added 18 scoped features and states, 8/26 summary, network keys/search/tabs/filters, evidence links, read grade/verdict counts preserved, both routes/dark/light/390px, JS errors=0/external requests=0');
 }finally{try{await send('Fetch.disable');await send('Browser.close',{},false);}catch{}chrome.kill();await new Promise(resolve=>{if(chrome.exitCode!==null)resolve();else chrome.once('exit',resolve);});await rm(profile,{recursive:true,force:true});}

@@ -13,25 +13,27 @@ test('preview binds loopback and serves only fixed assets; HEAD, CSP and same-or
   const server = await startPreviewServer(0), port = server.address().port;
   try {
     assert.equal(server.address().address, '127.0.0.1');
-    for (const [path, type] of [['/', 'text/html'], ['/index.html', 'text/html'], ['/legacy.html', 'text/html'], ['/atlas.html', 'text/html'], ['/atlas.js', 'text/javascript'], ['/atlas-evidence.js', 'text/javascript'], ['/atlas.css', 'text/css'], ['/app.js', 'text/javascript'], ['/model.js', 'text/javascript'], ['/styles.css', 'text/css'], ['/mock-data.json', 'application/json']]) {
+    for (const [path, type] of [['/', 'text/html'], ['/index.html', 'text/html'], ['/legacy.html', 'text/html'], ['/app.js', 'text/javascript'], ['/model.js', 'text/javascript'], ['/styles.css', 'text/css'], ['/mock-data.json', 'application/json']]) {
       const get = await read(port, path), head = await read(port, path, { method: 'HEAD' });
       assert.equal(get.status, 200); assert.match(get.headers['content-type'], new RegExp(type)); assert.equal(head.status, get.status); assert.equal(head.headers['content-type'], get.headers['content-type']); assert.equal(head.headers['content-length'], get.headers['content-length']); assert.equal(head.body, '');
       assert.equal(get.headers['x-content-type-options'], 'nosniff'); assert.match(get.headers['content-security-policy'], /connect-src 'self'/); assert.match(get.headers['content-security-policy'], /frame-ancestors 'none'/);
     }
-    for(const path of ['/atlas-dashboard.js','/atlas-dashboard-model.js'])assert.equal((await read(port,path)).status,200);
+    for(const path of ['/atlas.html','/atlas.html?coin=usdc','/atlas.js','/atlas-evidence.js','/atlas.css','/atlas-dashboard.js','/atlas-dashboard-model.js','/comparison.js','/comparison-model.js','/comparison.css']) {
+      for(const method of ['GET','HEAD']) assert.equal((await read(port,path,{method})).status,404);
+    }
     const data = JSON.parse((await read(port, '/mock-data.json')).body); assert.equal(data.allValuesAreFictional, true);
     const shared='/?coin=jpyc&network=polygon&source=minted&period=90d&comparison=change';
     const document=await read(port,'/'),link=await read(port,shared),linkHead=await read(port,shared,{method:'HEAD'});
     assert.match(document.body, /src="\/app\.js"/);
     for (const path of ['/legacy.html', '/index.html']) assert.equal((await read(port,path)).body,document.body);
-    const atlas=await read(port,'/atlas.html');
-    assert.match(atlas.body, /src="\/atlas\.js"/);
-    assert.ok(atlas.body.includes('href="/legacy.html">기존 화면</a>'));
-    for (const anchor of ['live','overview','validation','reports','compare']) assert.ok(atlas.body.includes(`href="/legacy.html#${anchor}"`));
     const legacy=await read(port,'/legacy.html');
-    assert.ok(legacy.body.includes('href="/atlas.html#coverage"'));
+    assert.ok(!legacy.body.includes('/atlas.html'));
+    assert.ok(!legacy.body.includes('id="validation-screen"'));
+    assert.ok(!legacy.body.includes('href="#validation"'));
+    assert.ok(!legacy.body.includes('id="compare-screen"'));
+    assert.ok(!legacy.body.includes('href="#compare"'));
     assert.match(legacy.body, /src="\/evidence\.js"/);
-    for (const id of ['validation-screen','reports-screen','overview-screen','live-screen','assets-screen','compare-screen']) assert.ok(legacy.body.includes(`id="${id}"`));
+    for (const id of ['reports-screen','overview-screen','live-screen','assets-screen']) assert.ok(legacy.body.includes(`id="${id}"`));
     const legacyShared=await read(port,'/legacy.html?coin=jpyc&network=polygon&source=minted&period=90d&comparison=change');
     assert.equal(legacyShared.status,200);assert.equal(legacyShared.body,legacy.body);
     assert.equal((await read(port,'/legacy.html?coin='+ 'x'.repeat(2048))).status,404);

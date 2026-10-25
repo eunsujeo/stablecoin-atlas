@@ -110,8 +110,8 @@ function renderEvidence(){
     ['판정 완료 비율',summary.coverage===null?'미산정':`${summary.coverage}%`,`${summary.decisive} / 대상 ${summary.applicable}개 · 비적용 제외`,''],
     ['확정 판정 중 통과 점수',summary.score===null?'미산정':`${summary.score} / 100`,`${grade} · PASS ${summary.counts.PASS} / 판정 완료 ${summary.decisive}`,''],
   ]){const card=node('article',undefined,`metric-card ${cls}`),valueRow=node('div',undefined,'metric-value');valueRow.append(node('strong',value));if(label==='확정 판정 중 통과 점수')valueRow.append(node('span',grade,'grade'));card.append(node('p',label),valueRow,node('p',note));host.append(card);}
-  for(const verdict of VERDICTS){const button=node('button',undefined,`overview-verdict verdict-${verdict.toLowerCase()}`);button.append(node('span',labels[verdict]),node('strong',summary.counts[verdict]),node('small',verdict));button.addEventListener('click',()=>document.dispatchEvent(new CustomEvent('atlas:show-verdict',{detail:{scope:summary.scope,verdict,reportIds:summary.reports.map(r=>r.id)}})));verdicts.append(button);}
-  $('#overview-result-note').textContent=`${summary.scope==='LOCAL_FIXTURE'?'로컬 테스트용 토큰 검사':'실제 자산의 저장된 읽기'} · ${summary.provisional?'미확인·미실행 항목이 남아 잠정 등급입니다.':'선택 범위의 판정 결과입니다.'} 실행 오류 ${summary.executionCounts.ERROR} · 미실행 ${summary.executionCounts.NOT_EXECUTED}건. ${summary.scope==='LOCAL_FIXTURE'?'의도적으로 실패하게 만든 검사도 FAIL로 표시합니다. 이는 검사 프로그램 자체의 오류와는 다릅니다. ':''}결과를 누르면 항목별 근거로 이동합니다.`;
+  for(const verdict of VERDICTS){const button=node('div',undefined,`overview-verdict verdict-${verdict.toLowerCase()}`);button.append(node('span',labels[verdict]),node('strong',summary.counts[verdict]),node('small',verdict));verdicts.append(button);}
+  $('#overview-result-note').textContent=`${summary.scope==='LOCAL_FIXTURE'?'로컬 테스트용 토큰 검사':'실제 자산의 저장된 읽기'} · ${summary.provisional?'미확인·미실행 항목이 남아 잠정 등급입니다.':'선택 범위의 판정 결과입니다.'} 실행 오류 ${summary.executionCounts.ERROR} · 미실행 ${summary.executionCounts.NOT_EXECUTED}건. ${summary.scope==='LOCAL_FIXTURE'?'의도적으로 실패하게 만든 검사도 FAIL로 표시합니다. 이는 검사 프로그램 자체의 오류와는 다릅니다. ':''}저장 보고서에서 원래 실행 근거를 확인할 수 있습니다.`;
   const reports=$('#overview-selected-reports');reports.replaceChildren();for(const report of summary.reports){const item=node('li'),link=node('a',report.label+' · '+when(report.completedAt));link.href=reportLinks(report.id).document;link.target='_blank';link.rel='noopener noreferrer';item.append(link);reports.append(item);}
 }
 function renderEvidenceRankings(){
@@ -120,14 +120,13 @@ function renderEvidenceRankings(){
     const rows=state.index?overviewEvidenceRanking(state.index,{scope:$('#overview-scope').value,groupBy,metric:$('#overview-rank-metric').value}):[];
     for(const row of rows){
       const network=groupBy==='network'?state.market?.registry.networks.find(n=>n.family===row.chain&&n.networkId===row.networkId):null;
-      const label=network?.name??row.label,item=node('li'),button=node('button',undefined,'overview-evidence-row');
+      const label=network?.name??row.label,item=node('li'),button=node('div',undefined,'overview-evidence-row');
       const identity=node('span',undefined,'overview-evidence-identity');identity.append(node('span',row.rank??'—','rank-number'),node('strong',label));
       identity.append(node('small',`${row.reports.length}개 보고서`,'muted'));
       if(groupBy==='asset')identity.append(node('small',`${row.networkCount}개 네트워크`,'muted'));
       const score=node('span',undefined,'overview-evidence-stat');score.append(node('strong',row.score===null?'미산정':row.score+' / 100'),node('small',`PASS ${row.counts.PASS} / 확정 ${row.decisive}`));
       const coverage=node('span',undefined,'overview-evidence-stat');coverage.append(node('strong',row.coverage===null?'미산정':row.coverage+'%'),node('small',`확정 ${row.decisive} / 대상 ${row.applicable}`));
       button.append(identity,score,coverage);button.title=`${row.label} · NOT_APPLICABLE ${row.counts.NOT_APPLICABLE}개 제외 · 근거 보기`;
-      button.addEventListener('click',()=>document.dispatchEvent(new CustomEvent('atlas:show-verdict',{detail:{scope:row.scope,verdict:'',reportIds:row.reports.map(r=>r.id)}})));
       item.append(button);host.append(item);
     }
     if(!rows.length)host.append(node('li','저장된 검증 근거 없음','overview-empty'));

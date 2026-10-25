@@ -1,6 +1,6 @@
 # 저장 자료 중심 Atlas 재설계
 
-현재 기본 분석 화면은 후속 [ADR0086](../adr/0086-unified-stored-observation-dashboard.md)과 [실행·디자인 안내](../ATLAS_DASHBOARD.md)를 따른다. 아래 기록은 최초 재설계와 근거 화면의 설계 경위를 보존한다.
+2026-10-25 사용자 요청으로 Atlas 별도 화면을 제거하고 기존 UI만 제공한다([ADR0104](../adr/0104-legacy-only-preview.md)). 아래 기록과 [이전 실행·디자인 안내](../ATLAS_DASHBOARD.md)는 과거 재설계·검증 경위를 보존한다.
 
 2026-10-24 사용자 요청: 가격 표시 설계를 진행하고 확보한 자료를 기준으로 UI를 처음부터 다시 설계한다. [frontend-design](https://github.com/anthropics/skills/blob/main/skills/frontend-design/SKILL.md)의 계획·대조·구현·비평 절차를 적용한다. 로컬 전용이며 [ADR0085](../adr/0085-stored-data-ui-redesign.md)가 범위를 고정한다.
 
