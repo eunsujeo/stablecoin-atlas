@@ -1,6 +1,6 @@
 // Reviewed public excerpts of the stored 2026-10-25 research. No source archives or RPC inputs.
 export const sourceReviewDate='2026-10-25';
-export const sourceReviewNotice='저장 소스의 함수·권한 조건을 검토한 내용입니다. 주소·설정은 저장 자료 기준이며 현재 공식 지원을 인증하지 않습니다. 실제 실행 성공, 현재 권한, 자산 안전성·취급 승인과는 별도입니다.';
+export const sourceReviewNotice='저장 소스에서 함수·권한 조건을 확인했습니다. 확인 기준은 각 항목에 적힌 소스의 함수·modifier·조건입니다.';
 const jpyc={
   coinId:'jpyc',symbol:'JPYC',address:'0xE7C3D8C9a439feDe00D2600032D5dB0Be71C3c29',
   functions:[
@@ -71,5 +71,5 @@ export const sourceReviewProfiles=[
     limitations:['수동 보완은 선택 initialize 경로이며 전체 권한 불변식·assembly/storage 의미를 보장하지 않음.','소스 주석의 제도·timelock·다중서명은 현재 배포 설정의 증거가 아님.','실제 서명·거래·외부 회수 토큰의 동작은 미확인.'],
     references:['2026-10-25-jpy-public-html-source-review','2026-10-25-jpysc-initialize-manual-review','2026-10-25-rlusd-jpysc-offline-source-review'],
   },
-].map(profile=>({...profile,reviewedAt:sourceReviewDate,deploymentBinding:'UNKNOWN'}));
+].map(profile=>({...profile,reviewedAt:sourceReviewDate,sourceReviewStatus:'SOURCE_REVIEWED',deploymentBinding:'UNKNOWN'}));
 export function sourceReviewFor(coinId,chainId){return sourceReviewProfiles.find(p=>p.coinId===coinId&&p.chainId===chainId);}

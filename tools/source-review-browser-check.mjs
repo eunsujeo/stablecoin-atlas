@@ -55,12 +55,12 @@ try {
   for(const p of profiles){
    await evaluate(`(()=>{const r=document.querySelector('[data-source-review]');r.querySelector('[data-coin-id="${p.coinId}"]').click();const n=r.querySelector('[aria-label="소스 검토 네트워크"]');n.value=${JSON.stringify(p.chainId)};n.dispatchEvent(new Event('change'));})()`);
    assert.equal(await evaluate("document.querySelector('[data-source-review]').dataset.reviewId"),p.id);
-   const text=await evaluate("document.querySelector('.source-review-detail').textContent");assert(text.includes(p.address));assert(text.includes('미확인 (UNKNOWN)'));seen.push(text);
+   const text=await evaluate("document.querySelector('.source-review-detail').textContent");assert(text.includes(p.address));assert(!text.includes('미확인 (UNKNOWN)'));assert(!text.includes('전체 배포 연결'));assert.equal(await evaluate("document.querySelectorAll('.source-review-badge').length"),0);seen.push(text);
    for(const label of ['개요','기능·권한','근거·한계']){
     await evaluate(`Array.from(document.querySelectorAll('[role=tab]')).find(t=>t.textContent===${JSON.stringify(label)}).click()`);
     assert.equal(await evaluate("document.querySelectorAll('[role=tabpanel]:not([hidden])').length"),1);
     const visible=await evaluate("document.querySelector('[role=tabpanel]:not([hidden])').innerText");
-    for(const value of label==='기능·권한'?[...p.functions,...p.authorities]:label==='근거·한계'?[...p.limitations,p.observation,p.bindingDetail]:[p.address,p.chainId,p.bindingDetail])assert(visible.includes(value),p.id+' missing '+value);
+    for(const value of label==='기능·권한'?[...p.functions,...p.authorities]:label==='근거·한계'?[...p.limitations,p.observation,p.bindingDetail]:[p.address,p.chainId,'소스 확인 완료'])assert(visible.includes(value),p.id+' missing '+value);
    }
    assert.equal(await evaluate(countExpr),before);
    assert.equal(await evaluate("document.querySelector('.source-review-detail a').getAttribute('href')"),'/source-review-notes.html#'+p.id);

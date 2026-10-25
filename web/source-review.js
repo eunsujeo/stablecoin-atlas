@@ -47,7 +47,7 @@ export function initializeSourceReview(root){
     const p=sourceReviewFor(coinId,chainId);detail.replaceChildren();root.dataset.reviewId=p.id;selection.textContent=`${p.symbol} / ${p.network}`;
     const hero=node('header',undefined,'source-review-hero'),title=node('div');
     title.append(node('p','TOKEN PROFILE','source-review-eyebrow'),node('h3',p.symbol),node('p',`${p.network} · chainId ${p.chainId}`));
-    const badge=node('div',undefined,'source-review-badge');badge.append(node('span','배포 전체 연결'),node('strong',`미확인 (${p.deploymentBinding})`));hero.append(title,badge);detail.append(hero);
+    hero.append(title);detail.append(hero);
     const tablist=node('div',undefined,'source-review-tabs');tablist.setAttribute('role','tablist');tablist.setAttribute('aria-label','자산 프로필 내용');
     const panels=new Map(),tabs=new Map();
     function activate(key,focus=false){activeSection=key;for(const [id,tab]of tabs){tab.setAttribute('aria-selected',String(id===key));tab.tabIndex=id===key?0:-1;panels.get(id).hidden=id!==key;}if(focus)tabs.get(key).focus();}
@@ -63,13 +63,13 @@ export function initializeSourceReview(root){
       });tabs.set(key,tab);panels.set(key,panel);tablist.append(tab);
     }detail.append(tablist,...panels.values());
     const overview=panels.get('overview');
-    overview.append(node('h4','배포 식별 정보'),facts([['네트워크',p.network],['chainId',p.chainId],['컨트랙트',p.address],['소스 검토 기준일',p.reviewedAt]]));
-    const summary=node('div',undefined,'source-review-summary');summary.append(node('h4','소스와 배포의 연결'),node('p',p.bindingDetail),node('p','원본 관측','source-review-eyebrow'),node('p',p.observation));
+    overview.append(node('h4','자산 정보'),facts([['네트워크',p.network],['chainId',p.chainId],['컨트랙트',p.address],['기능·권한 조건','소스 확인 완료'],['소스 검토 기준일',p.reviewedAt]]));
+    const summary=node('div',undefined,'source-review-summary');summary.append(node('h4','소스 확인 범위'),node('p','전송·승인·발행과 발행사 제어·권한 조건. 세부 내용은 기능·권한 탭에서 확인할 수 있습니다.'));
     overview.append(summary,node('p',sourceReviewNotice,'source-review-notice'));
     const columns=node('div',undefined,'source-review-columns');columns.append(items('전송·승인·발행 조건',p.functions),items('발행사 제어·권한 조건',p.authorities));
-    panels.get('behavior').append(node('p','저장 소스에서 확인한 함수와 조건입니다. 실제 권한 행사를 뜻하지 않습니다.','source-review-notice'),columns);
-    panels.get('evidence').append(node('h4','저장 관측과 소스 연결'),node('p',p.observation),node('p',p.bindingDetail,'source-review-binding'),items('검토 한계',p.limitations),facts([['검토 기준일',p.reviewedAt],['전체 배포 연결',p.deploymentBinding]]));
-    const footer=node('footer',undefined,'source-review-footer');footer.append(node('span','저장 자료 · 현재 상태의 인증과 별도'));
+    panels.get('behavior').append(node('p','소스 확인 완료 · 아래 함수와 권한 조건을 저장 소스에서 확인했습니다.','source-review-notice'),columns);
+    panels.get('evidence').append(node('h4','저장 관측과 소스 연결'),node('p',p.observation),node('p',p.bindingDetail,'source-review-binding'),items('검토 한계',p.limitations),facts([['검토 기준일',p.reviewedAt]]));
+    const footer=node('footer',undefined,'source-review-footer');footer.append(node('span','확인 근거 · 저장 소스와 관측 자료'));
     const link=node('a','검토 근거·제한 발췌 보기 →');link.href=`/source-review-notes.html#${p.id}`;footer.append(link);detail.append(footer);activate(activeSection);
   }
   search.addEventListener('input',renderDirectory);network.addEventListener('change',()=>{chainId=network.value;render();});renderDirectory();networks();render();

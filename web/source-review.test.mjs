@@ -9,6 +9,7 @@ test('stored source profiles keep eight chain-specific deployments and their evi
   assert.equal(new Set(sourceReviewProfiles.map(p=>p.coinId)).size,5);
   assert.equal(new Set(sourceReviewProfiles.map(p=>p.chainId+':'+p.address.toLowerCase())).size,8);
   assert(sourceReviewProfiles.every(p=>p.deploymentBinding==='UNKNOWN'&&p.reviewedAt==='2026-10-25'&&/^0x[0-9a-f]{40}$/i.test(p.address)));
+  assert(sourceReviewProfiles.every(p=>p.sourceReviewStatus==='SOURCE_REVIEWED'));
   assert.equal(sourceReviewFor('usdc','137'),undefined);
   assert.equal(sourceReviewFor('jpyc','1').id,'jpyc-ethereum');
   assert.match(sourceReviewFor('usdc','1').bindingDetail,/전체 불일치/);
