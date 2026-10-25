@@ -33,6 +33,8 @@ JPYC Ethereum/Polygon/Avalanche의 proxy/implementation 입력6개를 이전 Eth
 
 ## 다음 작업의 경계
 
+RLUSD ID650·JPYSC ID1623·JPYC ID173의 [저장 immutable 소스 참조표](2026-10-25-stored-immutable-source-map.md)를 정리했다. 선언 초기화·생성자 구문·onlyProxy/notDelegated 참조 위치만 확인했고 신규 취득·재컴파일·값 제출·runtime 대조는0이다. 독립 배포 근거의 미확보와 기존 UNKNOWN 집계는 유지한다.
+
 RLUSD·JPYSC의 compiler 확보·사설 검증·저장 입력3개 컴파일은 후속 승인으로 완료했다. 남은 우선 입력은 RLUSD/JPYSC/JPYC의 immutable 독립 근거, USDC의 원본 build/metadata/library, USDT 읽기 실패 원인과 관측이다. 신규 RPC는 주소/체인·메서드·횟수·시간을 고정한 별도 실행 계획으로 구분하며 기존 단발/취득 소비를 재사용하지 않는다. JPYSC initialize의 경로 내부 절단은 범위가 명시된 정적 검토 자료로 보존하고 전체 권한 보장으로 승격하지 않는다.
 
 [RLUSD·JPYSC 고정 compiler 계획](2026-10-25-rlusd-jpysc-compiler-plan.md)은 총6GET으로 종료·소비했다. 두 compiler 고정 profile을 등록하고 실제 자산 입력3개를 각각1회 컴파일했다. 새 RPC0·기존107파일 불변·두1.2 보고서 PARTIAL/배포 UNKNOWN과 상세 제한은 [실행 결과](2026-10-25-rlusd-jpysc-offline-source-review.md)에 기록했다. 소스 컴파일 완료와 전체 배포 연결 완료를 구분하므로 집계5/5·8/8은 유지한다.

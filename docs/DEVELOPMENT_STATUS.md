@@ -4,6 +4,7 @@
 
 ## 완료 범위
 
+- 2026-10-25 [저장 immutable 소스 참조표](research/2026-10-25-stored-immutable-source-map.md)를 완료했다. RLUSD ID650·JPYSC ID1623·JPYC ID173의 선언 초기화·생성자·onlyProxy/notDelegated 참조를 저장 AST/소스에서 확인했다. 기존107파일 포함134파일 불변·외부 조회/재컴파일/값 제출/대조0이며 독립 배포 근거 미확보·UNKNOWN 집계를 유지한다.
 - 2026-10-25 승인된 [RLUSD·JPYSC 고정 compiler/오프라인 분석](research/2026-10-25-rlusd-jpysc-offline-source-review.md)을 완료했다. 직접 metadata 각각403 후 보이는 임시 Chrome에서 각각 metadata/artifact200, 총6GET·두 hash·전체 버전 확인·소유 창/프로필 정리를 검증했다. [ADR0099](adr/0099-pinned-rlusd-jpysc-compilers.md)의 두 pin·기본32 유지/정확한 두 버전35/41소스·builtin 인코딩을 사설 검증했다. RLUSD 구현체 및 JPYSC proxy/구현체3컴파일 성공·새 RPC0·기존107파일 불변. 구현체 immutable 미제출/코드 미관측으로 모두 UNKNOWN·두 보고서 PARTIAL이며 JPYSC initialize의 CALL_LIMIT/DECLARATION_LIMIT을 보존했다. 전체564검사 통과, UNKNOWN 자산 집계5/5(추가체인 포함8/8)는 유지한다.
 
 - 2026-10-25 정확한6RPC/120초 계획 승인에 따라 [USDT 단발 읽기](research/2026-10-25-usdt-live-runtime-result.md)를 실행했다. 첫 eth_chainId 송신 시도1·정상 반환0에서 INCONCLUSIVE로 종료·소비 완료했으며 block/code 미관측·ADDRESS_NOT_OBSERVED·matched null·binding UNKNOWN이다. 재시도/전환/컴파일0, 원본31파일 hash 불변·권한 검증, 경계6개/전체557개 검사 통과. 다른 토큰은 RLUSD35소스/settings 후보 준비·JPYC6입력 바이트 동일성·JPYSC2입력을 오프라인 확인했다(54입력 불변·새 RPC/컴파일0). [잔여 작업](research/2026-10-25-token-review-remaining-work.md): Ethereum 핵심5토큰의 전체 소스·배포 연결 UNKNOWN5/5, JPYC3개 추가 체인을 포함하면8/8이며 JPYC Ethereum 프록시1개 고정 블록 일치는 별도다.
