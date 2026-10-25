@@ -22,6 +22,7 @@
 - 사용자 legacy 비교기 보완 승인(2026-10-25): ADR0098의 고정 solc0.4.18 immutableReferences 생략 호환성과 사설 Fixture 검증을 허용한다. 정확한 전체 버전·필드 자체 부재만 내부 빈 범위로 처리하고 compiler 원본·기존 보고서·판정을 보존한다. 외부 호출·다운로드·실제 USDT 재컴파일·배포 대조는 이번 승인에서 제외한다.
 - 사용자 저장 USDT 출력 분석 승인(2026-10-25): 기존 compiler 출력만 ADR0098 비교기로 분석해 별도 오프라인 연구 보고서를 작성한다. 재컴파일·RPC·다운로드·실제 배포 대조 없이 기존 원본·보고서·판정을 보존한다. 결과는 docs/research/2026-10-25-usdt-stored-runtime-analysis.md를 따른다.
 - 사용자 USDT 고정 코드 대조 승인(2026-10-25): docs/research/2026-10-25-usdt-live-runtime-plan.md의 단일 Ethereum 주소·기존 RPC_URL·최대6RPC/120초·재시도/전환0·저장 출력 재사용 범위를 승인했다. 첫 송신 시도1·정상 반환0으로 실패 종료·소비 완료했으며 새 시도를 자동 시작하지 않는다. 후속 다른 토큰 진행은 저장 자료의 오프라인 입력 준비로 이어갔다. 결과와 UNKNOWN 집계는 docs/research/2026-10-25-usdt-live-runtime-result.md 및 docs/research/2026-10-25-token-review-remaining-work.md를 따른다. 새 compiler 취득·다른 체인의 RPC는 정확한 별도 계획 확인 전 시작하지 않는다.
+- 사용자 RLUSD·JPYSC compiler/분석 승인(2026-10-25): docs/research/2026-10-25-rlusd-jpysc-compiler-plan.md의 두 버전 직접/브라우저별 독립 소비·총최대8GET/136MiB/480초·pin profile/사설 검증·저장 입력3개 각1회 오프라인 분석을 승인했다. 실제6GET·두 hash/전체 버전·compiler2종·3컴파일 성공으로 완료했다. ADR0099의 정확한 두 버전35/41소스/양수 builtin 인코딩과 기본32/기존pin 유지·새 RPC0·immutable 미제출/UNKNOWN·기존107파일 보존을 따른다. 결과는 docs/research/2026-10-25-rlusd-jpysc-offline-source-review.md이며 이 취득/실행 소비는 재사용하지 않는다.
 - 증거가 없으면 INCONCLUSIVE, 실행하지 않았으면 NOT_TESTED. UNKNOWN과 NOT_APPLICABLE을 구분한다. 함수 실패로 기능 부재를 단정하지 않는다.
 - 지원 여부와 검증 판정을 분리한다. 수수료·zero-reset·관리자 권한의 존재 자체는 실패나 취약점이 아니다.
 - 공통 도메인에 ERC-20 메서드를 강제하지 않는다. 체인별 실행 의미는 Adapter 안에 둔다.

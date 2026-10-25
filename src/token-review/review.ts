@@ -48,7 +48,7 @@ export async function reviewToken(configFile: string, rpcUrl: string | undefined
     ],
   };
   const configuration = rpc.record('REVIEW_CONFIGURATION', { configSha256: sha256(configBytes), ...publicConfig });
-  const analyzedInputs = new Map<string, { input: CompilerInput; evidenceRef: string }>();
+  const analyzedInputs = new Map<string, { input: CompilerInput; evidenceRef: string; compilerVersion: string }>();
   let sourceEvidenceBytes = 0;
   function sourceEvidence(kind: string, data: unknown): string {
     sourceEvidenceBytes += Buffer.byteLength(serialize(data));
@@ -89,8 +89,8 @@ export async function reviewToken(configFile: string, rpcUrl: string | undefined
     try {
       const bytes = await readBounded(relativeInput(configFile, supplied.inputFile), 1024 * 1024);
       source.inputEvidence = await artifact(`source-${index}.input.json`, bytes, 'SUPPLIED_STANDARD_JSON');
-      const prepared = prepareInput(bytes, supplied.contract);
-      analyzedInputs.set(supplied.address, { input: prepared.input, evidenceRef: source.inputEvidence });
+      const prepared = prepareInput(bytes, supplied.contract, supplied.compilerVersion);
+      analyzedInputs.set(supplied.address, { input: prepared.input, evidenceRef: source.inputEvidence, compilerVersion: supplied.compilerVersion });
       rpc.record('SOURCE_FILES', { address: supplied.address, files: Object.entries(prepared.input.sources).map(([file, s]) => ({ file,
         sha256: sha256(Buffer.from(s.content)), bytes: Buffer.byteLength(s.content) })), inputEvidence: source.inputEvidence });
       let profile;
@@ -143,8 +143,9 @@ export async function reviewToken(configFile: string, rpcUrl: string | undefined
         try {
           const snapshotBytes = await readBounded(relativeInput(configFile, audit.sourceSnapshotFile), 1024 * 1024);
           const snapshotEvidence = await artifact(`audit-${index}.source-snapshot.json`, snapshotBytes, 'SUBMITTED_AUDIT_SOURCE_SNAPSHOT');
-          const snapshot = prepareSourceBundle(snapshotBytes), analyzed = analyzedInputs.get(audit.compareToAddress);
+          const analyzed = analyzedInputs.get(audit.compareToAddress);
           if (!analyzed) throw new Error('AUDIT_COMPARISON_TARGET_UNAVAILABLE');
+          const snapshot = prepareSourceBundle(snapshotBytes, analyzed.compilerVersion);
           const compared = compareAuditSources(analyzed.input, snapshot);
           const ev = rpc.record('AUDIT_SOURCE_COMPARISON', { address: audit.compareToAddress, ...compared,
             analyzedInputEvidence: analyzed.evidenceRef, snapshotEvidence, auditDocumentEvidence: evidenceRef, associationWithAudit: 'UNKNOWN' });

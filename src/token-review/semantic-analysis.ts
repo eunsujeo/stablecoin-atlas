@@ -1,6 +1,6 @@
 import type { AstNode, CompileResult, CompilerInput } from './compiler.js';
 import { nodes, sourceContext, functionKind } from './ast.js';
-import { jpycCompiler, usdtCompiler } from './compiler-cache.mjs';
+import { jpycCompiler, usdtCompiler, rlusdCompiler, jpyscCompiler } from './compiler-cache.mjs';
 import type { Finding } from './model.js';
 import type { BehaviorSite, CallEdge, EntryAnalysis, StateReference, StaticAnalysis, StorageWrite } from './semantic-model.js';
 
@@ -15,9 +15,9 @@ export function analyzeSource(input: CompilerInput, compiled: CompileResult, fil
     if (node?.nodeType !== 'Identifier' || !Number.isInteger(node.referencedDeclaration)) return false;
     const reference = node.referencedDeclaration as number;
     if (reference < 0) return true;
-    // Exact pinned versions only: uint32-encoded builtins (0.8.11) or positive
+    // Exact pinned versions only: uint32-encoded builtins (0.8.11/29/34) or positive
     // non-source builtin IDs (0.4.18). Source declarations always take precedence.
-    const supportedEncoding = compiled.compiler === jpycCompiler.version && reference >= 0x80000000 && reference <= 0xffffffff
+    const supportedEncoding = [jpycCompiler.version, rlusdCompiler.version, jpyscCompiler.version].includes(compiled.compiler) && reference >= 0x80000000 && reference <= 0xffffffff
       || compiled.compiler === usdtCompiler.version && reference >= 0 && reference < 0x80000000;
     if (!supportedEncoding || byId.has(reference)) return false;
     const identifier = String((node.typeDescriptions as { typeIdentifier?: string } | undefined)?.typeIdentifier ?? '');

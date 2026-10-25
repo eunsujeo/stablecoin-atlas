@@ -106,6 +106,8 @@ Getter는 `owner/pendingOwner/admin/masterMinter/blacklister/pauser/feeRecipient
 
 ## 결과와 해석
 
+[ADR0099](adr/0099-pinned-rlusd-jpysc-compilers.md)의 고정 solc0.8.29/0.8.34 profile도 명시 선택할 수 있다. 취득 pin·경로·사설 검증과 한계는 ADR을 따른다. 기본 가상 소스 상한32는 유지하며 정확한 전체0.8.29 버전에만35, 정확한 전체0.8.34 버전에만41을 허용한다. 감사 source snapshot은 비교 대상 입력의 동일 버전 한도를 적용한다. 나머지 파일/worker 한도와 독립 진위 NOT_TESTED·배포 연결 의미는 유지한다.
+
 [ADR0098](adr/0098-legacy-runtime-omitted-immutable-ranges.md)에 따라 정확한 고정 solc0.4.18 전체 버전에서만 `immutableReferences` 필드 자체의 생략을 내부 빈 범위로 해석한다. 원본 compiler artifact는 그대로 저장한다. 다른/미지정 버전의 누락과 명시 undefined/null/배열·잘못된 범위·linkReferences 누락은 계속 거절한다. 제출값 초과·미해결 링크·전체 바이트 대조와 기존 UNKNOWN/binding 규칙은 유지한다. 이 보완은 사설 Fixture로만 검증했으며 기존 USDT 보고서를 재판정하지 않았다.
 
 - `report.json`: [1.2 결과 Schema](../schemas/token-technical-review.v1.2.schema.json), 모드·시각·블록·주소·코드 해시·도구/규칙 버전·archive·분류·확인 상태·실패·근거 참조. 기존 [1.0](../schemas/token-technical-review.v1.schema.json)/[1.1](../schemas/token-technical-review.v1.1.schema.json) 결과와 schema도 보존하고 검증에서 구분한다.
@@ -131,7 +133,7 @@ SOURCE 사실은 제공된 소스 범위이며 배포 연결과 다르다. CHAIN
 
 ## 한도와 미지원
 
-RPC 최대128회·120초·각 응답2MiB/합계8MiB·요청10초·재시도0·redirect 거절이다. eth_call은 인식한 주소·고정 getter/프록시 조회만, gas500,000/value0/고정 해시로 실행한다. 설정64KiB·소스 최대8묶음/각1MiB/가상 소스32개·감사4개/각2MiB·명시 의존성8개·getter24개다. 컴파일 worker는 각20초·V8 heap256MiB·입력2MiB/출력8MiB다. heap 한도는 전체 RSS/보안 sandbox 보장이 아니다. child의 NODE_OPTIONS/NODE_PATH 주입을 제거하며 관리형 proxy 변수는 유지한다. 외부 빌드 스크립트·package hook을 실행하지 않는다. 함수256개/묶음·소스 분석 근거 합계4MiB·최종 JSON32MiB를 제한한다. 저장 관측은32MiB·깊이128·노드500,000으로 제한한다. 실패 원문·RPC 인증정보를 로그에 출력하지 않는다.
+RPC 최대128회·120초·각 응답2MiB/합계8MiB·요청10초·재시도0·redirect 거절이다. eth_call은 인식한 주소·고정 getter/프록시 조회만, gas500,000/value0/고정 해시로 실행한다. 설정64KiB·소스 최대8묶음/각1MiB/가상 소스 기본32개(ADR0099의 정확한0.8.29/0.8.34만35/41개)·감사4개/각2MiB·명시 의존성8개·getter24개다. 컴파일 worker는 각20초·V8 heap256MiB·입력2MiB/출력8MiB다. heap 한도는 전체 RSS/보안 sandbox 보장이 아니다. child의 NODE_OPTIONS/NODE_PATH 주입을 제거하며 관리형 proxy 변수는 유지한다. 외부 빌드 스크립트·package hook을 실행하지 않는다. 함수256개/묶음·소스 분석 근거 합계4MiB·최종 JSON32MiB를 제한한다. 저장 관측은32MiB·깊이128·노드500,000으로 제한한다. 실패 원문·RPC 인증정보를 로그에 출력하지 않는다.
 
 AI·Slither는 **NOT_RUN**이다. Trail of Bits [token-integration-analyzer](https://github.com/trailofbits/skills/blob/main/plugins/building-secure-contracts/skills/token-integration-analyzer/SKILL.md)의 관리자 권한·비표준 동작 항목을 참고했다. upstream commit은 이 구현에서 고정/실행하지 않았으며 자체 규칙 버전으로 추적한다. 전체 스킬·분포/상장 평가·예시 위험 등급을 적용하지 않고 Trail of Bits의 직접 감사로 표현하지 않는다.
 

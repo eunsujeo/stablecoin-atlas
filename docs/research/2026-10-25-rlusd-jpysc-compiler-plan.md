@@ -1,5 +1,7 @@
 # RLUSD·JPYSC compiler 확보와 저장 소스 분석 제안
 
+이 제안은 후속 사용자 승인으로 실행·소비 완료했다. 총6GET·compiler2종/입력3개 컴파일 성공·새 RPC0이며 [별도 결과와 제한](2026-10-25-rlusd-jpysc-offline-source-review.md)을 따른다. 아래는 승인 전 고정 계획 기록이며 재실행 권한이 아니다.
+
 다른 토큰 진행 요청에 따라 저장 입력 준비까지 완료했다([잔여 작업](2026-10-25-token-review-remaining-work.md)). 다음은 새 compiler 취득을 위한 구체적 제안이며, 네트워크 요청·compiler 실행·profile 추가는 아직0이다. 기존0.6.12/0.8.11/0.4.18 pin·캐시·소비·보고서를 보존한다.
 
 ## 고정 대상

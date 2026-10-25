@@ -1,0 +1,13 @@
+# RLUSD·JPYSC compiler/오프라인 분석 완료
+- 목표: 승인된 두 compiler 취득·고정 profile/사설 검증·저장 입력3개 각1회 분석과 완료 시점/UNKNOWN 현황 답변.
+- 끝난 것: 두 버전 직접 metadata각1GET403, 새 보이는 Chrome metadata/artifact각2GET200으로 총6GET/21,354,214바이트 종료·소비. 소유 창/프로필 정리·두hash·전체 버전 확인. ADR0099의0.8.29/0.8.34 pin과 기본32/정확한버전35·41소스 한도·uint32 builtin 인식·같은버전 감사 snapshot을 연결했다. RLUSD1/JPYSC2컴파일 모두 성공·새RPC0·기존107파일 불변. RLUSD __self ID650/JPYSC ID1623 미제출·코드 미관측으로 두1.2보고서 PARTIAL/binding UNKNOWN. JPYSC initialize의 CALL_LIMIT/DECLARATION_LIMIT 보존. 원문은 .state/dual-token-offline-20261025/ 및 각 solc-browser/direct root에0700/0600. 최신5보고서 집계는 자산UNKNOWN5/5(추가JPYC3체인 포함8/8), 선택소스7중UNKNOWN6/CONFIRMED1(JPYC프록시)이다. 첫사설2실패와 첫build선언누락 실패도 보존했다.
+- 변경 파일: AGENTS.md, docs/DEVELOPMENT_STATUS.md, docs/TOKEN_TECHNICAL_REVIEW.md, docs/adr/0099-pinned-rlusd-jpysc-compilers.md, docs/research/2026-10-25-rlusd-jpysc-compiler-plan.md, docs/research/2026-10-25-rlusd-jpysc-offline-source-review.md, docs/research/2026-10-25-token-review-remaining-work.md, src/token-review/compiler-cache.mjs, src/token-review/compiler-cache.d.mts, src/token-review/compiler.ts, src/token-review/review.ts, src/token-review/semantic-analysis.ts, tests/token-review-cache.test.mjs, tests/token-review-modern-pins.test.mjs, docs/handoff/2026-10-25-rlusd-jpysc-offline-review.md
+- 검증: node .state/validate-dual-compiler-acquisition-20261025.mjs — rc0 PASS(6GET기록·2hash·소비/권한·기존pin). 사설modern시험v2 — rc0 tests7/pass7/fail0. npm run check — rc0 tests564/pass564/fail0/cancelled0/skipped0 (.state/agent-logs/dual-compiler-preanalysis-check-v2.log). node --use-env-proxy --import tsx .state/run-dual-token-offline-20261025.mjs — rc0 PASS(3컴파일·107파일·HTTP0·권한). 별도Python재독 — rc0 PASS(산출물9·소비/원본107·0700/0600). python3 .state/summarize-token-review-status-20261025.py — rc0 PASS(5보고서/자산5/소스7). git diff --check — rc0.
+- 기다리는 것: 없음
+- 다음 행동: 새compiler/RPC/다운로드 없이 저장 출력·소스만으로 RLUSD ID650·JPYSC ID1623 immutable의 선언/생성자 초기화·onlyProxy 사용 위치를 소스 참조표로 정리하고 기존 JPYC ID173과 비교한다. 제출값을 추정/채우거나 재컴파일하지 않고 원래 배포 독립 근거 미확보/UNKNOWN을 유지한다. 이후 신규 외부 실행은 정확한 계획을 확인받는다.
+- 사용자 확인 필요: 아니오 — 다음은 저장 출력/소스의 오프라인 후속 정리만.
+- 읽을 파일: docs/research/2026-10-25-rlusd-jpysc-offline-source-review.md, docs/research/2026-10-25-token-review-remaining-work.md, docs/adr/0099-pinned-rlusd-jpysc-compilers.md, .state/dual-token-offline-20261025/summary.json, .state/dual-token-offline-20261025/rlusd/config.json, .state/dual-token-offline-20261025/jpysc/config.json
+
+Lead26b83d5389304111bc77824973dfb0e7의 proceed를 회수했다. 기존 untracked docs/handoff/2026-10-22-router-lead-review.md는 보존한다. compiler bytes/소스 원문/키/RPC URL은 게시하지 않는다.
+
+최종 npm run check도 rc0 tests564/pass564/fail0/cancelled0/skipped0이다(.state/agent-logs/dual-compiler-final-check.log).

@@ -3,6 +3,8 @@ export interface CachedCompiler { readonly id: string; readonly version: string;
 export const cachedCompiler: CachedCompiler;
 export const jpycCompiler: CachedCompiler;
 export const usdtCompiler: CachedCompiler;
+export const rlusdCompiler: CachedCompiler;
+export const jpyscCompiler: CachedCompiler;
 export const cachedCompilers: readonly CachedCompiler[];
 export function cachedCompilerById(id: string): CachedCompiler | null;
 export function inspectCachedCompiler(version?: string): Promise<CachedCompiler | null>;

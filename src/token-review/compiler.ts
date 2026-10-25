@@ -1,7 +1,7 @@
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import solc from 'solc';
-import { inspectCachedCompiler, stageCachedCompiler } from './compiler-cache.mjs';
+import { inspectCachedCompiler, stageCachedCompiler, rlusdCompiler, jpyscCompiler } from './compiler-cache.mjs';
 
 export const compilerVersion = String(solc.version());
 export async function compilerProfile(version: string): Promise<{ id: string; version: string; sha256: string | null } | null> {
@@ -17,14 +17,15 @@ export interface CompileResult {
     evm: { deployedBytecode: { object: string; immutableReferences?: Record<string, unknown>; linkReferences: Record<string, unknown> } } } | null;
 }
 export interface CompilerInput { language: 'Solidity'; sources: Record<string, { content: string }>; settings: Record<string, unknown> }
-export function prepareSourceBundle(bytes: Buffer): CompilerInput {
+export function prepareSourceBundle(bytes: Buffer, version?: string): CompilerInput {
   const parsed: unknown = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
   if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('INVALID_COMPILER_INPUT');
   const value = parsed as Record<string, unknown>;
   if (Object.keys(value).some(k => !['language', 'sources', 'settings'].includes(k)) || value.language !== 'Solidity'
     || !value.sources || typeof value.sources !== 'object' || Array.isArray(value.sources)) throw new Error('INVALID_COMPILER_INPUT');
   const sources = value.sources as Record<string, { content: string }>;
-  if (!Object.keys(sources).length || Object.keys(sources).length > 32) throw new Error('SOURCE_COUNT_LIMIT');
+  const sourceLimit = version === rlusdCompiler.version ? 35 : version === jpyscCompiler.version ? 41 : 32;
+  if (!Object.keys(sources).length || Object.keys(sources).length > sourceLimit) throw new Error('SOURCE_COUNT_LIMIT');
   for (const [path, source] of Object.entries(sources)) {
     if (!/^[a-zA-Z0-9_@./-]{1,240}$/.test(path) || path.startsWith('/') || path.split('/').includes('..')
       || !source || typeof source !== 'object' || Array.isArray(source)
@@ -36,8 +37,8 @@ export function prepareSourceBundle(bytes: Buffer): CompilerInput {
   } };
   return { language: 'Solidity', sources, settings };
 }
-export function prepareInput(bytes: Buffer, contract: string): { input: CompilerInput; file: string; contractName: string } {
-  const input = prepareSourceBundle(bytes);
+export function prepareInput(bytes: Buffer, contract: string, version?: string): { input: CompilerInput; file: string; contractName: string } {
+  const input = prepareSourceBundle(bytes, version);
   const colon = contract.lastIndexOf(':'), file = contract.slice(0, colon), contractName = contract.slice(colon + 1);
   if (colon < 1 || !Object.hasOwn(input.sources, file) || !/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(contractName)) throw new Error('INVALID_CONTRACT_SELECTION');
   return { input, file, contractName };

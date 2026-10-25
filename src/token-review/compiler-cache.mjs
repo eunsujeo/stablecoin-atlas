@@ -17,11 +17,21 @@ export const usdtCompiler = Object.freeze({ id: 'solc-0.4.18-pinned',
   version: '0.4.18+commit.9cf6e910.Emscripten.clang',
   sha256: '905e3d253406973f545666d79cd64c5c85985992f68fa35935f60249e311d74f',
   provenance: 'BROWSER_ACQUIRED_PINNED_CACHE', independentAttestation: 'NOT_TESTED' });
-export const cachedCompilers = Object.freeze([cachedCompiler, jpycCompiler, usdtCompiler]);
+export const rlusdCompiler = Object.freeze({ id: 'solc-0.8.29-pinned',
+  version: '0.8.29+commit.ab55807c.Emscripten.clang',
+  sha256: '87616a5fc7ab3551f4133bbd2c3e1be123eae219facc2a56f8f3a4366520c67b',
+  provenance: 'BROWSER_ACQUIRED_PINNED_CACHE', independentAttestation: 'NOT_TESTED' });
+export const jpyscCompiler = Object.freeze({ id: 'solc-0.8.34-pinned',
+  version: '0.8.34+commit.80d5c536.Emscripten.clang',
+  sha256: 'c8649f8d57f81b3244c7d2dd662efc0620d1ae296f623b347a2c616a6cfd11d8',
+  provenance: 'BROWSER_ACQUIRED_PINNED_CACHE', independentAttestation: 'NOT_TESTED' });
+export const cachedCompilers = Object.freeze([cachedCompiler, jpycCompiler, usdtCompiler, rlusdCompiler, jpyscCompiler]);
 const cachePaths = new Map([
   [cachedCompiler.version, new URL('../../.state/usdc-source/compiler/soljson.js', import.meta.url)],
   [jpycCompiler.version, new URL('../../.state/jpyc-solc-browser-artifact/soljson.js', import.meta.url)],
   [usdtCompiler.version, new URL('../../.state/usdt-solc-0418-visible-browser-v2/soljson.js', import.meta.url)],
+  [rlusdCompiler.version, new URL('../../.state/rlusd-solc-browser-20261025/soljson.js', import.meta.url)],
+  [jpyscCompiler.version, new URL('../../.state/jpysc-solc-browser-20261025/soljson.js', import.meta.url)],
 ]);
 export function cachedCompilerById(id) { return cachedCompilers.find(profile => profile.id === id) ?? null; }
 export function verifyCompilerBytes(bytes, expectedHash) {
