@@ -52,6 +52,9 @@ export function initializeSupplyOverview(root,{read}){
   return (entry,missingDay=null)=>{const row=entry?.row??entry?.last;value.replaceChildren(node('span',row?supplyQuantityLabel(row.amount):missingDay?'관측 없음':'선택 필요'));if(row)value.append(node('small',coinId.toUpperCase()));meta.replaceChildren(node('span',entry?.network.name??'표시 네트워크'));if(row||missingDay){const day=(row?.observedAt.slice(0,10))??missingDay,time=node('time',day);time.dateTime=day;meta.append(time);}card.title=row?exactDecimal(row.amount)+' tokens · '+entry.network.name+' · '+row.observedAt.slice(0,10):'선택일 또는 표시 네트워크를 확인하세요.';card.setAttribute('aria-label',kind==='supply'?'표시 네트워크 중 최신 관측 공급량 최대':'선택 집계일의 표시 네트워크 중 전송량 최대');};
  }
  function render(){
+  root.setAttribute('aria-busy',String(loading));
+  // Keep the initial placeholders while the registered histories are still pending.
+  if(loading&&!details.length)return;
   const focused=root.contains(document.activeElement)?document.activeElement.getAttribute('aria-label'):null;
   const {groups:allGroups,from,to}=overviewSupplyGroups(details,{period}),coins=overviewCoins.filter(id=>currency==='USD'?['usdc','usdt','rlusd'].includes(id):['jpysc','jpyc'].includes(id)),selectedCoin=selectedCoins[currency];
   const groups=allGroups.filter(g=>g.coinId===selectedCoin),transfers=overviewTransferGroups(transferSurvey.data,selectedCoin);
@@ -62,7 +65,7 @@ export function initializeSupplyOverview(root,{read}){
   buttons('연동 통화',[['USD','USD'],['JPY','JPY']],currency,v=>currency=v,currencyTabs);coinButtons.setAttribute('role','group');coinButtons.setAttribute('aria-label','토큰 하나 선택');
   for(const id of coins){const b=node('button',id.toUpperCase(),'supply-coin');b.type='button';b.style.setProperty('--coin-color',colors[id]);b.setAttribute('aria-label',id.toUpperCase()+' 선택');b.disabled=!allGroups.some(g=>g.coinId===id)&&!overviewTransferGroups(transferSurvey.data,id).groups.length;b.setAttribute('aria-pressed',String(id===selectedCoin));b.addEventListener('click',()=>{selectedCoins[currency]=id;render();});coinButtons.append(b);}
   selection.append(currencyTabs,coinButtons);toolbar.append(selection,node('span',selectedCoin.toUpperCase()+' / '+currency,'overview-token-label'));root.append(toolbar);
-  const status=node('p',loading?'저장 자료 읽는 중…':failed?'저장 자료 읽기 실패 · 이전 정상 자료 표시':'','chart-note overview-load-status');status.setAttribute('role','status');root.append(status);
+  const status=node('p',loading?'저장 자료 읽는 중…':failed?details.length?'저장 자료 읽기 실패 · 이전 정상 자료 표시':'저장 자료 읽기 실패':'','chart-note overview-load-status');status.setAttribute('role','status');root.append(status);
   const summaries=node('div',undefined,'overview-summary-grid');root.append(summaries);
   if(groups.length){const update=summaryCard(summaries,'supply',selectedCoin,failed);update(overviewNetworkRanking(groups.filter(g=>!hidden.has(g.key)))[0]);}
   let updateTransferSummary;
