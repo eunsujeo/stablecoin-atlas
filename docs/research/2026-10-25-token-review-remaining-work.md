@@ -33,6 +33,8 @@ JPYC Ethereum/Polygon/Avalanche의 proxy/implementation 입력6개를 이전 Eth
 
 우선순위는 RLUSD·JPYSC의 정확한 compiler 확보와 사설 profile 검증, 그 다음 저장 소스 오프라인 분석이다. compiler의 새 취득은 공식 metadata/artifact의 host·버전·파일·GET/크기/시간 한도를 먼저 고정해 확인받는다. USDT 단발 승인이나 이미 소비한 compiler 취득을 재사용하지 않는다. JPYC의 immutable 독립 근거와 USDC의 원본 build 입력도 병행 후보다. 신규 RPC는 주소/체인·메서드·횟수·시간을 고정한 별도 실행 계획으로 구분한다.
 
+다음 [RLUSD·JPYSC 고정 compiler 제안](2026-10-25-rlusd-jpysc-compiler-plan.md)은 두 버전의 직접 단계 합계최대4GET/68MiB/240초, 거절 시 별도 브라우저 단계까지 전체최대8GET/136MiB/480초·사설 profile 검증·저장 자산 입력3개의 오프라인 분석만 구체화했다. 실제 취득은 아직 시작하지 않았다.
+
 공통 미확인은 감사 대상 snapshot/배포 대응·compiler 독립 진위·원본 build/생성자·전체 실행 의미·실제 dispatch·비용이다. 이들은 배포 수8에 더할 독립 토큰 수가 아니며, 자료 확보 가능성도 서로 다르다. 실제 권한 행사·역할 계정 수집·서비스 장부·운영 거래를 남은 필수 작업으로 되돌리지 않는다. [ADR0026](../adr/0026-source-based-compatibility-scope.md)의 완료 경계를 유지한다.
 
 오프라인 입력 준비 스크립트는 rc0·PASS다. 별도 Python 재독 검증도 rc0·PASS로 USDT31/다른 토큰54입력 hash·소비 plan hash·0700/0600을 확인했다. 경계 시험 포함 `npm run check`는 rc0·tests557/pass557/fail0/cancelled0/skipped0이며 `git diff --check`는 rc0이다. 이 검사 성공과 실제 관측/소스 연결의 UNKNOWN을 구분한다.
