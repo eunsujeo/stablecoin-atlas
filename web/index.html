@@ -8,6 +8,7 @@
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="/styles.css"><script type="module" src="/app.js"></script><script type="module" src="/evidence.js"></script><script type="module" src="/market-view.js"></script><script type="module" src="/overview.js"></script>
   <link rel="stylesheet" href="/loading.css">
+  <link rel="stylesheet" href="/comparison.css"><script type="module" src="/comparison.js"></script>
   <link rel="stylesheet" href="/source-review.css"><script type="module" src="/source-review.js"></script>
 </head>
 <body>
@@ -18,7 +19,7 @@
     <nav aria-label="주 메뉴">
       <a class="nav-link active" href="#overview" data-screen="overview"><span aria-hidden="true">◈</span><span>전체 현황<small>공급량 · 전송량</small></span></a>
       <a class="nav-link" href="#assets" data-screen="assets"><span aria-hidden="true">▤</span><span>자산 프로필<small>자산 · 네트워크</small></span></a>
-      <a class="nav-link" href="#compare" data-screen="compare"><span aria-hidden="true">⇄</span><span>자산 비교<small>검증 항목 비교</small></span></a>
+      <a class="nav-link" href="#compare" data-screen="compare"><span aria-hidden="true">⇄</span><span>자산 비교<small>프로필 · 저장 검증</small></span></a>
       <a class="nav-link" href="#validation" data-screen="validation"><span aria-hidden="true">✓</span><span>검증 근거<small>항목 · 원본 문서</small></span></a>
     </nav>
   </aside>
@@ -115,7 +116,7 @@
         </section>
       </div>
       <div id="assets-screen" class="evidence-screen" hidden><section id="asset-source-review" class="source-review" data-source-review aria-label="자산별 기술 프로필"></section></div>
-      <div id="compare-screen" class="evidence-screen" hidden><section class="panel"><div class="panel-heading"><div><h2>자산 비교</h2><p>동일 범위에서 2~3개를 선택하세요. 각 셀의 시나리오를 누르면 근거를 확인할 수 있습니다.</p></div></div><p class="semantic-note">승인량(EVM/TRON), 위임(Solana), 인가(XRPL)는 실행 의미가 다릅니다. 공통 항목 이름만으로 같은 기능이나 전송 가능성을 판정하지 않습니다.</p><div class="evidence-filters"><input type="hidden" id="compare-scope" value="STORED_READ_ONLY"><label>자산 1<select id="compare-1"></select></label><label>자산 2<select id="compare-2"></select></label><label>자산 3<select id="compare-3"></select></label></div><div id="comparison-message" role="status"></div><div class="table-scroll"><table class="comparison-table"><caption class="sr-only">기능별 시나리오 비교</caption><thead id="comparison-head"></thead><tbody id="comparison-body"></tbody></table></div></section></div>
+      <div id="compare-screen" class="evidence-screen" hidden><section class="panel" data-comparison-workspace><div data-comparison-switch tabindex="-1"></div><section data-report-comparison><div class="panel-heading"><div><h2>검증 비교</h2><p>저장된 읽기 보고서 2~3개를 선택하세요. 각 셀의 시나리오를 누르면 근거를 확인할 수 있습니다.</p></div></div><p class="semantic-note">승인량(EVM/TRON), 위임(Solana), 인가(XRPL)는 실행 의미가 다릅니다. 공통 항목 이름만으로 같은 기능이나 전송 가능성을 판정하지 않습니다.</p><div class="evidence-filters"><input type="hidden" id="compare-scope" value="STORED_READ_ONLY"><label>보고서 1<select id="compare-1"></select></label><label>보고서 2<select id="compare-2"></select></label><label>보고서 3 · 선택 사항<select id="compare-3"></select></label></div><div id="comparison-message" role="status"></div><div class="table-scroll"><table class="comparison-table"><caption class="sr-only">기능별 시나리오 비교</caption><thead id="comparison-head"></thead><tbody id="comparison-body"></tbody></table></div></section></section></div>
       <div id="reports-screen" class="evidence-screen" hidden><section class="panel"><div class="panel-heading"><div><h2>근거 문서 · 저장된 실행</h2><p>원본 입력은 로컬에 보존합니다. 웹에서는 허용 필드를 발췌한 문서와 JSON을 제공합니다.</p></div></div><div id="report-cards" class="asset-cards"></div></section></div>
       <footer><span>원본 시각·판정 보존 · 해시는 내용 변경 탐지용이며 진위 인증이 아닙니다.</span><span>공개망 재조회·실제 권한 행사 없음</span></footer>
     </section>

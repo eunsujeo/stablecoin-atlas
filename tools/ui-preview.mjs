@@ -20,6 +20,7 @@ import { databaseMarketReader } from './market-db/preview.mjs';
 import {databaseRegistrationReader,registrationRequest} from './market-db/registration-preview.mjs';
 
 const assets = new Map([
+  ...['comparison.js','comparison-model.js','comparison.css'].map(name=>['/'+name,['../web/'+name,name.endsWith('.css')?'text/css; charset=utf-8':'text/javascript; charset=utf-8']]),
   ['/source-review.js', ['../web/source-review.js', 'text/javascript; charset=utf-8']],
   ['/source-review-top10-data.js', ['../web/source-review-top10-data.js', 'text/javascript; charset=utf-8']],
   ['/source-review-data.js', ['../web/source-review-data.js', 'text/javascript; charset=utf-8']],

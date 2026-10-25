@@ -60,7 +60,7 @@ function navigate(){
  const group=['assets','compare'].includes(page)?'coverage':page;
  for(const link of document.querySelectorAll('nav a')){if(link.hash==='#'+group)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');}
  window.scrollTo({top:0,behavior:'instant'});
- const heading={assets:'#profile-title',compare:'#native-compare-title',coverage:'#coverage-title'}[page];
+ const heading={assets:'#profile-title',compare:'#compare [data-comparison-switch]',coverage:'#coverage-title'}[page];
  if(heading)$(heading).focus({preventScroll:true});
 }
 function theme(value){document.documentElement.dataset.theme=value;$('#theme').textContent=value==='dark'?'라이트 테마':'다크 테마';}

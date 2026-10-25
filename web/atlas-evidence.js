@@ -44,6 +44,7 @@ function compare() {
   const head = $('#native-comparison-head'), body = $('#native-comparison-body');
   head.replaceChildren();body.replaceChildren();
   const ids = state.compare.filter(Boolean);
+  for(const selector of controls){const select=$(selector);for(const option of select.options)option.disabled=!!option.value&&option.value!==select.value&&ids.includes(option.value);}
   try {
     const rows = comparisonRows(state.index, ids), header = node('tr');
     const title = node('th', '검증 항목 / 체인별 의미');title.scope = 'col';header.append(title);
@@ -52,7 +53,7 @@ function compare() {
       cell.scope = 'col';cell.append(node('strong', report.label), node('small', report.chain), node('small', `보고서 완료 ${text(report.completedAt)}`), documentLink(report));
       header.append(cell);
     }
-    head.append(header);$('#native-comparison-message').textContent = '';
+    head.append(header);$('#native-comparison-message').textContent = `${ids.length}개 저장 보고서 · ${rows.length}개 검증 항목 · 판정 / 지원 / 실행은 별도 상태입니다.`;
     for (const row of rows) {
       const tr = node('tr'), label = node('th', CAPABILITY_LABELS[row.capability] ?? row.capability);
       label.scope = 'row';tr.append(label);
@@ -66,7 +67,7 @@ function compare() {
     }
     if (!rows.length) emptyRow(body, ids.length + 1, '선택 보고서에 비교할 검증 항목이 미수록입니다.');
   } catch {
-    $('#native-comparison-message').textContent = '서로 다른 보고서 2~3개를 선택하세요. 같은 보고서를 중복 비교할 수 없습니다.';
+    $('#native-comparison-message').textContent = state.index?.reports.length?'서로 다른 저장 보고서 2~3개를 선택하세요.':'저장된 읽기 보고서가 없습니다. 자산 비교에서 소스 검토 자료를 확인할 수 있습니다.';
   }
 }
 function render() {
