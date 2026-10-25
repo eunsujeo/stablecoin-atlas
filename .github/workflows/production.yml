@@ -1,0 +1,55 @@
+name: Production preparation and optional manual deployment
+on:
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: Deploy tested SHA through the preconfigured Tailscale runner
+        required: true
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: atlas-production
+  cancel-in-progress: false
+jobs:
+  test:
+    # Isolated CI runner, never the production service identity.
+    runs-on: [self-hosted, Linux, ARM64, atlas-ci]
+    outputs:
+      sha: ${{ steps.revision.outputs.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Record exact revision
+        id: revision
+        run: |
+          revision=$(git rev-parse HEAD)
+          echo "sha=$revision" >> "$GITHUB_OUTPUT"
+          echo "Test revision: $revision"
+      - name: Stage previously approved compiler cache (no download)
+        run: |
+          install -d -m 0700 .state/tron-compiler
+          install -m 0600 /var/cache/atlas-ci/tron-0.8.26.cjs .state/tron-compiler/tron-0.8.26.cjs
+      - run: node tools/workspace-doctor.mjs full
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm run check
+  deploy:
+    if: inputs.deploy && github.ref == 'refs/heads/main'
+    needs: test
+    environment: production
+    # SSH agent + pinned known_hosts + Tailscale are provisioned outside this repo.
+    runs-on: [self-hosted, Linux, ARM64, atlas-deploy]
+    env:
+      DEPLOY_HOST: ${{ vars.ATLAS_DEPLOY_HOST }}
+      REVISION: ${{ needs.test.outputs.sha }}
+    steps:
+      - name: Stage tested commit, activate, verify and roll back on failure
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$REVISION" =~ ^[a-f0-9]{40}$ ]]
+          [[ "$DEPLOY_HOST" =~ ^[a-zA-Z0-9][a-zA-Z0-9.-]+$ ]]
+          ssh -o BatchMode=yes -o StrictHostKeyChecking=yes "atlasdeploy@$DEPLOY_HOST" "sudo /usr/local/sbin/atlas-release stage $REVISION"
+          ssh -o BatchMode=yes -o StrictHostKeyChecking=yes "atlasdeploy@$DEPLOY_HOST" "sudo /usr/local/sbin/atlas-release activate $REVISION"

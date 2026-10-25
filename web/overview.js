@@ -18,6 +18,7 @@ import { validateMarket, displayAmount, ratio, units } from './market-model.js';
 import { overviewSummary, overviewEvidenceRanking } from './overview-model.js';
 import {sourceReviewProfiles,sourceReviewDate,sourceScopeSummary} from './source-review-data.js';
 const $=selector=>document.querySelector(selector);
+const publicMode=document.documentElement.dataset.deployment==='production';
 const node=(tag,text,cls)=>{const el=document.createElement(tag);if(text!==undefined)el.textContent=String(text);if(cls)el.className=cls;return el;};
 const savedChart=readChartURL(location.href)??readChartPreferences();
 const state={currency:readCurrency(location.href),fx:null,selectedCoin:savedChart?.coinId??'usdc',selectedSource:savedChart?.source??'history',selectedNetwork:savedChart?.networkId??'all',marketFailed:false,index:null,market:null,loading:false,loaded:false,period:savedChart?.period??'30d',sourceInitialized:!!savedChart,comparison:savedChart?.comparison??'amount',registration:null,detail:null,trendLoading:false,trendError:false,registrationFailed:false};
@@ -25,7 +26,7 @@ let trendSequence=0,trendAbort,trendFinish;
 let survey={data:null,state:'MISSING'};
 const renderSupplyOverview=initializeSupplyOverview($('#overview-supply'),{read:json});
 let geography={data:null,state:'MISSING'};
-initializeGeographyFilters($('#overview-geography'),()=>renderGeography($('#overview-geography'),geography));
+if(!publicMode)initializeGeographyFilters($('#overview-geography'),()=>renderGeography($('#overview-geography'),geography));
 const renderStoredSurvey=()=>renderSurvey($('#overview-survey'),survey);
 initializeSurveyFilters($('#overview-survey'),renderStoredSurvey);
 let reviewedSupply={data:null,state:'MISSING'};
@@ -72,7 +73,7 @@ function renderSourceReview(){
   const gradeValue=node('strong','미산정');gradeValue.id='overview-read-grade';
   const gradeNote=node('p','저장 보고서 로딩 중');gradeNote.id='overview-read-grade-note';
   const gradeRow=node('div',undefined,'metric-value');gradeRow.append(gradeValue);
-  gradeCard.append(node('p','읽기 실행 등급'),gradeRow,gradeNote);metrics.append(gradeCard);
+  gradeCard.append(node('p','읽기 실행 등급'),gradeRow,gradeNote);if(!publicMode)metrics.append(gradeCard);
   $('#overview-source-note').textContent=`${sourceReviewDate,sourceScopeSummary} 기준 · 저장 소스·문서 검토 범위`;
   const rows=$('#overview-source-rows');rows.replaceChildren();
   for(const coinId of assets){
@@ -247,7 +248,7 @@ async function load(){
   if(state.loading)return;state.loading=true;$('#overview-reload').disabled=true;
   const finish=beginLoading($('#overview-screen'),{ready:!!(state.index||state.market),targets:[['#overview-market-trend','chart'],['#overview-chain-breakdown','rows'],['#overview-market-rows','rows'],['#overview-activity-rows','rows'],['#overview-reviewed-rows','rows'],['#overview-survey-rows','rows'],['#overview-metrics','cards']]});
   try {
-  const results=await Promise.allSettled([json('/evidence/index.json').then(dashboardEvidence),json('/market-data.json').then(validateMarket),json('/registration-index.json',{optional:true}).then(x=>x===null?null:validateRegistrationIndex(x)),json('/fx-data.json').then(validateFX),json('/activity-data.json',{optional:true}).then(x=>x===null?null:validateActivity(x)),json('/reviewed-supply-data.json',{optional:true}).then(x=>x===null?null:validateReviewedSupply(x)),json('/survey-data.json',{optional:true}).then(x=>x===null?null:validateStoredSurvey(x)),json('/geography-data.json').then(validateGeography)]);
+  const results=await Promise.allSettled([publicMode?Promise.resolve(null):json('/evidence/index.json').then(dashboardEvidence),json('/market-data.json').then(validateMarket),json('/registration-index.json',{optional:true}).then(x=>x===null?null:validateRegistrationIndex(x)),json('/fx-data.json').then(validateFX),json('/activity-data.json',{optional:true}).then(x=>x===null?null:validateActivity(x)),json('/reviewed-supply-data.json',{optional:true}).then(x=>x===null?null:validateReviewedSupply(x)),json('/survey-data.json',{optional:true}).then(x=>x===null?null:validateStoredSurvey(x)),publicMode?Promise.resolve(null):json('/geography-data.json').then(validateGeography)]);
   const failed=[];
   for(const [index,key]of ['index','market'].entries()){
     if(results[index].status==='fulfilled')state[key]=results[index].value;
@@ -260,7 +261,7 @@ async function load(){
   survey=storedSurveyChoice(survey.data,results[6]);if(results[6].status==='rejected')failed.push('Allium 저장 자료');
   geography=geographyChoice(geography.data,results[7]);
   state.marketFailed=results[1].status!=='fulfilled';
-  renderEvidence();renderMarket();renderEvidenceRankings();renderActivity();renderSupply();renderStoredSurvey();renderGeography($('#overview-geography'),geography);
+  if(!publicMode){renderEvidence();renderEvidenceRankings();}renderMarket();renderActivity();renderSupply();renderStoredSurvey();if(!publicMode)renderGeography($('#overview-geography'),geography);
   await renderSupplyOverview({index:state.registration,market:state.market,indexFailed:state.registrationFailed,survey});
   const collectionFailed=state.market?.collectionState?.state==='FAILED'||state.market?.lastBuildState==='FAILED';
   $('#overview-error').hidden=!failed.length&&!collectionFailed;
@@ -269,7 +270,7 @@ async function load(){
   finally {finish();state.loading=false;state.loaded=true;$('#overview-reload').disabled=false;}
 }
 function activate(){if(!$('#overview-screen').hidden&&!state.loaded)load();}
-$('#overview-reload').addEventListener('click',load);$('#overview-scope').addEventListener('change',()=>{renderEvidence();renderEvidenceRankings();});$('#overview-rank-metric').addEventListener('change',renderEvidenceRankings);$('#overview-theme').addEventListener('click',()=>$('#theme-toggle').click());
+$('#overview-reload').addEventListener('click',load);$('#overview-scope')?.addEventListener('change',()=>{renderEvidence();renderEvidenceRankings();});$('#overview-rank-metric')?.addEventListener('change',renderEvidenceRankings);$('#overview-theme').addEventListener('click',()=>$('#theme-toggle').click());
 const theme=()=>{$('#overview-theme').textContent=document.documentElement.dataset.theme==='light'?'☾ 다크':'☀ 라이트';};
 new MutationObserver(theme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});theme();
 document.addEventListener('atlas:navigate',activate);activate();

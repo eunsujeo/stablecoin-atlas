@@ -75,7 +75,9 @@
     "allium:live": "node --use-env-proxy tools/allium-live-cli.mjs",
     "allium:geography": "node --use-env-proxy tools/allium-geography-cli.mjs",
     "market:survey:db": "node --use-env-proxy tools/market-db/survey-cli.mjs",
-    "market:supply:db": "node --use-env-proxy tools/market-db/allium-supply-cli.mjs"
+    "market:supply:db": "node --use-env-proxy tools/market-db/allium-supply-cli.mjs",
+    "start": "node --use-env-proxy tools/production-web.mjs",
+    "check:production": "node --use-env-proxy --test tests/production*.test.mjs"
   },
   "dependencies": {
     "ajv": "8.20.0",

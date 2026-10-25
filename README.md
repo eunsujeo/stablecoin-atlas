@@ -1,5 +1,7 @@
 # Stablecoin Atlas
 
+개인 Fedora ARM64 서버의 운영 배포 준비는 [Production Deployment](docs/PRODUCTION_DEPLOYMENT.md)를 따른다. `npm start`는 명시 reader 설정과 공개 Host 허용 목록을 요구하며, `npm run ui`는 기존 로컬 Preview다. 실제 서버/Cloudflare 공개 배포는 별도 실행 단계다.
+
 다른 PC에서 시작하려면 [새 PC 설정](docs/NEW_PC_SETUP.md), 작업을 이어갈 때는 [현재 개발 상태](docs/DEVELOPMENT_STATUS.md)를 먼저 읽는다.
 
 새 기준의 [읽기 전용 EVM 토큰 기술 검토](docs/TOKEN_TECHNICAL_REVIEW.md)는 `npm run review:token -- --config <설정.json> --out <새 디렉터리>`로 실행한다. 소스·배포 연결·정적 권한/동작 경로·감사 소스 대조를 별도 JSON·Markdown으로 생성하며 기존 PASS/FAIL과 구분한다. 외부 조회 없는 소스 검토는 `--offline`, 저장 관측 대조는 여기에 `--observations <기존 보고서.json>`을 사용한다.
@@ -131,7 +133,7 @@ USDC의 제어 getter 응답을 별도로 관측하는 [연구용 읽기 probe](
 
 ## 로컬 대시보드 · 저장 시장 자료
 
-`npm run ui`로 `http://127.0.0.1:4173/#live`를 연다. 검증 항목·자산 프로필·비교는 기존 저장 보고서를 사용하고, Market은 공급자 실제 관측, Market preview는 가상 데이터를 표시한다. 외부 키는 웹에 제공하지 않는다.
+`npm run ui`로 `http://127.0.0.1:4173/#live`를 연다. 전체 현황·자산 프로필·저장 시장 자료를 표시한다. 개발 Preview의 가상 자료와 비공개 보고서 경로는 운영 모드에서 제공하지 않는다. 외부 키는 웹에 제공하지 않는다.
 
 `npm run market:build`는 현재 로컬 연구 보고서 다섯 개(`arkham-api-smoke`, `arkham-market-additional`, `arkham-chain-supply-research`, `arkham-additional-data-research`, `xrpl-gateway-obligations-readonly`의 reports JSON)를 오프라인으로 읽어 시장 자료 묶음을 만든다. 이 연구 보고서들은 저장소에서 제외되며, 없는 경우 명령은 실패하고 이전 정상본을 유지한다. [ADR0035](docs/adr/0035-stored-market-observations.md)에 지표·보존·실패 경계를 기록했다.
 

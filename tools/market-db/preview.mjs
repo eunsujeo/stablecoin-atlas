@@ -93,7 +93,7 @@ export async function databaseMarket(client, registry, { now = Date.now() } = {}
 }
 
 // At most one connection/query in flight and one short-lived successful response.
-export function databaseMarketReader({env,marketDirectory,connect=connectDatabase,read=databaseMarket,now=Date.now}={}) {
+export function databaseMarketReader({env,marketDirectory,connect=connectDatabase,read=databaseMarket,now=Date.now,includeLocalStatus=true}={}) {
   let pending, cached, expires=0;
   return async () => {
     if (cached && now() < expires) return cached;
@@ -103,7 +103,7 @@ export function databaseMarketReader({env,marketDirectory,connect=connectDatabas
       try {
         const registry = (await boundedJson(registryPath,128*1024)).value;
         client = await connect(env);
-        const data = {...await read(client,registry,{now:now()}),...await publishedMarketStatus(marketDirectory)};
+        const data = {...await read(client,registry,{now:now()}),...(includeLocalStatus?await publishedMarketStatus(marketDirectory):{})};
         if (Buffer.byteLength(JSON.stringify(data)) > byteLimit) fail('QUERY_RESPONSE_LIMIT');
         cached=data; expires=now()+10000; return data;
       } finally { await client?.end().catch(()=>{}); }

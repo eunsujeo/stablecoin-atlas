@@ -1,0 +1,11 @@
+#!/usr/bin/bash
+set -euo pipefail
+umask 077
+export PATH=/usr/bin:/bin
+unset NODE_OPTIONS NODE_PATH NODE_TLS_REJECT_UNAUTHORIZED
+if [[ ${EUID} -ne 0 || $# -ne 2 ]]; then echo 'Usage: atlas-release stage|activate <40-char-sha>, or rollback previous' >&2; exit 1; fi
+case "$1" in
+  stage) exec /usr/bin/node /usr/local/lib/atlas-deploy/release-stage.mjs "$2" ;;
+  activate|rollback) exec /usr/bin/node /usr/local/lib/atlas-deploy/release-switch.mjs "$1" "$2" ;;
+  *) echo 'INVALID_RELEASE_ARGUMENTS' >&2; exit 1 ;;
+esac

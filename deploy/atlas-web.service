@@ -1,0 +1,40 @@
+[Unit]
+Description=Stablecoin Atlas public read-only web
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=300
+StartLimitBurst=3
+
+[Service]
+Type=exec
+User=atlasweb
+Group=atlasweb
+WorkingDirectory=/opt/stablecoin-atlas/current
+LoadCredential=reader.env:/etc/atlas-web/reader.env
+ExecStart=/usr/bin/node --max-old-space-size=384 tools/production-web.mjs --config /etc/atlas-web/web.json --reader-env ${CREDENTIALS_DIRECTORY}/reader.env
+Restart=on-failure
+RestartSec=10
+TimeoutStopSec=45
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectHome=true
+ProtectSystem=strict
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+CapabilityBoundingSet=
+InaccessiblePaths=-/etc/atlas-collector -/var/lib/atlas-collector -/etc/atlas-tunnel
+ReadOnlyPaths=/var/lib/atlas-public
+TasksMax=64
+MemoryHigh=512M
+MemoryMax=768M
+CPUQuota=150%
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

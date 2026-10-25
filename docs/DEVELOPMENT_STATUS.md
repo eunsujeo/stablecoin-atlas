@@ -1,5 +1,7 @@
 # 현재 개발 상태
 
+사용자 요청에 따라 [Fedora ARM64 운영 배포 준비](PRODUCTION_DEPLOYMENT.md)를 추가했다([ADR0105](adr/0105-production-readiness.md)). 기존 Preview·수집 정책·DB 스키마/판정은 유지하며 production CLI·공개 경계·reader 연결 상한·systemd·정확 SHA 배포/롤백·수동 Actions 구성을 준비한다. 실제 서버·Tunnel·서비스/수집 전환은 미실행이다. 검증과 미확인은 [작업 기록](research/2026-10-25-production-readiness.md)을 따른다.
+
 사용자 요청으로 [기존 UI만 제공](adr/0104-legacy-only-preview.md)한다. `/`가 기본 경로이며 `/index.html`은 같은 화면이다. `/legacy.html`은 query/hash를 유지해 `/`로 이동한다. Atlas 별도 화면과 전용 모듈·검증 근거·자산 비교 메뉴/페이지를 제거했다. 자산 프로필·보고서·원본 판정은 보존한다. 아래 과거 기록의 기본/Atlas·비교/검증 근거 표기는 당시 구현 범위다.
 
 [자산 비교·검증 비교](research/2026-10-25-comparison-workspace.md)를 구분했다. 기본/Atlas에서 저장 소스26프로필의 조건·근거를 나란히 확인하고, 기존 저장 보고서2~3개의 판정·지원·실행 상태는 별도 보기로 유지한다. 새 조사·판정 재계산·외부/DB 호출은 없다.

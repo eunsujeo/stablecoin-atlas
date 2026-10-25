@@ -1,3 +1,4 @@
+import {allowedProductionPath,productionDocument,validatePublicHosts} from './production-policy.mjs';
 import {localRegistrationReader} from './registration-file-preview.mjs';
 import {validateStoredSurvey} from '../web/survey-model.js';
 import {boundedRead} from './evidence-store.mjs';
@@ -20,6 +21,7 @@ import { databaseMarketReader } from './market-db/preview.mjs';
 import {databaseRegistrationReader,registrationRequest} from './market-db/registration-preview.mjs';
 
 const assets = new Map([
+  ['/production.js',['../web/production.js','text/javascript; charset=utf-8']],
   ['/source-review.js', ['../web/source-review.js', 'text/javascript; charset=utf-8']],
   ['/source-review-top10-data.js', ['../web/source-review-top10-data.js', 'text/javascript; charset=utf-8']],
   ['/source-review-data.js', ['../web/source-review-data.js', 'text/javascript; charset=utf-8']],
@@ -60,7 +62,11 @@ const assets = new Map([
   ['/mock-data.json', ['../docs/ui/mock-dashboard-data.json', 'application/json; charset=utf-8']],
 ]);
 const csp = "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; object-src 'none'";
-export function createPreviewServer({ evidenceDirectory, marketDirectory, marketReader, registrationReader, fxDirectory, activityReader, reviewedSupplyReader, surveyReader, geographyReader=storedGeographyReader() } = {}) {
+export function createPreviewServer({ evidenceDirectory, marketDirectory, marketReader, registrationReader, fxDirectory, activityReader, reviewedSupplyReader, surveyReader, fxReader, production, geographyReader } = {}) {
+  const publicHosts=production?validatePublicHosts(production.hosts):null;
+  if(production&&!/^[a-f0-9]{40}$/.test(production.commit??''))throw Error('COMMIT_INVALID');
+  if(!production)geographyReader??=storedGeographyReader();
+  if(production&&(!marketReader||!registrationReader||!activityReader||!reviewedSupplyReader||!surveyReader||!fxReader))throw Error('PUBLIC_READERS_REQUIRED');
   const server = createServer(async (req, res) => {
     res.setHeader('Content-Security-Policy', csp);
     res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -73,8 +79,17 @@ export function createPreviewServer({ evidenceDirectory, marketDirectory, market
     const port = typeof address === 'object' && address ? address.port : null;
     const hosts = new Set([`127.0.0.1:${port}`, `localhost:${port}`]);
     const origins = new Set([...hosts].map(host => `http://${host}`));
-    if (!hosts.has(req.headers.host) || (req.headers.origin !== undefined && !origins.has(req.headers.origin)) || req.headers['sec-fetch-site'] === 'cross-site') { fail(403, 'FORBIDDEN'); return; }
+    const healthHost=req.url==='/healthz'&&hosts.has(req.headers.host)&&req.headers.origin===undefined;
+    const acceptedHost=production?(publicHosts.has(req.headers.host)||healthHost):hosts.has(req.headers.host);
+    const acceptedOrigin=req.headers.origin===undefined||(production?req.headers.origin===`https://${req.headers.host}`&&publicHosts.has(req.headers.host):origins.has(req.headers.origin));
+    const publicDocument=production&&/^(?:\/|\/index\.html|\/legacy\.html|\/source-review-notes\.html)(?:\?|$)/.test(req.url??'');
+    const crossSiteNavigation=publicDocument&&req.headers.origin===undefined&&req.headers['sec-fetch-mode']==='navigate'&&req.headers['sec-fetch-dest']==='document';
+    if(!acceptedHost||!acceptedOrigin||req.headers['sec-fetch-site']==='cross-site'&&!crossSiteNavigation){fail(403,'FORBIDDEN');return;}
+    if(production&&!allowedProductionPath(req.url)){fail(404,'NOT_FOUND');return;}
+    if(production&&(req.rawHeaders.filter((_,i)=>i%2===0&&req.rawHeaders[i].toLowerCase()==='host').length!==1||req.headers['transfer-encoding']||req.headers['content-length']&&req.headers['content-length']!=='0')){fail(400,'INVALID_REQUEST');return;}
+
     if (req.method !== 'GET' && req.method !== 'HEAD') { res.setHeader('Allow', 'GET, HEAD'); fail(405, 'METHOD_NOT_ALLOWED'); return; }
+    if(production&&req.url==='/healthz'){const bytes=Buffer.from(JSON.stringify({status:'ok',commit:production.commit}));res.writeHead(200,{'Content-Type':'application/json; charset=utf-8','Content-Length':bytes.length});res.end(req.method==='HEAD'?undefined:bytes);return;}
     if(typeof req.url==='string'&&req.url.length<=2048&&(req.url==='/legacy.html'||req.url.startsWith('/legacy.html?'))){
       res.writeHead(308,{'Location':'/'+req.url.slice('/legacy.html'.length),'Content-Length':'0'});res.end();return;
     }
@@ -114,7 +129,7 @@ export function createPreviewServer({ evidenceDirectory, marketDirectory, market
       }catch{fail(503,'REVIEWED_SUPPLY_UNAVAILABLE');}return;
     }
     if(req.url==='/activity-data.json'){if(!activityReader){fail(404,'ACTIVITY_DISABLED');return;}try{const bytes=Buffer.from(JSON.stringify(await activityReader()));if(bytes.length>128*1024)throw Error('READ_LIMIT');res.writeHead(200,{'Content-Type':'application/json; charset=utf-8','Content-Length':bytes.length});res.end(req.method==='HEAD'?undefined:bytes);}catch{fail(503,'ACTIVITY_UNAVAILABLE');}return;}
-    if(req.url==='/fx-data.json'){try{const bytes=Buffer.from(JSON.stringify(await readFX(fxDirectory)));res.writeHead(200,{'Content-Type':'application/json; charset=utf-8','Content-Length':bytes.length});res.end(req.method==='HEAD'?undefined:bytes);}catch{fail(503,'FX_UNAVAILABLE');}return;}
+    if(req.url==='/fx-data.json'){try{const bytes=Buffer.from(JSON.stringify(await (fxReader?fxReader():readFX(fxDirectory))));res.writeHead(200,{'Content-Type':'application/json; charset=utf-8','Content-Length':bytes.length});res.end(req.method==='HEAD'?undefined:bytes);}catch{fail(503,'FX_UNAVAILABLE');}return;}
     if (req.url === '/market-data.json') {
       try {
         const bytes = Buffer.from(JSON.stringify(await (marketReader ? marketReader() : publishedMarket(marketDirectory))));
@@ -139,12 +154,14 @@ export function createPreviewServer({ evidenceDirectory, marketDirectory, market
     const asset = assets.get(assetPath);
     if (!asset) { fail(404, 'NOT_FOUND'); return; }
     try {
-      const bytes = await readFile(new URL(asset[0], import.meta.url));
+      let bytes = await readFile(new URL(asset[0], import.meta.url));
+      if(production&&(assetPath==='/'||assetPath==='/index.html'))bytes=productionDocument(bytes);
       if (bytes.length > 128000 || (req.url === '/mock-data.json' && bytes.length > 64000)) { fail(500, 'ASSET_UNAVAILABLE'); return; }
       res.writeHead(200, { 'Content-Type': asset[1], 'Content-Length': bytes.length });
       res.end(req.method === 'HEAD' ? undefined : bytes);
     } catch { fail(500, 'ASSET_UNAVAILABLE'); }
   });
+  if(production){server.headersTimeout=10000;server.requestTimeout=15000;server.keepAliveTimeout=5000;server.maxHeadersCount=40;server.maxConnections=128;}
   return server;
 }
 export async function startPreviewServer(port = 4173, options = {}) {
