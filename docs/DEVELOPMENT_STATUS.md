@@ -4,6 +4,8 @@
 
 ## 완료 범위
 
+- 2026-10-25 정확한6RPC/120초 계획 승인에 따라 [USDT 단발 읽기](research/2026-10-25-usdt-live-runtime-result.md)를 실행했다. 첫 eth_chainId 송신 시도1·정상 반환0에서 INCONCLUSIVE로 종료·소비 완료했으며 block/code 미관측·ADDRESS_NOT_OBSERVED·matched null·binding UNKNOWN이다. 재시도/전환/컴파일0, 원본31파일 hash 불변·권한 검증, 경계6개/전체557개 검사 통과. 다른 토큰은 RLUSD35소스/settings 후보 준비·JPYC6입력 바이트 동일성·JPYSC2입력을 오프라인 확인했다(54입력 불변·새 RPC/컴파일0). [잔여 작업](research/2026-10-25-token-review-remaining-work.md): Ethereum 핵심5토큰의 전체 소스·배포 연결 UNKNOWN5/5, JPYC3개 추가 체인을 포함하면8/8이며 JPYC Ethereum 프록시1개 고정 블록 일치는 별도다.
+
 - 2026-10-25 후속 진행 승인으로 [USDT 신규 고정 해시 코드 대조 계획](research/2026-10-25-usdt-live-runtime-plan.md)을 구체화했다. 저장 compiler 출력 재사용·chainId1 단일 주소·기존 RPC_URL·최대6RPC/120초·재시도/전환0·종료 재확인·새 소비·별도 연구 보고서를 제안한다. 저장 입력25파일 hash를 확인했으며 새 RPC/컴파일/다운로드/실제 대조0이다. 정확한 외부 실행 범위의 사용자 확인 전 실행하지 않는다.
 
 - 2026-10-25 사용자 후속 승인으로 [USDT 저장 compiler 출력 분석](research/2026-10-25-usdt-stored-runtime-analysis.md)을 완료했다. 보완 비교기의 구조 검사는 통과했지만 관측 hash가 없어 ADDRESS_NOT_OBSERVED·matched null·binding UNKNOWN이다. 별도 연구 보조 JSON/Markdown을 보존하고 기존 INVALID_RELOCATION_DATA/PARTIAL·MISMATCH·원문25파일을 유지했다. 고정 compiler 캐시3개의 hash도 확인했으며 재컴파일·RPC·다운로드·배포 대조는0회다.

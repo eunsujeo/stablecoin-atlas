@@ -21,6 +21,7 @@
 - 사용자 USDT 오프라인 재컴파일 승인(2026-10-25): 저장된 USDT 소스 후보와 ADR0097의 고정 compiler만 사용하는 별도 오프라인 재컴파일을 허용한다. 새 RPC·다운로드·배포 대조는 제외한다. 원본/설정과 기존 MISMATCH·UNKNOWN을 보존하고, 컴파일·정적 소스 분석과 실제 배포 연결을 분리한다. 결과는 docs/research/2026-10-25-usdt-offline-recompile.md를 따른다.
 - 사용자 legacy 비교기 보완 승인(2026-10-25): ADR0098의 고정 solc0.4.18 immutableReferences 생략 호환성과 사설 Fixture 검증을 허용한다. 정확한 전체 버전·필드 자체 부재만 내부 빈 범위로 처리하고 compiler 원본·기존 보고서·판정을 보존한다. 외부 호출·다운로드·실제 USDT 재컴파일·배포 대조는 이번 승인에서 제외한다.
 - 사용자 저장 USDT 출력 분석 승인(2026-10-25): 기존 compiler 출력만 ADR0098 비교기로 분석해 별도 오프라인 연구 보고서를 작성한다. 재컴파일·RPC·다운로드·실제 배포 대조 없이 기존 원본·보고서·판정을 보존한다. 결과는 docs/research/2026-10-25-usdt-stored-runtime-analysis.md를 따른다.
+- 사용자 USDT 고정 코드 대조 승인(2026-10-25): docs/research/2026-10-25-usdt-live-runtime-plan.md의 단일 Ethereum 주소·기존 RPC_URL·최대6RPC/120초·재시도/전환0·저장 출력 재사용 범위를 승인했다. 첫 송신 시도1·정상 반환0으로 실패 종료·소비 완료했으며 새 시도를 자동 시작하지 않는다. 후속 다른 토큰 진행은 저장 자료의 오프라인 입력 준비로 이어갔다. 결과와 UNKNOWN 집계는 docs/research/2026-10-25-usdt-live-runtime-result.md 및 docs/research/2026-10-25-token-review-remaining-work.md를 따른다. 새 compiler 취득·다른 체인의 RPC는 정확한 별도 계획 확인 전 시작하지 않는다.
 - 증거가 없으면 INCONCLUSIVE, 실행하지 않았으면 NOT_TESTED. UNKNOWN과 NOT_APPLICABLE을 구분한다. 함수 실패로 기능 부재를 단정하지 않는다.
 - 지원 여부와 검증 판정을 분리한다. 수수료·zero-reset·관리자 권한의 존재 자체는 실패나 취약점이 아니다.
 - 공통 도메인에 ERC-20 메서드를 강제하지 않는다. 체인별 실행 의미는 Adapter 안에 둔다.
