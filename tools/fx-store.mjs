@@ -1,5 +1,5 @@
 import {createHash} from 'node:crypto';
-import {mkdir,lstat,open,link,unlink} from 'node:fs/promises';
+import {mkdir,lstat,open,link,unlink,readdir} from 'node:fs/promises';
 import {constants} from 'node:fs';
 import {join,resolve} from 'node:path';
 import {randomUUID} from 'node:crypto';
@@ -27,16 +27,38 @@ async function privateDirectory(path,create=false){if(create)await mkdir(path,{r
 async function immutable(path,bytes){let file;try{file=await open(path,constants.O_WRONLY|constants.O_CREAT|constants.O_EXCL|constants.O_NOFOLLOW,0o600);await file.writeFile(bytes);await file.sync();}catch(e){if(e.code!=='EEXIST')throw e;const old=await boundedRead(path,size);if(!old.equals(bytes))fail();}finally{await file?.close();}const dir=await open(resolve(path,'..'),constants.O_RDONLY|constants.O_DIRECTORY);try{await dir.sync();}finally{await dir.close();}}
 async function publish(path,bytes){const temp=path+'.'+randomUUID()+'.tmp';try{await immutable(temp,bytes);try{await link(temp,path);}catch(e){if(e.code!=='EEXIST')throw e;if(!(await boundedRead(path,size)).equals(bytes))fail();}}finally{await unlink(temp).catch(()=>{});}const dir=await open(resolve(path,'..'),constants.O_RDONLY|constants.O_DIRECTORY);try{await dir.sync();}finally{await dir.close();}}
 async function json(path){return JSON.parse((await boundedRead(path,size)).toString('utf8'));}
+async function verifiedSnapshot(root,day){
+ const p=validateFX(await json(join(root,'snapshots',day+'.json')));
+ if((p.fetchedAt??p.importedAt).slice(0,10)!==day)fail();
+ let raw;try{raw=await boundedRead(join(root,'archive',p.sourceHash+'.xml'),size);}catch(e){if(e.code==='ENOENT')fail();throw e;}
+ const mapped=parseFX(raw,{at:p.fetchedAt??p.importedAt,imported:p.importedAt!==null});
+ if(JSON.stringify(mapped)!==JSON.stringify(p))fail();return p;
+}
 export async function readFX(directory=defaultFXDirectory,{now=Date.now()}={}){
  const root=directory instanceof URL?fileURLToPath(directory):resolve(directory);await privateDirectory(root);await privateDirectory(join(root,'snapshots'));await privateDirectory(join(root,'archive'));
  for(let i=0;i<=7;i++){
   const day=new Date(now-i*86400000).toISOString().slice(0,10);let p;
-  try{p=validateFX(await json(join(root,'snapshots',day+'.json')));}catch(e){if(e.code==='ENOENT')continue;throw e;}
-  if((p.fetchedAt??p.importedAt).slice(0,10)!==day)fail();
-  const raw=await boundedRead(join(root,'archive',p.sourceHash+'.xml'),size),mapped=parseFX(raw,{at:p.fetchedAt??p.importedAt,imported:p.importedAt!==null});
-  if(JSON.stringify(mapped)!==JSON.stringify(p))fail();if(usableFX(p,now))return p;
+  // A missing archive for an existing snapshot is corruption, not an absent day.
+  try{await lstat(join(root,'snapshots',day+'.json'));}catch(e){if(e.code==='ENOENT')continue;throw e;}
+  p=await verifiedSnapshot(root,day);if(usableFX(p,now))return p;
  }
  throw Error('FX_UNAVAILABLE');
+}
+export async function checkFX(directory=defaultFXDirectory,{now=Date.now()}={}){
+ const root=directory instanceof URL?fileURLToPath(directory):resolve(directory);
+ try{
+  try{await lstat(root);}catch(e){if(e.code==='ENOENT')throw Error('FX_STORE_MISSING');throw e;}
+  let p;
+  try{p=await readFX(root,{now});}catch(e){
+   if(e.message!=='FX_UNAVAILABLE')throw e;
+   const days=(await readdir(join(root,'snapshots'))).filter(n=>/^\d{4}-\d\d-\d\d\.json$/.test(n)).sort();
+   if(!days.length)throw Error('FX_STORE_EMPTY');
+   p=await verifiedSnapshot(root,days.at(-1).slice(0,10));
+   if((p.fetchedAt??p.importedAt)>new Date(now).toISOString())fail();
+   if(!usableFX(p,now))throw Error('FX_STORE_EXPIRED');
+  }
+  return {state:'READY',scope:'STORED_FX_ONLY',providerRequests:0,date:p.date,fetchedAt:p.fetchedAt,importedAt:p.importedAt,sourceHash:p.sourceHash};
+ }catch(e){if(['FX_STORE_MISSING','FX_STORE_EMPTY','FX_STORE_EXPIRED'].includes(e.message))throw e;throw Error('FX_STORE_INVALID');}
 }
 export async function storeFX({directory,source,fetcher=fetch,at=new Date().toISOString()}={}){
  const root=resolve(directory??'.state/fx-store'),day=at.slice(0,10);if(!/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/.test(at)||new Date(at).toISOString()!==at)fail();
@@ -56,7 +78,8 @@ export async function storeFX({directory,source,fetcher=fetch,at=new Date().toIS
  return {state:'STORED',providerRequests:requests,recovered:false,date:projection.date};
 }
 export async function main(args){
- if(!['collect','import'].includes(args[0]))fail();const options={};for(let i=1;i<args.length;i+=2){const k=args[i],v=args[i+1];if(!['--directory',...(args[0]==='import'?['--source']:[])].includes(k)||options[k]||!v||v.startsWith('--')||/[\x00-\x1f]/.test(v))fail();options[k]=v;}
+ if(!['collect','import','check'].includes(args[0]))fail();const options={};for(let i=1;i<args.length;i+=2){const k=args[i],v=args[i+1];if(!['--directory',...(args[0]==='import'?['--source']:[])].includes(k)||options[k]||!v||v.startsWith('--')||/[\x00-\x1f]/.test(v))fail();options[k]=v;}
+ if(args[0]==='check')return checkFX(options['--directory']);
  if(args[0]==='import'&&!options['--source'])fail();return storeFX({directory:options['--directory'],source:options['--source']});
 }
-if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){try{console.log(JSON.stringify(await main(process.argv.slice(2))));}catch(e){const code=/^FX_[A-Z_]+$/.test(e.message)?e.message:'FX_FAILED';console.error('FX_COLLECTION_FAILED ('+code+'): details omitted.');process.exitCode=1;}}
+if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){try{console.log(JSON.stringify(await main(process.argv.slice(2))));}catch(e){const code=/^FX_[A-Z_]+$/.test(e.message)?e.message:'FX_FAILED';console.error((process.argv[2]==='check'?'FX_CHECK_FAILED':'FX_COLLECTION_FAILED')+' ('+code+'): details omitted.');process.exitCode=1;}}

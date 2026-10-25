@@ -256,17 +256,18 @@ async function load(){
   }
   if(results[2].status==='fulfilled'){state.registration=results[2].value;state.registrationFailed=false;}else{state.registrationFailed=true;failed.push('공급량 자료');}
   if(results[3].status==='fulfilled')state.fx=results[3].value;
+  if(results[3].status==='rejected'||!usableFX(state.fx))failed.push('참고 환율(FX)');
   const selected=providerChoice({primary:results[4].status==='fulfilled'?results[4].value:null,lastGood:activity,failed:results[4].status==='rejected'});activity=selected.data;activityState=selected.state;
   reviewedSupply=reviewedSupplyChoice(reviewedSupply.data,results[5]);
   survey=storedSurveyChoice(survey.data,results[6]);if(results[6].status==='rejected')failed.push('Allium 저장 자료');
-  geography=geographyChoice(geography.data,results[7]);
+  if(!publicMode)geography=geographyChoice(geography.data,results[7]);
   state.marketFailed=results[1].status!=='fulfilled';
   if(!publicMode){renderEvidence();renderEvidenceRankings();}renderMarket();renderActivity();renderSupply();renderStoredSurvey();if(!publicMode)renderGeography($('#overview-geography'),geography);
   await renderSupplyOverview({index:state.registration,market:state.market,indexFailed:state.registrationFailed,survey});
   const collectionFailed=state.market?.collectionState?.state==='FAILED'||state.market?.lastBuildState==='FAILED';
   $('#overview-error').hidden=!failed.length&&!collectionFailed;
   $('#overview-error').textContent=failed.length?`${failed.join(' · ')}를 읽지 못했습니다. 이전 정상 자료가 있으면 원래 시각을 유지해 표시합니다.`:'최근 시장 수집 또는 자료 생성 실패 · 마지막 정상 자료와 원본 관측 시각을 표시합니다.';
-  }catch{$('#overview-error').hidden=false;$('#overview-error').textContent='저장 자료를 표시하지 못했습니다. 다시 읽어주세요.';}
+  }catch{$('#overview-error').hidden=false;$('#overview-error').textContent='화면 표시 중 오류가 발생했습니다. 다시 읽어주세요.';}
   finally {finish();state.loading=false;state.loaded=true;$('#overview-reload').disabled=false;}
 }
 function activate(){if(!$('#overview-screen').hidden&&!state.loaded)load();}

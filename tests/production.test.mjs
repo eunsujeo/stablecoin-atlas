@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {request,createServer} from 'node:http';
-import {mkdtemp,writeFile,readFile,mkdir,symlink,readlink,unlink,stat,readdir,rm} from 'node:fs/promises';
+import {mkdtemp,writeFile,readFile,mkdir,symlink,readlink,unlink,stat,readdir,rm,open} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {spawn} from 'node:child_process';
@@ -12,9 +12,9 @@ import {productionConnector} from '../tools/production-database.mjs';
 import {stageRelease} from '../tools/release-stage.mjs';
 import {activateRelease,checkWebHealth} from '../tools/release-switch.mjs';
 import {loopbackRequest} from '../tools/loopback-http.mjs';
-import {publishPublicFX} from '../tools/publish-production-fx.mjs';
+import {publishPublicFX,readPublicFX} from '../tools/publish-production-fx.mjs';
 import {storeFX} from '../tools/fx-store.mjs';
-import {productionSettings} from '../tools/production-web.mjs';
+import {productionSettings,startProduction} from '../tools/production-web.mjs';
 const sha='a'.repeat(40),host='atlas.example.com';
 const env={DATABASE_URL:'postgresql://reader:SECRET_CANARY@database.invalid/db?sslmode=verify-full'};
 const read=(port,path,headers={},method='GET')=>new Promise((resolve,reject)=>{
@@ -95,15 +95,36 @@ test('SIGTERM closes the actual loopback HTTP process with zero exit, without pr
   const completed=once(child,'exit');try{for(let i=0;i<100&&!output.includes('READY');i++)await new Promise(r=>setTimeout(r,25));assert(output.includes('READY'),errors);child.kill('SIGTERM');const [code,signal]=await completed;assert.equal(code,0);assert.equal(signal,null);assert.equal(errors,'');}finally{if(child.exitCode===null)child.kill('SIGKILL');}
 });
 
-test('FX publication exposes only verified projection with group read access and preserves last good file on corruption',async()=>{
+test('FX publication exposes only verified projection, preserves pre-rename failures and distinguishes post-rename durability failure',async t=>{
  const root=await mkdtemp(join(tmpdir(),'atlas-public-fx-')),oldMask=process.umask(0o077);
  try{
   const at=new Date().toISOString(),day=at.slice(0,10),input=join(root,'fixture.xml'),source=join(root,'private'),target=join(root,'fx.json');
   const xml=`<?xml version="1.0" encoding="UTF-8"?><gesmes:Envelope xmlns:gesmes="http://www.gesmes.org/xml/2002-08-01" xmlns="http://www.ecb.int/vocabulary/2002-08-01/eurofxref"><gesmes:subject>Reference rates</gesmes:subject><gesmes:Sender><gesmes:name>European Central Bank</gesmes:name></gesmes:Sender><Cube><Cube time='${day}'><Cube currency='USD' rate='2'/><Cube currency='KRW' rate='2000'/></Cube></Cube></gesmes:Envelope>`;
   await writeFile(input,xml);await storeFX({directory:source,source:input,at});await publishPublicFX(source,target);
   const before=await readFile(target),data=JSON.parse(before);assert.equal(data.kind,'ECB_REFERENCE_FX');assert.equal((await stat(target)).mode&0o777,0o640);assert(!before.toString().includes('Envelope'));
+  const blocked=join(root,'blocked');await mkdir(blocked);await assert.rejects(publishPublicFX(source,blocked));assert.deepEqual(await readFile(target),before);assert(!(await readdir(root)).some(n=>n.startsWith('.fx-')));
+  const uncertain=join(root,'uncertain.json');await writeFile(uncertain,JSON.stringify({...data,usdPerEUR:'9'}));
+  const probe=await open(target,'r'),prototype=Object.getPrototypeOf(probe),originalSync=prototype.sync;await probe.close();
+  const sync=t.mock.method(prototype,'sync',async function(){if((await this.stat()).isDirectory())throw Error('injected directory sync failure');return originalSync.call(this);});
+  try{await assert.rejects(publishPublicFX(source,uncertain),/PUBLIC_FX_DURABILITY_UNCONFIRMED/);assert.deepEqual(await readFile(uncertain),before);}finally{sync.mock.restore();}
   await writeFile(join(source,'archive',data.sourceHash+'.xml'),'corrupt');await assert.rejects(publishPublicFX(source,target));assert.deepEqual(await readFile(target),before);
  }finally{process.umask(oldMask);await rm(root,{recursive:true,force:true});}
+});
+
+test('production FX endpoint rejects empty, invalid and expired files with fixed errors, then recovers without restart',async()=>{
+ const root=await mkdtemp(join(tmpdir(),'atlas-production-fx-')),target=join(root,'fx.json');let app;
+ try{
+  app=await startProduction({config:{port:0,hosts:[host],fxFile:target},env:{},commit:sha},{connector:{connect:async()=>({end:async()=>{}}),close:async()=>{}}});
+  const port=app.server.address().port,now=new Date().toISOString();
+  const good={schemaVersion:1,kind:'ECB_REFERENCE_FX',base:'EUR',date:now.slice(0,10),usdPerEUR:'2',krwPerEUR:'2000',sourceHash:'a'.repeat(64),fetchedAt:now,importedAt:null};
+  for(const contents of [null,'','{"SECRET_CANARY":',JSON.stringify({...good,date:'2020-01-01'})]){
+   if(contents!==null)await writeFile(target,contents);
+   const r=await read(port,'/fx-data.json');assert.equal(r.status,503);assert(!r.body.includes('SECRET_CANARY'));assert(!r.body.includes(root));assert.match(r.body,/FX_UNAVAILABLE/);
+  }
+  await writeFile(target,JSON.stringify({...good,privateExtra:'SECRET_CANARY'}));
+  const r=await read(port,'/fx-data.json');assert.equal(r.status,200);assert.deepEqual(JSON.parse(r.body),good);assert.equal((await read(port,'/fx-data.json',{},'HEAD')).body,'');
+  assert.deepEqual(await readPublicFX(target),good);
+ }finally{await app?.stop();await rm(root,{recursive:true,force:true});}
 });
 
 test('loopback transport preserves Host/Origin, strips hop headers and rejects oversized, delayed or aborted bodies without following redirects',async()=>{

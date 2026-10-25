@@ -1,5 +1,7 @@
 # 주기 수집 운영
 
+Mac mini production의 별도 `collector-current`·서비스 계정/권한·기존 FX 저장본 이전/check/publish·활성화 승인·롤백은 [운영 복구 절차](COLLECTOR_PRODUCTION_RECOVERY.md)를 따른다. 아래 `/opt/multi-chain-asset-compatibility`는 base unit 경로이며 production drop-in은 이를 대체한다. 이번 변경은 기존 DB 준비 명령의 재실행을 요구하지 않는다.
+
 서버 CLI가 DB 예약을 확보한 뒤 Arkham을5분 간격, DeFiLlama를 UTC 날짜마다1회 수집한다. 브라우저와 웹 서버 시작은 공급자 API를 호출하지 않는다. 기존 `market:watch`와 새 worker를 함께 실행하지 않는다.
 
 기본 Arkham 예산은 UTC 하루288회(최대2016 GET)다. 24시간 동안5분마다 현재 구간을 수집한다. 실패·중단 예약도 횟수에 포함하며 재시작해도 초기화하지 않는다. 현재 등록 v3 구성은 별도 일별 worker가 하루5 GET로5자산의 네트워크 지표와 코인 전체 시장 지표를 함께 가져온다. 5분 worker에는 `--skip-daily-history`를 지정해 기존3자산 일별 경로를 끈다. 이는 앱의 상한이며 공급자 계정 크레딧 보증은 아니다.

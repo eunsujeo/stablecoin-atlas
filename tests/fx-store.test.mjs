@@ -1,13 +1,32 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtemp,writeFile,readFile,rm} from 'node:fs/promises';
+import {mkdtemp,writeFile,readFile,rm,readdir,mkdir} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {request} from 'node:http';
-import {parseFX,storeFX,readFX} from '../tools/fx-store.mjs';
+import {parseFX,storeFX,readFX,checkFX,main} from '../tools/fx-store.mjs';
 import {startPreviewServer} from '../tools/ui-preview.mjs';
 const at='2026-10-23T10:00:00.000Z';
 const xml=(day='2026-10-22',rates="<Cube currency='USD' rate='2'/><Cube currency='KRW' rate='2000'/>")=>Buffer.from(`<?xml version="1.0" encoding="UTF-8"?><gesmes:Envelope xmlns:gesmes="http://www.gesmes.org/xml/2002-08-01" xmlns="http://www.ecb.int/vocabulary/2002-08-01/eurofxref"><gesmes:subject>Reference rates</gesmes:subject><gesmes:Sender><gesmes:name>European Central Bank</gesmes:name></gesmes:Sender><Cube><Cube time='${day}'>${rates}</Cube></Cube></gesmes:Envelope>`);
+test('offline FX doctor distinguishes missing, empty, expired and corrupt stores without changing observations or claims',async()=>{
+ const root=await mkdtemp(join(tmpdir(),'atlas-fx-doctor-'));try{
+  const directory=join(root,'store'),missing=join(root,'absent');
+  await assert.rejects(main(['check','--directory',missing]),/FX_STORE_MISSING/);assert.deepEqual(await readdir(root),[]);
+  await mkdir(directory,{mode:0o700});for(const name of ['snapshots','archive'])await mkdir(join(directory,name),{mode:0o700});
+  await assert.rejects(checkFX(directory,{now:Date.parse(at)}),/FX_STORE_EMPTY/);
+  await storeFX({directory,at,fetcher:async()=>new Response(xml())});
+  const snapshot=join(directory,'snapshots','2026-10-23.json'),original=await readFile(snapshot),before=await readdir(directory,{recursive:true});
+  const r=await checkFX(directory,{now:Date.parse(at)});assert.equal(r.providerRequests,0);assert.equal(r.fetchedAt,at);assert.equal(r.date,'2026-10-22');
+  await assert.rejects(checkFX(directory,{now:Date.parse('2026-11-01T00:00:00.000Z')}),/FX_STORE_EXPIRED/);
+  assert.deepEqual(await readFile(snapshot),original);assert.deepEqual(await readdir(directory,{recursive:true}),before);
+  for(const contents of ['', '{invalid']){await writeFile(snapshot,contents);await assert.rejects(checkFX(directory,{now:Date.parse(at)}),/FX_STORE_INVALID/);}
+  await writeFile(snapshot,original);await rm(join(directory,'archive',r.sourceHash+'.xml'));
+  await assert.rejects(checkFX(directory,{now:Date.parse(at)}),/FX_STORE_INVALID/);
+  await assert.rejects(readFX(directory,{now:Date.parse(at)}),/FX_INVALID/);
+  const source=join(root,'seed.xml');await writeFile(source,xml());
+  await assert.rejects(storeFX({directory,at:'2026-10-24T10:00:00.000Z',source}),/FX_INVALID/);
+ }finally{await rm(root,{recursive:true,force:true});}
+});
 test('ECB parser binds one reference day, exact positive quotes and explicit import/fetch clocks',()=>{
  const p=parseFX(xml(),{at,imported:true});assert.equal(p.usdPerEUR,'2');assert.equal(p.krwPerEUR,'2000');assert.equal(p.fetchedAt,null);assert.equal(p.importedAt,at);
  for(const bytes of [xml('2026-10-24'),xml('2026-02-30'),xml(undefined,"<Cube currency='USD' rate='0'/><Cube currency='KRW' rate='1'/>"),xml(undefined,"<Cube currency='USD' rate='2'/><Cube currency='USD' rate='3'/><Cube currency='KRW' rate='1'/>"),xml(undefined,"<Cube currency='USD' rate='-2'/><Cube currency='KRW' rate='1'/>"),xml(undefined,"<Cube currency='JPY' rate='1'/>"),Buffer.from(xml().toString().replace('<Cube>','<!DOCTYPE foo><Cube>')),Buffer.alloc(65537)])assert.throws(()=>parseFX(bytes,{at}));

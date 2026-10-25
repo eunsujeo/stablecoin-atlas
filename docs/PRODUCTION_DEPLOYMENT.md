@@ -1,5 +1,7 @@
 # Stablecoin Atlas 운영 배포
 
+사용자는 `094a225cd95d6cbd74053e7eda065a3e339b0df6`의 Mac mini 웹/Reader/Tunnel 정상, FX503·공개 파일0바이트와 collector/timer 미설치를 보고했다. 이는 사용자 제공 운영 상태이며 이 작업의 직접 서버 관측은 아니다. 후속 최소 수정과 운영자가 적용할 정확한 수집기/FX 복구 순서는 [운영 복구 절차](COLLECTOR_PRODUCTION_RECOVERY.md)를 따른다. 아래 최초 준비 기록과 실제 서버 검증을 구분한다.
+
 이 문서는 Mac mini M1·8GB·Fedora Asahi Remix 44 Server(aarch64)에 대한 **배포 준비**다. 이 작업에서 실제 Fedora 설치·SSH 배포·Cloudflare 계정/DNS 변경·서비스 활성화는 실행하지 않았다. 실제 도메인은 운영자가 정한다. 기존 Supabase 스키마·데이터·판정·수집 주기/예산은 바꾸지 않는다. 기본 진입 경로는 `/`다.
 
 ## 구성과 공개 범위

@@ -1,0 +1,11 @@
+# 운영 수집기 및 FX 복구 개선
+- 목표: 기존 수집 정책/DB를 유지하며 Mac mini 수집기 준비·FX 복구·Overview 장애 격리를 최소 수정. 로컬 수정/검증/commit/push만, 서버 배포/활성화는 제외.
+- 끝난 것: 기존405/407 DB 잠금·예약/상한·영속 receipt/archive·독립 collector-current가 충족됨을 확인. production의 geography fulfilled(null) 검증이 Overview를 중단하는 실제 결함을 Chrome에서 재현/수정. FX 실패 안내와 renderer 예외 구분·USD 유지. FX check는 무호출/무생성으로 부재/빈 저장소/만료/손상·XML/hash/원래 시각 확인. 공개 FX 만료/빈 JSON503·명시 필드만 공개. 누락 archive가 storeFX 이전 자료 확인에서 부재로 처리되던 경로를 FX_INVALID로 구분. atomic publish에 부모 sync와 rename 후 내구성 미확인 상태 추가. 실제 개발PC 저장본 check rc0/READY 기준일2026-10-22/importedAt2026-10-23T01:46:21.297Z. 원본 복사/게시0. Lead f2ef0f2a296341ad99d023ed9b55227a proceed. schema/예산/주기/unit 변경0, 외부 데이터API/운영DB/실제서버 실행0.
+- 변경 파일: tools/fx-store.mjs, tools/publish-production-fx.mjs, tools/production-web.mjs, tools/production-browser-check.mjs, web/overview.js, tests/fx-store.test.mjs, tests/production.test.mjs, tests/collector-deploy.test.mjs, tests/production-browser-fixture.mjs, docs/COLLECTOR_PRODUCTION_RECOVERY.md, docs/COLLECTOR_SERVICE.md, docs/PRODUCTION_DEPLOYMENT.md, docs/DEVELOPMENT_STATUS.md, docs/adr/0107-collector-fx-recovery.md, docs/research/2026-10-25-collector-fx-recovery.md, 이 인계문
+- 검증: npm run check rc0 tests600/pass600/fail0/cancelled0/skipped0; npm run check:production rc0 tests15/pass15/fail0/cancelled0/skipped0; node tools/production-browser-check.mjs --fx-isolation rc0/Chrome 5API200·FX503/환산복구/renderer 구분/private요청0/미처리JS오류0; node --use-env-proxy --test --test-concurrency=1 tests/postgres/{collector,persistent-collector,registered-collector,production,preview}.test.mjs rc0 tests5/pass5/fail0/cancelled0/skipped0; git diff --check rc0. 로그 .state/agent-logs/collector-fx-*.log. 실제 Fedora unit/권한/SELinux/수집·timer/이관·롤백/부하 NOT_TESTED.
+- 기다리는 것: 없음
+- 다음 행동: 사용자가 제공하는 새 SHA의 운영 적용 결과를 연구 기록·서버 적용 문서의 미검증 항목과 대조한다. 실제 서버 명령/수집기·timer 활성화/ECB 호출은 별도 사용자 승인 없이는 시작하지 않는다. 현 범위 추가 구현 없음.
+- 사용자 확인 필요: 예 — 운영 적용 결과 또는 구체적인 후속 작업 요청 필요. 정상 FX가 이관 시 만료되면 원래 날짜 유지, 새 ECB 요청은 별도 승인 필요.
+- 읽을 파일: docs/COLLECTOR_PRODUCTION_RECOVERY.md, docs/research/2026-10-25-collector-fx-recovery.md, docs/adr/0107-collector-fx-recovery.md
+
+commit 메시지: Fix production overview isolation and FX recovery. 기존 untracked docs/handoff/2026-10-22-router-lead-review.md 보존. 초기 Chrome 실패는 geography null 결함 재현으로 기록했고 임시 stack 진단은 제거했다. Git push는 서버 배포/수집 성공이 아니다.

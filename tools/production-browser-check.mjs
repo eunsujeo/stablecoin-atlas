@@ -4,7 +4,9 @@ import {mkdtemp,writeFile,mkdir,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import assert from 'node:assert/strict';
-const base=process.argv[2],publicHost='atlas.example.com',publicOrigin='https://'+publicHost,responses=[];
+const fxIsolation=process.argv[2]==='--fx-isolation';
+const fixture=fxIsolation?await (await import('../tests/production-browser-fixture.mjs')).productionBrowserFixture():null;
+const base=fixture?'http://127.0.0.1:'+fixture.server.address().port:process.argv[2],publicHost='atlas.example.com',publicOrigin='https://'+publicHost,responses=[];
 if(!/^http:\/\/127\.0\.0\.1:\d+$/.test(base))throw Error('Local origin required');
 await mkdir('.state/agent-logs',{recursive:true});
 const profile = await mkdtemp(join(tmpdir(), 'atlas-browser-'));
@@ -70,6 +72,27 @@ try{
  assert.equal(await evaluate("document.documentElement.dataset.deployment"),'production');
  assert.equal(await evaluate("document.querySelectorAll('#market-screen,#reports-screen,#overview-read-history,#overview-geography,.overview-read-grade').length"),0);
  assert.equal(await evaluate("document.querySelector('#overview-screen').hidden"),false);
+ if(fxIsolation){
+  for(const path of ['/market-data.json','/registration-index.json','/activity-data.json','/reviewed-supply-data.json','/survey-data.json'])assert(responses.some(r=>r.path===path&&r.status===200),path);
+  assert(responses.some(r=>r.path==='/fx-data.json'&&r.status===503));
+  assert.match(await evaluate("document.querySelector('#overview-error').textContent"),/참고 환율\(FX\)/);
+  assert.equal(await evaluate("document.querySelector('#overview-error').hidden"),false);
+  assert.match(await evaluate("document.querySelector('#overview-market-rows').textContent"),/\$1/);
+  await evaluate("document.querySelector('#overview-price-currency').value='KRW';document.querySelector('#overview-price-currency').dispatchEvent(new Event('change'))");
+  assert.match(await evaluate("document.querySelector('#overview-fx-note').textContent"),/미확보/);
+  fixture.setFXFailed(false);
+  await evaluate("document.querySelector('#overview-reload').click()");await until("!document.querySelector('#overview-reload').disabled");
+  assert.equal(await evaluate("document.querySelector('#overview-error').hidden"),true);
+  assert.match(await evaluate("document.querySelector('#overview-market-rows').textContent"),/₩1,000/);
+  fixture.setFXFailed(true);
+  await evaluate("document.querySelector('#overview-reload').click()");await until("!document.querySelector('#overview-reload').disabled");
+  assert.match(await evaluate("document.querySelector('#overview-market-rows').textContent"),/₩1,000/);
+  // A caught renderer exception has a different message from an endpoint failure.
+  await evaluate("window.savedRows=document.querySelector('#overview-market-rows');window.savedRowsParent=window.savedRows.parentNode;window.savedRows.remove();document.querySelector('#overview-reload').click()");
+  await until("!document.querySelector('#overview-reload').disabled");
+  assert.match(await evaluate("document.querySelector('#overview-error').textContent"),/화면 표시 중 오류/);
+  await evaluate("window.savedRowsParent.append(window.savedRows)");
+ }
  await evaluate("location.hash='#assets'");await until("document.querySelector('#assets-screen')?.hidden===false&&document.querySelector('[data-source-review]')?.dataset.reviewId==='usdc-ethereum'");
  assert.equal(await evaluate("document.querySelectorAll('.source-review-asset').length"),5);
  for(const theme of ['dark','light'])for(const width of [1440,390]){
@@ -82,5 +105,5 @@ try{
  assert.deepEqual(requests.filter(url=>!url.startsWith(publicOrigin+'/')&&!url.startsWith('data:')),[]);
  assert(!responses.some(r=>/^\/(?:mock-data\.json$|evidence(?:\/|\.js$)|geography-data\.json$|app\.js$)/.test(r.path)));
  assert.deepEqual(errors,[]);
- console.log('PASS production browser: simulated HTTPS tunnel to loopback, PostgreSQL market200, private/mock requests0, overview/profiles/theme/mobile, JS errors0. Actual Cloudflare/Fedora not executed.');
-}finally{try{await send('Fetch.disable');await send('Browser.close',{},false);}catch{}chrome.kill();await new Promise(r=>{if(chrome.exitCode!==null)r();else chrome.once('exit',r);});await rm(profile,{recursive:true,force:true});}
+ console.log(fxIsolation?'PASS offline production browser: five APIs200/FX503, USD retained, KRW missing/recovery/last good, renderer failure distinct, private/mock requests0, JS errors0. Actual Cloudflare/Fedora not executed.':'PASS production browser: simulated HTTPS tunnel to loopback, PostgreSQL market200, private/mock requests0, overview/profiles/theme/mobile, JS errors0. Actual Cloudflare/Fedora not executed.');
+}finally{try{await send('Fetch.disable');await send('Browser.close',{},false);}catch{}chrome.kill();await new Promise(r=>{if(chrome.exitCode!==null)r();else chrome.once('exit',r);});await rm(profile,{recursive:true,force:true});await fixture?.stop();}

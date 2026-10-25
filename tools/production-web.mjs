@@ -10,7 +10,7 @@ import {databaseRegistrationReader} from './market-db/registration-preview.mjs';
 import {databaseActivityReader} from './market-db/activity-preview.mjs';
 import {databaseReviewedSupplyReader} from './market-db/allium-supply-preview.mjs';
 import {databaseSurveyReader} from './market-db/survey-preview.mjs';
-import {validateFX} from '../web/fx-model.js';
+import {readPublicFX} from './publish-production-fx.mjs';
 import {readProductionReader} from './production-reader-file.mjs';
 
 export async function productionSettings({configFile,readerFile,revisionFile}){
@@ -33,7 +33,7 @@ export async function startProduction({config,env,commit},{connector=productionC
     production:{hosts:config.hosts,commit},
     marketReader:databaseMarketReader({env,connect,includeLocalStatus:false}),registrationReader:databaseRegistrationReader({env,connect}),
     activityReader:databaseActivityReader({env,connect}),reviewedSupplyReader:databaseReviewedSupplyReader({env,connect}),surveyReader:databaseSurveyReader({env,connect}),
-    fxReader:async()=>validateFX(JSON.parse((await boundedRead(config.fxFile,32768)).toString('utf8'))),
+    fxReader:()=>readPublicFX(config.fxFile),
   });
   let stopping;
   const stop=()=>stopping??=(async()=>{
