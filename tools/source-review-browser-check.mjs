@@ -9,7 +9,8 @@ await mkdir('.state/agent-logs',{recursive:true});
 if (!/^http:\/\/127\.0\.0\.1:\d+$/.test(base)) throw new Error('Local URL required');
 const profile = await mkdtemp(join(tmpdir(), 'atlas-browser-'));
 const chrome = spawn('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', ['--headless=new', '--remote-debugging-pipe', '--disable-background-networking', '--disable-component-update', '--disable-sync', '--disable-default-apps', '--disable-extensions', '--no-first-run', '--no-default-browser-check', `--user-data-dir=${profile}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe', 'pipe', 'pipe'] });
-let failEvidence=false,id=0,buffer='',session;const requests=[],errors=[],pending=new Map(),fetchWork=new Set();
+let failEvidence=false,id=0,buffer='',session;const requests=[],errors=[],pending=new Map(),fetchWork=new Set(),networkWork=new Set();
+let lastNetworkActivity=Date.now();
 chrome.stderr.on('data', () => {});
 chrome.stdio[4].on('data', data => {
   buffer += data.toString(); let end;
@@ -17,12 +18,14 @@ chrome.stdio[4].on('data', data => {
     const raw = buffer.slice(0, end); buffer = buffer.slice(end + 1); if (!raw) continue;
     const value = JSON.parse(raw);
     if (value.id && pending.has(value.id)) { const { resolve, reject, timer } = pending.get(value.id); clearTimeout(timer); pending.delete(value.id); value.error ? reject(new Error(JSON.stringify(value.error))) : resolve(value.result); }
-    if (value.method === 'Network.requestWillBeSent') requests.push(value.params.request.url);
-    if(value.method==='Fetch.requestPaused'){
+    if(value.sessionId===session&&value.method==='Network.requestWillBeSent'){requests.push(value.params.request.url);networkWork.add(value.params.requestId);lastNetworkActivity=Date.now();}
+    if(value.sessionId===session&&['Network.loadingFinished','Network.loadingFailed'].includes(value.method)){networkWork.delete(value.params.requestId);lastNetworkActivity=Date.now();}
+    if(value.sessionId===session&&value.method==='Fetch.requestPaused'){
+      lastNetworkActivity=Date.now();
       const {requestId,request}=value.params;
       const call=!request.url.startsWith(base+'/')?send('Fetch.failRequest',{requestId,errorReason:'BlockedByClient'}):failEvidence&&request.url.endsWith('/evidence/index.json')?send('Fetch.fulfillRequest',{requestId,responseCode:503,body:Buffer.from('UNAVAILABLE').toString('base64')}):send('Fetch.continueRequest',{requestId});
       fetchWork.add(call);
-      call.then(()=>fetchWork.delete(call),e=>{fetchWork.delete(call);errors.push(e.message);});
+      call.then(()=>{fetchWork.delete(call);lastNetworkActivity=Date.now();},e=>{fetchWork.delete(call);lastNetworkActivity=Date.now();errors.push(e.message);});
     }
     if (value.method === 'Runtime.exceptionThrown') errors.push(value.params.exceptionDetails.text);
   }
@@ -31,14 +34,14 @@ function rawSend(method, params = {}, page = true) {
   return new Promise((resolve, reject) => { const n = ++id, timer = setTimeout(() => { pending.delete(n); reject(new Error(`CDP timeout ${method}`)); }, 15000); pending.set(n, { resolve, reject, timer }); chrome.stdio[3].write(JSON.stringify({ id: n, method, params, ...(page && session ? { sessionId: session } : {}) }) + '\0'); });
 }
 async function drainFetch(){
-  const deadline=Date.now()+15000;
+  const deadline=Date.now()+20000;
   do{
     if(Date.now()>=deadline)throw new Error('Fetch drain timeout');
     let timer;
     try{await Promise.race([Promise.allSettled([...fetchWork]),new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('Fetch drain timeout')),deadline-Date.now());})]);}
     finally{clearTimeout(timer);}
-    await new Promise(resolve=>setTimeout(resolve,0));
-  }while(fetchWork.size);
+    await new Promise(resolve=>setTimeout(resolve,50));
+  }while(fetchWork.size||networkWork.size||Date.now()-lastNetworkActivity<150);
 }
 async function send(method,params={},page=true){
   if(['Page.navigate','Page.reload','Fetch.disable','Browser.close'].includes(method))await drainFetch();
@@ -62,6 +65,9 @@ try {
  for(const route of ['/#assets','/legacy.html#assets']){
   await send('Page.navigate',{url:'about:blank'});await send('Page.navigate',{url:base+route});
   await until("document.querySelector('[data-source-review]')?.dataset.reviewId==='usdc-ethereum'");
+  assert.equal(await evaluate('location.pathname'),'/');
+  assert.equal(await evaluate('location.hash'),'#assets');
+  assert.equal(await evaluate("document.querySelector('#assets-screen').hidden"),false);
   assert.equal(await evaluate("document.querySelectorAll('.source-review-hero,.source-review-completion').length"),0);
   assert(!(await evaluate("document.querySelector('[data-source-review]').textContent")).includes('TOKEN PROFILE'));
   assert((await evaluate("document.querySelector('.source-review-toolbar label').textContent")).includes('검토 네트워크'));
@@ -225,6 +231,9 @@ try {
  for(const route of ['/#assets','/legacy.html#assets']){
   await send('Page.navigate',{url:'about:blank'});await send('Page.navigate',{url:base+route});
   await until("document.querySelector('[data-source-review]')?.dataset.reviewId==='usdc-ethereum'");
+  assert.equal(await evaluate('location.pathname'),'/');
+  assert.equal(await evaluate('location.hash'),'#assets');
+  assert.equal(await evaluate("document.querySelector('#assets-screen').hidden"),false);
   await until("!document.querySelector('#evidence-error').hidden");
   assert.equal(await evaluate("document.querySelectorAll('#asset-read-archive,#atlas-read-archive,#asset-detail,#profile-results').length"),0);
   assert.equal(await evaluate("document.querySelectorAll('.source-review-asset').length"),5);

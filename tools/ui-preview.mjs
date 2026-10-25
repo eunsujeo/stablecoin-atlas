@@ -32,7 +32,6 @@ const assets = new Map([
   ['/allium-dashboard-model.js', ['../web/allium-dashboard-model.js', 'text/javascript; charset=utf-8']],
   ['/', ['../web/index.html', 'text/html; charset=utf-8']],
   ['/index.html', ['../web/index.html', 'text/html; charset=utf-8']],
-  ['/legacy.html', ['../web/index.html', 'text/html; charset=utf-8']],
   ['/styles.css', ['../web/styles.css', 'text/css; charset=utf-8']],
   ['/app.js', ['../web/app.js', 'text/javascript; charset=utf-8']],
   ['/evidence.js', ['../web/evidence.js', 'text/javascript; charset=utf-8']],
@@ -76,6 +75,9 @@ export function createPreviewServer({ evidenceDirectory, marketDirectory, market
     const origins = new Set([...hosts].map(host => `http://${host}`));
     if (!hosts.has(req.headers.host) || (req.headers.origin !== undefined && !origins.has(req.headers.origin)) || req.headers['sec-fetch-site'] === 'cross-site') { fail(403, 'FORBIDDEN'); return; }
     if (req.method !== 'GET' && req.method !== 'HEAD') { res.setHeader('Allow', 'GET, HEAD'); fail(405, 'METHOD_NOT_ALLOWED'); return; }
+    if(typeof req.url==='string'&&req.url.length<=2048&&(req.url==='/legacy.html'||req.url.startsWith('/legacy.html?'))){
+      res.writeHead(308,{'Location':'/'+req.url.slice('/legacy.html'.length),'Content-Length':'0'});res.end();return;
+    }
     if((req.url??'').split('?')[0].startsWith('/registration-')){
       if((req.url??'').split('?')[0]==='/registration-model.js'){ /* Fixed JavaScript asset below. */ }
       else{
@@ -133,7 +135,7 @@ export function createPreviewServer({ evidenceDirectory, marketDirectory, market
     }
     // Only fixed document routes accept UI query parameters. API and asset paths
     // retain their existing exact allowlists; query values never become paths.
-    const assetPath=typeof req.url==='string'&&req.url.length<=2048&&/^(?:\/|\/index\.html|\/legacy\.html)\?/.test(req.url)?req.url.split('?')[0]:req.url;
+    const assetPath=typeof req.url==='string'&&req.url.length<=2048&&/^(?:\/|\/index\.html)\?/.test(req.url)?req.url.split('?')[0]:req.url;
     const asset = assets.get(assetPath);
     if (!asset) { fail(404, 'NOT_FOUND'); return; }
     try {

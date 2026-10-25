@@ -1,6 +1,6 @@
 # Atlas 저장 관측 대시보드
 
-2026-10-25 사용자 요청으로 이 별도 화면과 전용 모듈을 제거했다([ADR0104](adr/0104-legacy-only-preview.md)). 현재 `/`·`/index.html`·`/legacy.html`은 같은 기존 UI를 제공하며 `/atlas.html`은404다. 아래는 과거 구현·검증 기록이다.
+2026-10-25 사용자 요청으로 이 별도 화면과 전용 모듈을 제거했다([ADR0104](adr/0104-legacy-only-preview.md)). 현재 기본 경로는 `/`이며 `/index.html`도 같은 UI를 제공한다. `/legacy.html`은 `/`로 이동하며 `/atlas.html`은404다. 아래는 과거 구현·검증 기록이다.
 
 개인 개발용 로컬 스테이블코인 탐색 화면이다. [ADR0086](adr/0086-unified-stored-observation-dashboard.md)이 데이터 의미와 경계를 고정한다.
 
