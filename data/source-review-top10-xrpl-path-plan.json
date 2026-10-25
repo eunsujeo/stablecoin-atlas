@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "kind": "TOP10_XRPL_MOVED_SOURCE_PATHS",
+  "authorization": "USER_APPROVED_ALL18_2026_10_25",
+  "slot": ".state/top10-source-xrpl-20261025-r",
+  "maximumRequests": 4,
+  "maximumResponseBytes": 4194304,
+  "maximumTotalBytes": 16777216,
+  "deadlineSeconds": 100,
+  "requestTimeoutSeconds": 20,
+  "retries": 0,
+  "redirects": 0,
+  "providerFallbacks": 0,
+  "rpcRequests": 0,
+  "compilerExecutions": 0,
+  "sourceScope": "PUBLISHED_PROTOCOL_SOURCE_NOT_DEPLOYED_VERSION_AUTHENTICATION",
+  "pathBasis": "https://github.com/XRPLF/rippled/tree/develop/src/libxrpl/tx/transactors",
+  "targets": [
+    {
+      "id": "xrpl-current-accountset",
+      "kind": "SOURCE_TEXT",
+      "caseIds": [
+        "rlusd-xrpl"
+      ],
+      "expectedText": [
+        "AccountSet::"
+      ],
+      "url": "https://raw.githubusercontent.com/XRPLF/rippled/develop/src/libxrpl/tx/transactors/account/AccountSet.cpp"
+    },
+    {
+      "id": "xrpl-current-trustset",
+      "kind": "SOURCE_TEXT",
+      "caseIds": [
+        "rlusd-xrpl"
+      ],
+      "expectedText": [
+        "TrustSet::"
+      ],
+      "url": "https://raw.githubusercontent.com/XRPLF/rippled/develop/src/libxrpl/tx/transactors/token/TrustSet.cpp"
+    },
+    {
+      "id": "xrpl-current-clawback",
+      "kind": "SOURCE_TEXT",
+      "caseIds": [
+        "rlusd-xrpl"
+      ],
+      "expectedText": [
+        "Clawback::"
+      ],
+      "url": "https://raw.githubusercontent.com/XRPLF/rippled/develop/src/libxrpl/tx/transactors/token/Clawback.cpp"
+    },
+    {
+      "id": "xrpl-current-payment",
+      "kind": "SOURCE_TEXT",
+      "caseIds": [
+        "rlusd-xrpl"
+      ],
+      "expectedText": [
+        "Payment::"
+      ],
+      "url": "https://raw.githubusercontent.com/XRPLF/rippled/develop/src/libxrpl/tx/transactors/payment/Payment.cpp"
+    }
+  ],
+  "planSha256": "64d10961df892dafd070d98ba997956aace03c9d92d762337b8d28f98e844188"
+}

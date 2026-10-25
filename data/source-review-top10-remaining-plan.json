@@ -1,0 +1,304 @@
+{
+  "schemaVersion": 1,
+  "kind": "TOP10_REMAINING_TEN_SOURCE_PLAN",
+  "authorization": "USER_APPROVED_ALL18_2026_10_25",
+  "slot": ".state/top10-source-intake-20261025-b",
+  "maximumRequests": 24,
+  "maximumResponseBytes": 4194304,
+  "maximumTotalBytes": 100663296,
+  "deadlineSeconds": 600,
+  "requestTimeoutSeconds": 20,
+  "retries": 0,
+  "redirects": 0,
+  "providerFallbacks": 0,
+  "rpcRequests": 0,
+  "compilerDownloads": 0,
+  "compilerExecutions": 0,
+  "keysRequired": false,
+  "fields": "passive source/documents only; no proxyResolution or verify",
+  "failurePolicy": "404 unavailable then next fixed artifact; any other non200,transport,encoding,shape,limit stop entire batch",
+  "sourceScope": "SELECTED_PUBLISHED_SOURCE_SNAPSHOTS_NOT_DEPLOYMENT_BINDING",
+  "targets": [
+    {
+      "id": "spl-processor",
+      "url": "https://raw.githubusercontent.com/solana-labs/solana-program-library/b1c44c171bc95e6ee74af12365cb9cbab68be76c/token/program/src/processor.rs",
+      "caseIds": [
+        "usdc-solana",
+        "usdt-solana"
+      ],
+      "kind": "SOURCE_TEXT",
+      "expectedText": [
+        "process_transfer",
+        "process_mint_to"
+      ]
+    },
+    {
+      "id": "spl-state",
+      "url": "https://raw.githubusercontent.com/solana-labs/solana-program-library/b1c44c171bc95e6ee74af12365cb9cbab68be76c/token/program/src/state.rs",
+      "caseIds": [
+        "usdc-solana",
+        "usdt-solana"
+      ],
+      "kind": "SOURCE_TEXT",
+      "expectedText": [
+        "struct Mint",
+        "freeze_authority"
+      ]
+    },
+    {
+      "id": "ton-jetton-minter",
+      "url": "https://raw.githubusercontent.com/ton-blockchain/stablecoin-contract/main/contracts/jetton-minter.fc",
+      "caseIds": [
+        "usdt-ton"
+      ],
+      "kind": "SOURCE_TEXT",
+      "expectedText": [
+        "#include"
+      ]
+    },
+    {
+      "id": "ton-jetton-wallet",
+      "url": "https://raw.githubusercontent.com/ton-blockchain/stablecoin-contract/main/contracts/jetton-wallet.fc",
+      "caseIds": [
+        "usdt-ton"
+      ],
+      "kind": "SOURCE_TEXT",
+      "expectedText": [
+        "#include"
+      ]
+    },
+    {
+      "id": "ton-op-codes",
+      "url": "https://raw.githubusercontent.com/ton-blockchain/stablecoin-contract/main/contracts/op-codes.fc",
+      "caseIds": [
+        "usdt-ton"
+      ],
+      "kind": "SOURCE_TEXT",
+      "expectedText": [
+        "op::"
+      ]
+    },
+    {
+      "id": "aptos-fungible_asset",
+      "url": "https://raw.githubusercontent.com/aptos-labs/aptos-core/main/aptos-move/framework/aptos-framework/sources/fungible_asset.move",
+      "caseIds": [
+        "usdt-aptos"
+      ],
+      "kind": "SOURCE_TEXT",
+      "expectedText": [
+        "module aptos_framework::fungible_asset"
+      ]
+    },
+    {
+      "id": "aptos-primary_fungible_store",
+      "url": "https://raw.githubusercontent.com/aptos-labs/aptos-core/main/aptos-move/framework/aptos-framework/sources/primary_fungible_store.move",
+      "caseIds": [
+        "usdt-aptos"
+      ],
+      "kind": "SOURCE_TEXT",
+      "expectedText": [
+        "module aptos_framework::primary_fungible_store"
+      ]
+    },
+    {
+      "id": "aptos-dispatchable_fungible_asset",
+      "url": "https://raw.githubusercontent.com/aptos-labs/aptos-core/main/aptos-move/framework/aptos-framework/sources/dispatchable_fungible_asset.move",
+      "caseIds": [
+        "usdt-aptos"
+      ],
+      "kind": "SOURCE_TEXT",
+      "expectedText": [
+        "module aptos_framework::dispatchable_fungible_asset"
+      ]
+    },
+    {
+      "id": "xrpl-accountset",
+      "url": "https://raw.githubusercontent.com/XRPLF/rippled/develop/src/xrpld/app/tx/detail/AccountSet.cpp",
+      "caseIds": [
+        "rlusd-xrpl"
+      ],
+      "kind": "SOURCE_TEXT",
+      "expectedText": [
+        "AccountSet::"
+      ]
+    },
+    {
+      "id": "xrpl-trustset",
+      "url": "https://raw.githubusercontent.com/XRPLF/rippled/develop/src/xrpld/app/tx/detail/TrustSet.cpp",
+      "caseIds": [
+        "rlusd-xrpl"
+      ],
+      "kind": "SOURCE_TEXT",
+      "expectedText": [
+        "TrustSet::"
+      ]
+    },
+    {
+      "id": "xrpl-clawback",
+      "url": "https://raw.githubusercontent.com/XRPLF/rippled/develop/src/xrpld/app/tx/detail/Clawback.cpp",
+      "caseIds": [
+        "rlusd-xrpl"
+      ],
+      "kind": "SOURCE_TEXT",
+      "expectedText": [
+        "Clawback::"
+      ]
+    },
+    {
+      "id": "xrpl-payment",
+      "url": "https://raw.githubusercontent.com/XRPLF/rippled/develop/src/xrpld/app/tx/detail/Payment.cpp",
+      "caseIds": [
+        "rlusd-xrpl"
+      ],
+      "kind": "SOURCE_TEXT",
+      "expectedText": [
+        "Payment::"
+      ]
+    },
+    {
+      "id": "stellar-paymentopframe",
+      "url": "https://raw.githubusercontent.com/stellar/stellar-core/master/src/transactions/PaymentOpFrame.cpp",
+      "caseIds": [
+        "usdc-stellar"
+      ],
+      "kind": "SOURCE_TEXT",
+      "expectedText": [
+        "PaymentOpFrame::"
+      ]
+    },
+    {
+      "id": "stellar-setoptionsopframe",
+      "url": "https://raw.githubusercontent.com/stellar/stellar-core/master/src/transactions/SetOptionsOpFrame.cpp",
+      "caseIds": [
+        "usdc-stellar"
+      ],
+      "kind": "SOURCE_TEXT",
+      "expectedText": [
+        "SetOptionsOpFrame::"
+      ]
+    },
+    {
+      "id": "stellar-clawbackopframe",
+      "url": "https://raw.githubusercontent.com/stellar/stellar-core/master/src/transactions/ClawbackOpFrame.cpp",
+      "caseIds": [
+        "usdc-stellar"
+      ],
+      "kind": "SOURCE_TEXT",
+      "expectedText": [
+        "ClawbackOpFrame::"
+      ]
+    },
+    {
+      "id": "hyperliquid-bridge2",
+      "url": "https://raw.githubusercontent.com/hyperliquid-dex/contracts/master/Bridge2.sol",
+      "caseIds": [
+        "usdc-hyperliquid-l1"
+      ],
+      "kind": "SOURCE_TEXT",
+      "expectedText": [
+        "pragma solidity"
+      ]
+    },
+    {
+      "id": "hyperliquid-signature",
+      "url": "https://raw.githubusercontent.com/hyperliquid-dex/contracts/master/Signature.sol",
+      "caseIds": [
+        "usdc-hyperliquid-l1"
+      ],
+      "kind": "SOURCE_TEXT",
+      "expectedText": [
+        "pragma solidity"
+      ]
+    },
+    {
+      "id": "usdc-bsc-source",
+      "url": "https://sourcify.dev/server/v2/contract/56/0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d?fields=sources,compilation,abi,metadata",
+      "caseIds": [
+        "usdc-bsc"
+      ],
+      "kind": "SOURCE_API",
+      "expectedText": [],
+      "chainId": "56",
+      "address": "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
+      "coinId": "usdc",
+      "networkId": "bsc",
+      "identityScope": "BRIDGE_TOKEN_CANDIDATE_NOT_NATIVE_ISSUER_CERTIFICATION"
+    },
+    {
+      "id": "usdt-bsc-source",
+      "url": "https://sourcify.dev/server/v2/contract/56/0x55d398326f99059ff775485246999027b3197955?fields=sources,compilation,abi,metadata",
+      "caseIds": [
+        "usdt-bsc"
+      ],
+      "kind": "SOURCE_API",
+      "expectedText": [],
+      "chainId": "56",
+      "address": "0x55d398326f99059ff775485246999027b3197955",
+      "coinId": "usdt",
+      "networkId": "bsc",
+      "identityScope": "BRIDGE_TOKEN_CANDIDATE_NOT_NATIVE_ISSUER_CERTIFICATION"
+    },
+    {
+      "id": "bsc-token-list",
+      "url": "https://raw.githubusercontent.com/pancakeswap/token-list/main/lists/pancakeswap-extended.json",
+      "caseIds": [
+        "usdc-bsc",
+        "usdt-bsc"
+      ],
+      "kind": "DOCUMENT",
+      "expectedText": [
+        "8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
+        "55d398326f99059ff775485246999027b3197955"
+      ]
+    },
+    {
+      "id": "arc-wallet-guide",
+      "url": "https://www.arc.io/blog/supporting-arc-in-wallets-one-balance-usdc-fees-and-complete-history",
+      "caseIds": [
+        "usdc-arc"
+      ],
+      "kind": "DOCUMENT",
+      "expectedText": [
+        "USDC"
+      ]
+    },
+    {
+      "id": "circle-addresses",
+      "url": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
+      "caseIds": [
+        "usdc-solana",
+        "usdc-stellar",
+        "usdc-arc"
+      ],
+      "kind": "DOCUMENT",
+      "expectedText": [
+        "USDC"
+      ]
+    },
+    {
+      "id": "tether-protocols",
+      "url": "https://tether.to/en/supported-protocols/",
+      "caseIds": [
+        "usdt-solana",
+        "usdt-ton",
+        "usdt-aptos"
+      ],
+      "kind": "DOCUMENT",
+      "expectedText": [
+        "USD"
+      ]
+    },
+    {
+      "id": "xrpl-clawback-doc",
+      "url": "https://xrpl.org/docs/concepts/tokens/fungible-tokens/clawing-back-tokens",
+      "caseIds": [
+        "rlusd-xrpl"
+      ],
+      "kind": "DOCUMENT",
+      "expectedText": [
+        "Clawback"
+      ]
+    }
+  ],
+  "planSha256": "9d86de81fe882d35ac0965a3da4131d50f39870e57dc8335553e3ccb2976b69c"
+}

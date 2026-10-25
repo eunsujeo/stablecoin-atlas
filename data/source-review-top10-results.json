@@ -1,0 +1,2669 @@
+{
+  "schemaVersion": 1,
+  "kind": "CURATED_SOURCE_SCOPE_REVIEW_NOT_PRODUCT_VERDICT",
+  "analysisDate": "2026-10-25",
+  "selectionDay": "2026-10-22",
+  "authorization": "USER_APPROVED_ALL_ADDITIONAL_18",
+  "selectedTotal": 22,
+  "existingSelectedSourceCases": 4,
+  "additionalCasesReviewed": 18,
+  "externalRequests": 53,
+  "receivedBytes": 2034185,
+  "rpcRequests": 0,
+  "compilerExecutions": 0,
+  "dbChanges": 0,
+  "uiChanges": 0,
+  "interpretation": {
+    "SOURCE_PRESENT": "선택 소스의 기능·조건 확인. 실제 배포·실행 성공 인증은 아님.",
+    "NOT_IN_REVIEWED_PATH": "선택 코드 경로에 해당 분기·진입점 없음. 자산 전체의 부재 판정은 아님.",
+    "PROTOCOL_CAPABILITY": "체인 공통 코드의 조건. 자산 설정의 활성화는 별도.",
+    "DOCUMENTED_ONLY": "공식 문서 기재. 코드 검증은 아님.",
+    "INPUT_REQUIRED": "해당 구현·설정 근거 추가 필요. 기능 부재로 만들지 않음.",
+    "NOT_APPLICABLE": "해당 체인의 모델에 적용하지 않는 항목.",
+    "STORED_SETTING": "과거 고정 관측의 설정값. 현재 설정이나 실제 권한 행사 결과로 승격하지 않음."
+  },
+  "runs": [
+    {
+      "id": "A",
+      "plan": "data/source-review-top10-intake-plan.json",
+      "planSha256": "a8ad54e299a13f99c2beaefdf17d8b8fcad70a066cd3122e3719fce5f4409a01",
+      "slot": ".state/top10-source-intake-20261025-a",
+      "state": "COMPLETE",
+      "attempts": 8,
+      "bytes": 258131,
+      "completedAt": "2026-10-25T06:37:30.599Z",
+      "consumption": "CONSUMED_DO_NOT_REEXECUTE"
+    },
+    {
+      "id": "B",
+      "plan": "data/source-review-top10-remaining-plan.json",
+      "planSha256": "9d86de81fe882d35ac0965a3da4131d50f39870e57dc8335553e3ccb2976b69c",
+      "slot": ".state/top10-source-intake-20261025-b",
+      "state": "STOPPED",
+      "attempts": 23,
+      "bytes": 1186641,
+      "completedAt": "2026-10-25T06:48:42.769Z",
+      "consumption": "CONSUMED_DO_NOT_REEXECUTE"
+    },
+    {
+      "id": "C",
+      "plan": "data/source-review-top10-constructor-plan.json",
+      "planSha256": "51f2f1e9d942f451bed0966fcffaee386d4cbd6d65006b3c68df9abc90767b47",
+      "slot": ".state/top10-source-links-20261025-c",
+      "state": "STOPPED",
+      "attempts": 1,
+      "bytes": 215,
+      "completedAt": "2026-10-25T07:13:34.965Z",
+      "consumption": "CONSUMED_DO_NOT_REEXECUTE"
+    },
+    {
+      "id": "C2",
+      "plan": "data/source-review-top10-constructor-corrected-plan.json",
+      "planSha256": "60e8e33e69d619629674067d237156af4578f3d729c1b196c5735c99ce18ba39",
+      "slot": ".state/top10-source-links-20261025-c2",
+      "state": "COMPLETE",
+      "attempts": 9,
+      "bytes": 21126,
+      "completedAt": "2026-10-25T07:16:17.819Z",
+      "consumption": "CONSUMED_DO_NOT_REEXECUTE"
+    },
+    {
+      "id": "R",
+      "plan": "data/source-review-top10-xrpl-path-plan.json",
+      "planSha256": "64d10961df892dafd070d98ba997956aace03c9d92d762337b8d28f98e844188",
+      "slot": ".state/top10-source-xrpl-20261025-r",
+      "state": "COMPLETE",
+      "attempts": 4,
+      "bytes": 85982,
+      "completedAt": "2026-10-25T07:13:55.993Z",
+      "consumption": "CONSUMED_DO_NOT_REEXECUTE"
+    },
+    {
+      "id": "D",
+      "plan": "data/source-review-top10-initial-logic-plan.json",
+      "planSha256": "e4d40f9be339d43b0b17b597f9a1dffc02837dfe08f8ad25ef459b83b9c9e161",
+      "slot": ".state/top10-source-initial-logic-20261025-d",
+      "state": "COMPLETE",
+      "attempts": 8,
+      "bytes": 482090,
+      "completedAt": "2026-10-25T07:19:19.508Z",
+      "consumption": "CONSUMED_DO_NOT_REEXECUTE"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "A:00",
+      "caseIds": [
+        "usdc-base"
+      ],
+      "kind": "SOURCE_API",
+      "state": "SOURCE_STORED",
+      "httpStatus": 200,
+      "sha256": "2578163929adbea156b5b5bdcb4a79b235e8c2b7a033690167295642eb9180bd",
+      "bytes": 28832,
+      "localPath": ".state/top10-source-intake-20261025-a/00-usdc-base-response.bin",
+      "planTargetIndex": 0,
+      "contractName": "FiatTokenProxy",
+      "units": [
+        {
+          "name": "Address.sol",
+          "sourceUnitHash": "13603a3604fe217925679f6b86a73b84875845aed2fe9f3ab05a57b66d5b67d1",
+          "contentSha256": "65e6644738743b23ab1dc72cce8426f0fd6ea5dd96e87a7e16fbb0c4ccbb1633",
+          "lines": 141
+        },
+        {
+          "name": "FiatTokenProxy.sol",
+          "sourceUnitHash": "0e7d03dff7931754de8023eab9bbb9b9795b0149c8546ae4961c537f0d6d02a1",
+          "contentSha256": "8c681cd559316643ba64bbed3b5ee6ecfdc7f3bab0bb449ec26e891367c14ba5",
+          "lines": 40
+        },
+        {
+          "name": "Proxy.sol",
+          "sourceUnitHash": "80bee38f46524df0d5b0c998ec07277372d19c4dd3cf79799771506c902963a3",
+          "contentSha256": "d21905d81b0f3fdcbd1efa3086f723dfff6d04d91343da01ca5f59948c88bcc4",
+          "lines": 103
+        },
+        {
+          "name": "UpgradeabilityProxy.sol",
+          "sourceUnitHash": "5066af9086048f2693d660414776d552f09fd4711923d9b2e719a8b86adc6bbb",
+          "contentSha256": "4ecb3e5b0caee0a193343cf12d305752c44e7040e43869497707fddc66e96743",
+          "lines": 103
+        },
+        {
+          "name": "AdminUpgradeabilityProxy.sol",
+          "sourceUnitHash": "cedb7c9e8aed4929b14b06b483739c728a2283ea960cde5e8e92362f07d8c8d7",
+          "contentSha256": "78cde2f2e0e08193fd00ed6af0291f7aedb013f9b37e2108fb0469c605407a28",
+          "lines": 173
+        }
+      ],
+      "requestedAt": "2026-10-25T06:37:26.099Z"
+    },
+    {
+      "id": "A:01",
+      "caseIds": [
+        "usdc-arbitrum"
+      ],
+      "kind": "SOURCE_API",
+      "state": "SOURCE_STORED",
+      "httpStatus": 200,
+      "sha256": "9a35b4812c69bc24fe8eea8fe9d1ce5872b528a50259bbac1ee461010ddaf9b3",
+      "bytes": 28852,
+      "localPath": ".state/top10-source-intake-20261025-a/01-usdc-arbitrum-response.bin",
+      "planTargetIndex": 1,
+      "contractName": "FiatTokenProxy",
+      "units": [
+        {
+          "name": "Address.sol",
+          "sourceUnitHash": "13603a3604fe217925679f6b86a73b84875845aed2fe9f3ab05a57b66d5b67d1",
+          "contentSha256": "65e6644738743b23ab1dc72cce8426f0fd6ea5dd96e87a7e16fbb0c4ccbb1633",
+          "lines": 141
+        },
+        {
+          "name": "FiatTokenProxy.sol",
+          "sourceUnitHash": "0ca8c673ebb3bebd512514c978e33ad9eba46a515c7d8c9907075896c6a9993b",
+          "contentSha256": "8c681cd559316643ba64bbed3b5ee6ecfdc7f3bab0bb449ec26e891367c14ba5",
+          "lines": 40
+        },
+        {
+          "name": "Proxy.sol",
+          "sourceUnitHash": "81a1c268260cf66e6124d94d9819cc8d65873e1cf9aa0472332f90e168a04231",
+          "contentSha256": "d21905d81b0f3fdcbd1efa3086f723dfff6d04d91343da01ca5f59948c88bcc4",
+          "lines": 103
+        },
+        {
+          "name": "UpgradeabilityProxy.sol",
+          "sourceUnitHash": "94e96ca6173cc47630c5efc8fddc62517d0ce11b2715d9d8af203fce5df75e8d",
+          "contentSha256": "4ecb3e5b0caee0a193343cf12d305752c44e7040e43869497707fddc66e96743",
+          "lines": 103
+        },
+        {
+          "name": "AdminUpgradeabilityProxy.sol",
+          "sourceUnitHash": "ede4698c93796c5d15a5c6bff340083a2a38691c72f1c4ee0c15e51c47a6d038",
+          "contentSha256": "78cde2f2e0e08193fd00ed6af0291f7aedb013f9b37e2108fb0469c605407a28",
+          "lines": 173
+        }
+      ],
+      "requestedAt": "2026-10-25T06:37:27.339Z"
+    },
+    {
+      "id": "A:02",
+      "caseIds": [
+        "usdc-polygon"
+      ],
+      "kind": "SOURCE_API",
+      "state": "SOURCE_STORED",
+      "httpStatus": 200,
+      "sha256": "1b9a7d29d1e38c2286349655b789f657dd6a3a32582273cb520f501eb0bcf712",
+      "bytes": 28560,
+      "localPath": ".state/top10-source-intake-20261025-a/02-usdc-polygon-response.bin",
+      "planTargetIndex": 2,
+      "contractName": "FiatTokenProxy",
+      "units": [
+        {
+          "name": "FiatTokenProxy.sol",
+          "sourceUnitHash": "0b6162ffe97271c9d0f20b3c930f30c22ae87b2b66887f100d5b61bf2e7096d8",
+          "contentSha256": "8c681cd559316643ba64bbed3b5ee6ecfdc7f3bab0bb449ec26e891367c14ba5",
+          "lines": 40
+        },
+        {
+          "name": "Address.sol",
+          "sourceUnitHash": "13603a3604fe217925679f6b86a73b84875845aed2fe9f3ab05a57b66d5b67d1",
+          "contentSha256": "65e6644738743b23ab1dc72cce8426f0fd6ea5dd96e87a7e16fbb0c4ccbb1633",
+          "lines": 141
+        },
+        {
+          "name": "Proxy.sol",
+          "sourceUnitHash": "a4087887063b1fe73e33edac3138ab38dfdc48c702283a09df5ed824a8b69c65",
+          "contentSha256": "d21905d81b0f3fdcbd1efa3086f723dfff6d04d91343da01ca5f59948c88bcc4",
+          "lines": 103
+        },
+        {
+          "name": "UpgradeabilityProxy.sol",
+          "sourceUnitHash": "a36d764179635f848a35c3965727240b7aedd2dbd992da7b01bca28dea1dff3d",
+          "contentSha256": "4ecb3e5b0caee0a193343cf12d305752c44e7040e43869497707fddc66e96743",
+          "lines": 103
+        },
+        {
+          "name": "AdminUpgradeabilityProxy.sol",
+          "sourceUnitHash": "57e1d64af8fd8673f614554c12e960ab695dc6a755c0725585babb012fbc21f3",
+          "contentSha256": "78cde2f2e0e08193fd00ed6af0291f7aedb013f9b37e2108fb0469c605407a28",
+          "lines": 173
+        }
+      ],
+      "requestedAt": "2026-10-25T06:37:27.669Z"
+    },
+    {
+      "id": "A:03",
+      "caseIds": [
+        "usdc-avalanche"
+      ],
+      "kind": "SOURCE_API",
+      "state": "SOURCE_STORED",
+      "httpStatus": 200,
+      "sha256": "8e2dcc4efe5473dfdbd2aa9bb3a65c2609ba113ed2f189c5ab7de302c08779a3",
+      "bytes": 18504,
+      "localPath": ".state/top10-source-intake-20261025-a/03-usdc-avalanche-response.bin",
+      "planTargetIndex": 3,
+      "contractName": "FiatTokenProxy",
+      "units": [
+        {
+          "name": "FiatTokenProxy.sol",
+          "sourceUnitHash": "717960dcf9041c4ebc218e1f19f7b1c78470413813bb96ddcd7f78d8bcba06d4",
+          "contentSha256": "0a6fcbf69a4be5c51880d577926862203c460f0ca1423cd7da80cb03b6818b51",
+          "lines": 390
+        }
+      ],
+      "requestedAt": "2026-10-25T06:37:28.003Z"
+    },
+    {
+      "id": "A:04",
+      "caseIds": [
+        "usdt-arbitrum"
+      ],
+      "kind": "SOURCE_API",
+      "state": "SOURCE_STORED",
+      "httpStatus": 200,
+      "sha256": "b1415c2e333d45a98db716209e0abab5e3b97beee433b3418ed67e9d9ff850ea",
+      "bytes": 36433,
+      "localPath": ".state/top10-source-intake-20261025-a/04-usdt-arbitrum-response.bin",
+      "planTargetIndex": 4,
+      "contractName": "TransparentUpgradeableProxy",
+      "units": [
+        {
+          "name": "TransparentUpgradeableProxy.sol",
+          "sourceUnitHash": "4229ca29ec5a3df8a92b611e818011ddb82c0980d1a6e5d4683a550e50cc4d48",
+          "contentSha256": "3d3c023c47c9fc2aaf1fdbeadee382b761878f3ef3167e6fdcf2d07bd146117e",
+          "lines": 684
+        }
+      ],
+      "requestedAt": "2026-10-25T06:37:28.316Z"
+    },
+    {
+      "id": "A:05",
+      "caseIds": [
+        "usdt-polygon"
+      ],
+      "kind": "SOURCE_API",
+      "state": "SOURCE_STORED",
+      "httpStatus": 200,
+      "sha256": "f72402a9a85a86a89c341c09452fa120cdeaeab39460558ebd075ab94d1762e7",
+      "bytes": 9752,
+      "localPath": ".state/top10-source-intake-20261025-a/05-usdt-polygon-response.bin",
+      "planTargetIndex": 5,
+      "contractName": "UChildERC20Proxy",
+      "units": [
+        {
+          "name": "UChildERC20Proxy.sol",
+          "sourceUnitHash": "03c90d4fb062d593de5001041fae9244711ef8c5fbd8b2f8968cdf7f9afd819c",
+          "contentSha256": "e70d468b1234c81b1fce8ae83f8fe841a7de28f48add1c612f575cbe1293a36d",
+          "lines": 169
+        }
+      ],
+      "requestedAt": "2026-10-25T06:37:28.659Z"
+    },
+    {
+      "id": "A:06",
+      "caseIds": [
+        "usdt-plasma"
+      ],
+      "kind": "SOURCE_API",
+      "state": "SOURCE_STORED",
+      "httpStatus": 200,
+      "sha256": "6757d7ccce84f6601fd8011342b8c2fda4a360d263c92ed3aa91a23a661180f9",
+      "bytes": 53599,
+      "localPath": ".state/top10-source-intake-20261025-a/06-usdt-plasma-response.bin",
+      "planTargetIndex": 6,
+      "contractName": "TransparentUpgradeableProxy",
+      "units": [
+        {
+          "name": "Proxy.sol",
+          "sourceUnitHash": "320881a13541de2cdfb80cb86c9cd8350ca7f39a1a3afc672ef996b626e52c9b",
+          "contentSha256": "b3b79c95884570b4d01629e13985aea8a3c71bc37c257e1ea7fae9f23cffe8c4",
+          "lines": 86
+        },
+        {
+          "name": "Address.sol",
+          "sourceUnitHash": "13603a3604fe217925679f6b86a73b84875845aed2fe9f3ab05a57b66d5b67d1",
+          "contentSha256": "8160a4242e8a7d487d940814e5279d934e81f0436689132a4e73394bab084a6d",
+          "lines": 244
+        },
+        {
+          "name": "StorageSlot.sol",
+          "sourceUnitHash": "67bf43b136ed88b0809ff3ce9029f5335bb4b6bb75924e10418cc8543472bad7",
+          "contentSha256": "7583bd6ad3fdd5160823f090beb6b1519f54436d73ea7b7b4051b5d0758d533d",
+          "lines": 88
+        },
+        {
+          "name": "IERC1967.sol",
+          "sourceUnitHash": "0ee30aec5216a3e912b98c9ee5afd456692af29f9fa07dbe67b2344ed8db0a72",
+          "contentSha256": "9afca2989dde856cbc01279218056a4fde51004fcffeed9904260976b78e2176",
+          "lines": 26
+        },
+        {
+          "name": "IBeacon.sol",
+          "sourceUnitHash": "03d687e2a363cd81bf43c5dfef3762587dbde0e6471e4608c51b915eb0d4a6f8",
+          "contentSha256": "6afea1d83856ed8e0495fe78109f674f925cfdc79fe2e24e854b1237e742f011",
+          "lines": 16
+        },
+        {
+          "name": "draft-IERC1822.sol",
+          "sourceUnitHash": "c05542c1c22927c8769a2f2e749e45c4092d08181afbe600ec387b8061ae7947",
+          "contentSha256": "38728bce05e2b518d0ef66d514dbfcdee5555aeac2d57729480bf1409ee63630",
+          "lines": 20
+        },
+        {
+          "name": "ERC1967Proxy.sol",
+          "sourceUnitHash": "923776838c7180f38779d1c1ae7ef4b5bb0f968d302c5a8dc10e8f81fe7206b6",
+          "contentSha256": "f64dc961f262436fc9fd3235f16a8495fd43c8f1d98d0a750a376ea8c8d5365d",
+          "lines": 32
+        },
+        {
+          "name": "ERC1967Upgrade.sol",
+          "sourceUnitHash": "8122dcaebf34acc2fbcda2aa5e81736af343cb76b54947c615f96cc231081ab5",
+          "contentSha256": "da1090369e77c00ea6a7805e20a83a9c628fae1ef1acb08a396e46e63241e493",
+          "lines": 171
+        },
+        {
+          "name": "TransparentUpgradeableProxy.sol",
+          "sourceUnitHash": "b2630a30e50558c63dc9ca8ac6c6aab24038335f48f40a08e262bda50345520d",
+          "contentSha256": "be83b87e6f2dbc5d0dea923bb45092689382f1580893dfda28438452ffa10e88",
+          "lines": 193
+        },
+        {
+          "name": "Ownable.sol",
+          "sourceUnitHash": "5b3f3312b5d074d22469f086b4c336144913514c364c0647254de92561ab5cba",
+          "contentSha256": "9353af89436556f7ba8abb3f37a6677249aa4df6024fbfaa94f79ab2f44f3231",
+          "lines": 83
+        },
+        {
+          "name": "BeaconProxy.sol",
+          "sourceUnitHash": "536f60cce23d5f2354fb6e7a2f2ad74eabbc842148d1f87fe73fbeac40cc57b0",
+          "contentSha256": "96140d8378a174f30d2a36859f63c39b331a91e3f59b330d9516530f5eca85ed",
+          "lines": 61
+        },
+        {
+          "name": "UpgradeableBeacon.sol",
+          "sourceUnitHash": "73f9f9c1b85e1edf49686a0f96c4402cfd3669b362fd2c3af2675c8b32073871",
+          "contentSha256": "62837cd05e75f09d5b7c02faf786032cafd749375f9bd710106fec84d77be149",
+          "lines": 65
+        },
+        {
+          "name": "ProxyAdmin.sol",
+          "sourceUnitHash": "760a1a44e53357cd21e80b261f370e0a0a77b5e3aa1fa0101622fb757dd50b32",
+          "contentSha256": "e1f18ca464715b24fa20b49ca2b75aff9084a96bd7e726ace63097270719433b",
+          "lines": 81
+        },
+        {
+          "name": "Context.sol",
+          "sourceUnitHash": "cddcd974f772382248c70ee5af11c3ce2aef667bfda5150a5d2100b538e252e1",
+          "contentSha256": "1458c260d010a08e4c20a4a517882259a23a4baa0b5bd9add9fb6d6a1549814a",
+          "lines": 24
+        }
+      ],
+      "requestedAt": "2026-10-25T06:37:28.951Z"
+    },
+    {
+      "id": "A:07",
+      "caseIds": [
+        "usdt-mantle"
+      ],
+      "kind": "SOURCE_API",
+      "state": "SOURCE_STORED",
+      "httpStatus": 200,
+      "sha256": "242299dfe861008092a0d43c29df6e92e678979248d65407bfd8e01f697e6147",
+      "bytes": 53599,
+      "localPath": ".state/top10-source-intake-20261025-a/07-usdt-mantle-response.bin",
+      "planTargetIndex": 7,
+      "contractName": "TransparentUpgradeableProxy",
+      "units": [
+        {
+          "name": "Proxy.sol",
+          "sourceUnitHash": "320881a13541de2cdfb80cb86c9cd8350ca7f39a1a3afc672ef996b626e52c9b",
+          "contentSha256": "b3b79c95884570b4d01629e13985aea8a3c71bc37c257e1ea7fae9f23cffe8c4",
+          "lines": 86
+        },
+        {
+          "name": "Address.sol",
+          "sourceUnitHash": "13603a3604fe217925679f6b86a73b84875845aed2fe9f3ab05a57b66d5b67d1",
+          "contentSha256": "8160a4242e8a7d487d940814e5279d934e81f0436689132a4e73394bab084a6d",
+          "lines": 244
+        },
+        {
+          "name": "StorageSlot.sol",
+          "sourceUnitHash": "67bf43b136ed88b0809ff3ce9029f5335bb4b6bb75924e10418cc8543472bad7",
+          "contentSha256": "7583bd6ad3fdd5160823f090beb6b1519f54436d73ea7b7b4051b5d0758d533d",
+          "lines": 88
+        },
+        {
+          "name": "IERC1967.sol",
+          "sourceUnitHash": "0ee30aec5216a3e912b98c9ee5afd456692af29f9fa07dbe67b2344ed8db0a72",
+          "contentSha256": "9afca2989dde856cbc01279218056a4fde51004fcffeed9904260976b78e2176",
+          "lines": 26
+        },
+        {
+          "name": "IBeacon.sol",
+          "sourceUnitHash": "03d687e2a363cd81bf43c5dfef3762587dbde0e6471e4608c51b915eb0d4a6f8",
+          "contentSha256": "6afea1d83856ed8e0495fe78109f674f925cfdc79fe2e24e854b1237e742f011",
+          "lines": 16
+        },
+        {
+          "name": "draft-IERC1822.sol",
+          "sourceUnitHash": "c05542c1c22927c8769a2f2e749e45c4092d08181afbe600ec387b8061ae7947",
+          "contentSha256": "38728bce05e2b518d0ef66d514dbfcdee5555aeac2d57729480bf1409ee63630",
+          "lines": 20
+        },
+        {
+          "name": "ERC1967Proxy.sol",
+          "sourceUnitHash": "923776838c7180f38779d1c1ae7ef4b5bb0f968d302c5a8dc10e8f81fe7206b6",
+          "contentSha256": "f64dc961f262436fc9fd3235f16a8495fd43c8f1d98d0a750a376ea8c8d5365d",
+          "lines": 32
+        },
+        {
+          "name": "ERC1967Upgrade.sol",
+          "sourceUnitHash": "8122dcaebf34acc2fbcda2aa5e81736af343cb76b54947c615f96cc231081ab5",
+          "contentSha256": "da1090369e77c00ea6a7805e20a83a9c628fae1ef1acb08a396e46e63241e493",
+          "lines": 171
+        },
+        {
+          "name": "TransparentUpgradeableProxy.sol",
+          "sourceUnitHash": "b2630a30e50558c63dc9ca8ac6c6aab24038335f48f40a08e262bda50345520d",
+          "contentSha256": "be83b87e6f2dbc5d0dea923bb45092689382f1580893dfda28438452ffa10e88",
+          "lines": 193
+        },
+        {
+          "name": "Ownable.sol",
+          "sourceUnitHash": "5b3f3312b5d074d22469f086b4c336144913514c364c0647254de92561ab5cba",
+          "contentSha256": "9353af89436556f7ba8abb3f37a6677249aa4df6024fbfaa94f79ab2f44f3231",
+          "lines": 83
+        },
+        {
+          "name": "BeaconProxy.sol",
+          "sourceUnitHash": "536f60cce23d5f2354fb6e7a2f2ad74eabbc842148d1f87fe73fbeac40cc57b0",
+          "contentSha256": "96140d8378a174f30d2a36859f63c39b331a91e3f59b330d9516530f5eca85ed",
+          "lines": 61
+        },
+        {
+          "name": "UpgradeableBeacon.sol",
+          "sourceUnitHash": "73f9f9c1b85e1edf49686a0f96c4402cfd3669b362fd2c3af2675c8b32073871",
+          "contentSha256": "62837cd05e75f09d5b7c02faf786032cafd749375f9bd710106fec84d77be149",
+          "lines": 65
+        },
+        {
+          "name": "ProxyAdmin.sol",
+          "sourceUnitHash": "760a1a44e53357cd21e80b261f370e0a0a77b5e3aa1fa0101622fb757dd50b32",
+          "contentSha256": "e1f18ca464715b24fa20b49ca2b75aff9084a96bd7e726ace63097270719433b",
+          "lines": 81
+        },
+        {
+          "name": "Context.sol",
+          "sourceUnitHash": "cddcd974f772382248c70ee5af11c3ce2aef667bfda5150a5d2100b538e252e1",
+          "contentSha256": "1458c260d010a08e4c20a4a517882259a23a4baa0b5bd9add9fb6d6a1549814a",
+          "lines": 24
+        }
+      ],
+      "requestedAt": "2026-10-25T06:37:30.240Z"
+    },
+    {
+      "id": "B:00",
+      "caseIds": [
+        "usdc-solana",
+        "usdt-solana"
+      ],
+      "kind": "SOURCE_TEXT",
+      "state": "SOURCE_STORED",
+      "httpStatus": 200,
+      "sha256": "08e488b3b65150a58ef239d868742d35551ebc934b4b4bc74a08232b886df8bc",
+      "bytes": 237802,
+      "localPath": ".state/top10-source-intake-20261025-b/00-spl-processor-response.bin",
+      "planTargetIndex": 0,
+      "requestedAt": "2026-10-25T06:48:35.370Z"
+    },
+    {
+      "id": "B:01",
+      "caseIds": [
+        "usdc-solana",
+        "usdt-solana"
+      ],
+      "kind": "SOURCE_TEXT",
+      "state": "SOURCE_STORED",
+      "httpStatus": 200,
+      "sha256": "e1d440c816f4a5c757b9077393e3c08c444a2fcfcf18872ca2ee6e7e713ed069",
+      "bytes": 17531,
+      "localPath": ".state/top10-source-intake-20261025-b/01-spl-state-response.bin",
+      "planTargetIndex": 1,
+      "requestedAt": "2026-10-25T06:48:35.699Z"
+    },
+    {
+      "id": "B:02",
+      "caseIds": [
+        "usdt-ton"
+      ],
+      "kind": "SOURCE_TEXT",
+      "state": "SOURCE_STORED",
+      "httpStatus": 200,
+      "sha256": "ab644e5deee0cc5620ad916116a9e24d6719e21daca1425b559578018575bcb2",
+      "bytes": 11326,
+      "localPath": ".state/top10-source-intake-20261025-b/02-ton-jetton-minter-response.bin",
+      "planTargetIndex": 2,
+      "requestedAt": "2026-10-25T06:48:35.926Z"
+    },
+    {
+      "id": "B:03",
+      "caseIds": [
+        "usdt-ton"
+      ],
+      "kind": "SOURCE_TEXT",
+      "state": "SOURCE_STORED",
+      "httpStatus": 200,
+      "sha256": "dd8e9d59dd4479adabbb77e9dfdb552b50e9d7ab337bbbb26a9089e147379771",
+      "bytes": 9671,
+      "localPath": ".state/top10-source-intake-20261025-b/03-ton-jetton-wallet-response.bin",
+      "planTargetIndex": 3,
+      "requestedAt": "2026-10-25T06:48:36.191Z"
+    },
+    {
+      "id": "B:04",
+      "caseIds": [
+        "usdt-ton"
+      ],
+      "kind": "SOURCE_TEXT",
+      "state": "SOURCE_STORED",
+      "httpStatus": 200,
+      "sha256": "1303e3b14603733689af085881ecb0e2f9b9c8fcfae1e5ba466a13cccc976171",
+      "bytes": 944,
+      "localPath": ".state/top10-source-intake-20261025-b/04-ton-op-codes-response.bin",
+      "planTargetIndex": 4,
+      "requestedAt": "2026-10-25T06:48:36.416Z"
+    },
+    {
+      "id": "B:05",
+      "caseIds": [
+        "usdt-aptos"
+      ],
+      "kind": "SOURCE_TEXT",
+      "state": "SOURCE_STORED",
+      "httpStatus": 200,
+      "sha256": "071fec2094a3ce243ab26e96e6ded45883fc904e2a5837250715ad50aee4d057",
+      "bytes": 84023,
+      "localPath": ".state/top10-source-intake-20261025-b/05-aptos-fungible_asset-response.bin",
+      "planTargetIndex": 5,
+      "requestedAt": "2026-10-25T06:48:36.653Z"
+    },
+    {
+      "id": "B:06",
+      "caseIds": [
+        "usdt-aptos"
+      ],
+      "kind": "SOURCE_TEXT",
+      "state": "SOURCE_STORED",
+      "httpStatus": 200,
+      "sha256": "b528b284706a6efb26f1b37c64104fd5b235e86ef5e205fb90052e3d390d0c75",
+      "bytes": 19765,
+      "localPath": ".state/top10-source-intake-20261025-b/06-aptos-primary_fungible_store-response.bin",
+      "planTargetIndex": 6,
+      "requestedAt": "2026-10-25T06:48:36.887Z"
+    },
+    {
+      "id": "B:07",
+      "caseIds": [
+        "usdt-aptos"
+      ],
+      "kind": "SOURCE_TEXT",
+      "state": "SOURCE_STORED",
+      "httpStatus": 200,
+      "sha256": "e03f330bb82e97a1e3aba9985128d763f95fe49bf90db90ee2a6235428d05d90",
+      "bytes": 11762,
+      "localPath": ".state/top10-source-intake-20261025-b/07-aptos-dispatchable_fungible_asset-response.bin",
+      "planTargetIndex": 7,
+      "requestedAt": "2026-10-25T06:48:37.098Z"
+    },
+    {
+      "id": "B:08",
+      "caseIds": [
+        "rlusd-xrpl"
+      ],
+      "kind": "SOURCE_TEXT",
+      "state": "SOURCE_UNAVAILABLE",
+      "httpStatus": 404,
+      "sha256": "d5558cd419c8d46bdc958064cb97f963d1ea793866414c025906ec15033512ed",
+      "bytes": 14,
+      "localPath": ".state/top10-source-intake-20261025-b/08-xrpl-accountset-response.bin",
+      "planTargetIndex": 8,
+      "requestedAt": "2026-10-25T06:48:37.307Z"
+    },
+    {
+      "id": "B:09",
+      "caseIds": [
+        "rlusd-xrpl"
+      ],
+      "kind": "SOURCE_TEXT",
+      "state": "SOURCE_UNAVAILABLE",
+      "httpStatus": 404,
+      "sha256": "d5558cd419c8d46bdc958064cb97f963d1ea793866414c025906ec15033512ed",
+      "bytes": 14,
+      "localPath": ".state/top10-source-intake-20261025-b/09-xrpl-trustset-response.bin",
+      "planTargetIndex": 9,
+      "requestedAt": "2026-10-25T06:48:37.530Z"
+    },
+    {
+      "id": "B:10",
+      "caseIds": [
+        "rlusd-xrpl"
+      ],
+      "kind": "SOURCE_TEXT",
+      "state": "SOURCE_UNAVAILABLE",
+      "httpStatus": 404,
+      "sha256": "d5558cd419c8d46bdc958064cb97f963d1ea793866414c025906ec15033512ed",
+      "bytes": 14,
+      "localPath": ".state/top10-source-intake-20261025-b/10-xrpl-clawback-response.bin",
+      "planTargetIndex": 10,
+      "requestedAt": "2026-10-25T06:48:37.760Z"
+    },
+    {
+      "id": "B:11",
+      "caseIds": [
+        "rlusd-xrpl"
+      ],
+      "kind": "SOURCE_TEXT",
+      "state": "SOURCE_UNAVAILABLE",
+      "httpStatus": 404,
+      "sha256": "d5558cd419c8d46bdc958064cb97f963d1ea793866414c025906ec15033512ed",
+      "bytes": 14,
+      "localPath": ".state/top10-source-intake-20261025-b/11-xrpl-payment-response.bin",
+      "planTargetIndex": 11,
+      "requestedAt": "2026-10-25T06:48:37.965Z"
+    },
+    {
+      "id": "B:12",
+      "caseIds": [
+        "usdc-stellar"
+      ],
+      "kind": "SOURCE_TEXT",
+      "state": "SOURCE_STORED",
+      "httpStatus": 200,
+      "sha256": "0553d1e3e1dbe0924d50e5a95f7772529fef720e4fe4beee5a1541377a7cb150",
+      "bytes": 6198,
+      "localPath": ".state/top10-source-intake-20261025-b/12-stellar-paymentopframe-response.bin",
+      "planTargetIndex": 12,
+      "requestedAt": "2026-10-25T06:48:38.171Z"
+    },
+    {
+      "id": "B:13",
+      "caseIds": [
+        "usdc-stellar"
+      ],
+      "kind": "SOURCE_TEXT",
+      "state": "SOURCE_STORED",
+      "httpStatus": 200,
+      "sha256": "985a681225ffeafd43d9310ac947d3c73c987a28f773ac9b316f884af2a6c7c3",
+      "bytes": 10036,
+      "localPath": ".state/top10-source-intake-20261025-b/13-stellar-setoptionsopframe-response.bin",
+      "planTargetIndex": 13,
+      "requestedAt": "2026-10-25T06:48:38.415Z"
+    },
+    {
+      "id": "B:14",
+      "caseIds": [
+        "usdc-stellar"
+      ],
+      "kind": "SOURCE_TEXT",
+      "state": "SOURCE_STORED",
+      "httpStatus": 200,
+      "sha256": "05fdf01677ed11d5820a6ce8098368c42cfe5320bebc31e542d4262f7bac291b",
+      "bytes": 3072,
+      "localPath": ".state/top10-source-intake-20261025-b/14-stellar-clawbackopframe-response.bin",
+      "planTargetIndex": 14,
+      "requestedAt": "2026-10-25T06:48:38.689Z"
+    },
+    {
+      "id": "B:15",
+      "caseIds": [
+        "usdc-hyperliquid-l1"
+      ],
+      "kind": "SOURCE_TEXT",
+      "state": "SOURCE_STORED",
+      "httpStatus": 200,
+      "sha256": "907c92a44b26c64115514e81ad448a300f10921e7156f4df076756c86020f483",
+      "bytes": 28364,
+      "localPath": ".state/top10-source-intake-20261025-b/15-hyperliquid-bridge2-response.bin",
+      "planTargetIndex": 15,
+      "requestedAt": "2026-10-25T06:48:38.976Z"
+    },
+    {
+      "id": "B:16",
+      "caseIds": [
+        "usdc-hyperliquid-l1"
+      ],
+      "kind": "SOURCE_TEXT",
+      "state": "SOURCE_STORED",
+      "httpStatus": 200,
+      "sha256": "0b019d6d864bfac67f3f809e170a67653c8ebd1e865fbf3e61d50f2fed237681",
+      "bytes": 1313,
+      "localPath": ".state/top10-source-intake-20261025-b/16-hyperliquid-signature-response.bin",
+      "planTargetIndex": 16,
+      "requestedAt": "2026-10-25T06:48:39.190Z"
+    },
+    {
+      "id": "B:17",
+      "caseIds": [
+        "usdc-bsc"
+      ],
+      "kind": "SOURCE_API",
+      "state": "SOURCE_STORED",
+      "httpStatus": 200,
+      "sha256": "ccea7ab82b942fcbdd4ba480d9597a7a22947617bfbe7eff3430a41075515a91",
+      "bytes": 25838,
+      "localPath": ".state/top10-source-intake-20261025-b/17-usdc-bsc-source-response.bin",
+      "planTargetIndex": 17,
+      "contractName": "BEP20UpgradeableProxy",
+      "units": [
+        {
+          "name": "BEP20UpgradeableProxy.sol",
+          "sourceUnitHash": "fcf666ce6d80a011b4ff843889d7adfdcbb72bd8af6651800264564f914327f5",
+          "contentSha256": "d10ed8eb1c67396fb82b19fe87625437ab4f6200bf76475b17932b3d63b30be4",
+          "lines": 479
+        }
+      ],
+      "requestedAt": "2026-10-25T06:48:39.483Z"
+    },
+    {
+      "id": "B:18",
+      "caseIds": [
+        "usdt-bsc"
+      ],
+      "kind": "SOURCE_API",
+      "state": "SOURCE_STORED",
+      "httpStatus": 200,
+      "sha256": "2552eb5f968a866b8fa2c96584fc2b2cf42c32bee03939d68e4b5e1efeeacff1",
+      "bytes": 35008,
+      "localPath": ".state/top10-source-intake-20261025-b/18-usdt-bsc-source-response.bin",
+      "planTargetIndex": 18,
+      "contractName": "BEP20USDT",
+      "units": [
+        {
+          "name": "BEP20USDT.sol",
+          "sourceUnitHash": "4fe41d470b1b4846907982d4df64832f3f41ac8411e740802a710a47e23bf577",
+          "contentSha256": "524e5600fd0447b3ac724e01d6b12945ad417cf261abbdf7278657f3a579822e",
+          "lines": 600
+        }
+      ],
+      "requestedAt": "2026-10-25T06:48:40.721Z"
+    },
+    {
+      "id": "B:19",
+      "caseIds": [
+        "usdc-bsc",
+        "usdt-bsc"
+      ],
+      "kind": "DOCUMENT",
+      "state": "DOCUMENT_STORED",
+      "httpStatus": 200,
+      "sha256": "a53df1241f87bb7e44232994b55024abe71278449391e0952378a533c479c46a",
+      "bytes": 120036,
+      "localPath": ".state/top10-source-intake-20261025-b/19-bsc-token-list-response.bin",
+      "planTargetIndex": 19,
+      "requestedAt": "2026-10-25T06:48:41.071Z"
+    },
+    {
+      "id": "B:20",
+      "caseIds": [
+        "usdc-arc"
+      ],
+      "kind": "DOCUMENT",
+      "state": "DOCUMENT_STORED",
+      "httpStatus": 200,
+      "sha256": "03cc28de0237e47e2010e54073c4954d8c8805d107cdc7ee9755efb60025dd67",
+      "bytes": 99826,
+      "localPath": ".state/top10-source-intake-20261025-b/20-arc-wallet-guide-response.bin",
+      "planTargetIndex": 20,
+      "requestedAt": "2026-10-25T06:48:41.377Z"
+    },
+    {
+      "id": "B:21",
+      "caseIds": [
+        "usdc-solana",
+        "usdc-stellar",
+        "usdc-arc"
+      ],
+      "kind": "DOCUMENT",
+      "state": "DOCUMENT_STORED",
+      "httpStatus": 200,
+      "sha256": "478e169ab6b8dda0ead6abe9b5ef2ccba608b4a72e4196f5cdf42debe07b92a5",
+      "bytes": 387031,
+      "localPath": ".state/top10-source-intake-20261025-b/21-circle-addresses-response.bin",
+      "planTargetIndex": 21,
+      "requestedAt": "2026-10-25T06:48:41.459Z"
+    },
+    {
+      "id": "B:22",
+      "caseIds": [
+        "usdt-solana",
+        "usdt-ton",
+        "usdt-aptos"
+      ],
+      "kind": "DOCUMENT",
+      "state": "FAILED",
+      "httpStatus": 200,
+      "sha256": "7ee777d34466f95a13a5bcf55d980c374f0d2d3d29315e7d4ba9ef1249b72fe8",
+      "bytes": 77039,
+      "localPath": ".state/top10-source-intake-20261025-b/22-tether-protocols-response.bin",
+      "planTargetIndex": 22,
+      "reason": "CHALLENGE_RESPONSE",
+      "offlineReview": {
+        "state": "STATIC_DOCUMENT_BODY_REVIEWED",
+        "originalFailurePreserved": true,
+        "newRequests": 0,
+        "renderedPageVerified": false,
+        "reason": "Embedded security script URL caused original false positive; visible official protocol body reviewed from saved bytes."
+      },
+      "requestedAt": "2026-10-25T06:48:41.658Z"
+    },
+    {
+      "id": "C:00",
+      "caseIds": [
+        "usdc-base"
+      ],
+      "kind": "CONSTRUCTOR_METADATA",
+      "state": "HTTP_FAILED",
+      "httpStatus": 400,
+      "sha256": "b79f37323ad4301aec4adcfe8aebde75fbe53aa4529b1eac65c56ec280705ca7",
+      "bytes": 215,
+      "localPath": ".state/top10-source-links-20261025-c/00-usdc-base-constructor-response.bin",
+      "planTargetIndex": 0,
+      "requestedAt": "2026-10-25T07:13:34.535Z"
+    },
+    {
+      "id": "C2:00",
+      "caseIds": [
+        "usdc-base"
+      ],
+      "kind": "CONSTRUCTOR_METADATA",
+      "state": "CONSTRUCTOR_METADATA_STORED",
+      "httpStatus": 200,
+      "sha256": "a2395336cb13fa23d3a8a0de5ba0ba2cdb831106bbb4a483d7ed39703b4d9103",
+      "bytes": 2138,
+      "localPath": ".state/top10-source-links-20261025-c2/00-usdc-base-constructor-response.bin",
+      "planTargetIndex": 0,
+      "initialLogic": {
+        "address": "0x6d0c9a70d85e42ba8b76dc06620d4e988ec8d0c1",
+        "chainId": "8453",
+        "relation": "INDEXED_CONSTRUCTOR_INITIAL_LOGIC_ONLY",
+        "currentImplementationBinding": "NOT_ESTABLISHED"
+      },
+      "requestedAt": "2026-10-25T07:16:15.150Z"
+    },
+    {
+      "id": "C2:01",
+      "caseIds": [
+        "usdc-arbitrum"
+      ],
+      "kind": "CONSTRUCTOR_METADATA",
+      "state": "CONSTRUCTOR_METADATA_STORED",
+      "httpStatus": 200,
+      "sha256": "7231de19c138b1ef5eb59b5e1818b3eb902404e8ef1d18ed89bd914c1f374c68",
+      "bytes": 2140,
+      "localPath": ".state/top10-source-links-20261025-c2/01-usdc-arbitrum-constructor-response.bin",
+      "planTargetIndex": 1,
+      "initialLogic": {
+        "address": "0x0f4fb9474303d10905ab86aa8d5a65fe44b6e04a",
+        "chainId": "42161",
+        "relation": "INDEXED_CONSTRUCTOR_INITIAL_LOGIC_ONLY",
+        "currentImplementationBinding": "NOT_ESTABLISHED"
+      },
+      "requestedAt": "2026-10-25T07:16:15.472Z"
+    },
+    {
+      "id": "C2:02",
+      "caseIds": [
+        "usdc-polygon"
+      ],
+      "kind": "CONSTRUCTOR_METADATA",
+      "state": "CONSTRUCTOR_METADATA_STORED",
+      "httpStatus": 200,
+      "sha256": "9c48d6f3464a51f7c6ed9b33482e492fdd5107e9dafc71c07b49cfb0597f178b",
+      "bytes": 2109,
+      "localPath": ".state/top10-source-links-20261025-c2/02-usdc-polygon-constructor-response.bin",
+      "planTargetIndex": 2,
+      "initialLogic": {
+        "address": "0x7e14ea29ea374d6f4ff669326c30d1fad9826026",
+        "chainId": "137",
+        "relation": "INDEXED_CONSTRUCTOR_INITIAL_LOGIC_ONLY",
+        "currentImplementationBinding": "NOT_ESTABLISHED"
+      },
+      "requestedAt": "2026-10-25T07:16:15.764Z"
+    },
+    {
+      "id": "C2:03",
+      "caseIds": [
+        "usdc-avalanche"
+      ],
+      "kind": "CONSTRUCTOR_METADATA",
+      "state": "CONSTRUCTOR_METADATA_STORED",
+      "httpStatus": 200,
+      "sha256": "bc42564384aed014f2abd14b0a1fbe8039733da358bace1b042380b9d68be9aa",
+      "bytes": 2113,
+      "localPath": ".state/top10-source-links-20261025-c2/03-usdc-avalanche-constructor-response.bin",
+      "planTargetIndex": 3,
+      "initialLogic": {
+        "address": "0x7f2239511051b875ccf84dab02d5a307adcd51c2",
+        "chainId": "43114",
+        "relation": "INDEXED_CONSTRUCTOR_INITIAL_LOGIC_ONLY",
+        "currentImplementationBinding": "NOT_ESTABLISHED"
+      },
+      "requestedAt": "2026-10-25T07:16:16.039Z"
+    },
+    {
+      "id": "C2:04",
+      "caseIds": [
+        "usdt-arbitrum"
+      ],
+      "kind": "CONSTRUCTOR_METADATA",
+      "state": "CONSTRUCTOR_METADATA_NO_LINK",
+      "httpStatus": 200,
+      "sha256": "4255cad93324fa859bf2b43d3be1148f4f5567a216116c36b20870bb52022295",
+      "bytes": 2333,
+      "localPath": ".state/top10-source-links-20261025-c2/04-usdt-arbitrum-constructor-response.bin",
+      "planTargetIndex": 4,
+      "initialLogic": null,
+      "requestedAt": "2026-10-25T07:16:16.320Z"
+    },
+    {
+      "id": "C2:05",
+      "caseIds": [
+        "usdt-polygon"
+      ],
+      "kind": "CONSTRUCTOR_METADATA",
+      "state": "CONSTRUCTOR_METADATA_STORED",
+      "httpStatus": 200,
+      "sha256": "8335310c6556ceb2c146b2e9877c42bab5000e5a1361374ab2c78663cb689a7f",
+      "bytes": 2457,
+      "localPath": ".state/top10-source-links-20261025-c2/05-usdt-polygon-constructor-response.bin",
+      "planTargetIndex": 5,
+      "initialLogic": {
+        "address": "0x42243231fb4a64a5bcfc7f4b7a9ad92576804046",
+        "chainId": "137",
+        "relation": "INDEXED_CONSTRUCTOR_INITIAL_LOGIC_ONLY",
+        "currentImplementationBinding": "NOT_ESTABLISHED"
+      },
+      "requestedAt": "2026-10-25T07:16:16.607Z"
+    },
+    {
+      "id": "C2:06",
+      "caseIds": [
+        "usdt-plasma"
+      ],
+      "kind": "CONSTRUCTOR_METADATA",
+      "state": "CONSTRUCTOR_METADATA_STORED",
+      "httpStatus": 200,
+      "sha256": "1e8c6fbd68446819bc39d2f099dcf250a1e595923e909edd6faad416b8220771",
+      "bytes": 2323,
+      "localPath": ".state/top10-source-links-20261025-c2/06-usdt-plasma-constructor-response.bin",
+      "planTargetIndex": 6,
+      "initialLogic": {
+        "address": "0xf555a12bffaef20cc201a74ae6513cb4aadb34b9",
+        "chainId": "9745",
+        "relation": "INDEXED_CONSTRUCTOR_INITIAL_LOGIC_ONLY",
+        "currentImplementationBinding": "NOT_ESTABLISHED"
+      },
+      "requestedAt": "2026-10-25T07:16:16.879Z"
+    },
+    {
+      "id": "C2:07",
+      "caseIds": [
+        "usdt-mantle"
+      ],
+      "kind": "CONSTRUCTOR_METADATA",
+      "state": "CONSTRUCTOR_METADATA_STORED",
+      "httpStatus": 200,
+      "sha256": "325d457a45ee4bfe752188cb9cec6d5393f101c164a65b3de5a2d5f0e223162c",
+      "bytes": 2323,
+      "localPath": ".state/top10-source-links-20261025-c2/07-usdt-mantle-constructor-response.bin",
+      "planTargetIndex": 7,
+      "initialLogic": {
+        "address": "0x1ec7df9e74be05cb5a456aca2dc1ac2cec9ab6a3",
+        "chainId": "5000",
+        "relation": "INDEXED_CONSTRUCTOR_INITIAL_LOGIC_ONLY",
+        "currentImplementationBinding": "NOT_ESTABLISHED"
+      },
+      "requestedAt": "2026-10-25T07:16:17.156Z"
+    },
+    {
+      "id": "C2:08",
+      "caseIds": [
+        "usdc-bsc"
+      ],
+      "kind": "CONSTRUCTOR_METADATA",
+      "state": "CONSTRUCTOR_METADATA_STORED",
+      "httpStatus": 200,
+      "sha256": "25a143d06010612f2d53a6f534615f74eb1d64f33df662b18da2cf1bcf598e7a",
+      "bytes": 3190,
+      "localPath": ".state/top10-source-links-20261025-c2/08-usdc-bsc-constructor-response.bin",
+      "planTargetIndex": 8,
+      "initialLogic": {
+        "address": "0xba5fe23f8a3a24bed3236f05f2fcf35fd0bf0b5c",
+        "chainId": "56",
+        "relation": "INDEXED_CONSTRUCTOR_INITIAL_LOGIC_ONLY",
+        "currentImplementationBinding": "NOT_ESTABLISHED"
+      },
+      "requestedAt": "2026-10-25T07:16:17.434Z"
+    },
+    {
+      "id": "R:00",
+      "caseIds": [
+        "rlusd-xrpl"
+      ],
+      "kind": "SOURCE_TEXT",
+      "state": "SOURCE_STORED",
+      "httpStatus": 200,
+      "sha256": "16b43ee17e593dc005096f6cfdcecdfbae3a537bf349ffe467d3968fdc0425d9",
+      "bytes": 16861,
+      "localPath": ".state/top10-source-xrpl-20261025-r/00-xrpl-current-accountset-response.bin",
+      "planTargetIndex": 0,
+      "requestedAt": "2026-10-25T07:13:54.912Z"
+    },
+    {
+      "id": "R:01",
+      "caseIds": [
+        "rlusd-xrpl"
+      ],
+      "kind": "SOURCE_TEXT",
+      "state": "SOURCE_STORED",
+      "httpStatus": 200,
+      "sha256": "189918c14e4b7290d9da75306728afc566c3f89b60bbd7704c634c5e89d5efb6",
+      "bytes": 26117,
+      "localPath": ".state/top10-source-xrpl-20261025-r/01-xrpl-current-trustset-response.bin",
+      "planTargetIndex": 1,
+      "requestedAt": "2026-10-25T07:13:55.229Z"
+    },
+    {
+      "id": "R:02",
+      "caseIds": [
+        "rlusd-xrpl"
+      ],
+      "kind": "SOURCE_TEXT",
+      "state": "SOURCE_STORED",
+      "httpStatus": 200,
+      "sha256": "cf384df74e565318cee8cf14428784a30a2f6a194d3bc4ca7131fc44087b826e",
+      "bytes": 8187,
+      "localPath": ".state/top10-source-xrpl-20261025-r/02-xrpl-current-clawback-response.bin",
+      "planTargetIndex": 2,
+      "requestedAt": "2026-10-25T07:13:55.495Z"
+    },
+    {
+      "id": "R:03",
+      "caseIds": [
+        "rlusd-xrpl"
+      ],
+      "kind": "SOURCE_TEXT",
+      "state": "SOURCE_STORED",
+      "httpStatus": 200,
+      "sha256": "55e49f8467f26ae61770cf497820679f00d9abb44a654dd5ab1e74280ea4aa3b",
+      "bytes": 34817,
+      "localPath": ".state/top10-source-xrpl-20261025-r/03-xrpl-current-payment-response.bin",
+      "planTargetIndex": 3,
+      "requestedAt": "2026-10-25T07:13:55.749Z"
+    },
+    {
+      "id": "D:00",
+      "caseIds": [
+        "usdc-base"
+      ],
+      "kind": "SOURCE_API",
+      "state": "SOURCE_STORED",
+      "httpStatus": 200,
+      "sha256": "addbca95e8b417ab9f26c2553e0b4115b00b7685ac3c638067564cc885fe2e5a",
+      "bytes": 122089,
+      "localPath": ".state/top10-source-initial-logic-20261025-d/00-usdc-base-initial-logic-response.bin",
+      "planTargetIndex": 0,
+      "contractName": "FiatTokenV2_1",
+      "units": [
+        {
+          "name": "SafeMath.sol",
+          "sourceUnitHash": "10d774d76cd59ef24ea7df8136fee2afbd0164c9962f4a01c9dea48748b7c90c",
+          "contentSha256": "aa64549e1edf3bd55b4a5f7404edfae8ef704f3fbd0735cdd330b380c118e067",
+          "lines": 159
+        },
+        {
+          "name": "Address.sol",
+          "sourceUnitHash": "13603a3604fe217925679f6b86a73b84875845aed2fe9f3ab05a57b66d5b67d1",
+          "contentSha256": "65e6644738743b23ab1dc72cce8426f0fd6ea5dd96e87a7e16fbb0c4ccbb1633",
+          "lines": 141
+        },
+        {
+          "name": "IERC20.sol",
+          "sourceUnitHash": "1725e7905fa8fae755c4ccbd5228387833c8af4e1c76620b545245385a2bfff3",
+          "contentSha256": "331d81d1058f809dc5b3cbae3438ed4e38cd1117778ca2ef2d207a8c46b4085c",
+          "lines": 77
+        },
+        {
+          "name": "SafeERC20.sol",
+          "sourceUnitHash": "62e7a5fc2f40b834794b7cdb219bf6b42cbba5cb4debf261c04169825d478588",
+          "contentSha256": "305ffee5fb590e99c62b777087253ddeb22eaf0d20c6e8075178210ab3eff73f",
+          "lines": 75
+        },
+        {
+          "name": "Ownable.sol",
+          "sourceUnitHash": "8748e7d061c233ab846c78b38f138fe31602c92672fcb72e53535086070faad2",
+          "contentSha256": "0e0ef6d0fc9e4e86568a281485ed73963e808f92462f72d3ce86f5e24557c0f4",
+          "lines": 89
+        },
+        {
+          "name": "EIP2612.sol",
+          "sourceUnitHash": "c742014be476bdfdb3f7e951540d5474e03daaecb62e9cab0c721592b33aeea8",
+          "contentSha256": "39701b30144858717f89aabb67614a916d8003cd71c32caf84fd6e2ed10b004e",
+          "lines": 87
+        },
+        {
+          "name": "EIP3009.sol",
+          "sourceUnitHash": "0f69887cc1615085f68c673bcd90d25579533c1ad063691db2ae6f1d9dfb33fd",
+          "contentSha256": "8ef923619fd43c62bb686d9ebadf35e51405441a06649ec0dfda25c283098bba",
+          "lines": 244
+        },
+        {
+          "name": "EIP712.sol",
+          "sourceUnitHash": "795f22e55450131c8291f3afc4ec0a3b6318c14faa5929cecc8bd1b4d8965bd1",
+          "contentSha256": "c779f54e46bc7c1209619bb18999fffab74a6f6585680c02e2b592600d054752",
+          "lines": 87
+        },
+        {
+          "name": "Pausable.sol",
+          "sourceUnitHash": "7fe99aa41637f744c4216641deb2a67bb6f167d7b290232b5e77c914c9d42008",
+          "contentSha256": "087f0eb221cb28b36e1522d9a54ad8567db302f1f137cdcf32e2f387de1c2fe1",
+          "lines": 94
+        },
+        {
+          "name": "ECRecover.sol",
+          "sourceUnitHash": "69aa9387d8dae6b1019a4b4cc2fd61087cb572397178063ebc2f9b3fa9a07e30",
+          "contentSha256": "b01e9c19a9f9c6fe5019399cbd384695bd5001991f48fac6749bcfe401f0c4e7",
+          "lines": 75
+        },
+        {
+          "name": "Rescuable.sol",
+          "sourceUnitHash": "e6699ef173b5a38012ab2f61a6c0f760fd9db63a32b8119af9bcbb3e2367cc5c",
+          "contentSha256": "44932b3a48bc979a5e4e983abd19a07a6268fd17b1df08da2c8342f871f6a7cd",
+          "lines": 80
+        },
+        {
+          "name": "FiatTokenV1.sol",
+          "sourceUnitHash": "954ff14e4fb0bef9fa3e823fb76ea6ac07ed9be2139dbdea44d4450382d0c13f",
+          "contentSha256": "8a5d5f9cd90f28f6a7fca12b5a63b5bd979fa58979b949e4b79dd2c547b1666b",
+          "lines": 371
+        },
+        {
+          "name": "FiatTokenV2.sol",
+          "sourceUnitHash": "57b8a30cd887082335c9bc0eac6cd866d8bc35a7c995399955925ca98c24e573",
+          "contentSha256": "85f8d9cdaef812164d07400b70fe252f9bffa0c5d0046fe9c2a19b776df37dd9",
+          "lines": 236
+        },
+        {
+          "name": "EIP712Domain.sol",
+          "sourceUnitHash": "882d102cad646a0d1ab129b02fd81d59b4e42a3a291f8301ec3fb923a34f23a4",
+          "contentSha256": "5c1126773bb9f4224ed070d691888bb5286f37fcde89de59756174da0f3df0bd",
+          "lines": 35
+        },
+        {
+          "name": "Blacklistable.sol",
+          "sourceUnitHash": "2cea7088eb2669ceabff8a4032222df72d3585198bd094ced1543f638fa42269",
+          "contentSha256": "d1e8fe82c7e77ca626c27c4205dac994e6c0c97e18f86cb17559d952df8425eb",
+          "lines": 98
+        },
+        {
+          "name": "FiatTokenV2_1.sol",
+          "sourceUnitHash": "7e5e5496a2b2cdfe8e782ebbcde1dc47fff3f86ca0bed495cfe9dc3b22396572",
+          "contentSha256": "b8e15c76105f03b9d0025f6844aa2bc24e81e8acd54af0970ad5c0cd31f72d5e",
+          "lines": 60
+        },
+        {
+          "name": "FiatTokenV1_1.sol",
+          "sourceUnitHash": "b82f82b465e957bb676427d86eb724c5830b87d1498669122200d837a5af17a2",
+          "contentSha256": "75f516c3ee9334d0ff16b36e92a36e3a381253dafbfb3dad2a18b319e6dc37e7",
+          "lines": 36
+        },
+        {
+          "name": "AbstractFiatTokenV1.sol",
+          "sourceUnitHash": "09c21d86e7814e612651f2a9929dd032f7b0b55ca25d01465ea758077c020ce7",
+          "contentSha256": "180281417397c9e75dda09cd3d99a8ad35c3b42626ba69ef62704eda24e88392",
+          "lines": 41
+        },
+        {
+          "name": "AbstractFiatTokenV2.sol",
+          "sourceUnitHash": "60704fcf1a02232e3e222f62d413cc23165ad154adb89071d83bf98a93d6b4b9",
+          "contentSha256": "021276c706647ba1c7e48fc0d77354c1e7236e9e5016fa53ee9fadddc2ddf5d6",
+          "lines": 41
+        }
+      ],
+      "requestedAt": "2026-10-25T07:19:16.137Z"
+    },
+    {
+      "id": "D:01",
+      "caseIds": [
+        "usdc-arbitrum"
+      ],
+      "kind": "SOURCE_API",
+      "state": "SOURCE_STORED",
+      "httpStatus": 200,
+      "sha256": "146b3ea5c6fbb8702ae10c155cd9956014cc6a0e94ce79ed3a45d89ae43bf0c6",
+      "bytes": 122153,
+      "localPath": ".state/top10-source-initial-logic-20261025-d/01-usdc-arbitrum-initial-logic-response.bin",
+      "planTargetIndex": 1,
+      "contractName": "FiatTokenV2_1",
+      "units": [
+        {
+          "name": "SafeMath.sol",
+          "sourceUnitHash": "10d774d76cd59ef24ea7df8136fee2afbd0164c9962f4a01c9dea48748b7c90c",
+          "contentSha256": "aa64549e1edf3bd55b4a5f7404edfae8ef704f3fbd0735cdd330b380c118e067",
+          "lines": 159
+        },
+        {
+          "name": "Address.sol",
+          "sourceUnitHash": "13603a3604fe217925679f6b86a73b84875845aed2fe9f3ab05a57b66d5b67d1",
+          "contentSha256": "65e6644738743b23ab1dc72cce8426f0fd6ea5dd96e87a7e16fbb0c4ccbb1633",
+          "lines": 141
+        },
+        {
+          "name": "IERC20.sol",
+          "sourceUnitHash": "1725e7905fa8fae755c4ccbd5228387833c8af4e1c76620b545245385a2bfff3",
+          "contentSha256": "331d81d1058f809dc5b3cbae3438ed4e38cd1117778ca2ef2d207a8c46b4085c",
+          "lines": 77
+        },
+        {
+          "name": "SafeERC20.sol",
+          "sourceUnitHash": "62e7a5fc2f40b834794b7cdb219bf6b42cbba5cb4debf261c04169825d478588",
+          "contentSha256": "305ffee5fb590e99c62b777087253ddeb22eaf0d20c6e8075178210ab3eff73f",
+          "lines": 75
+        },
+        {
+          "name": "Ownable.sol",
+          "sourceUnitHash": "7d3bb4884b09b478b53d3ea2cc708fd73ab93b29cdce02509e04a50d08855d7f",
+          "contentSha256": "0e0ef6d0fc9e4e86568a281485ed73963e808f92462f72d3ce86f5e24557c0f4",
+          "lines": 89
+        },
+        {
+          "name": "EIP2612.sol",
+          "sourceUnitHash": "89d0d79e42c31bd34bbd05c8a79f2809249138b22d03c5e0d854529d7e7a4d38",
+          "contentSha256": "39701b30144858717f89aabb67614a916d8003cd71c32caf84fd6e2ed10b004e",
+          "lines": 87
+        },
+        {
+          "name": "EIP3009.sol",
+          "sourceUnitHash": "1441693ae4760a188a3e8796ac9e6c97d39349f343ee3101362f13afa5ee53b5",
+          "contentSha256": "8ef923619fd43c62bb686d9ebadf35e51405441a06649ec0dfda25c283098bba",
+          "lines": 244
+        },
+        {
+          "name": "EIP712.sol",
+          "sourceUnitHash": "2eba631641751108f080ac41235e588a5b9bbeb837c9b5b0f2162598af367658",
+          "contentSha256": "c779f54e46bc7c1209619bb18999fffab74a6f6585680c02e2b592600d054752",
+          "lines": 87
+        },
+        {
+          "name": "Pausable.sol",
+          "sourceUnitHash": "79310d2dbf3af5d963cab89c89db89c26bbd1627fd0db81e0b5c6d394920d7e4",
+          "contentSha256": "087f0eb221cb28b36e1522d9a54ad8567db302f1f137cdcf32e2f387de1c2fe1",
+          "lines": 94
+        },
+        {
+          "name": "ECRecover.sol",
+          "sourceUnitHash": "36afecbd49120a0721be86957667a55627964a726142832c90b46644d13a6784",
+          "contentSha256": "b01e9c19a9f9c6fe5019399cbd384695bd5001991f48fac6749bcfe401f0c4e7",
+          "lines": 75
+        },
+        {
+          "name": "Rescuable.sol",
+          "sourceUnitHash": "591dc5b668d05f9176bea7e38de391cc458f3df9c0565c8b8070d3f154ffd3df",
+          "contentSha256": "44932b3a48bc979a5e4e983abd19a07a6268fd17b1df08da2c8342f871f6a7cd",
+          "lines": 80
+        },
+        {
+          "name": "FiatTokenV1.sol",
+          "sourceUnitHash": "313c459dfa6e9cdb7c41515af38a4facf7a8a82b2baa7d6b83e2a3ebd466d364",
+          "contentSha256": "8a5d5f9cd90f28f6a7fca12b5a63b5bd979fa58979b949e4b79dd2c547b1666b",
+          "lines": 371
+        },
+        {
+          "name": "FiatTokenV2.sol",
+          "sourceUnitHash": "994029963dcf57c8cf987842645171a8331a422b1ca23e80ef64d9caa66d1fdd",
+          "contentSha256": "85f8d9cdaef812164d07400b70fe252f9bffa0c5d0046fe9c2a19b776df37dd9",
+          "lines": 236
+        },
+        {
+          "name": "EIP712Domain.sol",
+          "sourceUnitHash": "655c6784eb6b177cd7b539674c0d6921631938ebd7b094de813c4836f8c0a342",
+          "contentSha256": "5c1126773bb9f4224ed070d691888bb5286f37fcde89de59756174da0f3df0bd",
+          "lines": 35
+        },
+        {
+          "name": "Blacklistable.sol",
+          "sourceUnitHash": "456eb6e98a5035802920a2e297d5b9c4e18b2ed081391787680516cfbc90f1ac",
+          "contentSha256": "d1e8fe82c7e77ca626c27c4205dac994e6c0c97e18f86cb17559d952df8425eb",
+          "lines": 98
+        },
+        {
+          "name": "FiatTokenV2_1.sol",
+          "sourceUnitHash": "c223f0269972b91450cca40c94da2e3141297d031dd731012f8a4165063c6915",
+          "contentSha256": "b8e15c76105f03b9d0025f6844aa2bc24e81e8acd54af0970ad5c0cd31f72d5e",
+          "lines": 60
+        },
+        {
+          "name": "FiatTokenV1_1.sol",
+          "sourceUnitHash": "23a51f8d95b17419a46cb6f252e7a395b11b26591f820a5d65487d0474b0ee15",
+          "contentSha256": "75f516c3ee9334d0ff16b36e92a36e3a381253dafbfb3dad2a18b319e6dc37e7",
+          "lines": 36
+        },
+        {
+          "name": "AbstractFiatTokenV1.sol",
+          "sourceUnitHash": "5d99118d5b075bde1ae9c80dcd037ebf17fe520cde36701e597d93532b427b49",
+          "contentSha256": "180281417397c9e75dda09cd3d99a8ad35c3b42626ba69ef62704eda24e88392",
+          "lines": 41
+        },
+        {
+          "name": "AbstractFiatTokenV2.sol",
+          "sourceUnitHash": "a5c83e1298133d5c56b7a7cea37d4f2c31affda23def9ee7e225e2ec568f2f7f",
+          "contentSha256": "021276c706647ba1c7e48fc0d77354c1e7236e9e5016fa53ee9fadddc2ddf5d6",
+          "lines": 41
+        }
+      ],
+      "requestedAt": "2026-10-25T07:19:16.840Z"
+    },
+    {
+      "id": "D:02",
+      "caseIds": [
+        "usdc-polygon"
+      ],
+      "kind": "SOURCE_API",
+      "state": "SOURCE_STORED",
+      "httpStatus": 200,
+      "sha256": "d0d75522638779b217cb51913178e51e88f74b5f697da4a3a9574f06f786f8ea",
+      "bytes": 120951,
+      "localPath": ".state/top10-source-initial-logic-20261025-d/02-usdc-polygon-initial-logic-response.bin",
+      "planTargetIndex": 2,
+      "contractName": "FiatTokenV2_1",
+      "units": [
+        {
+          "name": "Ownable.sol",
+          "sourceUnitHash": "ad3b6edc3c70ec441b2cfd2e6a44a181a2a1842044d7bc29d4f9d1da75e79ff8",
+          "contentSha256": "0e0ef6d0fc9e4e86568a281485ed73963e808f92462f72d3ce86f5e24557c0f4",
+          "lines": 89
+        },
+        {
+          "name": "EIP2612.sol",
+          "sourceUnitHash": "92b1e3ee358f197c6a78ea2c8c283d3c5337ef526290e5ec85a005b914ce33bd",
+          "contentSha256": "39701b30144858717f89aabb67614a916d8003cd71c32caf84fd6e2ed10b004e",
+          "lines": 87
+        },
+        {
+          "name": "EIP3009.sol",
+          "sourceUnitHash": "4e500879de2f7839acaed764ee25befa15a675eb03901778ad0e76f685d100f9",
+          "contentSha256": "8ef923619fd43c62bb686d9ebadf35e51405441a06649ec0dfda25c283098bba",
+          "lines": 244
+        },
+        {
+          "name": "EIP712.sol",
+          "sourceUnitHash": "d5299a6fbe4fe5d0c06da2994702c8be125d73a65ef79c27d98241e5f5d230e1",
+          "contentSha256": "c779f54e46bc7c1209619bb18999fffab74a6f6585680c02e2b592600d054752",
+          "lines": 87
+        },
+        {
+          "name": "Pausable.sol",
+          "sourceUnitHash": "4072f22c8e9c75a8331b94482997b980c2ae495069ce457637d286761016070a",
+          "contentSha256": "087f0eb221cb28b36e1522d9a54ad8567db302f1f137cdcf32e2f387de1c2fe1",
+          "lines": 94
+        },
+        {
+          "name": "ECRecover.sol",
+          "sourceUnitHash": "0324b97f80387136e2b1a1928b45c2366bc5a72c1fa85f52e6eb3025451edb3a",
+          "contentSha256": "b01e9c19a9f9c6fe5019399cbd384695bd5001991f48fac6749bcfe401f0c4e7",
+          "lines": 75
+        },
+        {
+          "name": "Rescuable.sol",
+          "sourceUnitHash": "113d2f1ebc868e5a8d6617022f828fd0b403f9f3ba8d497fca91228b5361713e",
+          "contentSha256": "44932b3a48bc979a5e4e983abd19a07a6268fd17b1df08da2c8342f871f6a7cd",
+          "lines": 80
+        },
+        {
+          "name": "FiatTokenV1.sol",
+          "sourceUnitHash": "e3e0503dbcf4b0c6e413ce1feb079938907ad10079f0a05304e7aec4a34eb339",
+          "contentSha256": "8a5d5f9cd90f28f6a7fca12b5a63b5bd979fa58979b949e4b79dd2c547b1666b",
+          "lines": 371
+        },
+        {
+          "name": "FiatTokenV2.sol",
+          "sourceUnitHash": "961a80dad47cc34eac58ba82e712d4dd6a449b36fe9f5037839fe45ccb810ae8",
+          "contentSha256": "85f8d9cdaef812164d07400b70fe252f9bffa0c5d0046fe9c2a19b776df37dd9",
+          "lines": 236
+        },
+        {
+          "name": "EIP712Domain.sol",
+          "sourceUnitHash": "04f32d490d755d2a37a95c4042a7fa3aff42b26e3383a729f3570181df9ec4c8",
+          "contentSha256": "5c1126773bb9f4224ed070d691888bb5286f37fcde89de59756174da0f3df0bd",
+          "lines": 35
+        },
+        {
+          "name": "Blacklistable.sol",
+          "sourceUnitHash": "c337b46140320cde340d603f2e78464abc479940999c5045db3cb4d333bd1a6c",
+          "contentSha256": "d1e8fe82c7e77ca626c27c4205dac994e6c0c97e18f86cb17559d952df8425eb",
+          "lines": 98
+        },
+        {
+          "name": "FiatTokenV2_1.sol",
+          "sourceUnitHash": "1930d39848eacbda462a616ba7b5abd331842eab54fc52c060e357ddf02b3551",
+          "contentSha256": "b8e15c76105f03b9d0025f6844aa2bc24e81e8acd54af0970ad5c0cd31f72d5e",
+          "lines": 60
+        },
+        {
+          "name": "FiatTokenV1_1.sol",
+          "sourceUnitHash": "da8a5e5b9ec0febd01a0c7534b65579a9717bf77d1c2efd23ff1804490bb7ed0",
+          "contentSha256": "75f516c3ee9334d0ff16b36e92a36e3a381253dafbfb3dad2a18b319e6dc37e7",
+          "lines": 36
+        },
+        {
+          "name": "AbstractFiatTokenV1.sol",
+          "sourceUnitHash": "f63a352e3771850399505f2838f2440db0a5b771931121f9ae339a921d6b3da5",
+          "contentSha256": "180281417397c9e75dda09cd3d99a8ad35c3b42626ba69ef62704eda24e88392",
+          "lines": 41
+        },
+        {
+          "name": "AbstractFiatTokenV2.sol",
+          "sourceUnitHash": "51ce0e4317d0c300c4120cb125699a2f646324a6b2457158658132ea5f087363",
+          "contentSha256": "021276c706647ba1c7e48fc0d77354c1e7236e9e5016fa53ee9fadddc2ddf5d6",
+          "lines": 41
+        },
+        {
+          "name": "SafeMath.sol",
+          "sourceUnitHash": "10d774d76cd59ef24ea7df8136fee2afbd0164c9962f4a01c9dea48748b7c90c",
+          "contentSha256": "aa64549e1edf3bd55b4a5f7404edfae8ef704f3fbd0735cdd330b380c118e067",
+          "lines": 159
+        },
+        {
+          "name": "Address.sol",
+          "sourceUnitHash": "13603a3604fe217925679f6b86a73b84875845aed2fe9f3ab05a57b66d5b67d1",
+          "contentSha256": "65e6644738743b23ab1dc72cce8426f0fd6ea5dd96e87a7e16fbb0c4ccbb1633",
+          "lines": 141
+        },
+        {
+          "name": "IERC20.sol",
+          "sourceUnitHash": "1725e7905fa8fae755c4ccbd5228387833c8af4e1c76620b545245385a2bfff3",
+          "contentSha256": "331d81d1058f809dc5b3cbae3438ed4e38cd1117778ca2ef2d207a8c46b4085c",
+          "lines": 77
+        },
+        {
+          "name": "SafeERC20.sol",
+          "sourceUnitHash": "62e7a5fc2f40b834794b7cdb219bf6b42cbba5cb4debf261c04169825d478588",
+          "contentSha256": "305ffee5fb590e99c62b777087253ddeb22eaf0d20c6e8075178210ab3eff73f",
+          "lines": 75
+        }
+      ],
+      "requestedAt": "2026-10-25T07:19:17.293Z"
+    },
+    {
+      "id": "D:03",
+      "caseIds": [
+        "usdc-avalanche"
+      ],
+      "kind": "SOURCE_API",
+      "state": "SOURCE_UNAVAILABLE",
+      "httpStatus": 404,
+      "sha256": "bae5f2d4e21a37a69ff78d649b042650bf6a989b7ac18635ab7c631e8981d42b",
+      "bytes": 128,
+      "localPath": ".state/top10-source-initial-logic-20261025-d/03-usdc-avalanche-initial-logic-response.bin",
+      "planTargetIndex": 3,
+      "requestedAt": "2026-10-25T07:19:17.928Z"
+    },
+    {
+      "id": "D:04",
+      "caseIds": [
+        "usdt-polygon"
+      ],
+      "kind": "SOURCE_API",
+      "state": "SOURCE_STORED",
+      "httpStatus": 200,
+      "sha256": "8aea105a00def235b697255615cde2d3873f566174c53504d65e6227531d0ec1",
+      "bytes": 79091,
+      "localPath": ".state/top10-source-initial-logic-20261025-d/04-usdt-polygon-initial-logic-response.bin",
+      "planTargetIndex": 4,
+      "contractName": "UChildERC20",
+      "units": [
+        {
+          "name": "UChildERC20.sol",
+          "sourceUnitHash": "102288c694c3f1493b63c200057e1c72cfe148bc76b13ceed1973248e6107333",
+          "contentSha256": "e6a20d146bc367ea6b524f5c66efe7836d29dae9777590278b6359d02300029c",
+          "lines": 1555
+        }
+      ],
+      "requestedAt": "2026-10-25T07:19:18.204Z"
+    },
+    {
+      "id": "D:05",
+      "caseIds": [
+        "usdt-plasma"
+      ],
+      "kind": "SOURCE_API",
+      "state": "SOURCE_UNAVAILABLE",
+      "httpStatus": 404,
+      "sha256": "e2a2d5cb10283a316f5f3d07768d729651dc725de2e32e2fc3b6b2b0d5e695a6",
+      "bytes": 127,
+      "localPath": ".state/top10-source-initial-logic-20261025-d/05-usdt-plasma-initial-logic-response.bin",
+      "planTargetIndex": 5,
+      "requestedAt": "2026-10-25T07:19:18.585Z"
+    },
+    {
+      "id": "D:06",
+      "caseIds": [
+        "usdt-mantle"
+      ],
+      "kind": "SOURCE_API",
+      "state": "SOURCE_UNAVAILABLE",
+      "httpStatus": 404,
+      "sha256": "f14af4465d66add0a89dee49618fb675c65812822e04dfdcd490b1a6c1e10b42",
+      "bytes": 127,
+      "localPath": ".state/top10-source-initial-logic-20261025-d/06-usdt-mantle-initial-logic-response.bin",
+      "planTargetIndex": 6,
+      "requestedAt": "2026-10-25T07:19:18.871Z"
+    },
+    {
+      "id": "D:07",
+      "caseIds": [
+        "usdc-bsc"
+      ],
+      "kind": "SOURCE_API",
+      "state": "SOURCE_STORED",
+      "httpStatus": 200,
+      "sha256": "6ee31280199f5a678bd498c7dac31aeb250e4fc6e9f463442b2d4688dbceafbc",
+      "bytes": 37424,
+      "localPath": ".state/top10-source-initial-logic-20261025-d/07-usdc-bsc-initial-logic-response.bin",
+      "planTargetIndex": 7,
+      "contractName": "BEP20TokenImplementation",
+      "units": [
+        {
+          "name": "BEP20TokenImplementation.sol",
+          "sourceUnitHash": "d644e52bb72db19e8e46dc0fe39ac95f8d051733af13241c79d215f179ca9220",
+          "contentSha256": "897bda684cc5bc908be675519d76d19e39a832681bbb3cf07673b02ede1a2d70",
+          "lines": 666
+        }
+      ],
+      "requestedAt": "2026-10-25T07:19:19.149Z"
+    }
+  ],
+  "cases": [
+    {
+      "id": "usdc-base",
+      "coinId": "usdc",
+      "networkId": "base",
+      "reviewScope": "INITIAL_TOKEN_LOGIC_CANDIDATE",
+      "evidenceIds": [
+        "A:00",
+        "C2:00",
+        "D:00"
+      ],
+      "identity": null,
+      "features": [
+        {
+          "group": "전송·승인",
+          "name": "전송·위임 전송",
+          "state": "SOURCE_PRESENT",
+          "condition": "pause 및 caller/from/to 차단 검사. bool 반환. transferFrom은 MAX도 allowance 차감.",
+          "evidence": [
+            "D:00 FiatTokenV1.sol:244-285"
+          ]
+        },
+        {
+          "group": "전송·승인",
+          "name": "승인·철회",
+          "state": "SOURCE_PRESENT",
+          "condition": "approve(value) 덮어쓰기와 approve(0), increase/decreaseAllowance. zero-reset 조건은 선택 경로에 없음.",
+          "evidence": [
+            "D:00 FiatTokenV1.sol:208-239",
+            "D:00 FiatTokenV2.sol:57-86"
+          ]
+        },
+        {
+          "group": "전송·승인",
+          "name": "서명 승인·전송",
+          "state": "SOURCE_PRESENT",
+          "condition": "EIP2612 permit 및 EIP3009 authorization: domain/signature/nonce 또는 사용 여부/시간 조건, pause·차단 검사.",
+          "evidence": [
+            "D:00 FiatTokenV2.sol:99-207",
+            "D:00 EIP2612.sol",
+            "D:00 EIP3009.sol"
+          ]
+        },
+        {
+          "group": "공급·관리",
+          "name": "발행·소각",
+          "state": "SOURCE_PRESENT",
+          "condition": "발행은 minter·allowance·pause·차단·양수; 소각은 minter·pause·차단·양수·잔액.",
+          "evidence": [
+            "D:00 FiatTokenV1.sol:101-137,347-372"
+          ]
+        },
+        {
+          "group": "공급·관리",
+          "name": "일시정지·주소 차단",
+          "state": "SOURCE_PRESENT",
+          "condition": "pauser, blacklister 역할과 owner의 역할 교체. 현재 역할 주소 수집/권한 행사는 요구하지 않음.",
+          "evidence": [
+            "D:00 Pausable.sol",
+            "D:00 Blacklistable.sol",
+            "D:00 Ownable.sol"
+          ]
+        },
+        {
+          "group": "전송 특성",
+          "name": "전송 수수료·재기준화",
+          "state": "NOT_IN_REVIEWED_PATH",
+          "condition": "검토한 _transfer의 수량 이동에 수수료/잔액 재기준화 분기 없음.",
+          "evidence": [
+            "D:00 FiatTokenV1.sol:292-305"
+          ]
+        },
+        {
+          "group": "업그레이드",
+          "name": "프록시 관리",
+          "state": "SOURCE_PRESENT",
+          "condition": "admin 전용 변경·upgradeTo/AndCall. admin은 일반 fallback 금지.",
+          "evidence": [
+            "A:00 AdminUpgradeabilityProxy.sol:58-64,99-169"
+          ]
+        }
+      ],
+      "limitations": [
+        "3개 네트워크의 선택 FiatTokenV2_1 계열 주요 단위 hash 동일. 생성자 초기 로직 연결이며 이후 upgrade를 반영하지 않음. 현재 구현 연결은 이 소스 검토의 필수조건이 아님.",
+        "선택 소스에 없는 기능을 전체 배포의 기능 부재로 확대하지 않음."
+      ],
+      "supplyToContractMapping": "NOT_ESTABLISHED",
+      "productVerdictChanged": false,
+      "supplySelection": {
+        "ordinal": 4,
+        "amount": "4348370169.136732",
+        "name": "Base"
+      }
+    },
+    {
+      "id": "usdc-arbitrum",
+      "coinId": "usdc",
+      "networkId": "arbitrum",
+      "reviewScope": "INITIAL_TOKEN_LOGIC_CANDIDATE",
+      "evidenceIds": [
+        "A:01",
+        "C2:01",
+        "D:01"
+      ],
+      "identity": null,
+      "features": [
+        {
+          "group": "전송·승인",
+          "name": "전송·위임 전송",
+          "state": "SOURCE_PRESENT",
+          "condition": "pause 및 caller/from/to 차단 검사. bool 반환. transferFrom은 MAX도 allowance 차감.",
+          "evidence": [
+            "D:01 FiatTokenV1.sol:244-285"
+          ]
+        },
+        {
+          "group": "전송·승인",
+          "name": "승인·철회",
+          "state": "SOURCE_PRESENT",
+          "condition": "approve(value) 덮어쓰기와 approve(0), increase/decreaseAllowance. zero-reset 조건은 선택 경로에 없음.",
+          "evidence": [
+            "D:01 FiatTokenV1.sol:208-239",
+            "D:01 FiatTokenV2.sol:57-86"
+          ]
+        },
+        {
+          "group": "전송·승인",
+          "name": "서명 승인·전송",
+          "state": "SOURCE_PRESENT",
+          "condition": "EIP2612 permit 및 EIP3009 authorization: domain/signature/nonce 또는 사용 여부/시간 조건, pause·차단 검사.",
+          "evidence": [
+            "D:01 FiatTokenV2.sol:99-207",
+            "D:01 EIP2612.sol",
+            "D:01 EIP3009.sol"
+          ]
+        },
+        {
+          "group": "공급·관리",
+          "name": "발행·소각",
+          "state": "SOURCE_PRESENT",
+          "condition": "발행은 minter·allowance·pause·차단·양수; 소각은 minter·pause·차단·양수·잔액.",
+          "evidence": [
+            "D:01 FiatTokenV1.sol:101-137,347-372"
+          ]
+        },
+        {
+          "group": "공급·관리",
+          "name": "일시정지·주소 차단",
+          "state": "SOURCE_PRESENT",
+          "condition": "pauser, blacklister 역할과 owner의 역할 교체. 현재 역할 주소 수집/권한 행사는 요구하지 않음.",
+          "evidence": [
+            "D:01 Pausable.sol",
+            "D:01 Blacklistable.sol",
+            "D:01 Ownable.sol"
+          ]
+        },
+        {
+          "group": "전송 특성",
+          "name": "전송 수수료·재기준화",
+          "state": "NOT_IN_REVIEWED_PATH",
+          "condition": "검토한 _transfer의 수량 이동에 수수료/잔액 재기준화 분기 없음.",
+          "evidence": [
+            "D:01 FiatTokenV1.sol:292-305"
+          ]
+        },
+        {
+          "group": "업그레이드",
+          "name": "프록시 관리",
+          "state": "SOURCE_PRESENT",
+          "condition": "admin 전용 변경·upgradeTo/AndCall. admin은 일반 fallback 금지.",
+          "evidence": [
+            "A:01 AdminUpgradeabilityProxy.sol:58-64,99-169"
+          ]
+        }
+      ],
+      "limitations": [
+        "3개 네트워크의 선택 FiatTokenV2_1 계열 주요 단위 hash 동일. 생성자 초기 로직 연결이며 이후 upgrade를 반영하지 않음. 현재 구현 연결은 이 소스 검토의 필수조건이 아님.",
+        "선택 소스에 없는 기능을 전체 배포의 기능 부재로 확대하지 않음."
+      ],
+      "supplyToContractMapping": "NOT_ESTABLISHED",
+      "productVerdictChanged": false,
+      "supplySelection": {
+        "ordinal": 5,
+        "amount": "2247709593.0286517",
+        "name": "Arbitrum"
+      }
+    },
+    {
+      "id": "usdc-polygon",
+      "coinId": "usdc",
+      "networkId": "polygon",
+      "reviewScope": "INITIAL_TOKEN_LOGIC_CANDIDATE",
+      "evidenceIds": [
+        "A:02",
+        "C2:02",
+        "D:02"
+      ],
+      "identity": null,
+      "features": [
+        {
+          "group": "전송·승인",
+          "name": "전송·위임 전송",
+          "state": "SOURCE_PRESENT",
+          "condition": "pause 및 caller/from/to 차단 검사. bool 반환. transferFrom은 MAX도 allowance 차감.",
+          "evidence": [
+            "D:02 FiatTokenV1.sol:244-285"
+          ]
+        },
+        {
+          "group": "전송·승인",
+          "name": "승인·철회",
+          "state": "SOURCE_PRESENT",
+          "condition": "approve(value) 덮어쓰기와 approve(0), increase/decreaseAllowance. zero-reset 조건은 선택 경로에 없음.",
+          "evidence": [
+            "D:02 FiatTokenV1.sol:208-239",
+            "D:02 FiatTokenV2.sol:57-86"
+          ]
+        },
+        {
+          "group": "전송·승인",
+          "name": "서명 승인·전송",
+          "state": "SOURCE_PRESENT",
+          "condition": "EIP2612 permit 및 EIP3009 authorization: domain/signature/nonce 또는 사용 여부/시간 조건, pause·차단 검사.",
+          "evidence": [
+            "D:02 FiatTokenV2.sol:99-207",
+            "D:02 EIP2612.sol",
+            "D:02 EIP3009.sol"
+          ]
+        },
+        {
+          "group": "공급·관리",
+          "name": "발행·소각",
+          "state": "SOURCE_PRESENT",
+          "condition": "발행은 minter·allowance·pause·차단·양수; 소각은 minter·pause·차단·양수·잔액.",
+          "evidence": [
+            "D:02 FiatTokenV1.sol:101-137,347-372"
+          ]
+        },
+        {
+          "group": "공급·관리",
+          "name": "일시정지·주소 차단",
+          "state": "SOURCE_PRESENT",
+          "condition": "pauser, blacklister 역할과 owner의 역할 교체. 현재 역할 주소 수집/권한 행사는 요구하지 않음.",
+          "evidence": [
+            "D:02 Pausable.sol",
+            "D:02 Blacklistable.sol",
+            "D:02 Ownable.sol"
+          ]
+        },
+        {
+          "group": "전송 특성",
+          "name": "전송 수수료·재기준화",
+          "state": "NOT_IN_REVIEWED_PATH",
+          "condition": "검토한 _transfer의 수량 이동에 수수료/잔액 재기준화 분기 없음.",
+          "evidence": [
+            "D:02 FiatTokenV1.sol:292-305"
+          ]
+        },
+        {
+          "group": "업그레이드",
+          "name": "프록시 관리",
+          "state": "SOURCE_PRESENT",
+          "condition": "admin 전용 변경·upgradeTo/AndCall. admin은 일반 fallback 금지.",
+          "evidence": [
+            "A:02 AdminUpgradeabilityProxy.sol:58-64,99-169"
+          ]
+        }
+      ],
+      "limitations": [
+        "3개 네트워크의 선택 FiatTokenV2_1 계열 주요 단위 hash 동일. 생성자 초기 로직 연결이며 이후 upgrade를 반영하지 않음. 현재 구현 연결은 이 소스 검토의 필수조건이 아님.",
+        "선택 소스에 없는 기능을 전체 배포의 기능 부재로 확대하지 않음."
+      ],
+      "supplyToContractMapping": "NOT_ESTABLISHED",
+      "productVerdictChanged": false,
+      "supplySelection": {
+        "ordinal": 6,
+        "amount": "1600516115.0492728",
+        "name": "Polygon"
+      }
+    },
+    {
+      "id": "usdc-bsc",
+      "coinId": "usdc",
+      "networkId": "bsc",
+      "reviewScope": "INITIAL_TOKEN_LOGIC_CANDIDATE",
+      "evidenceIds": [
+        "B:17",
+        "C2:08",
+        "D:07",
+        "B:19"
+      ],
+      "identity": null,
+      "features": [
+        {
+          "group": "전송·승인",
+          "name": "전송·승인·철회",
+          "state": "SOURCE_PRESENT",
+          "condition": "bool 전송/transferFrom, allowance 차감(MAX 예외 없음); approve 덮어쓰기/0 및 증감.",
+          "evidence": [
+            "D:07 BEP20TokenImplementation.sol:475-550"
+          ]
+        },
+        {
+          "group": "공급·관리",
+          "name": "발행·소각",
+          "state": "SOURCE_PRESENT",
+          "condition": "mint는 onlyOwner 및 _mintable=true. burn은 호출자 잔액. 현재 mintable 설정은 관측하지 않음.",
+          "evidence": [
+            "D:07 BEP20TokenImplementation.sol:562-574"
+          ]
+        },
+        {
+          "group": "전송 특성",
+          "name": "수수료·차단·정지·permit",
+          "state": "NOT_IN_REVIEWED_PATH",
+          "condition": "선택된 초기 구현의 전체 코드 및 _transfer/approve 경로에 해당 분기/진입점 없음.",
+          "evidence": [
+            "D:07 BEP20TokenImplementation.sol:349-667"
+          ]
+        },
+        {
+          "group": "업그레이드",
+          "name": "프록시 관리",
+          "state": "SOURCE_PRESENT",
+          "condition": "BEP20UpgradeableProxy의 admin과 upgrade 경로. 토큰 owner와 proxy admin은 서로 다른 조건.",
+          "evidence": [
+            "B:17"
+          ]
+        }
+      ],
+      "limitations": [
+        "BSC 집계 공급과 이 주소의 대응/담보는 확인하지 않음. DEX 목록은 주소 후보 근거이며 Circle native 발행 인증이 아님.",
+        "초기 구현 후보; 현재 decimals/owner/mintable 및 구현 버전은 새 RPC로 읽지 않음."
+      ],
+      "supplyToContractMapping": "NOT_ESTABLISHED",
+      "productVerdictChanged": false,
+      "supplySelection": {
+        "ordinal": 7,
+        "amount": "1589073372.5328343",
+        "name": "BNB Smart Chain"
+      }
+    },
+    {
+      "id": "usdt-bsc",
+      "coinId": "usdt",
+      "networkId": "bsc",
+      "reviewScope": "DIRECT_TOKEN_SOURCE",
+      "evidenceIds": [
+        "B:18",
+        "B:19"
+      ],
+      "identity": null,
+      "features": [
+        {
+          "group": "전송·승인",
+          "name": "전송·승인·철회",
+          "state": "SOURCE_PRESENT",
+          "condition": "bool 전송/위임 전송, allowance는 MAX도 차감. approve 덮어쓰기/0 및 증감.",
+          "evidence": [
+            "B:18 BEP20USDT.sol:411-489"
+          ]
+        },
+        {
+          "group": "공급·관리",
+          "name": "발행·소각",
+          "state": "SOURCE_PRESENT",
+          "condition": "mint는 onlyOwner, 자기 잔액 소각 burn은 일반 호출자.",
+          "evidence": [
+            "B:18 BEP20USDT.sol:497-507"
+          ]
+        },
+        {
+          "group": "전송 특성",
+          "name": "수수료·차단·정지·permit",
+          "state": "NOT_IN_REVIEWED_PATH",
+          "condition": "선택된 BEP20USDT 전체 코드에 별도 해당 진입점/분기 없음. _transfer는 잔액 차감/가산.",
+          "evidence": [
+            "B:18 BEP20USDT.sol:341-602"
+          ]
+        }
+      ],
+      "limitations": [
+        "선택 BSC 래핑 후보이며 Tether native 계약과 동일하지 않음. DEX 목록/소스는 담보·상환 증명이 아님."
+      ],
+      "supplyToContractMapping": "NOT_ESTABLISHED",
+      "productVerdictChanged": false,
+      "supplySelection": {
+        "ordinal": 3,
+        "amount": "9184484406.57563",
+        "name": "BNB Smart Chain"
+      }
+    },
+    {
+      "id": "usdt-polygon",
+      "coinId": "usdt",
+      "networkId": "polygon",
+      "reviewScope": "INITIAL_TOKEN_LOGIC_CANDIDATE",
+      "evidenceIds": [
+        "A:05",
+        "C2:05",
+        "D:04"
+      ],
+      "identity": null,
+      "features": [
+        {
+          "group": "전송·승인",
+          "name": "전송·승인·철회",
+          "state": "SOURCE_PRESENT",
+          "condition": "ERC20 bool 전송, allowance 차감(MAX 예외 없음), approve 덮어쓰기/0 및 증감.",
+          "evidence": [
+            "D:04 UChildERC20.sol:552-717"
+          ]
+        },
+        {
+          "group": "공급·관리",
+          "name": "브리지 발행·소각",
+          "state": "SOURCE_PRESENT",
+          "condition": "deposit는 DEPOSITOR_ROLE로 mint, withdraw는 호출자 잔액 burn.",
+          "evidence": [
+            "D:04 UChildERC20.sol:1538-1554"
+          ]
+        },
+        {
+          "group": "전송·승인",
+          "name": "메타 트랜잭션",
+          "state": "SOURCE_PRESENT",
+          "condition": "nonce·EIP712 서명 확인 및 self-call/context sender. ERC2612 permit으로 분류하지 않음.",
+          "evidence": [
+            "D:04 UChildERC20.sol:1347-1469"
+          ]
+        },
+        {
+          "group": "전송 특성",
+          "name": "수수료·차단·정지",
+          "state": "NOT_IN_REVIEWED_PATH",
+          "condition": "선택 초기 UChildERC20 구현에서 해당 전송 분기/진입점 없음.",
+          "evidence": [
+            "D:04 UChildERC20.sol:643-717,1489-1555"
+          ]
+        },
+        {
+          "group": "업그레이드",
+          "name": "프록시 관리",
+          "state": "SOURCE_PRESENT",
+          "condition": "onlyProxyOwner 및 비영·contract 구현 검사; updateImplementation/updateAndCall.",
+          "evidence": [
+            "A:05 UChildERC20Proxy.sol:79-81,110-136"
+          ]
+        }
+      ],
+      "limitations": [
+        "브리지 Child 토큰 초기 구현 후보이며 현재 구현이나 Tether 원본의 조건으로 확대하지 않음."
+      ],
+      "supplyToContractMapping": "NOT_ESTABLISHED",
+      "productVerdictChanged": false,
+      "supplySelection": {
+        "ordinal": 6,
+        "amount": "760809959.482028",
+        "name": "Polygon"
+      }
+    },
+    {
+      "id": "usdc-avalanche",
+      "coinId": "usdc",
+      "networkId": "avalanche",
+      "reviewScope": "PROXY_SOURCE_ONLY",
+      "evidenceIds": [
+        "A:03",
+        "C2:03",
+        "D:03"
+      ],
+      "identity": null,
+      "features": [
+        {
+          "group": "업그레이드",
+          "name": "관리·위임",
+          "state": "SOURCE_PRESENT",
+          "condition": "Transparent proxy의 admin 전용 upgrade/관리 및 비admin fallback. 선택 상속의 권한만 검토.",
+          "evidence": [
+            "A:03"
+          ]
+        },
+        {
+          "group": "토큰 기능",
+          "name": "전송·승인·발행·통제",
+          "state": "INPUT_REQUIRED",
+          "condition": "초기 구현 주소의 Sourcify 응답404. 프록시 소스만으로 토큰 기능 유무를 판정하지 않음.",
+          "evidence": [
+            "C2:03",
+            "D:03"
+          ]
+        }
+      ],
+      "limitations": [
+        "취득 실패/metadata 미기재는 기능 부재가 아님. USDT0/브리지 계열 여부와 원본 Ethereum USDT 조건을 혼합하지 않음."
+      ],
+      "supplyToContractMapping": "NOT_ESTABLISHED",
+      "productVerdictChanged": false,
+      "supplySelection": {
+        "ordinal": 9,
+        "amount": "441893331.2751326",
+        "name": "Avalanche"
+      }
+    },
+    {
+      "id": "usdt-arbitrum",
+      "coinId": "usdt",
+      "networkId": "arbitrum",
+      "reviewScope": "PROXY_SOURCE_ONLY",
+      "evidenceIds": [
+        "A:04",
+        "C2:04"
+      ],
+      "identity": null,
+      "features": [
+        {
+          "group": "업그레이드",
+          "name": "관리·위임",
+          "state": "SOURCE_PRESENT",
+          "condition": "Transparent proxy의 admin 전용 upgrade/관리 및 비admin fallback. 선택 상속의 권한만 검토.",
+          "evidence": [
+            "A:04"
+          ]
+        },
+        {
+          "group": "토큰 기능",
+          "name": "전송·승인·발행·통제",
+          "state": "INPUT_REQUIRED",
+          "condition": "저장 constructor metadata에 초기 로직 인자가 없음. 프록시 소스만으로 토큰 기능 유무를 판정하지 않음.",
+          "evidence": [
+            "C2:04"
+          ]
+        }
+      ],
+      "limitations": [
+        "취득 실패/metadata 미기재는 기능 부재가 아님. USDT0/브리지 계열 여부와 원본 Ethereum USDT 조건을 혼합하지 않음."
+      ],
+      "supplyToContractMapping": "NOT_ESTABLISHED",
+      "productVerdictChanged": false,
+      "supplySelection": {
+        "ordinal": 5,
+        "amount": "801910961.124479",
+        "name": "Arbitrum"
+      }
+    },
+    {
+      "id": "usdt-plasma",
+      "coinId": "usdt",
+      "networkId": "plasma",
+      "reviewScope": "PROXY_SOURCE_ONLY",
+      "evidenceIds": [
+        "A:06",
+        "C2:06",
+        "D:05"
+      ],
+      "identity": null,
+      "features": [
+        {
+          "group": "업그레이드",
+          "name": "관리·위임",
+          "state": "SOURCE_PRESENT",
+          "condition": "Transparent proxy의 admin 전용 upgrade/관리 및 비admin fallback. 선택 상속의 권한만 검토.",
+          "evidence": [
+            "A:06"
+          ]
+        },
+        {
+          "group": "토큰 기능",
+          "name": "전송·승인·발행·통제",
+          "state": "INPUT_REQUIRED",
+          "condition": "초기 구현 주소의 Sourcify 응답404. 프록시 소스만으로 토큰 기능 유무를 판정하지 않음.",
+          "evidence": [
+            "C2:06",
+            "D:05"
+          ]
+        }
+      ],
+      "limitations": [
+        "취득 실패/metadata 미기재는 기능 부재가 아님. USDT0/브리지 계열 여부와 원본 Ethereum USDT 조건을 혼합하지 않음."
+      ],
+      "supplyToContractMapping": "NOT_ESTABLISHED",
+      "productVerdictChanged": false,
+      "supplySelection": {
+        "ordinal": 7,
+        "amount": "728294003.300373",
+        "name": "Plasma"
+      }
+    },
+    {
+      "id": "usdt-mantle",
+      "coinId": "usdt",
+      "networkId": "mantle",
+      "reviewScope": "PROXY_SOURCE_ONLY",
+      "evidenceIds": [
+        "A:07",
+        "C2:07",
+        "D:06"
+      ],
+      "identity": null,
+      "features": [
+        {
+          "group": "업그레이드",
+          "name": "관리·위임",
+          "state": "SOURCE_PRESENT",
+          "condition": "Transparent proxy의 admin 전용 upgrade/관리 및 비admin fallback. 선택 상속의 권한만 검토.",
+          "evidence": [
+            "A:07"
+          ]
+        },
+        {
+          "group": "토큰 기능",
+          "name": "전송·승인·발행·통제",
+          "state": "INPUT_REQUIRED",
+          "condition": "초기 구현 주소의 Sourcify 응답404. 프록시 소스만으로 토큰 기능 유무를 판정하지 않음.",
+          "evidence": [
+            "C2:07",
+            "D:06"
+          ]
+        }
+      ],
+      "limitations": [
+        "취득 실패/metadata 미기재는 기능 부재가 아님. USDT0/브리지 계열 여부와 원본 Ethereum USDT 조건을 혼합하지 않음."
+      ],
+      "supplyToContractMapping": "NOT_ESTABLISHED",
+      "productVerdictChanged": false,
+      "supplySelection": {
+        "ordinal": 10,
+        "amount": "448242336.740975",
+        "name": "Mantle"
+      }
+    },
+    {
+      "id": "usdc-solana",
+      "coinId": "usdc",
+      "networkId": "solana",
+      "reviewScope": "PROTOCOL_SOURCE_AND_STORED_SETTINGS",
+      "evidenceIds": [
+        "B:00",
+        "B:01",
+        "B:21"
+      ],
+      "identity": null,
+      "features": [
+        {
+          "group": "전송·승인",
+          "name": "전송·delegate 승인·철회",
+          "state": "SOURCE_PRESENT",
+          "condition": "동일 mint·동결·잔액·owner/delegate 서명/수량 검사. approve/revoke는 Token Account delegate 설정.",
+          "evidence": [
+            "B:00 processor.rs:228-423"
+          ]
+        },
+        {
+          "group": "공급·관리",
+          "name": "발행·소각·계정 동결",
+          "state": "PROTOCOL_CAPABILITY",
+          "condition": "MintTo의 mintAuthority, burn의 owner/delegate, freeze/thaw의 freezeAuthority 검사. 저장2026-10-21 mint 설정은 두 authority 모두 존재.",
+          "evidence": [
+            "B:00 processor.rs:522-755",
+            "docs/SOLANA_MINT_READONLY.md"
+          ]
+        },
+        {
+          "group": "체인 의미",
+          "name": "계정 정리·서명",
+          "state": "SOURCE_PRESENT",
+          "condition": "closeAccount는 잔액/owner 또는 close authority 조건. 트랜잭션 서명을 EIP2612로 해석하지 않음.",
+          "evidence": [
+            "B:00 processor.rs:672-713"
+          ]
+        },
+        {
+          "group": "전송 특성",
+          "name": "legacy 수수료 확장·전체 pause",
+          "state": "NOT_IN_REVIEWED_PATH",
+          "condition": "선택 legacy Token Program 경로에 Token-2022 transfer-fee 확장이나 전역 pause 명령 없음.",
+          "evidence": [
+            "B:00 processor.rs",
+            "B:01 state.rs"
+          ]
+        }
+      ],
+      "limitations": [
+        "고정 SPL 소스 commit과 과거 Tokenkeg/82byte mint 관측을 연결해 설명. 현재 배포 program binary/version을 새로 인증하지 않음.",
+        "holder 자동 수집/Token Account 생성/새 RPC 없음. ERC20 allowance나 관리자 임의 이전으로 바꾸어 설명하지 않음."
+      ],
+      "supplyToContractMapping": "NOT_ESTABLISHED",
+      "productVerdictChanged": false,
+      "supplySelection": {
+        "ordinal": 2,
+        "amount": "7059202724.939557",
+        "name": "Solana"
+      }
+    },
+    {
+      "id": "usdt-solana",
+      "coinId": "usdt",
+      "networkId": "solana",
+      "reviewScope": "PROTOCOL_SOURCE_AND_STORED_SETTINGS",
+      "evidenceIds": [
+        "B:00",
+        "B:01",
+        "B:22"
+      ],
+      "identity": null,
+      "features": [
+        {
+          "group": "전송·승인",
+          "name": "전송·delegate 승인·철회",
+          "state": "SOURCE_PRESENT",
+          "condition": "동일 mint·동결·잔액·owner/delegate 서명/수량 검사. approve/revoke는 Token Account delegate 설정.",
+          "evidence": [
+            "B:00 processor.rs:228-423"
+          ]
+        },
+        {
+          "group": "공급·관리",
+          "name": "발행·소각·계정 동결",
+          "state": "PROTOCOL_CAPABILITY",
+          "condition": "MintTo의 mintAuthority, burn의 owner/delegate, freeze/thaw의 freezeAuthority 검사. 저장2026-10-21 mint 설정은 두 authority 모두 존재.",
+          "evidence": [
+            "B:00 processor.rs:522-755",
+            "docs/SOLANA_MINT_READONLY.md"
+          ]
+        },
+        {
+          "group": "체인 의미",
+          "name": "계정 정리·서명",
+          "state": "SOURCE_PRESENT",
+          "condition": "closeAccount는 잔액/owner 또는 close authority 조건. 트랜잭션 서명을 EIP2612로 해석하지 않음.",
+          "evidence": [
+            "B:00 processor.rs:672-713"
+          ]
+        },
+        {
+          "group": "전송 특성",
+          "name": "legacy 수수료 확장·전체 pause",
+          "state": "NOT_IN_REVIEWED_PATH",
+          "condition": "선택 legacy Token Program 경로에 Token-2022 transfer-fee 확장이나 전역 pause 명령 없음.",
+          "evidence": [
+            "B:00 processor.rs",
+            "B:01 state.rs"
+          ]
+        }
+      ],
+      "limitations": [
+        "고정 SPL 소스 commit과 과거 Tokenkeg/82byte mint 관측을 연결해 설명. 현재 배포 program binary/version을 새로 인증하지 않음.",
+        "holder 자동 수집/Token Account 생성/새 RPC 없음. ERC20 allowance나 관리자 임의 이전으로 바꾸어 설명하지 않음."
+      ],
+      "supplyToContractMapping": "NOT_ESTABLISHED",
+      "productVerdictChanged": false,
+      "supplySelection": {
+        "ordinal": 4,
+        "amount": "2724820110.3254876",
+        "name": "Solana"
+      }
+    },
+    {
+      "id": "usdt-ton",
+      "coinId": "usdt",
+      "networkId": "ton",
+      "reviewScope": "TOKEN_REFERENCE_SOURCE",
+      "evidenceIds": [
+        "B:02",
+        "B:03",
+        "B:04",
+        "B:22"
+      ],
+      "identity": null,
+      "features": [
+        {
+          "group": "전송",
+          "name": "owner·master 전송",
+          "state": "SOURCE_PRESENT",
+          "condition": "일반 owner는 outgoing status 잠금 조건. master의 강제 transfer는 잠금 예외.",
+          "evidence": [
+            "B:03 jetton-wallet.fc:40-53"
+          ]
+        },
+        {
+          "group": "공급·관리",
+          "name": "발행·소각·잠금",
+          "state": "SOURCE_PRESENT",
+          "condition": "minter mint/admin; wallet burn은 master 전용. minter admin의 call_to가 transfer/burn/set_status를 전달.",
+          "evidence": [
+            "B:02 jetton-minter.fc:82-108,180-218",
+            "B:03 jetton-wallet.fc:148-159,226-232"
+          ]
+        },
+        {
+          "group": "업그레이드",
+          "name": "관리 이전·코드 변경",
+          "state": "SOURCE_PRESENT",
+          "condition": "현재 admin 제안·next_admin의 claim, admin upgrade 경로.",
+          "evidence": [
+            "B:02 jetton-minter.fc:164-178,227-235"
+          ]
+        },
+        {
+          "group": "체인 의미",
+          "name": "ERC20 승인",
+          "state": "NOT_APPLICABLE",
+          "condition": "Jetton 메시지/개별 wallet 모델. ERC20 allowance·bool 반환을 강제하지 않음.",
+          "evidence": [
+            "B:03 jetton-wallet.fc"
+          ]
+        }
+      ],
+      "limitations": [
+        "공식 TON stablecoin reference snapshot이며 USDT 배포 코드/라이브러리 cell 대응을 인증하지 않음. TON 소스 후보의 조건과 실제 USDT 기능을 구분."
+      ],
+      "supplyToContractMapping": "NOT_ESTABLISHED",
+      "productVerdictChanged": false,
+      "supplySelection": {
+        "ordinal": 8,
+        "amount": "490787894.51",
+        "name": "TON"
+      }
+    },
+    {
+      "id": "usdt-aptos",
+      "coinId": "usdt",
+      "networkId": "aptos",
+      "reviewScope": "FRAMEWORK_SOURCE_ONLY",
+      "evidenceIds": [
+        "B:05",
+        "B:06",
+        "B:07",
+        "B:22"
+      ],
+      "identity": {
+        "module": "0xf73e887a8754f540ee6e1a93bdc6dde2af69fc7ca5de32013e89dd44244473cb",
+        "faObject": "0x357b0b74bc833e95a115ad22604854d6b0fca151cecd94111770e5d6ffc9dc2b"
+      },
+      "features": [
+        {
+          "group": "공급·관리",
+          "name": "FA 발행·소각·동결 capability",
+          "state": "PROTOCOL_CAPABILITY",
+          "condition": "MintRef/BurnRef/TransferRef 및 metadata 일치 조건. TransferRef 이전은 frozen 우회가 의도된 capability 경로.",
+          "evidence": [
+            "B:05 fungible_asset.move:1041-1154"
+          ]
+        },
+        {
+          "group": "전송",
+          "name": "일반·dispatchable 전송",
+          "state": "PROTOCOL_CAPABILITY",
+          "condition": "일반 frozen 검사와 primary store → dispatchable hook 경로. custom hook이 동작 조건을 바꿀 수 있음.",
+          "evidence": [
+            "B:05 fungible_asset.move:1014-1026,1464",
+            "B:06 primary_fungible_store.move",
+            "B:07 dispatchable_fungible_asset.move"
+          ]
+        },
+        {
+          "group": "자산 구현",
+          "name": "USDT 전용 hook·수수료·역할",
+          "state": "INPUT_REQUIRED",
+          "condition": "공식 식별자와 framework는 확보했으나 Tether module/dispatch hook 소스는 미확보. 일반 framework만으로 조건을 확정하지 않음.",
+          "evidence": [
+            "B:22"
+          ]
+        }
+      ],
+      "limitations": [
+        "FA object와 module 주소는 공식 정적 본문에서 확인. 현재 capability 보유·hook 설정·프레임워크 배포 버전은 관측하지 않음."
+      ],
+      "supplyToContractMapping": "NOT_ESTABLISHED",
+      "productVerdictChanged": false,
+      "supplySelection": {
+        "ordinal": 9,
+        "amount": "466982690.435735",
+        "name": "Aptos"
+      }
+    },
+    {
+      "id": "usdc-stellar",
+      "coinId": "usdc",
+      "networkId": "stellar",
+      "reviewScope": "PROTOCOL_SOURCE_ONLY",
+      "evidenceIds": [
+        "B:12",
+        "B:13",
+        "B:14",
+        "B:21"
+      ],
+      "identity": null,
+      "features": [
+        {
+          "group": "전송",
+          "name": "classic asset Payment",
+          "state": "PROTOCOL_CAPABILITY",
+          "condition": "issuer+asset 및 trust-line 잔액/인가를 사용하는 프로토콜 모델. ERC20 transferFrom이 아님.",
+          "evidence": [
+            "B:12 PaymentOpFrame.cpp"
+          ]
+        },
+        {
+          "group": "공급·관리",
+          "name": "인가·철회·clawback",
+          "state": "PROTOCOL_CAPABILITY",
+          "condition": "AUTH_REQUIRED/REVOCABLE/IMMUTABLE/CLAWBACK flags. clawback은 issuer 발신·양수·비native asset·clawback-enabled trustline 조건.",
+          "evidence": [
+            "B:13 SetOptionsOpFrame.cpp:149-175",
+            "B:14 ClawbackOpFrame.cpp:23-52,64-99"
+          ]
+        },
+        {
+          "group": "자산 설정",
+          "name": "USDC issuer 플래그",
+          "state": "INPUT_REQUIRED",
+          "condition": "프로토콜 capability가 USDC issuer에서 활성화됐는지 새 읽기를 하지 않음.",
+          "evidence": [
+            "B:21"
+          ]
+        }
+      ],
+      "limitations": [
+        "Stellar Core master snapshot의 일부 경로이며 Circle issuer 플래그/실제 배포 protocol 버전을 인증하지 않음."
+      ],
+      "supplyToContractMapping": "NOT_ESTABLISHED",
+      "productVerdictChanged": false,
+      "supplySelection": {
+        "ordinal": 10,
+        "amount": "373751082",
+        "name": "Stellar"
+      }
+    },
+    {
+      "id": "rlusd-xrpl",
+      "coinId": "rlusd",
+      "networkId": "xrpl",
+      "reviewScope": "PROTOCOL_SOURCE_AND_STORED_SETTINGS",
+      "evidenceIds": [
+        "R:00",
+        "R:01",
+        "R:02",
+        "R:03"
+      ],
+      "identity": {
+        "issuer": "rMxCKbEDwqr76QuheSUMdEGf4B9xJ8m5De",
+        "currency": "524C555344000000000000000000000000000000"
+      },
+      "features": [
+        {
+          "group": "전송",
+          "name": "Payment·TrustSet",
+          "state": "PROTOCOL_CAPABILITY",
+          "condition": "classic IOU의 currency+issuer·trustline Payment. RequireAuth/freeze/deep-freeze 경로는 설정/규칙 조건부.",
+          "evidence": [
+            "R:03 Payment.cpp",
+            "R:01 TrustSet.cpp:164-166,239-267,342-348"
+          ]
+        },
+        {
+          "group": "공급·관리",
+          "name": "전역 동결·회수",
+          "state": "PROTOCOL_CAPABILITY",
+          "condition": "Clawback은 AllowTrustLineClawback 및 !NoFreeze, 올바른 trustline/잔액 방향·양수 보유 검사. AccountSet의 설정 제약은 별도.",
+          "evidence": [
+            "R:02 Clawback.cpp:94-144",
+            "R:00 AccountSet.cpp"
+          ]
+        },
+        {
+          "group": "저장 설정",
+          "name": "발행사 설정 관측",
+          "state": "STORED_SETTING",
+          "condition": "2026-10-21 저장값: RequireAuth=false, NoFreeze=false, GlobalFreeze=false, AllowTrustLineClawback=true. TransferRate는 필드 미기재.",
+          "evidence": [
+            "docs/XRPL_ISSUER_READONLY.md"
+          ]
+        }
+      ],
+      "limitations": [
+        "저장 ledger107795106 설정과 develop 소스 snapshot은 시각/버전이 다름. 현재 amendment/설정·키 통제·holder trustline·실제 회수 성공으로 승격하지 않음."
+      ],
+      "supplyToContractMapping": "NOT_ESTABLISHED",
+      "productVerdictChanged": false,
+      "supplySelection": {
+        "ordinal": 2,
+        "amount": "907257606.8615592",
+        "name": "XRPL"
+      }
+    },
+    {
+      "id": "usdc-hyperliquid-l1",
+      "coinId": "usdc",
+      "networkId": "hyperliquid-l1",
+      "reviewScope": "BRIDGE_COMPONENT_SOURCE",
+      "evidenceIds": [
+        "B:15",
+        "B:16"
+      ],
+      "identity": null,
+      "features": [
+        {
+          "group": "브리지",
+          "name": "출금",
+          "state": "SOURCE_PRESENT",
+          "condition": "선택 Bridge2의 출금 요청/validator 검증 및 dispute-period, finalized 중복 방지. finalizer·whenNotPaused·nonReentrant.",
+          "evidence": [
+            "B:15 Bridge2.sol:338-385"
+          ]
+        },
+        {
+          "group": "브리지",
+          "name": "입금·긴급 정지",
+          "state": "SOURCE_PRESENT",
+          "condition": "permit→transferFrom 실패 분리. lockers 투표 threshold로 pause, cold validator 검증 경로로 emergencyUnlock.",
+          "evidence": [
+            "B:15 Bridge2.sol:746-842",
+            "B:16 Signature.sol"
+          ]
+        },
+        {
+          "group": "원장",
+          "name": "HyperCore 내부 자산 기능",
+          "state": "INPUT_REQUIRED",
+          "condition": "브리지 코드가 HyperCore 원장 기능을 모두 설명하지 않음. HyperEVM ERC20으로 대체하지 않음.",
+          "evidence": [
+            "B:15"
+          ]
+        }
+      ],
+      "limitations": [
+        "선택 브리지 component snapshot이며 현재 공식 브리지 주소/validator 집합을 인증하지 않음. 의존 라이브러리 전체를 취득/컴파일하지 않음."
+      ],
+      "supplyToContractMapping": "NOT_ESTABLISHED",
+      "productVerdictChanged": false,
+      "supplySelection": {
+        "ordinal": 3,
+        "amount": "6980836557.776483",
+        "name": "Hyperliquid L1"
+      }
+    },
+    {
+      "id": "usdc-arc",
+      "coinId": "usdc",
+      "networkId": "arc",
+      "reviewScope": "DOCUMENTATION_ONLY",
+      "evidenceIds": [
+        "B:20",
+        "B:21"
+      ],
+      "identity": {
+        "erc20View": "0x3600000000000000000000000000000000000000"
+      },
+      "features": [
+        {
+          "group": "체인 의미",
+          "name": "native 수수료·ERC20 view",
+          "state": "DOCUMENTED_ONLY",
+          "condition": "공식 wallet guide: native18 / ERC20 view6의 단일 USDC 잔액과 USDC 가스. 이중 공급으로 합산하지 않음.",
+          "evidence": [
+            "B:20"
+          ]
+        },
+        {
+          "group": "자산 구현",
+          "name": "전송·통제 소스",
+          "state": "INPUT_REQUIRED",
+          "condition": "정적 공식 문서 확보. native/predeploy 구현 소스는 미확보하여 일반 proxy/ERC20 조건으로 판정하지 않음.",
+          "evidence": [
+            "B:20"
+          ]
+        }
+      ],
+      "limitations": [
+        "문서 HTTP200 본문만 확인했고 렌더링 후 화면/현행 네트워크를 확인한 것은 아님."
+      ],
+      "supplyToContractMapping": "NOT_ESTABLISHED",
+      "productVerdictChanged": false,
+      "supplySelection": {
+        "ordinal": 8,
+        "amount": "705178274.613804",
+        "name": "Arc"
+      }
+    }
+  ]
+}

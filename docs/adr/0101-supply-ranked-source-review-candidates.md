@@ -1,6 +1,6 @@
 # ADR0101: 공급량 기준 상위 네트워크 소스 검토 대상
 
-일자: 2026-10-25. 상태: 오프라인 대상 선정 구현, 새 소스API 실행은 사용자 승인 필요.
+일자: 2026-10-25. 상태: 대상 선정 및 사용자 승인 추가18곳 자료/소스 검토 완료. 확인 수준은 개별 결과를 따른다.
 
 ## 결정
 
@@ -12,6 +12,14 @@ Solana/SPL·XRPL issuer·Stellar asset·TON Jetton·Aptos FA/Move·HyperCore·Ar
 
 ## 외부 취득 경계
 
-신규 소스API는 아직 미실행이다. 고정8대상/메서드/필드/예산/소비 슬롯·실패 종료 조건을 [계획 JSON](../../data/source-review-top10-intake-plan.json)에 고정했다. 사용자 최초 지침에 따라 명시 승인 후에만 시작한다. compiler 취득/실행·verify 제출·proxy-resolution/새 RPC·추가 주소 탐색·자동 fallback은 포함하지 않는다. 자료가 proxy만이면 토큰 기능 확인으로 승격하지 않는다.
+최초 승인 전 단계에서는 고정8대상/메서드/필드/예산/소비 슬롯·실패 종료 조건을 [계획 JSON](../../data/source-review-top10-intake-plan.json)에 고정했다. 이 원래 계획의 제안 당시 상태는 덮어쓰지 않는다. 이후 사용자가 추가18곳 모두 진행을 승인했다. 아래 후속 결정과 실행 기록이 실제 승인/소비 상태다. compiler 취득/실행·verify 제출·proxy-resolution/새 RPC·자동 fallback은 포함하지 않는다. 자료가 proxy만이면 토큰 기능 확인으로 승격하지 않는다.
 
 [선정·확인·실패·검증 기록](../research/2026-10-25-top10-source-review-candidates.md)이 정본이며 원래 승인/소비/UNKNOWN/NOT_TESTED와 source scope를 보존한다.
+
+## 추가18곳 승인 후 결정
+
+사용자의 “모두 승인…총18곳 모두 진행”에 따라 해당18곳에 필요한 공개 소스/공식 문서와 고정된 생성자 초기 구현 후보를 passive GET으로 취득한다. 매 단계 대상을 새 계획 pin으로 고정하고 새 소유 슬롯의 송신 전 intent/원문/receipt와 소비를 남긴다. 요청별4MiB/20초·재시도/redirect/자동 fallback0, managed proxy를 유지한다. 원래 실패/미송신 슬롯을 재개하지 않고, 경로/필드 오류의 수정은 별도 고정 계획/소비로 구분한다. 현재 구현을 알아내기 위한 storage RPC나 proxy-resolution으로 확대하지 않는다.
+
+토큰 구현 후보/프록시/공통 프로토콜/참조 구현/브리지 component/문서만을 구분한다. 생성자 연결은 초기 구현 후보이지 현재 구현 인증이 아니다. non-EVM은 체인 고유 의미를 유지하고 미확보를 기능 부재로 바꾸지 않는다. 공개 sourceUnit 이름을 파일 경로로 사용하지 않고 원문은 고정 `.bin`에만 저장한다. 연구 결과는 별도 JSON/문서이며 제품UI/DB/판정을 변경하지 않는다.
+
+[추가18곳 결과·실패/수정·재현](../research/2026-10-25-top10-source-review-results.md)과 [구조화 결과](../../data/source-review-top10-results.json)가 후속 정본이다.53GET 소비 완료·새 RPC/compiler/키/DB/UI0이며 자동 재실행하지 않는다.
