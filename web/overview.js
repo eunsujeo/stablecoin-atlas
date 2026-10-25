@@ -64,30 +64,46 @@ function renderSourceReview(){
   const confirmed=sourceReviewProfiles.filter(p=>p.sourceReviewStatus==='SOURCE_REVIEWED');
   const metrics=$('#overview-source-metrics');metrics.replaceChildren();
   for(const [label,value,note] of [
-    ['소스 확인 자산',assets.size,[...assets].map(id=>id.toUpperCase()).join(' · ')],
-    ['검토 네트워크',networks.size,[...new Set(sourceReviewProfiles.map(p=>p.network))].join(' · ')],
-    ['소스 확인 완료',confirmed.length,`${sourceReviewProfiles.length}개 자산·네트워크 프로필`],
-    ['확인 기준','소스','함수 · modifier · 조건'],
+    ['소스 확인 완료',`${confirmed.length} / ${sourceReviewProfiles.length}`,'기능·권한 조건 확인'],
+    ['검토 자산',`${assets.size}개`,[...assets].map(id=>id.toUpperCase()).join(' · ')],
+    ['검토 네트워크',`${networks.size}개`,[...new Set(sourceReviewProfiles.map(p=>p.network))].join(' · ')],
   ]){const card=node('article',undefined,'metric-card'),valueRow=node('div',undefined,'metric-value');valueRow.append(node('strong',value));card.append(node('p',label),valueRow,node('p',note));metrics.append(card);}
-  $('#overview-source-note').textContent=`${sourceReviewDate} 기준 · ${sourceReviewProfiles.length}개 프로필의 저장 소스 확인 내용`;
+  const gradeCard=node('article',undefined,'metric-card overview-read-grade');
+  const gradeValue=node('strong','미산정');gradeValue.id='overview-read-grade';
+  const gradeNote=node('p','저장 보고서 로딩 중');gradeNote.id='overview-read-grade-note';
+  const gradeRow=node('div',undefined,'metric-value');gradeRow.append(gradeValue);
+  gradeCard.append(node('p','읽기 실행 등급'),gradeRow,gradeNote);metrics.append(gradeCard);
+  $('#overview-source-note').textContent=`${sourceReviewDate} 기준 · 소스에서 확인한 기능·권한`;
   const rows=$('#overview-source-rows');rows.replaceChildren();
-  for(const p of sourceReviewProfiles){
-    const row=node('tr');row.dataset.reviewId=p.id;
-    const identity=node('th');identity.scope='row';identity.append(node('strong',p.symbol),node('p',p.network),node('small',`chainId ${p.chainId}`));row.append(identity);
-    for(const values of [p.functions,p.authorities]){const cell=node('td'),list=node('ul');for(const text of values)list.append(node('li',text));cell.append(list);row.append(cell);}
-    const status=node('td');status.append(node('strong',p.sourceReviewStatus==='SOURCE_REVIEWED'?'소스 확인 완료':'소스 검토 전'),node('p',p.reviewedAt));
-    const link=node('a','확인 근거 보기 →');link.href=`/source-review-notes.html#${p.id}`;status.append(link);row.append(status);rows.append(row);
+  for(const coinId of assets){
+    const profiles=sourceReviewProfiles.filter(p=>p.coinId===coinId);
+    const complete=profiles.filter(p=>p.sourceReviewStatus==='SOURCE_REVIEWED').length;
+    const card=node('article',undefined,'overview-source-asset');card.dataset.sourceCoin=coinId;
+    const heading=node('div',undefined,'overview-source-asset-heading');
+    heading.append(node('h3',profiles[0].symbol),node('span',complete===profiles.length?'소스 확인 완료':'소스 검토 중','overview-source-status'));
+    const networks=node('p',profiles.map(p=>p.network).join(' · '),'overview-source-networks');
+    const footer=node('div',undefined,'overview-source-asset-footer');
+    const link=node('a','상세 보기 →');link.href='#assets';
+    link.addEventListener('click',()=>{
+      const root=document.querySelector('[data-source-review]');
+      const search=root.querySelector('input[type="search"]');search.value='';search.dispatchEvent(new Event('input'));
+      root.querySelector(`[data-coin-id="${coinId}"]`)?.click();
+    });
+    footer.append(node('span',`${complete} / ${profiles.length}개 프로필 확인`),link);
+    card.append(heading,networks,footer);rows.append(card);
   }
 }
 renderSourceReview();
 function renderEvidence(){
   const host=$('#overview-metrics'),verdicts=$('#overview-verdicts');host.replaceChildren();verdicts.replaceChildren();
-  if(!state.index){$('#overview-scope-summary').textContent='검토 범위 · 자료 미확보';host.append(node('p','저장된 검증 근거가 없습니다. 점수와 등급을 산정하지 않습니다.','semantic-note'));return;}
+  if(!state.index){$('#overview-read-grade').textContent='미산정';$('#overview-read-grade-note').textContent='저장된 실행 근거 없음';$('#overview-scope-summary').textContent='검토 범위 · 자료 미확보';host.append(node('p','저장된 검증 근거가 없습니다. 점수와 등급을 산정하지 않습니다.','semantic-note'));return;}
   const summary=overviewSummary(state.index,$('#overview-scope').value);
   const assets=new Set(summary.reports.map(r=>r.asset).filter(Boolean));
   const networks=new Set(summary.reports.filter(r=>r.chain&&r.identity?.networkId).map(r=>JSON.stringify([r.chain,r.identity.networkId])));
   $('#overview-scope-summary').textContent=`검토 범위 · ${assets.size}개 자산 · ${networks.size}개 네트워크 · ${summary.reports.length}개 자산·네트워크 프로필`;
   const grade=summary.grade===null?'등급 없음':`${summary.provisional?'잠정 ':''}${summary.grade}`;
+  $('#overview-read-grade').textContent=grade;
+  $('#overview-read-grade-note').textContent=summary.score===null?'판정 완료 항목 없음':`통과 점수 ${summary.score}점 · 판정 완료 ${summary.coverage}%`;
   for(const [label,value,note,cls] of [
     ['검토한 자산',`${assets.size}개`,[...assets].join(' · ')||'자산 식별 정보 미확보','lead-purple'],
     ['검토한 네트워크',`${networks.size}개`,`${summary.reports.length}개 자산·네트워크 프로필 · 저장된 조회 근거`,'lead-teal'],

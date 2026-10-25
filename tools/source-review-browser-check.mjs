@@ -101,19 +101,24 @@ try {
   }
  }
  assert.deepEqual(views[0],views[1]);
- // Overview uses the same reviewed source content and keeps the old read results intact.
+ // Overview summarizes source status by asset and preserves the existing read grade.
  await send('Page.navigate',{url:'about:blank'});await send('Page.navigate',{url:base+'/#overview'});
- await until("document.querySelectorAll('#overview-source-rows tr').length===8&&!document.querySelector('#overview-reload').disabled");
- await evaluate("document.querySelector('#overview-technical').open=true");
+ await until("document.querySelectorAll('#overview-source-rows article').length===5&&!document.querySelector('#overview-reload').disabled");
  assert.equal(await evaluate("document.querySelector('#overview-read-history').open"),false);
- assert.deepEqual(await evaluate("Array.from(document.querySelectorAll('#overview-source-metrics strong')).map(e=>e.textContent)"),['5','4','8','소스']);
- for(const p of profiles){
-  const row=await evaluate(`document.querySelector('#overview-source-rows [data-review-id="${p.id}"]').textContent`);
-  for(const value of [p.symbol,p.network,'소스 확인 완료',...p.functions,...p.authorities])assert(row.includes(value),p.id+' overview missing '+value);
-  assert.equal(await evaluate(`document.querySelector('#overview-source-rows [data-review-id="${p.id}"] a').getAttribute('href')`),'/source-review-notes.html#'+p.id);
+ assert.deepEqual(await evaluate("Array.from(document.querySelectorAll('#overview-source-metrics strong')).slice(0,3).map(e=>e.textContent)"),['8 / 8','5개','4개']);
+ for(const coinId of new Set(profiles.map(p=>p.coinId))){
+  const selected=profiles.filter(p=>p.coinId===coinId);
+  const row=await evaluate(`document.querySelector('#overview-source-rows [data-source-coin="${coinId}"]').textContent`);
+  for(const value of [selected[0].symbol,'소스 확인 완료',...selected.map(p=>p.network)])assert(row.includes(value),coinId+' overview missing '+value);
+  for(const p of selected)for(const detail of [...p.functions,...p.authorities])assert(!row.includes(detail),'overview should stay compact');
+  await evaluate("(()=>{const s=document.querySelector('.source-review-search input');s.value='no-match';s.dispatchEvent(new Event('input'));})()");
+  await evaluate(`document.querySelector('#overview-source-rows [data-source-coin="${coinId}"] a').click()`);
+  await until(`location.hash==='#assets'&&document.querySelector('[data-source-review]').dataset.reviewId.startsWith('${coinId}-')`);
+  await evaluate("location.hash='#overview'");
  }
  const {dashboardEvidence}=await import('../web/evidence-model.js'),{overviewSummary}=await import('../web/overview-model.js');
  const original=overviewSummary(dashboardEvidence(await(await fetch(base+'/evidence/index.json')).json()));
+ assert.equal(await evaluate("document.querySelector('#overview-read-grade').textContent"),original.grade===null?'등급 없음':`${original.provisional?'잠정 ':''}${original.grade}`);
  await evaluate("document.querySelector('#overview-read-history').open=true");
  assert.deepEqual(await evaluate("Array.from(document.querySelectorAll('#overview-verdicts strong')).map(e=>Number(e.textContent))"),['PASS','FAIL','INCONCLUSIVE','NOT_TESTED','NOT_APPLICABLE','UNSUPPORTED'].map(v=>original.counts[v]));
  await evaluate("document.querySelector('#overview-read-history').open=false");
@@ -124,13 +129,14 @@ try {
    await evaluate("document.querySelector('#overview-technical').scrollIntoView({block:'start'})");
    assert(await evaluate('document.documentElement.scrollWidth<=innerWidth+1'));
    await screenshot('overview-source-'+mode+'-'+width);
-   assert(await evaluate("Array.from(document.querySelectorAll('#overview-source-rows li')).every(e=>e.scrollWidth<=e.clientWidth+1)"),'source conditions must wrap inside each column');
+   assert(await evaluate("Array.from(document.querySelectorAll('.overview-source-asset')).every(e=>e.scrollWidth<=e.clientWidth+1)"),'summary cards must fit');
   }
  }
  failEvidence=true;
  await send('Page.navigate',{url:'about:blank'});await send('Page.navigate',{url:base+'/#overview'});
- await until("document.querySelectorAll('#overview-source-rows tr').length===8&&!document.querySelector('#overview-error').hidden");
- assert.equal(await evaluate("document.querySelectorAll('#overview-source-rows td>strong').length"),8);
+ await until("document.querySelectorAll('#overview-source-rows article').length===5&&!document.querySelector('#overview-error').hidden");
+ assert.equal(await evaluate("document.querySelectorAll('#overview-source-rows .overview-source-status').length"),5);
+ assert.equal(await evaluate("document.querySelector('#overview-read-grade').textContent"),'미산정');
  for(const route of ['/#assets','/atlas.html#assets']){
   await send('Page.navigate',{url:'about:blank'});await send('Page.navigate',{url:base+route});
   await until("document.querySelector('[data-source-review]')?.dataset.reviewId==='usdc-ethereum'");
@@ -140,5 +146,5 @@ try {
   assert.equal(await evaluate("document.querySelector('[data-source-review]').dataset.reviewId"),'jpysc-ethereum');
  }
  assert.deepEqual(errors,[]);assert.deepEqual(requests.filter(u=>!u.startsWith(base+'/')&&!u.startsWith('data:')),[]);
- console.log('PASS source profiles and technical overview: 5 tokens/8 deployments, source conditions/status/evidence links, overview metrics 5/4/8, preserved original read verdict counts, search/network/tabs/keyboard, evidence failure isolation, dark/light/390px, JS errors=0/external requests=0');
+ console.log('PASS source profiles and technical overview: 5 tokens/8 deployments, source conditions/status/evidence links, compact 5 asset cards and 8/8 source summary, preserved read grade/verdict counts and detail navigation, search/network/tabs/keyboard, evidence failure isolation, dark/light/390px, JS errors=0/external requests=0');
 }finally{try{await send('Fetch.disable');await send('Browser.close',{},false);}catch{}chrome.kill();await new Promise(resolve=>{if(chrome.exitCode!==null)resolve();else chrome.once('exit',resolve);});await rm(profile,{recursive:true,force:true});}

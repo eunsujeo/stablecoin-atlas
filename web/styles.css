@@ -149,8 +149,15 @@ select option{background:var(--panel);color:var(--ink);font-weight:400}
 .overview-technical>summary{cursor:pointer;color:var(--muted);font-size:14px}
 .overview-technical>summary>span{font-weight:650;color:var(--ink)}
 .overview-technical>summary>small{display:inline;margin-left:14px;font-size:11px}
-.overview-source-table td,.overview-source-table th{white-space:normal;line-height:1.7}
-.overview-source-results{margin:20px 0}.overview-source-table{min-width:960px;width:100%;table-layout:fixed}.overview-source-table th:first-child{width:15%}.overview-source-table th:last-child{width:17%}.overview-source-table td,.overview-source-table th{vertical-align:top;overflow-wrap:anywhere}.overview-source-table ul{padding-left:17px;margin:0}.overview-source-table li+li{margin-top:8px}.overview-source-table p{margin:6px 0}.overview-source-table td>strong{color:var(--teal);font-size:12px}.overview-source-table a{display:inline-flex;align-items:center;min-height:44px;font-size:11px}.overview-read-history{padding:20px 0;border-top:1px solid var(--line)}.overview-read-history>summary{cursor:pointer;font-size:13px;color:var(--muted)}
+.overview-source-assets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:18px 0}
+.overview-source-asset{min-width:0;border:1px solid var(--line);border-radius:12px;padding:18px;background:var(--panel)}
+.overview-source-asset-heading,.overview-source-asset-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.overview-source-asset h3{font-size:16px;margin:0}.overview-source-status{font-size:11px;font-weight:600;color:var(--teal);background:var(--track);border-radius:6px;padding:5px 8px}
+.overview-source-networks{color:var(--muted);font-size:12px;min-height:34px;line-height:1.6;margin:14px 0}
+.overview-source-asset-footer{border-top:1px solid var(--line);padding-top:10px;font-size:11px;color:var(--muted)}.overview-source-asset-footer a{display:inline-flex;align-items:center;min-height:44px;color:var(--purple)}
+.overview-read-grade .metric-value strong{color:var(--purple)}.overview-read-history{padding:16px 0;border-top:1px solid var(--line)}.overview-read-history>summary{cursor:pointer;font-size:12px;color:var(--muted)}
+@media(max-width:1000px){.overview-source-assets{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.overview-source-assets{grid-template-columns:1fr}.overview-source-networks{min-height:0}.overview-source-asset{padding:14px}.overview-technical>.panel-heading{align-items:flex-start}}
+
 @media(max-width:1000px){.overview-market-grid{grid-template-columns:1fr}.overview-chain-panel{border-left:0;border-top:1px solid var(--line);padding:20px 0 0}}
 @media(max-width:700px){.overview-market-hero{padding:18px}.overview-technical>summary>small{display:block;margin:8px 0 0}.overview-market-hero .panel-heading{align-items:center}}
 
