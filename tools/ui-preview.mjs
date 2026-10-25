@@ -20,6 +20,10 @@ import { databaseMarketReader } from './market-db/preview.mjs';
 import {databaseRegistrationReader,registrationRequest} from './market-db/registration-preview.mjs';
 
 const assets = new Map([
+  ['/source-review.js', ['../web/source-review.js', 'text/javascript; charset=utf-8']],
+  ['/source-review-data.js', ['../web/source-review-data.js', 'text/javascript; charset=utf-8']],
+  ['/source-review.css', ['../web/source-review.css', 'text/css; charset=utf-8']],
+  ['/source-review-notes.html', ['../web/source-review-notes.html', 'text/html; charset=utf-8']],
   ['/loading.css', ['../web/loading.css', 'text/css; charset=utf-8']],
   ['/supply-overview.js', ['../web/supply-overview.js', 'text/javascript; charset=utf-8']],
   ['/supply-overview-model.js', ['../web/supply-overview-model.js', 'text/javascript; charset=utf-8']],

@@ -1,5 +1,7 @@
 # 읽기 전용 토큰 기술 검토 CLI
 
+사용자 후속 자산 프로필 업데이트 요청으로 [ADR0100](adr/0100-reviewed-source-asset-profiles.md)의 검토된 정적 발췌 표시를 추가했다. 아래 CLI의 UI 제외에서 이 표시만 예외이며 웹에서 검증/컴파일/RPC를 실행하지 않는다. 기존 보고서·판정과 전체 배포 연결 UNKNOWN은 유지한다.
+
 새 기준은 [ADR0090](adr/0090-readonly-token-technical-review.md), 후속1.1은 [ADR0091](adr/0091-offline-token-static-path-analysis.md), 고정 legacy compiler·저장 관측 대조1.2는 [ADR0092](adr/0092-pinned-legacy-compiler-and-archived-review.md)다. 기존 실행 시나리오 PASS/FAIL·연구 판정·대시보드와 별도로 사용한다. 코드의 정적 권한/특수 동작 경로, 명시 getter의 현재 값, 소스/runtime·감사 source snapshot 대조를 JSON·Markdown으로 보존한다. 보안 감사나 안전성/지원 승인이 아니다.
 
 ## 현재 검토 범위

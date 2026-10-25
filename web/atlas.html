@@ -6,6 +6,7 @@
   <title>Atlas — 스테이블코인의 규모와 이동</title><link rel="icon" href="data:,">
   <link rel="stylesheet" href="/atlas.css"><script type="module" src="/atlas.js"></script>
   <link rel="stylesheet" href="/loading.css">
+  <link rel="stylesheet" href="/source-review.css"><script type="module" src="/source-review.js"></script>
 </head>
 <body>
   <a class="skip" href="#content">본문으로 이동</a>
@@ -84,7 +85,9 @@
       <div class="research-note"><h3>판정은 근거별로 확인하세요</h3><p>필드 관측은 제품 PASS가 아닙니다. UNKNOWN·NOT_TESTED·비적용은 다른 상태입니다. 사설 Fixture 결과는 실제 스테이블코인의 상환·안전성 근거가 아닙니다.</p></div>
     </section>
     <section id="assets" hidden aria-labelledby="profile-title" class="workspace">
-      <div class="workspace-heading"><div><a href="#coverage">← 조사 범위</a><h2 id="profile-title" tabindex="-1">자산 프로필</h2><p>실제 자산 · 저장된 읽기 보고서 · 체인별 식별과 개별 시나리오</p></div><button class="atlas-evidence-reload">근거 다시 읽기</button></div>
+      <div class="workspace-heading"><h2 id="profile-title" tabindex="-1">자산 프로필</h2></div>
+      <section id="atlas-source-review" class="source-review" data-source-review aria-label="토큰별 저장 소스 검토"></section>
+      <div class="workspace-heading"><div><a href="#coverage">← 조사 범위</a><h3>저장 관측 보고서</h3><p>실제 자산 · 저장된 읽기 보고서 · 체인별 식별과 개별 시나리오</p></div><button class="atlas-evidence-reload">근거 다시 읽기</button></div>
       <p class="atlas-evidence-status status" role="status" aria-live="polite">근거 화면에 진입하면 저장 목록을 읽습니다.</p>
       <p class="atlas-evidence-error notice" role="alert" hidden></p>
       <div class="native-selection"><label for="profile-report">저장 보고서</label><select id="profile-report" disabled><option value="">보고서를 선택하세요</option></select></div>

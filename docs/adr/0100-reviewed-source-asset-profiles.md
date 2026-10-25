@@ -1,0 +1,19 @@
+# ADR0100: 저장 소스 검토의 자산 프로필 발췌
+
+일자: 2026-10-25. 상태: 사용자 요청으로 구현.
+
+## 결정
+
+사용자가 자산 프로필 업데이트를 요청했다. [최종 소스 검토 요약](../research/2026-10-25-token-review-source-summary.md)의 5토큰·8배포를 기본 웹과 Atlas의 자산 프로필에 공통 정적 컴포넌트로 제공한다. 이 발췌 표시만 기존 기술 검토 CLI의 UI 제외에서 예외다. 웹에서 검증·컴파일·RPC·문서 생성을 실행하지 않는다.
+
+기존 Assessment 보고서 선택·항목·판정·집계는 보존한다. 연구 프로필은 coinId와 명시 chainId/주소로 구성하며 토큰 이름만으로 기존 보고서와 결합하지 않는다. JPYC Ethereum/Polygon/Avalanche/Kaia를 각각 선택할 수 있다. 검토 목록을 지원/실행 인증이나 새 Assessment로 추가하지 않는다.
+
+## 표시와 제공 경계
+
+- 함수·권한 조건, 소스 검토 기준일과 원본 관측 시점/블록, 전체 배포 연결 UNKNOWN, 개별 관측과 한계를 표시한다. USDC runtime 불일치·USDT 조회 실패·JPYC Ethereum 프록시만 일치·타체인 미관측·Kaia 부분 일치·JPYSC 분석 절단을 보존한다.
+- 주소·설정은 저장 자료 기준이며 현재 공식 지원·권한·소스 진위·실제 실행을 인증하지 않는다. 원래 SOURCE_REVIEWED·PARTIAL·UNKNOWN·제품 PASS/FAIL은 재판정하지 않는다.
+- `web/source-review-data.js`에는 수동 검토한 공개 발췌 필드만 둔다. 원문·RPC URL·키·비공개 경로는 넣지 않는다. 정적 JS/CSS와 공개 발췌 HTML만 고정 허용목록에 추가한다.
+- `node tools/source-review-notes.mjs`는 같은 발췌로 로컬 HTML을 생성하는 명시 오프라인 작업이다. 서버 시작/요청은 생성하지 않는다. 정적 파일과 데이터의 동기화는 검사한다.
+- 기존 근거 목록 조회 실패와 무관하게 소스 발췌는 선택할 수 있다. 공급자·DB·원본 증거에 대한 새 실행/수정은 없다.
+
+검증·재현은 [작업 기록](../research/2026-10-25-source-review-asset-profiles.md)을 따른다.
