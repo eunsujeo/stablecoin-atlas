@@ -4,6 +4,8 @@
 
 ## 완료 범위
 
+- 2026-10-25 [사용자 정상 Chrome 탭 확인](research/2026-10-25-kaia-code-view-source-intake.md#사용자-정상-chrome-탭에서-구현체-코드-표시-확인)으로 Kaia 구현체 `FiatTokenV1`·17파일 목록·실제 Solidity 표시분·0.8.11/optimizer3000을 확인했다. JavaScript/보조접근 설정 변경 없이 기본 MHTML 저장을 사용했다. 앞선401/별도브라우저 미취득과 구분하며 소스 부재로 설명하지 않는다. MHTML은 편집기 표시 행만 포함하므로 전체17파일 원문 추출과 구분해 보존했고 새 컴파일/독립RPC0·UNKNOWN을 유지한다.
+
 - 2026-10-25 사용자에게 Kaia 구현체 소스가 표시된다는 후속 정정을 받았다. [재관측 과정](research/2026-10-25-kaia-code-view-source-intake.md#구현체-소스-표시의-사용자-정정과-재관측)에서 같은 페이지의 비로그인 브라우저 ERR_FAILED·관측된 소스URL 직접1회401을 기록했다. 사용자 화면의 소스 표시와 도구의 미취득을 구분하며 소스 부재/로그인 필수를 단정하지 않는다. 프록시6파일·기존 UNKNOWN은 보존했고 새 컴파일/RPC0이다.
 
 - 2026-10-25 사용자 제공 Kaia URL의 [코드 보기 확인·소스 취득 과정](research/2026-10-25-kaia-code-view-source-intake.md)을 기록했다. 브라우저 도구의 GET용 OPTIONS 차단을 수정한 뒤 프록시6소스·ABI4·0.8.11/settings를 확보했다. 표시 구현체는 같은0xafac 주소이며 해당 구현체 페이지 소스는 미확보다. explorer 부분 일치와 독립 배포 관측을 구분하고 UNKNOWN을 유지한다. 새 compiler/독립 RPC/거래0·기존134파일 불변이며 실패/수정/성공 과정과 비공개 원문·재현 경로를 남겼다.

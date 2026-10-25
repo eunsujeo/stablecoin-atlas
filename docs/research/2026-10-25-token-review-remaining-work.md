@@ -23,7 +23,7 @@
 | JPYSC Ethereum | 고정 solc0.8.34 확보·proxy/implementation 컴파일 성공, 진입1/61 | UNKNOWN | 저장 소스 분석 활용. 코드 미관측과 initialize CALL_LIMIT/DECLARATION_LIMIT 보존 |
 | JPYC Polygon | proxy/implementation 후보가 Ethereum의 저장 컴파일 입력과 각각 바이트 동일 | UNKNOWN | 저장 소스만 활용하며 Ethereum 관측을 복사하지 않음. 새 체인 조회는 자동 진행하지 않음 |
 | JPYC Avalanche | proxy/implementation 후보가 Ethereum의 저장 컴파일 입력과 각각 바이트 동일 | UNKNOWN | Polygon과 동일하게 소스/체인 관측을 구분. 새 조회는 자동 진행하지 않음 |
-| JPYC Kaia | [코드 보기](2026-10-25-kaia-code-view-source-intake.md)에서 프록시6소스·ABI4·0.8.11/settings 확보. 구현체 주소 표시 확인 | UNKNOWN | 사용자는 구현체 소스 표시를 확인했으나 도구는 재관측에서도 미취득(브라우저 ERR_FAILED/동일 관측URL 직접1회401). 소스 부재로 단정하지 않음. explorer 부분 일치와 독립 블록 관측을 구분하며 다른 체인 소스를 대입하지 않음 |
+| JPYC Kaia | [코드 보기](2026-10-25-kaia-code-view-source-intake.md)에서 프록시6소스·ABI4 확보. 사용자 정상탭 MHTML에서 구현체 FiatTokenV1·17파일 목록/실제 표시 코드·0.8.11/optimizer3000 확인 | UNKNOWN | 구현체 코드 표시는 확인했고 전체17파일 원문 추출은 미완료. 별도profile/API 실패와 구분. explorer 부분 일치·표시분을 독립 블록 관측/전체 바이트 일치로 승격하지 않음 |
 
 자산별 원래 결과는 [USDC](2026-10-25-usdc-offline-source-review.md), [USDT 신규 단발 결과](2026-10-25-usdt-live-runtime-result.md), [RLUSD·JPYSC 신규 분석](2026-10-25-rlusd-jpysc-offline-source-review.md), [JPYC](2026-10-25-jpyc-token-review-live.md), [JPYSC/JPYC 저장 소스](2026-10-25-jpy-public-html-source-review.md)를 따른다. 초기 입력 미확보/미컴파일 문서는 당시 기록으로 보존하며 이 최신 집계와 합산하지 않는다.
 

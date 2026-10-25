@@ -2,6 +2,8 @@
 
 사용자가 제공한 [Kaia JPYC 계약 페이지](https://kaiascan.io/ko/address/0xe7c3d8c9a439fede00d2600032d5db0be71c3c29?tabId=contract&page=1)의 **코드 보기를 확인하고 프록시 Solidity 6파일·ABI·compiler 설정을 확보했다.** 정적 HTML에 소스가 없다는 결과를 사이트의 소스 미제공으로 일반화하면 안 된다. 이번에는 일반 브라우저가 불러온 공개 응답을 읽었으며 로그인/키·서명/거래·독립 체인 RPC·compiler 실행·배포 코드 대조는0이다. 사용자 결정에 따라 원본 배포 build/생성 이력 조사는 하지 않았다.
 
+**최신 정정:** 사용자 정상 Chrome 탭의 MHTML 저장본에서는 구현체 `FiatTokenV1`·17파일 목록·실제 Solidity 표시분을 확인했다. 구현체 소스가 사이트에 없다는 결론은 내리지 않는다. 전체17파일 원문 추출 완료와는 구분한다. 아래의 구현체 미취득은 별도 브라우저/API 방식의 당시 결과이며 [정상 탭 확인 과정](#사용자-정상-chrome-탭에서-구현체-코드-표시-확인)이 최신 상태다.
+
 ## 확인 결과
 
 | 항목 | 이번에 확인한 내용 | 입증 경계 |
@@ -12,7 +14,7 @@
 | 프록시 자료 | Solidity6파일, import5연결/미해결0, ABI4항목 | 공개 응답의 소스/설정 간 일관성 확인. 새 함수/권한 분석이나 컴파일은 미실행 |
 | 구현체 표시 | `0xafac17fc3936a29ca2d2787ced3c5d1c52007d2e`, `FiatTokenV1` | explorer 표시이며 이번 고정 블록 슬롯 관측이 아님 |
 | explorer 일치 표시 | runtime/creation 모두 `partial`(부분 일치) | 독립 전체 byte 일치로 바꾸지 않음 |
-| 구현체 페이지 | 표시 링크 한 단계의 계약 소스코드 화면을 확인. 계약 검증/사용자 정의 ABI 화면이며 소스 응답은 확보하지 못함 | 소스 부재나 검증 불가능을 단정하지 않음. Ethereum 소스를 대신 채우지 않음 |
+| 구현체 페이지 | 별도 브라우저는 소스 미취득. 후속 사용자 정상 탭에서는 `FiatTokenV1`·17파일 목록·Solidity 표시분 확인 | 전체17파일 원문 추출은 미완료. Ethereum 소스를 대신 채우지 않음 |
 
 프록시 가상 소스 경로는 `contracts/proxy/{ERC1967Proxy,Proxy}.sol`, `contracts/upgradeability/{draft-IERC1822,ERC1967Upgrade}.sol`, `contracts/util/{Address,StorageSlot}.sol`이다. 별도 입력 JSON21427바이트·소스 content 합계19940바이트를 원본 그대로 저장했다. source-code 필드와 input JSON의 sources, compiler-settings 필드와 input JSON의 settings가 각각 일치했다.
 
@@ -48,6 +50,28 @@
 브라우저 harness는 `.state/inspect-kaia-code-view-20261025.mjs`, 오프라인 추출/검증은 `.state/extract-kaia-code-view-20261025.py`다. harness의 현재 대상은 마지막 구현체 관측이며 기존 root에 덮어쓰지 않는다. **재현을 위해 기존 스크립트를 그대로 재실행하지 않는다.** 향후 같은 UI 확인이 필요하면 사용자 지정 URL과 새 소유 profile/root를 사용하고, DOM과 페이지가 정상 요청한 응답을 함께 확인한다. first-party GET와 그 GET용 OPTIONS를 허용하되 서명/거래/로그인·추측 endpoint 조회로 넓히지 않는다. source-code 같은 단어가 정적 HTML에 있다는 이유만으로 소스를 확보했다고 판정하지 않는다.
 
 Lead `f817a18f46de4c36b73c10eed6dd2a2d`는 proceed로 정상 페이지 리소스만 확인·관측과 원인 구분·추측 API/RPC 제외·원문 비공개·UNKNOWN 보존을 검토했다. 첫 요청 준비에서 비공개 `.state`를 관련 파일로 지정해 전달 전 거절됐고, 공개 연구 문서 경로로 준비를 수정해 이 id로 전달했다. 추가 권한이나 운영 변경 승인이 아니다.
+
+## 사용자 정상 Chrome 탭에서 구현체 코드 표시 확인
+
+사용자는 정상 브라우저에서 가능한 동작을 도구도 할 수 있다고 다시 지적했다. 별도 profile/API의 실패를 전체 접근 가능성으로 일반화한 한계를 수정했다. 사용자 지정 Kaia URL이 이미 열린 Chrome 탭만 골라 확인하고 다른 사이트 탭의 내용은 읽지 않았다. 쿠키·인증정보·profile/cache는 추출하지 않았다.
+
+1. 기존 Chrome의 해당 탭에서 공개 DOM을 읽으려 했지만 Apple Events JavaScript 실행이 꺼져 있었고, System Events 화면 제어도 보조 접근 권한 거절이었다. 이 설정을 켜거나 우회하지 않았다.
+2. Chrome이 기본 지원하는 `save … as "only html"`은 원래 HTML251631바이트만 저장해 다시 화면 틀만 남겼다. **동적 페이지의 실제 화면 보존에는 이 방식이 충분하지 않았다.**
+3. 같은 구현체 탭을 `save … as "single file"`로 저장했다. 새 탭 탐색이나 로그인 없이 MHTML1322210바이트를 얻었고, MIME의 주 HTML을 비실행 데이터로 파싱했다. 사용자 탭의 코드는 실제로 표시돼 있었다.
+4. 저장 DOM에는 계약명 `FiatTokenV1`, 표시compiler `0.8.11+commit.d7f03943`, optimizer3000·부분 일치, **17개 Solidity 경로 목록**, 선택 파일 `contracts/v1/Blocklistable.sol`의 `blocklist/unBlocklist/updateBlocklister` 코드와 modifier 표시분이 있었다. 이전 별도 브라우저의 계약 검증 화면과 달랐다. 두 화면 차이의 정확한 서버/세션 원인은 이번 자료로 확정하지 않았다.
+5. Chrome 기본 `select all`/`copy selection`도 같은 탭에서 시험했다. 일반 페이지 텍스트82823자를 얻었고, 원래 clipboard record는 메모리에만 보존했다가 즉시 복원했다. 이 방법도 전체 소스 파일의 다운로드는 아니었다.
+
+**확인된 것은 코드 표시와 표시 목록이다. 전체17파일 원문을 추출한 것은 아니다.** MHTML의 Monaco 편집기는 현재 표시된 행만 포함한다. source 편집기28행과 ABI/settings/metadata/input/output 편집기 표시분을 보존했으며 나머지 행을 보충하거나 Ethereum 소스로 채우지 않았다. 렌더링 텍스트의 nbsp/줄바꿈은 원본 소스 바이트로 간주하지 않는다. compiler 실행·독립RPC·전체runtime대조0이고 배포 연결 UNKNOWN을 유지한다.
+
+원문 MHTML·추출 HTML/표시 텍스트·편집기별 표시분·validation은 `.state/kaia-user-browser-save-20261025/`에0700/0600으로 보존했다. validation에는 원문 hash/크기·정확한 대상URL·17경로·표시 계약/설정·전체원문 추출0·기존134증거hash 불변을 기록했다. 사용자 기존 탭은 닫거나 새로고침하지 않았고, 브라우저 보안/접근 설정도 바꾸지 않았다.
+
+MHTML 저장 파일의 수정시각 기준 UTC는 `2026-10-25T02:16:09.092860+00:00`, SHA256은 `e675f728bd82d1b9de64df814e7de51f4f90a6d75af1470d715e9967f48ac2b5`다. 이는 저장 snapshot의 시각/hash이며 과거 별도 브라우저 요청 시각·블록 관측이나 원본 소스 hash가 아니다. 별도 재독에서 파일별hash·권한·목록17/전체원문0·문서 링크와 Git 제외를 확인했다(rc0/PASS).
+
+Lead `9277238ae5f04724b00e3be1992a3bcc`: proceed. 현재탭 snapshot·17목록/일부본문과 전체원문 미취득을 구분하고, 이전401/ERR_FAILED·UNKNOWN을 보존하며 세션 부수 자료를 포함할 수 있는 MHTML은 비공개로 유지하는 조건을 반영했다. 설정 변경/접근 제한 우회·추가 취득 승인이 아니다.
+
+이 후속 작업의 `npm run check`: rc0·tests564/pass564/fail0/cancelled0/skipped0 (`.state/agent-logs/kaia-user-browser-snapshot-check.log`)。`git diff --check`: rc0.
+
+향후 동적 공개 페이지는 사용자와 동일한 대상/탭에서 **기본 단일파일 저장으로 실제 표시 상태를 확인**한 뒤 자료 상태를 판단한다. 별도 profile의 실패만으로 사용자에게 파일 전달을 먼저 요구하지 않는다. 코드 표시·표시분 저장·전체 원본 취득을 별도 상태로 기록한다. 이전401/ERR_FAILED 원본도 삭제하거나 성공으로 바꾸지 않는다.
 
 ## 검증
 
