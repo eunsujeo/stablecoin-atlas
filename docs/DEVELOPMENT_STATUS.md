@@ -4,6 +4,8 @@
 
 ## 완료 범위
 
+- 2026-10-25 사용자 제공 Kaia URL의 [코드 보기 확인·소스 취득 과정](research/2026-10-25-kaia-code-view-source-intake.md)을 기록했다. 브라우저 도구의 GET용 OPTIONS 차단을 수정한 뒤 프록시6소스·ABI4·0.8.11/settings를 확보했다. 표시 구현체는 같은0xafac 주소이며 해당 구현체 페이지 소스는 미확보다. explorer 부분 일치와 독립 배포 관측을 구분하고 UNKNOWN을 유지한다. 새 compiler/독립 RPC/거래0·기존134파일 불변이며 실패/수정/성공 과정과 비공개 원문·재현 경로를 남겼다.
+
 - 2026-10-25 사용자 결정으로 실제 배포 원본 build 자료 확인을 필수 범위에서 제외했다. [현재 기술 검토 범위](TOKEN_TECHNICAL_REVIEW.md#현재-검토-범위)에 따라 원본 build/manifest·생성/배포 이력·이를 전제로 한 immutable 근거 취득을 완료조건으로 요구하지 않는다. 기존 소스/관측을 재사용하고 UNKNOWN·불일치·미관측은 보존하며 새 외부 실행은 시작하지 않는다. [자산별 현황](research/2026-10-25-token-review-remaining-work.md)을 이 기준으로 정리했다.
 
 - 2026-10-25 사용자 승인 [독립 근거 취득 A 결과](research/2026-10-25-independent-deployment-evidence-result.md): 첫 JPYC 공식 사이트 GET이 HTTP403으로 실패해 전체 종료했다. 시도1/취득0·미송신7·135파일 hash 불변이며 재시도/RPC/컴파일0이다. 배포 UNKNOWN은 별도 입증 상태이고 ADR0026 호환성 범위의 필수 미완료 수가 아니다. 향후 실제 배포 분석은 코드/소스 대응을 먼저 확인하고 기존 분석을 재사용한다.
