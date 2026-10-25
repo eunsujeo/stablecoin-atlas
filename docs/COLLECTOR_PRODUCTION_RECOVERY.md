@@ -130,6 +130,7 @@ Web 갱신은 `sudo /usr/local/sbin/atlas-release activate "$SHA"`, Web 롤백�
 
 ## 실제 서버 검증 항목
 
+- `collector-current` 경유 CLI와 실제 경로의 출력·종료 코드 일치. 기존 SHA의 무출력 종료 문제와 로컬 수정 검증은 [진입점 수정 기록](research/2026-10-25-collector-symlink-entrypoint.md)을 따른다. 운영 DB status 확인도 기존 별도 승인 경계를 유지한다.
 - Fedora aarch64/Node·unit merge/verify·실제 UID/모드/ACL·SELinux·쓰기 허용·writer 격리.
 - 독립 Web/collector SHA, 동일 DB의 다른 호스트 정지와405/407, 미완료 receipt 복구·파일hash/시각.
 - FX 실제 저장본 check·공개0640/atlasweb 읽기·6API 응답과 원래 관측시각, Overview USD/KRW/실패 안내.

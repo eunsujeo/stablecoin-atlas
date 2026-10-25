@@ -1,7 +1,8 @@
 import {lstat,access,readFile,realpath} from 'node:fs/promises';
 import {constants} from 'node:fs';
 import {resolve,join,relative,isAbsolute} from 'node:path';
-import {fileURLToPath,pathToFileURL} from 'node:url';
+import {fileURLToPath} from 'node:url';
+import {isCLIEntrypoint} from './cli-entrypoint.mjs';
 const fail=code=>{throw Error(code);};
 export function deploymentRuntimeSupported(version=process.versions.node,flags=process.allowedNodeEnvironmentFlags){
  const m=/^(\d+)\.(\d+)\.(\d+)$/.exec(version);return !!(m&&(Number(m[1])>24||Number(m[1])===24&&Number(m[2])>=5)&&flags.has('--use-env-proxy'));
@@ -30,4 +31,4 @@ export async function checkDeployment(options){
  return {state:'READY',scope:'LOCAL_CONFIGURATION_ONLY',kind:options['--kind'],databaseAccessChecked:false,providerRequests:0};
 }
 export async function main(args){return checkDeployment(deploymentArguments(args));}
-if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){try{console.log(JSON.stringify(await main(process.argv.slice(2))));}catch(e){const code=/^DEPLOY_[A-Z_]+$/.test(e.message)?e.message:'DEPLOY_CHECK_FAILED';console.error('COLLECTOR_DEPLOY_FAILED ('+code+'): details omitted.');process.exitCode=1;}}
+if(isCLIEntrypoint(import.meta.url)){try{console.log(JSON.stringify(await main(process.argv.slice(2))));}catch(e){const code=/^DEPLOY_[A-Z_]+$/.test(e.message)?e.message:'DEPLOY_CHECK_FAILED';console.error('COLLECTOR_DEPLOY_FAILED ('+code+'): details omitted.');process.exitCode=1;}}

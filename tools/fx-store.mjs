@@ -3,7 +3,8 @@ import {mkdir,lstat,open,link,unlink,readdir} from 'node:fs/promises';
 import {constants} from 'node:fs';
 import {join,resolve} from 'node:path';
 import {randomUUID} from 'node:crypto';
-import {fileURLToPath,pathToFileURL} from 'node:url';
+import {fileURLToPath} from 'node:url';
+import {isCLIEntrypoint} from './cli-entrypoint.mjs';
 import {boundedRead} from './evidence-store.mjs';
 import {registrationDecimal} from './market-registration/decimal.mjs';
 import {validateFX,usableFX} from '../web/fx-model.js';
@@ -82,4 +83,4 @@ export async function main(args){
  if(args[0]==='check')return checkFX(options['--directory']);
  if(args[0]==='import'&&!options['--source'])fail();return storeFX({directory:options['--directory'],source:options['--source']});
 }
-if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){try{console.log(JSON.stringify(await main(process.argv.slice(2))));}catch(e){const code=/^FX_[A-Z_]+$/.test(e.message)?e.message:'FX_FAILED';console.error((process.argv[2]==='check'?'FX_CHECK_FAILED':'FX_COLLECTION_FAILED')+' ('+code+'): details omitted.');process.exitCode=1;}}
+if(isCLIEntrypoint(import.meta.url)){try{console.log(JSON.stringify(await main(process.argv.slice(2))));}catch(e){const code=/^FX_[A-Z_]+$/.test(e.message)?e.message:'FX_FAILED';console.error((process.argv[2]==='check'?'FX_CHECK_FAILED':'FX_COLLECTION_FAILED')+' ('+code+'): details omitted.');process.exitCode=1;}}

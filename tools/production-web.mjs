@@ -1,5 +1,5 @@
 import {parseEnv} from 'node:util';
-import {pathToFileURL} from 'node:url';
+import {isCLIEntrypoint} from './cli-entrypoint.mjs';
 import {boundedRead} from './evidence-store.mjs';
 import {deploymentRuntimeSupported} from './collector-deploy.mjs';
 import {startPreviewServer} from './ui-preview.mjs';
@@ -57,6 +57,6 @@ export async function main(args){
   installProductionSignals(app);
   console.log('ATLAS_WEB_READY (loopback, PostgreSQL reader, public allowlist)');return app;
 }
-if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
+if(isCLIEntrypoint(import.meta.url)){
   try{await main(process.argv.slice(2));}catch{console.error('ATLAS_WEB_START_FAILED: configuration or reader unavailable; details omitted.');process.exitCode=1;}
 }

@@ -1,5 +1,7 @@
 # 현재 개발 상태
 
+`collector-current` 심볼릭 링크 실행 시 CLI가 조용히 종료되던 진입점 판정을 수정했다. systemd의 Node CLI6종에서 실행 파일과 모듈 경로를 모두 realpath로 비교하며 기존 주기·상한·Receipt/Archive 정책은 유지한다. [재현·검증 기록](research/2026-10-25-collector-symlink-entrypoint.md). 실제 Fedora 적용은 미검증이다.
+
 운영 수집기/FX 복구 요청에 따라 기존 예약·상한·독립 collector 릴리스를 유지하고, 저장 FX의 읽기 전용 진단·공개 만료 거절·원자적 게시 내구성·Overview의 production 지리 null 예외와 FX 실패 안내를 보완했다. [적용 절차](COLLECTOR_PRODUCTION_RECOVERY.md)·[ADR0107](adr/0107-collector-fx-recovery.md)·[검증 기록](research/2026-10-25-collector-fx-recovery.md)을 따른다. 실제 서버 배포·외부 수집·운영 DB 변경은 하지 않는다.
 
 Fedora에서 사용자가 보고한 root0440 systemd Credential 거절을 [ADR0106](adr/0106-systemd-reader-credential.md)의 production 전용 정책으로 수정했다. 일반 파일·Preview·DB Reader/TLS 경계는 유지하며, 이번 로컬 검증과 실제 Fedora 재배포 확인은 [수정 기록](research/2026-10-25-systemd-reader-credential.md)에서 구분한다.

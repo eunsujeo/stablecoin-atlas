@@ -2,7 +2,7 @@ import {mkdir} from 'node:fs/promises';
 import {join,resolve,basename} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {atomic,defaultMarketDirectory} from './market-store.mjs';
-import {pathToFileURL} from 'node:url';
+import {isCLIEntrypoint} from './cli-entrypoint.mjs';
 import {setTimeout as pause} from 'node:timers/promises';
 import {workspaceEnvironment} from './workspace-env.mjs';
 import {connectDatabase} from './market-db/connection.mjs';
@@ -69,4 +69,4 @@ export async function main(args,env=process.env){const options=parseCollectorArg
  finally{for(const name of ['SIGINT','SIGTERM'])process.removeListener(name,handler);}
 
 }
-if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){try{const result=await main(process.argv.slice(2));console.log(JSON.stringify(result));if(result.state==='FAILED')process.exitCode=1;}catch(error){console.error('COLLECTOR_FAILED ('+safeErrorCode(error)+'): details omitted.');process.exitCode=1;}}
+if(isCLIEntrypoint(import.meta.url)){try{const result=await main(process.argv.slice(2));console.log(JSON.stringify(result));if(result.state==='FAILED')process.exitCode=1;}catch(error){console.error('COLLECTOR_FAILED ('+safeErrorCode(error)+'): details omitted.');process.exitCode=1;}}
