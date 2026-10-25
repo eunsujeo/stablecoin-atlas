@@ -4,6 +4,8 @@
 
 ## 완료 범위
 
+- 2026-10-25 사용자 승인 [독립 근거 취득 A 결과](research/2026-10-25-independent-deployment-evidence-result.md): 첫 JPYC 공식 사이트 GET이 HTTP403으로 실패해 전체 종료했다. 시도1/취득0·미송신7·135파일 hash 불변이며 재시도/RPC/컴파일0이다. 배포 UNKNOWN은 별도 입증 상태이고 ADR0026 호환성 범위의 필수 미완료 수가 아니다. 향후 실제 배포 분석은 코드/소스 대응을 먼저 확인하고 기존 분석을 재사용한다.
+
 - 2026-10-25 [독립 배포 근거 취득 계획](research/2026-10-25-independent-deployment-evidence-plan.md)을 오프라인 작성했다. JPYC 우선 공개 GET8건(A)을 승인 요청 대상으로 고정하고 RLUSD/JPYSC RPC16건(B)·immutable 제출/대조와 분리했다. 신규 외부 호출/컴파일0·기존 UNKNOWN 유지이며 계획은 실행 승인이 아니다.
 
 - 2026-10-25 [저장 immutable 소스 참조표](research/2026-10-25-stored-immutable-source-map.md)를 완료했다. RLUSD ID650·JPYSC ID1623·JPYC ID173의 선언 초기화·생성자·onlyProxy/notDelegated 참조를 저장 AST/소스에서 확인했다. 기존107파일 포함134파일 불변·외부 조회/재컴파일/값 제출/대조0이며 독립 배포 근거 미확보·UNKNOWN 집계를 유지한다.

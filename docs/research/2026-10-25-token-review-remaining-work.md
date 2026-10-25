@@ -2,6 +2,8 @@
 
 ## 집계 기준
 
+이 문서의 UNKNOWN은 **실제 배포 기술 검토의 입증 상태**이며 프로젝트 전체의 미완료 수가 아니다. 고정 소스의 함수/권한 조건 확인으로 충분한 호환성 범위는 ADR0026을 따른다. 사용자 후속 지적에 따라 향후 실제 배포 분석은 코드/소스 대응부터 확인하고 기존 분석을 재사용한다. [신규 취득 A](2026-10-25-independent-deployment-evidence-result.md)는 첫 GET403·시도1/취득0으로 종료했으며 나머지7건은 미송신이다.
+
 2026-10-25 저장 증거 기준이다. 현재 기술 검토 대상 5토큰의 **Ethereum 배포 전체 소스 연결은 5/5 미확인(UNKNOWN)**이다. JPYC의 Polygon/Avalanche/Kaia까지 포함한 이번 검토 목록은 **8배포 중 8배포가 전체 연결 미확인**이다. 이는 두 개의 포함 관계가 있는 분모이며 5와8을 더하지 않는다. 계약 단위로는 JPYC Ethereum 프록시1개의 이전 고정 블록 일치를 확인했다. 구현체가 UNKNOWN이므로 자산 배포 전체를 완료로 세지 않는다.
 
 단어 UNKNOWN의 출현 횟수나 과거 보고서 사본을 세지 않는다. NOT_TESTED·INCONCLUSIVE·NOT_APPLICABLE을 UNKNOWN과 합산하지 않는다. 아래 표는 소스·배포 연결 축만 세며 각 행의 컴파일/관측 실행 상태는 별도로 적었다. Solana mint·XRPL issuer/holder·TRON 읽기와 전체33개 시장 후보는 이 EVM 기술 검토 분모 밖이다. 기존 호환성 PASS/FAIL·SOURCE_REVIEWED의 재판정이 아니다.
