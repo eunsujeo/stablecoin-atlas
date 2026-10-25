@@ -113,7 +113,7 @@ export async function reviewToken(configFile: string, rpcUrl: string | undefined
       source.compilation = 'SUCCEEDED';
       const runtime = compiled.selected.evm.deployedBytecode;
       const observed = report.contracts.find(c => c.address === supplied.address) ?? archiveContracts.get(supplied.address);
-      const comparison = compareRuntime(runtime, observed?.runtimeHash, supplied.immutableValues);
+      const comparison = compareRuntime(runtime, observed?.runtimeHash, supplied.immutableValues, compiled.compiler);
       if (archive && comparison.reason === 'EXACT_RUNTIME_PENDING_CHAIN_RECHECK') comparison.reason = 'EXACT_ARCHIVED_RUNTIME_MATCH_NOT_CURRENT_BINDING';
       source.binding.reason = comparison.reason;
       if (/^(?:[0-9a-fA-F]{2})+$/.test(runtime.object)) source.binding.runtimeHash = keccak256(`0x${runtime.object}` as Hex);

@@ -9,6 +9,11 @@ import { compilerProfile, compile, prepareInput } from '../src/token-review/comp
 import { nodes, functionKind } from '../src/token-review/ast.ts';
 import { inventory, sourceFindings } from '../src/token-review/source-analysis.ts';
 import { analyzeSource } from '../src/token-review/semantic-analysis.ts';
+import { keccak256 } from 'viem';
+import { compilerVersion } from '../src/token-review/compiler.ts';
+import { compareRuntime } from '../src/token-review/runtime-comparison.ts';
+import { reviewToken } from '../src/token-review/review.ts';
+import { validateReviewReport } from '../src/token-review/report.ts';
 
 // Cache tests run in another Node test process; keep this file's staging private
 // so parallel timeout-cleanup checks do not count each other's temporary files.
@@ -52,6 +57,79 @@ const p = prepareInput(Buffer.from(JSON.stringify({ language: 'Solidity', source
   settings: { optimizer: { enabled: false, runs: 0 }, libraries: {} } })), 'Legacy.sol:Legacy');
 let fixture;
 const compiled = () => fixture ??= compile(p.input, p.file, p.contractName, usdtCompiler.version);
+
+test('missing immutable ranges require the exact legacy version and genuine field absence', () => {
+  const runtime = { object: '60006000', linkReferences: {} };
+  const hash = keccak256(`0x${runtime.object}`);
+  for (const version of [undefined, '0.4.18', '0.4.18+commit.9cf6e910.WRONG', compilerVersion,
+    '0.6.12+commit.27d51765.Emscripten.clang']) {
+    assert.equal(compareRuntime(runtime, hash, {}, version).reason, 'INVALID_RELOCATION_DATA');
+  }
+  for (const immutableReferences of [undefined, null, [], 'bad', { '0': [] }, { '7': [] }, { '7': [{ start: -1, length: 32 }] }]) {
+    assert.equal(compareRuntime({ ...runtime, immutableReferences }, hash, {}, usdtCompiler.version).reason, 'INVALID_RELOCATION_DATA');
+  }
+  for (const linkReferences of [undefined, null, [], { 'L.sol': null }]) {
+    assert.equal(compareRuntime({ ...runtime, linkReferences }, hash, {}, usdtCompiler.version).reason, 'INVALID_RELOCATION_DATA');
+  }
+  assert.equal(compareRuntime({ object: runtime.object }, hash, {}, usdtCompiler.version).reason, 'INVALID_RELOCATION_DATA');
+  assert.equal(compareRuntime(runtime, hash, { '7': `0x${'00'.repeat(32)}` }, usdtCompiler.version).reason, 'IMMUTABLE_VALUES_MISSING_OR_EXTRA');
+  const linked = { object: '00'.repeat(40), linkReferences: { 'L.sol': { L: [{ start: 0, length: 20 }] } } };
+  assert.equal(compareRuntime(linked, undefined, {}, usdtCompiler.version).reason, 'UNRESOLVED_LIBRARY_LINKS');
+  assert.equal(compareRuntime({ ...linked, object: '__Library__'.padEnd(80, '_') }, undefined, {}, usdtCompiler.version).reason, 'UNRESOLVED_LIBRARY_LINKS');
+  assert.equal(compareRuntime({ ...runtime, object: 'zz' }, undefined, {}, usdtCompiler.version).reason, 'INVALID_RELOCATION_DATA');
+});
+
+test('private 0.4.18 output compares whole runtime bytes without changing compiler output', async t => {
+  if (!await compilerProfile(usdtCompiler.version)) return t.skip('Pinned compiler cache unavailable');
+  const r = await compiled(), runtime = r.selected.evm.deployedBytecode;
+  const original = JSON.stringify(r);
+  assert.equal(Object.hasOwn(runtime, 'immutableReferences'), false);
+  const hash = keccak256(`0x${runtime.object}`);
+  const match = compareRuntime(runtime, hash, {}, r.compiler);
+  assert.equal(match.matched, true); assert.equal(match.kind, 'RAW_RUNTIME');
+  assert.equal(match.reason, 'EXACT_RUNTIME_PENDING_CHAIN_RECHECK');
+  assert.equal(match.originalRuntime, `0x${runtime.object}`);
+  assert.equal(match.reconstructedRuntime, match.originalRuntime);
+  assert.deepEqual(match.ranges, []); assert.deepEqual(match.immutableValues, {});
+  // Even a final metadata byte difference must remain a full-runtime mismatch.
+  const changed = runtime.object.slice(0, -2) + (runtime.object.endsWith('00') ? '01' : '00');
+  const mismatch = compareRuntime(runtime, keccak256(`0x${changed}`), {}, r.compiler);
+  assert.equal(mismatch.matched, false); assert.equal(mismatch.reason, 'RUNTIME_MISMATCH');
+  const absent = compareRuntime(runtime, undefined, {}, r.compiler);
+  assert.equal(absent.matched, null); assert.equal(absent.reason, 'ADDRESS_NOT_OBSERVED');
+  assert.equal(absent.runtimeHash, hash);
+  assert.equal(JSON.stringify(r), original);
+});
+
+test('legacy private offline review preserves omitted compiler field and unknown binding with zero HTTP', async t => {
+  if (!await compilerProfile(usdtCompiler.version)) return t.skip('Pinned compiler cache unavailable');
+  const dir = await mkdtemp(join(stagingRoot, 'offline-'));
+  const originalFetch = globalThis.fetch;
+  let calls = 0;
+  globalThis.fetch = async () => { calls++; throw new Error('Offline must not fetch'); };
+  try {
+    await writeFile(join(dir, 'source.json'), JSON.stringify(p.input));
+    const address = '0x1111111111111111111111111111111111111111';
+    await writeFile(join(dir, 'config.json'), JSON.stringify({ schemaVersion: 'TokenReviewConfig1.1',
+      network: { chainId: '31337' }, token: { address }, sources: [{ address, inputFile: 'source.json',
+        contract: 'Legacy.sol:Legacy', compilerVersion: usdtCompiler.version }] }));
+    const out = join(dir, 'out');
+    const report = await reviewToken(join(dir, 'config.json'), undefined, out, { offline: true });
+    validateReviewReport(report);
+    const source = report.sources[0];
+    assert.equal(source.compilerUsed, usdtCompiler.version); assert.equal(source.compilation, 'SUCCEEDED');
+    assert.equal(source.binding.confirmation, 'UNKNOWN'); assert.equal(source.binding.reason, 'ADDRESS_NOT_OBSERVED');
+    assert.equal(source.runtimeComparison.matched, null);
+    assert.equal(source.runtimeComparison.kind, 'RAW_RUNTIME');
+    const saved = JSON.parse(await readFile(join(out, 'artifacts/source-0.compile-result.json'), 'utf8'));
+    assert.equal(Object.hasOwn(saved.selected.evm.deployedBytecode, 'immutableReferences'), false);
+    assert.equal(source.runtimeComparison.originalRuntime, `0x${saved.selected.evm.deployedBytecode.object}`);
+    assert.equal(report.block.consistency, 'UNKNOWN'); assert.equal(report.contracts.length, 0);
+    assert(!report.evidence.some(e => e.kind === 'RPC')); assert.equal(calls, 0);
+    validateReviewReport(JSON.parse(await readFile(join(out, 'report.json'), 'utf8')));
+    assert((await readFile(join(out, 'report.md'), 'utf8')).includes('ADDRESS\\_NOT\\_OBSERVED'));
+  } finally { globalThis.fetch = originalFetch; await rm(dir, { recursive: true, force: true }); }
+});
 
 test('pinned 0.4.18 stages verified private bytes and compiles ABI, runtime and compact AST without downloads', async () => {
   const profile = await compilerProfile(usdtCompiler.version);

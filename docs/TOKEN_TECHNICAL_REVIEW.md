@@ -106,6 +106,8 @@ Getter는 `owner/pendingOwner/admin/masterMinter/blacklister/pauser/feeRecipient
 
 ## 결과와 해석
 
+[ADR0098](adr/0098-legacy-runtime-omitted-immutable-ranges.md)에 따라 정확한 고정 solc0.4.18 전체 버전에서만 `immutableReferences` 필드 자체의 생략을 내부 빈 범위로 해석한다. 원본 compiler artifact는 그대로 저장한다. 다른/미지정 버전의 누락과 명시 undefined/null/배열·잘못된 범위·linkReferences 누락은 계속 거절한다. 제출값 초과·미해결 링크·전체 바이트 대조와 기존 UNKNOWN/binding 규칙은 유지한다. 이 보완은 사설 Fixture로만 검증했으며 기존 USDT 보고서를 재판정하지 않았다.
+
 - `report.json`: [1.2 결과 Schema](../schemas/token-technical-review.v1.2.schema.json), 모드·시각·블록·주소·코드 해시·도구/규칙 버전·archive·분류·확인 상태·실패·근거 참조. 기존 [1.0](../schemas/token-technical-review.v1.schema.json)/[1.1](../schemas/token-technical-review.v1.1.schema.json) 결과와 schema도 보존하고 검증에서 구분한다.
 - `report.md`: 배포 구조, 소스/runtime 대조, 소스 선언·정적 진입 경로·저장값별 변경 진입점·동작 후보·감사 동봉 소스 차이·실패·한계.
 - `artifacts/`: 제공된 소스 standard JSON·실효 compiler 요청·compiler 결과·감사 원문. JSON evidence에 각 SHA256/바이트 수와 RPC 요청/검증된 반환값을 기록한다.

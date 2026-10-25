@@ -4,6 +4,8 @@
 
 ## 완료 범위
 
+- 2026-10-25 사용자 승인으로 [ADR0098](adr/0098-legacy-runtime-omitted-immutable-ranges.md)의 고정 solc0.4.18 비교기 호환성을 보완했다. 정확한 전체 버전·필드 자체 생략만 내부 빈 범위로 해석하며 compiler 원본은 보존한다. 사설 Fixture의 전체 runtime 대조/음성 경로·무HTTP 오프라인 보고서를 검증했다. 실제 USDT 재컴파일·배포 대조·외부 호출·다운로드·기존 보고서 변경은 수행하지 않았다.
+
 - 2026-10-25 사용자 승인 [USDT 오프라인 재컴파일](research/2026-10-25-usdt-offline-recompile.md)을 완료했다. 저장된 standard JSON 후보를 고정 solc0.4.18로1회 컴파일해 runtime11075바이트·소스 함수31개·정적 entry29개를 얻었다. 새 RPC/다운로드0이며 원본7파일·후보·compiler cache3개 불변을 확인했다. 구버전 출력의 immutableReferences 누락을 보충하지 않아 별도1.2 보고서는 INVALID_RELOCATION_DATA·PARTIAL, 배포 연결 UNKNOWN이다. 기존 전체 MISMATCH/판정은 유지하며 실제 배포 대조는 이번 범위에서 실행하지 않았다.
 
 - 2026-10-25 추가 승인 [solc0.4.18 보이는 브라우저 취득·사설 검증](research/2026-10-25-usdt-solc0418-browser-success.md)을 완료했다. metadata/artifact 각1GET·HTTP200·7139666바이트의 두 hash와 worker 전체 버전을 확인하고 [ADR0097](adr/0097-pinned-solc0418-visible-browser-profile.md)의 고정 profile을 추가했다. 구버전 생성자/fallback·selector 없는 ID별 선언·작은 양수 builtin의 제한된 AST 호환성과 guard/실패/정리를 사설 Fixture로 검증했다. 이전 두 실패·원본7파일·기존0.6.12/0.8.11 cache는 보존했다. 실제 USDT 재컴파일/새 RPC0이며 기존 source binding/판정은 변경하지 않았다.

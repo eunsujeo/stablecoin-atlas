@@ -1,5 +1,6 @@
 import { keccak256, type Hex } from 'viem';
 import type { CompileResult } from './compiler.js';
+import { usdtCompiler } from './compiler-cache.mjs';
 
 export interface RuntimeComparison {
   kind: 'RAW_RUNTIME' | 'SUBMITTED_IMMUTABLE_VALUES'; matched: boolean | null; reason: string;
@@ -10,7 +11,7 @@ export interface RuntimeComparison {
 // Never mask deployed bytes or infer values from them. Submitted immutable values remain
 // unproven constructor claims, even when the reconstructed bytes match in their entirety.
 export function compareRuntime(runtime: NonNullable<CompileResult['selected']>['evm']['deployedBytecode'], observedHash: string | undefined,
-  values: Record<string, string> = {}): Omit<RuntimeComparison, 'evidenceRef'> {
+  values: Record<string, string> = {}, compiler?: string): Omit<RuntimeComparison, 'evidenceRef'> {
   const result: Omit<RuntimeComparison, 'evidenceRef'> = { kind: 'RAW_RUNTIME', matched: null, reason: 'RUNTIME_UNAVAILABLE',
     originalRuntime: `0x${runtime.object}`, reconstructedRuntime: null, immutableValues: values, ranges: [], runtimeHash: null };
   const invalid = () => ({ ...result, reason: 'INVALID_RELOCATION_DATA' });
@@ -28,9 +29,13 @@ export function compareRuntime(runtime: NonNullable<CompileResult['selected']>['
     }
     return true;
   }
-  if (!runtime.immutableReferences || typeof runtime.immutableReferences !== 'object' || Array.isArray(runtime.immutableReferences)
+  // This pinned pre-immutable compiler omits the field. Interpret only genuine
+  // absence; preserve the original output and reject explicitly malformed data.
+  const immutableReferences = compiler === usdtCompiler.version && !Object.hasOwn(runtime, 'immutableReferences')
+    ? {} : runtime.immutableReferences;
+  if (!immutableReferences || typeof immutableReferences !== 'object' || Array.isArray(immutableReferences)
     || !runtime.linkReferences || typeof runtime.linkReferences !== 'object' || Array.isArray(runtime.linkReferences)) return invalid();
-  for (const [id, value] of Object.entries(runtime.immutableReferences)) if (!/^[1-9][0-9]*$/.test(id) || !offsets(value, id, true)) return invalid();
+  for (const [id, value] of Object.entries(immutableReferences)) if (!/^[1-9][0-9]*$/.test(id) || !offsets(value, id, true)) return invalid();
   for (const [file, libraries] of Object.entries(runtime.linkReferences)) {
     if (!libraries || typeof libraries !== 'object' || Array.isArray(libraries)) return invalid();
     for (const [name, value] of Object.entries(libraries)) if (!offsets(value, `${file}:${name}`, false)) return invalid();
@@ -40,7 +45,7 @@ export function compareRuntime(runtime: NonNullable<CompileResult['selected']>['
   result.ranges = ranges.filter(r => r.immutable).map(({ id, start, length }) => ({ id, start, length }));
   if (ranges.some(r => !r.immutable)) return { ...result, reason: 'UNRESOLVED_LIBRARY_LINKS' };
   if (!/^(?:[0-9a-fA-F]{2})+$/.test(runtime.object)) return invalid();
-  const ids = Object.keys(runtime.immutableReferences).sort(), supplied = Object.keys(values).sort();
+  const ids = Object.keys(immutableReferences).sort(), supplied = Object.keys(values).sort();
   if (ids.length) result.kind = 'SUBMITTED_IMMUTABLE_VALUES';
   if (JSON.stringify(ids) !== JSON.stringify(supplied)) return { ...result, reason: 'IMMUTABLE_VALUES_MISSING_OR_EXTRA' };
   let completed = runtime.object;

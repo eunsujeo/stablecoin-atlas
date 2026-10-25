@@ -14,7 +14,7 @@ export interface CompileResult {
   errors: { severity: string; code: string | null }[];
   sources: Record<string, { id: number; ast: AstNode }>;
   selected: { abi: { type: string; name?: string; inputs?: { type: string }[]; outputs?: { type: string }[] }[];
-    evm: { deployedBytecode: { object: string; immutableReferences: Record<string, unknown>; linkReferences: Record<string, unknown> } } } | null;
+    evm: { deployedBytecode: { object: string; immutableReferences?: Record<string, unknown>; linkReferences: Record<string, unknown> } } } | null;
 }
 export interface CompilerInput { language: 'Solidity'; sources: Record<string, { content: string }>; settings: Record<string, unknown> }
 export function prepareSourceBundle(bytes: Buffer): CompilerInput {
