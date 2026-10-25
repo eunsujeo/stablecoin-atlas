@@ -14,8 +14,11 @@ export function initializeSourceReview(root){
   const searchLabel=node('label','자산 찾기','source-review-search'),search=node('input');
   search.type='search';search.placeholder='토큰 · 체인 · 주소';search.autocomplete='off';searchLabel.append(search);
   const list=node('div',undefined,'source-review-asset-list');
+  const matches=node('section',undefined,'source-review-matches');matches.hidden=true;matches.setAttribute('aria-label','일치하는 검토 프로필');
+  const matchCount=node('p',undefined,'source-review-match-count');matchCount.setAttribute('role','status');
+  const matchList=node('div',undefined,'source-review-match-list');matches.append(matchCount,matchList);
   const empty=node('p','일치하는 자산이 없습니다. 검색어를 바꿔보세요.','source-review-empty');empty.hidden=true;
-  directory.append(directoryHeading,searchLabel,list,empty,node('p','선택 목록은 저장 소스·문서의 검토 네트워크입니다. 자산의 전체 발행 네트워크 목록과는 다릅니다.','source-review-directory-note'));
+  directory.append(directoryHeading,searchLabel,list,matches,empty,node('p','선택 목록은 저장 소스·문서의 검토 네트워크입니다. 자산의 전체 발행 네트워크 목록과는 다릅니다.','source-review-directory-note'));
   const workspace=node('div',undefined,'source-review-workspace'),toolbar=node('div',undefined,'source-review-toolbar');
   const selection=node('p');selection.setAttribute('role','status');
   const field=node('label','검토 네트워크'),network=node('select');network.setAttribute('aria-label','소스 검토 네트워크');field.append(network);toolbar.append(selection,field);
@@ -23,9 +26,20 @@ export function initializeSourceReview(root){
   workspace.append(toolbar,detail);layout.append(directory,workspace);root.replaceChildren(heading,layout);
   function renderDirectory(){
     const query=search.value.trim().toLowerCase();list.replaceChildren();
+    const found=sourceReviewProfiles.filter(p=>[p.symbol,p.network,sourceProfileKey(p),p.address].some(value=>value.toLowerCase().includes(query)));
+    matches.hidden=!query;matchList.replaceChildren();matchCount.textContent=query?`일치하는 검토 프로필 ${found.length}곳`:'';
+    if(query)for(const p of found){
+      const button=node('button',undefined,'source-review-match');button.type='button';button.dataset.reviewTarget=p.id;
+      button.setAttribute('aria-pressed',String(p.coinId===coinId&&sourceProfileKey(p)===chainId));
+      button.append(node('strong',`${p.symbol} · ${p.network}`),node('small',sourceProfileStatus(p)));
+      button.addEventListener('click',()=>{
+        rememberedChains.set(coinId,chainId);coinId=p.coinId;chainId=sourceProfileKey(p);rememberedChains.set(coinId,chainId);
+        networks();render();
+      });matchList.append(button);
+    }
     for(const id of coins){
       const profiles=sourceReviewProfiles.filter(p=>p.coinId===id);
-      if(query&&!profiles.some(p=>[p.symbol,p.network,sourceProfileKey(p),p.address].some(value=>value.toLowerCase().includes(query))))continue;
+      if(query&&!found.some(p=>p.coinId===id))continue;
       const button=node('button',undefined,'source-review-asset');button.type='button';button.dataset.coinId=id;button.setAttribute('aria-pressed',String(id===coinId));
       const mark=node('span',id.slice(0,1).toUpperCase(),'source-review-mark');mark.setAttribute('aria-hidden','true');
       const text=node('span');text.append(node('strong',id.toUpperCase()),node('small',`검토 ${profiles.length}곳 · ${profiles.map(p=>p.network).join(' / ')}`));button.append(mark,text);
@@ -45,6 +59,8 @@ export function initializeSourceReview(root){
   function items(title,values){const section=node('section',undefined,'source-review-section'),list=node('ul');for(const text of values)list.append(node('li',text));section.append(node('h4',title),list);return section;}
   function render(){
     const p=sourceReviewFor(coinId,chainId);detail.replaceChildren();root.dataset.reviewId=p.id;
+    for(const entry of list.children)entry.setAttribute('aria-pressed',String(entry.dataset.coinId===coinId));
+    for(const entry of matchList.children)entry.setAttribute('aria-pressed',String(entry.dataset.reviewTarget===p.id));
     const features=sourceFeaturesFor(coinId,chainId);
     selection.replaceChildren(node('strong',p.symbol),node('span',`${features.length}개 검토 항목 · ${sourceProfileStatus(p)}`));
     const tablist=node('div',undefined,'source-review-tabs');tablist.setAttribute('role','tablist');tablist.setAttribute('aria-label','자산 프로필 내용');

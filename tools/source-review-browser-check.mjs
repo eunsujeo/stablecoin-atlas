@@ -37,7 +37,7 @@ async function evaluate(expression) {
 async function screenshot(name) { await evaluate('new Promise(resolve => setTimeout(resolve, 250))'); const r = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false }); await writeFile(`.state/${name}.png`, Buffer.from(r.data, 'base64')); }
 
 async function until(expression){for(let i=0;i<180;i++){if(await evaluate(expression))return;await new Promise(r=>setTimeout(r,60));}throw new Error('Not ready '+expression+' '+await evaluate("document.querySelector('[data-source-review]')?.innerText.slice(0,600)"));}
-async function key(key,code,virtual){await send('Input.dispatchKeyEvent',{type:'keyDown',key,code,windowsVirtualKeyCode:virtual});await send('Input.dispatchKeyEvent',{type:'keyUp',key,code,windowsVirtualKeyCode:virtual});}
+async function key(key,code,virtual){await send('Input.dispatchKeyEvent',{type:'keyDown',key,code,windowsVirtualKeyCode:virtual,...(key==='Enter'?{text:'\r'}:{})});await send('Input.dispatchKeyEvent',{type:'keyUp',key,code,windowsVirtualKeyCode:virtual});}
 
 const {sourceReviewProfiles:profiles,sourceFeaturesFor,sourceFeatureLabels,sourceProfileKey,sourceProfileStatus}=await import('../web/source-review-data.js');
 const views=[];
@@ -94,11 +94,31 @@ try {
    await evaluate(`(()=>{const s=document.querySelector('.source-review-search input');s.value=${JSON.stringify(query)};s.dispatchEvent(new Event('input'));})()`);
    assert.deepEqual(await evaluate("Array.from(document.querySelectorAll('.source-review-asset')).map(b=>b.dataset.coinId)"),expected);
    assert.equal(await evaluate("document.querySelector('.source-review-empty').hidden"),expected.length>0);
+   const matching=query?profiles.filter(p=>[p.symbol,p.network,sourceProfileKey(p),p.address].some(v=>v.toLowerCase().includes(query.toLowerCase()))):[];
+   assert.deepEqual(await evaluate("Array.from(document.querySelectorAll('[data-review-target]')).map(b=>b.dataset.reviewTarget)"),matching.map(p=>p.id));
+   assert.equal(await evaluate("document.querySelector('.source-review-matches').hidden"),!query);
    assert.equal(await evaluate("document.querySelector('[data-source-review]').dataset.reviewId"),'jpysc-ethereum');
   }
   // Each asset remembers its own chain. Switching USDC must never retain Kaia's identity.
   await evaluate(`(()=>{document.querySelector('[data-coin-id="jpyc"]').click();const s=document.querySelector('[aria-label="소스 검토 네트워크"]');s.value='8217';s.dispatchEvent(new Event('change'));document.querySelector('[data-coin-id="usdc"]').click();})()`);
   assert.equal(await evaluate("document.querySelector('[data-source-review]').dataset.reviewId"),'usdc-arc');
+  await evaluate("document.querySelector('[data-coin-id=jpyc]').click()");
+  assert.equal(await evaluate("document.querySelector('[data-source-review]').dataset.reviewId"),'jpyc-kaia');
+  // Search opens the exact matching profile, including non-EVM identities and shared addresses.
+  for(const p of profiles){
+   await evaluate(`(()=>{const s=document.querySelector('.source-review-search input');s.value=${JSON.stringify(p.address)};s.dispatchEvent(new Event('input'));})()`);
+   const selector=`[data-review-target="${p.id}"]`;
+   assert((await evaluate(`document.querySelector(${JSON.stringify(selector)}).innerText`)).includes(sourceProfileStatus(p)));
+   await evaluate(`document.querySelector(${JSON.stringify(selector)}).focus()`);
+   await key('Enter','Enter',13);
+   assert.equal(await evaluate("document.querySelector('[data-source-review]').dataset.reviewId"),p.id);
+   assert.equal(await evaluate("document.querySelector('[aria-label=\"소스 검토 네트워크\"]').value"),sourceProfileKey(p));
+   assert.equal(await evaluate("document.querySelector('[data-review-target][aria-pressed=true]').dataset.reviewTarget"),p.id);
+   assert.equal(await evaluate("document.activeElement.dataset.reviewTarget"),p.id);
+   // Editing or clearing a query must leave the explicitly selected profile intact.
+   await evaluate("(()=>{const s=document.querySelector('.source-review-search input');s.value='';s.dispatchEvent(new Event('input'));})()");
+   assert.equal(await evaluate("document.querySelector('[data-source-review]').dataset.reviewId"),p.id);
+  }
   await evaluate("document.querySelector('[data-coin-id=jpyc]').click()");
   assert.equal(await evaluate("document.querySelector('[data-source-review]').dataset.reviewId"),'jpyc-kaia');
   // Native focus plus roving tab navigation, with correct panel ownership.
@@ -117,6 +137,11 @@ try {
    await evaluate("document.querySelector('[role=tab][id$=\"-behavior-tab\"]').click();document.querySelector('[data-source-review]').scrollIntoView({block:'start'})");await screenshot('profile-redesign-'+(isAtlas?'atlas-':'legacy-')+mode);
    await send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
    assert(await evaluate('document.documentElement.scrollWidth<=innerWidth+1'));
+   await evaluate("(()=>{const s=document.querySelector('.source-review-search input');s.value='Solana';s.dispatchEvent(new Event('input'));document.querySelector('.source-review-matches').scrollIntoView({block:'start',behavior:'instant'});})()");
+   assert(await evaluate("Array.from(document.querySelectorAll('.source-review-match')).every(e=>e.scrollWidth<=e.clientWidth+1&&e.getBoundingClientRect().height>=44)"));
+   assert(await evaluate('document.documentElement.scrollWidth<=innerWidth+1'));
+   await screenshot('profile-search-'+(isAtlas?'atlas-':'legacy-')+mode+'-mobile');
+   await evaluate("(()=>{const s=document.querySelector('.source-review-search input');s.value='';s.dispatchEvent(new Event('input'));})()");
    for(const tab of ['overview','behavior','evidence']){
     await evaluate(`document.querySelector('[role=tab][id$="-${tab}-tab"]').click()`);
     assert(await evaluate('document.documentElement.scrollWidth<=innerWidth+1'));
@@ -188,5 +213,5 @@ try {
   assert.equal(await evaluate("document.querySelector('[data-source-review]').dataset.reviewId"),'jpysc-ethereum');
  }
  assert.deepEqual(errors,[]);assert.deepEqual(requests.filter(u=>!u.startsWith(base+'/')&&!u.startsWith('data:')),[]);
- console.log('PASS source profiles: 5 assets/26 profiles, original 8 preserved, added 18 scoped features and states, 8/26 summary, network keys/search/tabs/filters, evidence links, read grade/verdict counts preserved, both routes/dark/light/390px, JS errors=0/external requests=0');
+ console.log('PASS source profiles: 5 assets/26 profiles, exact search selection by keyboard and scope labels, original 8 preserved, added 18 scoped features and states, 8/26 summary, network keys/search/tabs/filters, evidence links, read grade/verdict counts preserved, both routes/dark/light/390px, JS errors=0/external requests=0');
 }finally{try{await send('Fetch.disable');await send('Browser.close',{},false);}catch{}chrome.kill();await new Promise(resolve=>{if(chrome.exitCode!==null)resolve();else chrome.once('exit',resolve);});await rm(profile,{recursive:true,force:true});}
