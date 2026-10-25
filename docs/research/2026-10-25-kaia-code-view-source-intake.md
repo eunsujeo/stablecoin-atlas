@@ -2,7 +2,7 @@
 
 사용자가 제공한 [Kaia JPYC 계약 페이지](https://kaiascan.io/ko/address/0xe7c3d8c9a439fede00d2600032d5db0be71c3c29?tabId=contract&page=1)의 **코드 보기를 확인하고 프록시 Solidity 6파일·ABI·compiler 설정을 확보했다.** 정적 HTML에 소스가 없다는 결과를 사이트의 소스 미제공으로 일반화하면 안 된다. 이번에는 일반 브라우저가 불러온 공개 응답을 읽었으며 로그인/키·서명/거래·독립 체인 RPC·compiler 실행·배포 코드 대조는0이다. 사용자 결정에 따라 원본 배포 build/생성 이력 조사는 하지 않았다.
 
-**최신 정정:** 사용자 정상 Chrome 탭의 MHTML 저장본에서는 구현체 `FiatTokenV1`·17파일 목록·실제 Solidity 표시분을 확인했다. 구현체 소스가 사이트에 없다는 결론은 내리지 않는다. 전체17파일 원문 추출 완료와는 구분한다. 아래의 구현체 미취득은 별도 브라우저/API 방식의 당시 결과이며 [정상 탭 확인 과정](#사용자-정상-chrome-탭에서-구현체-코드-표시-확인)이 최신 상태다.
+**최신 결과:** 사용자의1~4 진행 승인과 Chrome 설정 허용 후, 정상 탭의 Input JSON 편집기 전체를 복사해 구현체 **17파일 원문 확보와 기존 JPYC 대조까지 완료**했다. 저장물81804바이트·17소스/26import이며 줄바꿈 진단 외 코드 차이는 없었다. [전체 취득 과정](#전체17파일-취득과-기존-jpyc-대조)과 [통합 결과](2026-10-25-token-review-source-summary.md)가 최신 상태다. 아래 별도 브라우저/API 실패·MHTML 표시분 단계는 당시 기록으로 보존한다.
 
 ## 확인 결과
 
@@ -14,7 +14,7 @@
 | 프록시 자료 | Solidity6파일, import5연결/미해결0, ABI4항목 | 공개 응답의 소스/설정 간 일관성 확인. 새 함수/권한 분석이나 컴파일은 미실행 |
 | 구현체 표시 | `0xafac17fc3936a29ca2d2787ced3c5d1c52007d2e`, `FiatTokenV1` | explorer 표시이며 이번 고정 블록 슬롯 관측이 아님 |
 | explorer 일치 표시 | runtime/creation 모두 `partial`(부분 일치) | 독립 전체 byte 일치로 바꾸지 않음 |
-| 구현체 페이지 | 별도 브라우저는 소스 미취득. 후속 사용자 정상 탭에서는 `FiatTokenV1`·17파일 목록·Solidity 표시분 확인 | 전체17파일 원문 추출은 미완료. Ethereum 소스를 대신 채우지 않음 |
+| 구현체 페이지 | 정상 탭에서 FiatTokenV1의 전체 Input JSON81804바이트·17소스 content 확보 | 기존 소스와의 원본/줄바꿈 진단을 구분하며 Ethereum 소스로 대신 채우지 않음 |
 
 프록시 가상 소스 경로는 `contracts/proxy/{ERC1967Proxy,Proxy}.sol`, `contracts/upgradeability/{draft-IERC1822,ERC1967Upgrade}.sol`, `contracts/util/{Address,StorageSlot}.sol`이다. 별도 입력 JSON21427바이트·소스 content 합계19940바이트를 원본 그대로 저장했다. source-code 필드와 input JSON의 sources, compiler-settings 필드와 input JSON의 settings가 각각 일치했다.
 
@@ -53,6 +53,8 @@ Lead `f817a18f46de4c36b73c10eed6dd2a2d`는 proceed로 정상 페이지 리소스
 
 ## 사용자 정상 Chrome 탭에서 구현체 코드 표시 확인
 
+이 절은 전체17파일 취득 전의 표시분 저장 단계를 기록한다. 후속 전체 취득 결과는 다음 절에 있다.
+
 사용자는 정상 브라우저에서 가능한 동작을 도구도 할 수 있다고 다시 지적했다. 별도 profile/API의 실패를 전체 접근 가능성으로 일반화한 한계를 수정했다. 사용자 지정 Kaia URL이 이미 열린 Chrome 탭만 골라 확인하고 다른 사이트 탭의 내용은 읽지 않았다. 쿠키·인증정보·profile/cache는 추출하지 않았다.
 
 1. 기존 Chrome의 해당 탭에서 공개 DOM을 읽으려 했지만 Apple Events JavaScript 실행이 꺼져 있었고, System Events 화면 제어도 보조 접근 권한 거절이었다. 이 설정을 켜거나 우회하지 않았다.
@@ -61,7 +63,7 @@ Lead `f817a18f46de4c36b73c10eed6dd2a2d`는 proceed로 정상 페이지 리소스
 4. 저장 DOM에는 계약명 `FiatTokenV1`, 표시compiler `0.8.11+commit.d7f03943`, optimizer3000·부분 일치, **17개 Solidity 경로 목록**, 선택 파일 `contracts/v1/Blocklistable.sol`의 `blocklist/unBlocklist/updateBlocklister` 코드와 modifier 표시분이 있었다. 이전 별도 브라우저의 계약 검증 화면과 달랐다. 두 화면 차이의 정확한 서버/세션 원인은 이번 자료로 확정하지 않았다.
 5. Chrome 기본 `select all`/`copy selection`도 같은 탭에서 시험했다. 일반 페이지 텍스트82823자를 얻었고, 원래 clipboard record는 메모리에만 보존했다가 즉시 복원했다. 이 방법도 전체 소스 파일의 다운로드는 아니었다.
 
-**확인된 것은 코드 표시와 표시 목록이다. 전체17파일 원문을 추출한 것은 아니다.** MHTML의 Monaco 편집기는 현재 표시된 행만 포함한다. source 편집기28행과 ABI/settings/metadata/input/output 편집기 표시분을 보존했으며 나머지 행을 보충하거나 Ethereum 소스로 채우지 않았다. 렌더링 텍스트의 nbsp/줄바꿈은 원본 소스 바이트로 간주하지 않는다. compiler 실행·독립RPC·전체runtime대조0이고 배포 연결 UNKNOWN을 유지한다.
+**이 시점에 확인한 것은 코드 표시와 표시 목록이며 전체17파일 원문 추출은 아니었다.** MHTML의 Monaco 편집기는 현재 표시된 행만 포함한다. source 편집기28행과 ABI/settings/metadata/input/output 편집기 표시분을 보존했으며 나머지 행을 보충하거나 Ethereum 소스로 채우지 않았다. 렌더링 텍스트의 nbsp/줄바꿈은 원본 소스 바이트로 간주하지 않는다. compiler 실행·독립RPC·전체runtime대조0이고 배포 연결 UNKNOWN을 유지한다.
 
 원문 MHTML·추출 HTML/표시 텍스트·편집기별 표시분·validation은 `.state/kaia-user-browser-save-20261025/`에0700/0600으로 보존했다. validation에는 원문 hash/크기·정확한 대상URL·17경로·표시 계약/설정·전체원문 추출0·기존134증거hash 불변을 기록했다. 사용자 기존 탭은 닫거나 새로고침하지 않았고, 브라우저 보안/접근 설정도 바꾸지 않았다.
 
@@ -72,6 +74,25 @@ Lead `9277238ae5f04724b00e3be1992a3bcc`: proceed. 현재탭 snapshot·17목록/�
 이 후속 작업의 `npm run check`: rc0·tests564/pass564/fail0/cancelled0/skipped0 (`.state/agent-logs/kaia-user-browser-snapshot-check.log`)。`git diff --check`: rc0.
 
 향후 동적 공개 페이지는 사용자와 동일한 대상/탭에서 **기본 단일파일 저장으로 실제 표시 상태를 확인**한 뒤 자료 상태를 판단한다. 별도 profile의 실패만으로 사용자에게 파일 전달을 먼저 요구하지 않는다. 코드 표시·표시분 저장·전체 원본 취득을 별도 상태로 기록한다. 이전401/ERR_FAILED 원본도 삭제하거나 성공으로 바꾸지 않는다.
+
+## 전체17파일 취득과 기존 JPYC 대조
+
+사용자가 원문 취득·차이 검토·JPYSC 보완·통합 보고1~4를 모두 지시했고, Chrome의 Apple Events JavaScript 설정도 직접 허용했다. 이후에는 해당 사용자 탭의 공개 Input JSON 편집기만 조작했다. 설정을 도구가 바꾸거나 쿠키/키·profile/cache를 추출하지 않았다.
+
+1. 먼저 새 소유 탭에서 과거 페이지가 실제 요청한 정확한 소스 URL을 단발 읽었다. 결과 MHTML1178바이트의 본문은 UNAUTHORIZED_ACCESS였다. 그 탭만 닫고 이 경로는 종료했다. native save가 비동기여서 초기 receipt에는 저장0바이트가 기록됐지만 후속 검증에 완료 크기/hash·오류 본문 상태를 따로 남겼다. 기존 receipt는 바꾸지 않았다.
+2. 사용자 허용 후 현재 탭에서 공개 editor 모델 API를 읽으려 했지만 자동화 컨텍스트에서 모델을 얻지 못했다. 이후 정상 Copy/Download 조작을 점검했다. Input JSON 제목의 상위 요소도 같은 제목을 가져 첫 선택이 지나치게 넓은 패널을 가리키는 문제가 있었다. **자식 요소가 없는 정확한 제목·버튼2개·편집기1개**로 대상을 좁혔다. Chrome tab id는 text이므로 숫자 비교 대신 text 비교로 활성 탭을 선택했다.
+3. 확실한 전체 선택을 위해 Input JSON의 textbox를 focus하고 Meta+A keydown/keyup을 전달했다. Monaco가 선택 동작을 처리했고, 이어 Chrome 기본 `copy selection`으로 전체 편집기 내용을 얻었다. 단순 페이지 전체 선택이나 MHTML의 표시 행을 사용한 것이 아니다. clipboard record는 메모리로만 보존했다가 각 시도 종료 시 복원했다.
+4. 복사 결과81801문자/UTF8 81804바이트를 JSON으로 파싱했다. 중복키·위험 경로·빈 content·source 수를 검사하고 **17개 전체 content와26개 import 연결/미해결0**을 확인했다. 원문은 `.state/kaia-full-input-copy-user-tab-20261025/input-as-copied.json`에 저장했다. SHA256은 `40877009b3d3cde577548dbfd2e53d10a210b01ba29c2e2ec69c61235ecc81ab`이다. clipboard 저장물의 hash이며 원래 HTTP 응답 byte identity는 주장하지 않는다.
+5. `.state/compare-kaia-jpyc-sources-20261025.py`로 기존 Ethereum 구현체 입력과 대조했다. 같은17경로의 content는 원본 바이트17개 모두 DIFFERENT, CRLF→LF 별도 진단에서는17개 모두 동일이다. 그 외 코드 차이는0이고 설정 차이는 outputSelection뿐이다. 원본 source content와 설정을 정규화/교체하지 않았다.
+6. 기존 JPYC의 전송/승인·발행·소각·pause·blocklist·owner/UUPS·서명 기반 경로·외부 토큰 회수 조건 표를 이 텍스트 비교 근거로 재사용했다. Kaia의 실제 실행 결과나 전체 runtime 일치로 바꾸지 않았다.
+
+완료 receipt·17소스·input hash/비교·문서 근거는 `.state/kaia-full-input-copy-user-tab-20261025/`와 `.state/kaia-jpyc-full-comparison-20261025/`에0700/0600으로 보존했다. 실패 경로는 `.state/kaia-full-source-native-20261025/`, `.state/kaia-full-input-user-tab-20261025/`에 따로 남겼다. 이 작업의 새 Solidity compiler/RPC/거래·배포 대조는0이며 기존134증거파일 SHA256도 같다.
+
+재현 절차는 `.state/capture-kaia-input-editor-20261025.applescript`에 기록했다. **현재 탭/URL·활성 focus·Input JSON leaf 제목·해당 패널의 버튼 수를 먼저 확인하고 편집기 전체 선택 후 native Copy, JSON17/경로/content 검증을 수행**한다. 스크립트는 기존 출력 파일을 거절하며, 실제 재취득은 새 작업 범위/새 출력 경로에서만 수행한다. 저장된 실패를 재시도 소비로 바꾸거나 로그인/endpoint 추측으로 확장하지 않는다.
+
+Lead `c0eb112dcf604d78ba9d758160e6acf2`의 proceed 조건(정확한 관측 URL·유한 읽기·거절 종료·17content/hash/설정 확인·기존 판정 보존·JPYSC source/AST 수동 보완)을 적용했다. 설정 허용 후에는 사용자 화면에 있는 공개 편집기의 내용을 복사했다. 새 API/RPC 실행 승인을 추가로 추론하지 않았다.
+
+전체 취득/비교 후 별도 재독은 rc0/PASS(17소스 hash/26import·원본/CRLF 차이·설정·134원본불변·권한·문서 링크)다. `npm run check`: rc0·tests564/pass564/fail0/cancelled0/skipped0 (`.state/agent-logs/kaia-jpysc-four-tasks-check.log`)。`git diff --check`: rc0.
 
 ## 검증
 

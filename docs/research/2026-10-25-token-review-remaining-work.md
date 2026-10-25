@@ -2,6 +2,8 @@
 
 ## 집계 기준
 
+사용자 요청1~4의 [최종 소스 검토 요약](2026-10-25-token-review-source-summary.md)을 작성했다. Kaia 구현체17소스 전체 확보·기존 JPYC 대조와 JPYSC initialize 수동 보완은 완료했다. 아래 UNKNOWN은 이 완료와 별도로 보존하는 입증 상태다.
+
 2026-10-25 사용자 후속 결정으로 **실제 배포 원본 build 자료 확인은 필수 범위에서 제외**했다. 현재 기준은 [기술 검토 범위](../TOKEN_TECHNICAL_REVIEW.md#현재-검토-범위)다. 아래 UNKNOWN 수는 기존 증거의 상태이며 원본 build·manifest·생성/배포 이력과 이를 전제로 한 immutable 근거 수집을 다시 요구할 잔여 작업 수가 아니다.
 
 이 문서의 UNKNOWN은 **실제 배포 기술 검토의 입증 상태**이며 프로젝트 전체의 미완료 수가 아니다. 고정 소스의 함수/권한 조건 확인으로 충분한 호환성 범위는 ADR0026을 따른다. 사용자 후속 지적에 따라 향후 실제 배포 분석은 코드/소스 대응부터 확인하고 기존 분석을 재사용한다. [신규 취득 A](2026-10-25-independent-deployment-evidence-result.md)는 첫 GET403·시도1/취득0으로 종료했으며 나머지7건은 미송신이다.
@@ -20,10 +22,10 @@
 | USDT Ethereum | solc0.4.18 저장 출력/보완 비교기. 신규 실행은 첫 송신 시도1회에서 실패 종료, 코드 관측 INCONCLUSIVE | UNKNOWN | 저장 소스 검토 활용. RPC 실패/코드 미관측을 명시하며 새 조회를 자동 시작하지 않음 |
 | RLUSD Ethereum | 고정 solc0.8.29 확보·컴파일 성공, 함수133/정적 진입33 | UNKNOWN | 저장 소스의 함수/권한 분석 활용. V2 snapshot 대응과 코드 미관측은 제한으로 보존 |
 | JPYC Ethereum | 이전 고정 블록 proxy 전체 runtime CONFIRMED, 구현체 컴파일 성공 | UNKNOWN(구현체) | 저장 소스/블록 관측 활용. 원본 build/manifest·ID173 독립 근거 확보를 필수 후속에서 제외 |
-| JPYSC Ethereum | 고정 solc0.8.34 확보·proxy/implementation 컴파일 성공, 진입1/61 | UNKNOWN | 저장 소스 분석 활용. 코드 미관측과 initialize CALL_LIMIT/DECLARATION_LIMIT 보존 |
+| JPYSC Ethereum | 고정 solc0.8.34 확보·proxy/implementation 컴파일 성공, 진입1/61. [initialize 수동 보완](2026-10-25-jpysc-initialize-manual-review.md) 선언42/간선60 확인 | UNKNOWN | 선택 entry의 소스 검토는 보완 완료. 기존 자동 CALL_LIMIT/DECLARATION_LIMIT과 코드 미관측은 보존 |
 | JPYC Polygon | proxy/implementation 후보가 Ethereum의 저장 컴파일 입력과 각각 바이트 동일 | UNKNOWN | 저장 소스만 활용하며 Ethereum 관측을 복사하지 않음. 새 체인 조회는 자동 진행하지 않음 |
 | JPYC Avalanche | proxy/implementation 후보가 Ethereum의 저장 컴파일 입력과 각각 바이트 동일 | UNKNOWN | Polygon과 동일하게 소스/체인 관측을 구분. 새 조회는 자동 진행하지 않음 |
-| JPYC Kaia | [코드 보기](2026-10-25-kaia-code-view-source-intake.md)에서 프록시6소스·ABI4 확보. 사용자 정상탭 MHTML에서 구현체 FiatTokenV1·17파일 목록/실제 표시 코드·0.8.11/optimizer3000 확인 | UNKNOWN | 구현체 코드 표시는 확인했고 전체17파일 원문 추출은 미완료. 별도profile/API 실패와 구분. explorer 부분 일치·표시분을 독립 블록 관측/전체 바이트 일치로 승격하지 않음 |
+| JPYC Kaia | [코드 보기](2026-10-25-kaia-code-view-source-intake.md)에서 프록시6소스·ABI4와 구현체 전체17소스/26import·설정 확보. 기존 JPYC와 줄바꿈 진단 후 코드 동일 | UNKNOWN | 전체 원문 확보·텍스트 대조 완료. 원본 byte 차이/별도profile 실패와 explorer 부분 일치를 보존하며 독립 블록 일치로 승격하지 않음 |
 
 자산별 원래 결과는 [USDC](2026-10-25-usdc-offline-source-review.md), [USDT 신규 단발 결과](2026-10-25-usdt-live-runtime-result.md), [RLUSD·JPYSC 신규 분석](2026-10-25-rlusd-jpysc-offline-source-review.md), [JPYC](2026-10-25-jpyc-token-review-live.md), [JPYSC/JPYC 저장 소스](2026-10-25-jpy-public-html-source-review.md)를 따른다. 초기 입력 미확보/미컴파일 문서는 당시 기록으로 보존하며 이 최신 집계와 합산하지 않는다.
 
