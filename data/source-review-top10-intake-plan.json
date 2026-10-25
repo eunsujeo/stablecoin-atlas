@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "kind": "TOP10_PASSIVE_SOURCE_API_PLAN_NOT_AUTHORIZED",
+  "state": "NOT_EXECUTED",
+  "authorizationRequired": true,
+  "slot": ".state/top10-source-intake-20261025-a",
+  "provider": "SOURCIFY_V2",
+  "method": "GET",
+  "host": "sourcify.dev",
+  "fields": "sources,compilation,abi,metadata",
+  "maximumRequests": 8,
+  "maximumResponseBytes": 4194304,
+  "maximumTotalBytes": 33554432,
+  "deadlineSeconds": 180,
+  "requestTimeoutSeconds": 20,
+  "retries": 0,
+  "redirects": 0,
+  "providerFallbacks": 0,
+  "rpcRequests": 0,
+  "compilerDownloads": 0,
+  "compilerExecutions": 0,
+  "keysRequired": false,
+  "costStatus": "PUBLIC_UNAUTHENTICATED_ENDPOINT_COST_NOT_RECONCILED",
+  "allowedResponseHandling": "UTF8_JSON_PASSIVE_SOURCES_ONLY",
+  "proxyResolutionRequested": false,
+  "implementationFollowupRequests": 0,
+  "failurePolicy": {
+    "404": "record unavailable source and continue next fixed target without retry",
+    "403_429_5xx_transport_or_invalid_response": "stop entire batch; preserve consumption and bytes; do not switch endpoint"
+  },
+  "targets": [
+    {
+      "coinId": "usdc",
+      "networkId": "base",
+      "chainId": "8453",
+      "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "identityDocument": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
+      "relation": "CIRCLE_LISTED_USDC_CANDIDATE",
+      "url": "https://sourcify.dev/server/v2/contract/8453/0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913?fields=sources,compilation,abi,metadata"
+    },
+    {
+      "coinId": "usdc",
+      "networkId": "arbitrum",
+      "chainId": "42161",
+      "address": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+      "identityDocument": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
+      "relation": "CIRCLE_LISTED_USDC_CANDIDATE",
+      "url": "https://sourcify.dev/server/v2/contract/42161/0xaf88d065e77c8cC2239327C5EDb3A432268e5831?fields=sources,compilation,abi,metadata"
+    },
+    {
+      "coinId": "usdc",
+      "networkId": "polygon",
+      "chainId": "137",
+      "address": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+      "identityDocument": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
+      "relation": "CIRCLE_LISTED_USDC_CANDIDATE",
+      "url": "https://sourcify.dev/server/v2/contract/137/0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359?fields=sources,compilation,abi,metadata"
+    },
+    {
+      "coinId": "usdc",
+      "networkId": "avalanche",
+      "chainId": "43114",
+      "address": "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
+      "identityDocument": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
+      "relation": "CIRCLE_LISTED_USDC_CANDIDATE",
+      "url": "https://sourcify.dev/server/v2/contract/43114/0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E?fields=sources,compilation,abi,metadata"
+    },
+    {
+      "coinId": "usdt",
+      "networkId": "arbitrum",
+      "chainId": "42161",
+      "address": "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+      "identityDocument": "https://docs.usdt0.to/technical-documentation/deployments",
+      "relation": "USDT0_DOCUMENT_TOKEN_CANDIDATE_NOT_ETHEREUM_USDT_EQUIVALENCE",
+      "url": "https://sourcify.dev/server/v2/contract/42161/0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9?fields=sources,compilation,abi,metadata"
+    },
+    {
+      "coinId": "usdt",
+      "networkId": "polygon",
+      "chainId": "137",
+      "address": "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+      "identityDocument": "https://docs.usdt0.to/technical-documentation/deployments",
+      "relation": "USDT0_DOCUMENT_TOKEN_CANDIDATE_NOT_ETHEREUM_USDT_EQUIVALENCE",
+      "url": "https://sourcify.dev/server/v2/contract/137/0xc2132D05D31c914a87C6611C10748AEb04B58e8F?fields=sources,compilation,abi,metadata"
+    },
+    {
+      "coinId": "usdt",
+      "networkId": "plasma",
+      "chainId": "9745",
+      "address": "0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb",
+      "identityDocument": "https://docs.usdt0.to/technical-documentation/deployments",
+      "relation": "USDT0_DOCUMENT_TOKEN_CANDIDATE_NOT_ETHEREUM_USDT_EQUIVALENCE",
+      "url": "https://sourcify.dev/server/v2/contract/9745/0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb?fields=sources,compilation,abi,metadata"
+    },
+    {
+      "coinId": "usdt",
+      "networkId": "mantle",
+      "chainId": "5000",
+      "address": "0x779Ded0c9e1022225f8E0630b35a9b54bE713736",
+      "identityDocument": "https://docs.usdt0.to/technical-documentation/deployments",
+      "relation": "USDT0_DOCUMENT_TOKEN_CANDIDATE_NOT_ETHEREUM_USDT_EQUIVALENCE",
+      "url": "https://sourcify.dev/server/v2/contract/5000/0x779Ded0c9e1022225f8E0630b35a9b54bE713736?fields=sources,compilation,abi,metadata"
+    }
+  ],
+  "planSha256": "a8ad54e299a13f99c2beaefdf17d8b8fcad70a066cd3122e3719fce5f4409a01"
+}

@@ -1,5 +1,8 @@
 # 현재 개발 상태
 
+USDC/USDT/RLUSD의 [공급량 기준 검토 후보](research/2026-10-25-top10-source-review-candidates.md)는2026-10-22 저장 token 수량으로10/10/2곳을 재선정했다. 22곳 기능 검토 완료가 아니며 신규 source API8건 계획은 승인 전 미실행이다. DB/UI/기존 선정·판정은 유지한다.
+
+
 자산 프로필은 [검토 네트워크 명칭·헤더 축소](research/2026-10-25-compact-profile-header.md)에 따라 저장 소스 검토 프로필 목록과 전체 네트워크 목록을 구분하고 중복 자산 hero를 제거했다.
 
 

@@ -1,0 +1,267 @@
+{
+  "schemaVersion": 1,
+  "kind": "SOURCE_REVIEW_CANDIDATES_NOT_REVIEW_RESULTS",
+  "analysisDate": "2026-10-25",
+  "selectionDay": "2026-10-22",
+  "basis": "TOKEN_CIRCULATING_QUANTITY",
+  "scope": "PER_COIN_MAX_10_POSITIVE_STORED_NETWORK_AGGREGATES",
+  "receiptSha256": "d9eef4005a151f8175a323cc7b8d783b8b99de2ceb94d5a14dab2355e5ac7fff",
+  "coins": [
+    {
+      "coinId": "usdt",
+      "symbol": "USDT",
+      "day": "2026-10-22",
+      "unit": "token",
+      "metric": "NETWORK_CIRCULATING",
+      "sourceHash": "82f5222f3da63a1ec0981342341034eab63818889987181470686d88b28a2b58",
+      "fetchedAt": "2026-10-22T06:00:48.789Z",
+      "networkCount": 130,
+      "positiveCount": 105,
+      "zeroCount": 25,
+      "state": "COMPLETE_FOR_STORED_SOURCE",
+      "sourceObservationClock": "REQUEST",
+      "selected": [
+        {
+          "ordinal": 1,
+          "network": "Tron",
+          "amount": "92902602077.31282",
+          "networkId": "tron",
+          "name": "TRON",
+          "sourceReviewScope": "EXISTING_SELECTED_SOURCE",
+          "supplyToContractMapping": "NOT_ESTABLISHED"
+        },
+        {
+          "ordinal": 2,
+          "network": "Ethereum",
+          "amount": "72556900577.738",
+          "networkId": "ethereum",
+          "name": "Ethereum",
+          "sourceReviewScope": "EXISTING_SELECTED_SOURCE",
+          "supplyToContractMapping": "NOT_ESTABLISHED"
+        },
+        {
+          "ordinal": 3,
+          "network": "BSC",
+          "amount": "9184484406.57563",
+          "networkId": "bsc",
+          "name": "BNB Smart Chain",
+          "sourceReviewScope": "SOURCE_INPUT_REQUIRED",
+          "supplyToContractMapping": "NOT_ESTABLISHED"
+        },
+        {
+          "ordinal": 4,
+          "network": "Solana",
+          "amount": "2724820110.3254876",
+          "networkId": "solana",
+          "name": "Solana",
+          "sourceReviewScope": "EXISTING_SETTING_OBSERVATION_ONLY",
+          "supplyToContractMapping": "NOT_ESTABLISHED"
+        },
+        {
+          "ordinal": 5,
+          "network": "Arbitrum",
+          "amount": "801910961.124479",
+          "networkId": "arbitrum",
+          "name": "Arbitrum",
+          "sourceReviewScope": "SOURCE_INPUT_REQUIRED",
+          "supplyToContractMapping": "NOT_ESTABLISHED"
+        },
+        {
+          "ordinal": 6,
+          "network": "Polygon",
+          "amount": "760809959.482028",
+          "networkId": "polygon",
+          "name": "Polygon",
+          "sourceReviewScope": "SOURCE_INPUT_REQUIRED",
+          "supplyToContractMapping": "NOT_ESTABLISHED"
+        },
+        {
+          "ordinal": 7,
+          "network": "Plasma",
+          "amount": "728294003.300373",
+          "networkId": "plasma",
+          "name": "Plasma",
+          "sourceReviewScope": "SOURCE_INPUT_REQUIRED",
+          "supplyToContractMapping": "NOT_ESTABLISHED"
+        },
+        {
+          "ordinal": 8,
+          "network": "TON",
+          "amount": "490787894.51",
+          "networkId": "ton",
+          "name": "TON",
+          "sourceReviewScope": "SOURCE_INPUT_REQUIRED",
+          "supplyToContractMapping": "NOT_ESTABLISHED"
+        },
+        {
+          "ordinal": 9,
+          "network": "Aptos",
+          "amount": "466982690.435735",
+          "networkId": "aptos",
+          "name": "Aptos",
+          "sourceReviewScope": "SOURCE_INPUT_REQUIRED",
+          "supplyToContractMapping": "NOT_ESTABLISHED"
+        },
+        {
+          "ordinal": 10,
+          "network": "Mantle",
+          "amount": "448242336.740975",
+          "networkId": "mantle",
+          "name": "Mantle",
+          "sourceReviewScope": "SOURCE_INPUT_REQUIRED",
+          "supplyToContractMapping": "NOT_ESTABLISHED"
+        }
+      ]
+    },
+    {
+      "coinId": "usdc",
+      "symbol": "USDC",
+      "day": "2026-10-22",
+      "unit": "token",
+      "metric": "NETWORK_CIRCULATING",
+      "sourceHash": "a9879a95d195067b13a715fc30e26709b0497b62ca36c075dbfffe341f68eca3",
+      "fetchedAt": "2026-10-22T06:00:51.936Z",
+      "networkCount": 157,
+      "positiveCount": 129,
+      "zeroCount": 28,
+      "state": "COMPLETE_FOR_STORED_SOURCE",
+      "sourceObservationClock": "REQUEST",
+      "selected": [
+        {
+          "ordinal": 1,
+          "network": "Ethereum",
+          "amount": "44826418472.31008",
+          "networkId": "ethereum",
+          "name": "Ethereum",
+          "sourceReviewScope": "EXISTING_SELECTED_SOURCE",
+          "supplyToContractMapping": "NOT_ESTABLISHED"
+        },
+        {
+          "ordinal": 2,
+          "network": "Solana",
+          "amount": "7059202724.939557",
+          "networkId": "solana",
+          "name": "Solana",
+          "sourceReviewScope": "EXISTING_SETTING_OBSERVATION_ONLY",
+          "supplyToContractMapping": "NOT_ESTABLISHED"
+        },
+        {
+          "ordinal": 3,
+          "network": "Hyperliquid L1",
+          "amount": "6980836557.776483",
+          "networkId": "hyperliquid-l1",
+          "name": "Hyperliquid L1",
+          "sourceReviewScope": "SOURCE_INPUT_REQUIRED",
+          "supplyToContractMapping": "NOT_ESTABLISHED"
+        },
+        {
+          "ordinal": 4,
+          "network": "Base",
+          "amount": "4348370169.136732",
+          "networkId": "base",
+          "name": "Base",
+          "sourceReviewScope": "SOURCE_INPUT_REQUIRED",
+          "supplyToContractMapping": "NOT_ESTABLISHED"
+        },
+        {
+          "ordinal": 5,
+          "network": "Arbitrum",
+          "amount": "2247709593.0286517",
+          "networkId": "arbitrum",
+          "name": "Arbitrum",
+          "sourceReviewScope": "SOURCE_INPUT_REQUIRED",
+          "supplyToContractMapping": "NOT_ESTABLISHED"
+        },
+        {
+          "ordinal": 6,
+          "network": "Polygon",
+          "amount": "1600516115.0492728",
+          "networkId": "polygon",
+          "name": "Polygon",
+          "sourceReviewScope": "SOURCE_INPUT_REQUIRED",
+          "supplyToContractMapping": "NOT_ESTABLISHED"
+        },
+        {
+          "ordinal": 7,
+          "network": "BSC",
+          "amount": "1589073372.5328343",
+          "networkId": "bsc",
+          "name": "BNB Smart Chain",
+          "sourceReviewScope": "SOURCE_INPUT_REQUIRED",
+          "supplyToContractMapping": "NOT_ESTABLISHED"
+        },
+        {
+          "ordinal": 8,
+          "network": "Arc",
+          "amount": "705178274.613804",
+          "networkId": "arc",
+          "name": "Arc",
+          "sourceReviewScope": "SOURCE_INPUT_REQUIRED",
+          "supplyToContractMapping": "NOT_ESTABLISHED"
+        },
+        {
+          "ordinal": 9,
+          "network": "Avalanche",
+          "amount": "441893331.2751326",
+          "networkId": "avalanche",
+          "name": "Avalanche",
+          "sourceReviewScope": "SOURCE_INPUT_REQUIRED",
+          "supplyToContractMapping": "NOT_ESTABLISHED"
+        },
+        {
+          "ordinal": 10,
+          "network": "Stellar",
+          "amount": "373751082",
+          "networkId": "stellar",
+          "name": "Stellar",
+          "sourceReviewScope": "SOURCE_INPUT_REQUIRED",
+          "supplyToContractMapping": "NOT_ESTABLISHED"
+        }
+      ]
+    },
+    {
+      "coinId": "rlusd",
+      "symbol": "RLUSD",
+      "day": "2026-10-22",
+      "unit": "token",
+      "metric": "NETWORK_CIRCULATING",
+      "sourceHash": "18ac1432627af6f313ca68bfa9396a3603955e1ed67588b5e4a3583420e81714",
+      "fetchedAt": "2026-10-22T06:00:54.850Z",
+      "networkCount": 2,
+      "positiveCount": 2,
+      "zeroCount": 0,
+      "state": "COMPLETE_FOR_STORED_SOURCE",
+      "sourceObservationClock": "REQUEST",
+      "selected": [
+        {
+          "ordinal": 1,
+          "network": "Ethereum",
+          "amount": "1448674399.0854678",
+          "networkId": "ethereum",
+          "name": "Ethereum",
+          "sourceReviewScope": "EXISTING_SELECTED_SOURCE",
+          "supplyToContractMapping": "NOT_ESTABLISHED"
+        },
+        {
+          "ordinal": 2,
+          "network": "XRPL",
+          "amount": "907257606.8615592",
+          "networkId": "xrpl",
+          "name": "XRPL",
+          "sourceReviewScope": "EXISTING_SETTING_OBSERVATION_ONLY",
+          "supplyToContractMapping": "NOT_ESTABLISHED"
+        }
+      ]
+    }
+  ],
+  "unrankedRlusdNetworks": [
+    "base",
+    "ink",
+    "optimism",
+    "unichain",
+    "xrpl-evm"
+  ],
+  "providerApiRequests": 0,
+  "databaseWrites": 0,
+  "productProfilesAdded": 0
+}
