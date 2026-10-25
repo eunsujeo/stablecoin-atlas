@@ -4,6 +4,8 @@
 
 ## 완료 범위
 
+- 2026-10-25 사용자 요청으로 자산 프로필을 자산 검색/목록·배포 네트워크·개요/기능·권한/근거·한계 탭으로 [재구성](research/2026-10-25-asset-profile-redesign.md)했다. 기본/Atlas의 공통 화면과 기존 5토큰·8배포·관측 보고서/판정·UNKNOWN을 유지한다. 새 외부 취득/RPC/compiler/DB 변경은 없다.
+
 - 2026-10-25 사용자 요청으로 [자산 프로필의 소스 검토 발췌](adr/0100-reviewed-source-asset-profiles.md)를 추가했다. 기본/Atlas 양쪽에서5토큰·8배포의 함수·권한·관측/한계를 선택하며 기존 관측 보고서/판정/집계를 보존한다. 검토 기준일과 원본 관측 시점을 구분하고 배포 전체 연결 UNKNOWN을 유지한다. 웹은 허용된 정적 발췌만 읽으며 새 취득/RPC/compiler/DB 변경은 없다. [수행·검증 기록](research/2026-10-25-source-review-asset-profiles.md).
 
 - 2026-10-25 사용자 요청1~4의 [최종 소스 검토 요약](research/2026-10-25-token-review-source-summary.md)을 완료했다. Kaia 사용자 탭에서 Input JSON81804바이트·구현체 전체17소스/26import를 확보하고 기존 JPYC와 대조했다(원본17개 DIFFERENT·CRLF 진단 모두 동일·settings 차이 outputSelection). [JPYSC initialize 수동 보완](research/2026-10-25-jpysc-initialize-manual-review.md)으로 선언42/참조60·역할8개의0주소 검사·3쌍 분리를 확인했다. 기존 자동 절단/UNKNOWN·134증거hash는 보존하고 새 Solidity compiler/RPC0이다. 취득 실패/설정 허용/정확한 editor 선택/native Copy/차이 검증 과정을 근거 문서에 기록했다.

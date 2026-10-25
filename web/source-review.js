@@ -1,37 +1,77 @@
 import {sourceReviewProfiles,sourceReviewDate,sourceReviewNotice,sourceReviewFor} from './source-review-data.js';
 const node=(tag,text,cls)=>{const el=document.createElement(tag);if(text!==undefined)el.textContent=text;if(cls)el.className=cls;return el;};
+const coins=[...new Set(sourceReviewProfiles.map(p=>p.coinId))];
+const sections=[['overview','개요'],['behavior','기능·권한'],['evidence','근거·한계']];
 export function initializeSourceReview(root){
-  let coinId='usdc',chainId='1';
-  const heading=node('div',undefined,'source-review-heading');heading.append(node('h2','토큰 소스 검토'),node('p',`검토 기준 ${sourceReviewDate} · 5개 토큰 · 8개 배포`));
-  const filters=node('div',undefined,'source-review-filters'),coin=node('select'),network=node('select');
-  coin.setAttribute('aria-label','소스 검토 토큰');network.setAttribute('aria-label','소스 검토 네트워크');
-  for(const id of [...new Set(sourceReviewProfiles.map(p=>p.coinId))]){const option=node('option',id.toUpperCase());option.value=id;coin.append(option);}
-  for(const [label,control]of [['토큰',coin],['네트워크',network]]){const field=node('label',label);field.append(control);filters.append(field);}
-  const detail=node('article',undefined,'source-review-detail');detail.setAttribute('aria-live','polite');
-  root.append(heading,node('p',sourceReviewNotice,'source-review-notice'),filters,detail);
+  let coinId=coins[0],chainId='1',activeSection='overview';
+  const rememberedChains=new Map();
+  const heading=node('div',undefined,'source-review-heading');
+  heading.append(node('h2','자산별 기술 프로필'),node('p',`저장 소스 검토 · ${sourceReviewDate} 기준`));
+  const layout=node('div',undefined,'source-review-layout'),directory=node('aside',undefined,'source-review-directory');
+  directory.setAttribute('aria-label','검토 자산 선택');
+  const directoryHeading=node('div',undefined,'source-review-directory-heading');
+  directoryHeading.append(node('strong','검토 자산'),node('span',`${coins.length}개 자산 · ${sourceReviewProfiles.length}개 배포`));
+  const searchLabel=node('label','자산 찾기','source-review-search'),search=node('input');
+  search.type='search';search.placeholder='토큰 · 체인 · 주소';search.autocomplete='off';searchLabel.append(search);
+  const list=node('div',undefined,'source-review-asset-list');
+  const empty=node('p','일치하는 자산이 없습니다. 검색어를 바꿔보세요.','source-review-empty');empty.hidden=true;
+  directory.append(directoryHeading,searchLabel,list,empty,node('p','목록은 저장 소스 검토 범위입니다. 지원 자산 목록과는 별도입니다.','source-review-directory-note'));
+  const workspace=node('div',undefined,'source-review-workspace'),toolbar=node('div',undefined,'source-review-toolbar');
+  const selection=node('p');selection.setAttribute('role','status');
+  const field=node('label','배포 네트워크'),network=node('select');network.setAttribute('aria-label','소스 검토 네트워크');field.append(network);toolbar.append(selection,field);
+  const detail=node('article',undefined,'source-review-detail');
+  workspace.append(toolbar,detail);layout.append(directory,workspace);root.replaceChildren(heading,layout);
+  function renderDirectory(){
+    const query=search.value.trim().toLowerCase();list.replaceChildren();
+    for(const id of coins){
+      const profiles=sourceReviewProfiles.filter(p=>p.coinId===id);
+      if(query&&!profiles.some(p=>[p.symbol,p.network,p.chainId,p.address].some(value=>value.toLowerCase().includes(query))))continue;
+      const button=node('button',undefined,'source-review-asset');button.type='button';button.dataset.coinId=id;button.setAttribute('aria-pressed',String(id===coinId));
+      const mark=node('span',id.slice(0,1).toUpperCase(),'source-review-mark');mark.setAttribute('aria-hidden','true');
+      const text=node('span');text.append(node('strong',id.toUpperCase()),node('small',`${profiles.length}개 배포 · ${profiles.map(p=>p.network).join(' / ')}`));button.append(mark,text);
+      button.addEventListener('click',()=>{
+        rememberedChains.set(coinId,chainId);coinId=id;chainId=rememberedChains.get(id)??profiles[0].chainId;
+        for(const entry of list.children)entry.setAttribute('aria-pressed',String(entry.dataset.coinId===id));
+        networks();render();
+      });list.append(button);
+    }empty.hidden=list.childElementCount>0;
+  }
   function networks(){
     network.replaceChildren();
-    const profiles=sourceReviewProfiles.filter(p=>p.coinId===coinId);
-    if(!profiles.some(p=>p.chainId===chainId))chainId=profiles[0].chainId;
-    for(const p of profiles){const option=node('option',`${p.network} · chainId ${p.chainId}`);option.value=p.chainId;network.append(option);}
+    for(const p of sourceReviewProfiles.filter(p=>p.coinId===coinId)){const option=node('option',`${p.network} · chainId ${p.chainId}`);option.value=p.chainId;network.append(option);}
     network.value=chainId;
   }
+  function facts(entries){const dl=node('dl',undefined,'source-review-identity');for(const [label,value]of entries)dl.append(node('dt',label),node('dd',value));return dl;}
+  function items(title,values){const section=node('section',undefined,'source-review-section'),list=node('ul');for(const text of values)list.append(node('li',text));section.append(node('h4',title),list);return section;}
   function render(){
-    const p=sourceReviewFor(coinId,chainId);detail.replaceChildren();
-    if(!p){delete root.dataset.reviewId;detail.append(node('p','선택한 토큰·체인의 저장 소스 검토가 없습니다.'));return;}
-    root.dataset.reviewId=p.id;
-    detail.append(node('h3',`${p.symbol} · ${p.network}`));
-    const identity=node('dl',undefined,'source-review-identity');
-    for(const [label,value]of [['chainId',p.chainId],['컨트랙트',p.address],['소스 검토 기준일',p.reviewedAt],['배포 전체 연결',`미확인 (${p.deploymentBinding})`]])identity.append(node('dt',label),node('dd',value));
-    detail.append(identity);
-    const grid=node('div',undefined,'source-review-columns');
-    for(const [title,items]of [['전송·승인·발행 조건',p.functions],['발행사 제어·권한 조건',p.authorities]]){const section=node('section'),list=node('ul');for(const text of items)list.append(node('li',text));section.append(node('h4',title),list);grid.append(section);}
-    detail.append(grid,node('h4','저장 관측과 소스 연결'),node('p',p.observation),node('p',p.bindingDetail,'source-review-binding'));
-    const limits=node('ul');for(const text of p.limitations)limits.append(node('li',text));detail.append(node('h4','검토 한계'),limits);
-    const link=node('a','검토 근거·제한 발췌 보기 →');link.href=`/source-review-notes.html#${p.id}`;detail.append(link);
+    const p=sourceReviewFor(coinId,chainId);detail.replaceChildren();root.dataset.reviewId=p.id;selection.textContent=`${p.symbol} / ${p.network}`;
+    const hero=node('header',undefined,'source-review-hero'),title=node('div');
+    title.append(node('p','TOKEN PROFILE','source-review-eyebrow'),node('h3',p.symbol),node('p',`${p.network} · chainId ${p.chainId}`));
+    const badge=node('div',undefined,'source-review-badge');badge.append(node('span','배포 전체 연결'),node('strong',`미확인 (${p.deploymentBinding})`));hero.append(title,badge);detail.append(hero);
+    const tablist=node('div',undefined,'source-review-tabs');tablist.setAttribute('role','tablist');tablist.setAttribute('aria-label','자산 프로필 내용');
+    const panels=new Map(),tabs=new Map();
+    function activate(key,focus=false){activeSection=key;for(const [id,tab]of tabs){tab.setAttribute('aria-selected',String(id===key));tab.tabIndex=id===key?0:-1;panels.get(id).hidden=id!==key;}if(focus)tabs.get(key).focus();}
+    for(const [key,label]of sections){
+      const tab=node('button',label);tab.type='button';tab.id=`${root.id}-${key}-tab`;tab.setAttribute('role','tab');
+      const panel=node('section',undefined,'source-review-tabpanel');panel.id=`${root.id}-${key}-panel`;panel.setAttribute('role','tabpanel');panel.setAttribute('aria-labelledby',tab.id);panel.tabIndex=0;
+      tab.setAttribute('aria-controls',panel.id);tab.addEventListener('click',()=>activate(key));
+      tab.addEventListener('keydown',event=>{
+        const index=sections.findIndex(([id])=>id===key);let next;
+        if(event.key==='ArrowRight')next=(index+1)%sections.length;if(event.key==='ArrowLeft')next=(index+sections.length-1)%sections.length;
+        if(event.key==='Home')next=0;if(event.key==='End')next=sections.length-1;
+        if(next!==undefined){event.preventDefault();activate(sections[next][0],true);}
+      });tabs.set(key,tab);panels.set(key,panel);tablist.append(tab);
+    }detail.append(tablist,...panels.values());
+    const overview=panels.get('overview');
+    overview.append(node('h4','배포 식별 정보'),facts([['네트워크',p.network],['chainId',p.chainId],['컨트랙트',p.address],['소스 검토 기준일',p.reviewedAt]]));
+    const summary=node('div',undefined,'source-review-summary');summary.append(node('h4','소스와 배포의 연결'),node('p',p.bindingDetail),node('p','원본 관측','source-review-eyebrow'),node('p',p.observation));
+    overview.append(summary,node('p',sourceReviewNotice,'source-review-notice'));
+    const columns=node('div',undefined,'source-review-columns');columns.append(items('전송·승인·발행 조건',p.functions),items('발행사 제어·권한 조건',p.authorities));
+    panels.get('behavior').append(node('p','저장 소스에서 확인한 함수와 조건입니다. 실제 권한 행사를 뜻하지 않습니다.','source-review-notice'),columns);
+    panels.get('evidence').append(node('h4','저장 관측과 소스 연결'),node('p',p.observation),node('p',p.bindingDetail,'source-review-binding'),items('검토 한계',p.limitations),facts([['검토 기준일',p.reviewedAt],['전체 배포 연결',p.deploymentBinding]]));
+    const footer=node('footer',undefined,'source-review-footer');footer.append(node('span','저장 자료 · 현재 상태의 인증과 별도'));
+    const link=node('a','검토 근거·제한 발췌 보기 →');link.href=`/source-review-notes.html#${p.id}`;footer.append(link);detail.append(footer);activate(activeSection);
   }
-  coin.addEventListener('change',()=>{coinId=coin.value;networks();render();});
-  network.addEventListener('change',()=>{chainId=network.value;render();});
-  networks();render();
+  search.addEventListener('input',renderDirectory);network.addEventListener('change',()=>{chainId=network.value;render();});renderDirectory();networks();render();
 }
 for(const root of document.querySelectorAll('[data-source-review]'))initializeSourceReview(root);
