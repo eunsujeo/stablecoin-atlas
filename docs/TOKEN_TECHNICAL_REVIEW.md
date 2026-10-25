@@ -2,6 +2,10 @@
 
 새 기준은 [ADR0090](adr/0090-readonly-token-technical-review.md), 후속1.1은 [ADR0091](adr/0091-offline-token-static-path-analysis.md), 고정 legacy compiler·저장 관측 대조1.2는 [ADR0092](adr/0092-pinned-legacy-compiler-and-archived-review.md)다. 기존 실행 시나리오 PASS/FAIL·연구 판정·대시보드와 별도로 사용한다. 코드의 정적 권한/특수 동작 경로, 명시 getter의 현재 값, 소스/runtime·감사 source snapshot 대조를 JSON·Markdown으로 보존한다. 보안 감사나 안전성/지원 승인이 아니다.
 
+## 현재 검토 범위
+
+2026-10-25 사용자 결정: **실제 배포에 사용한 원본 build 자료 확인은 필수 검토 범위에서 제외한다.** 발행사 원본 build-info/배포 manifest·생성자/배포 이력 확보를 위한 추가 조사와 재현을 완료조건으로 요구하지 않는다. 그 자료를 전제로 하는 immutable 독립 근거 수집도 필수 후속으로 두지 않는다. 기존 공개/제공 소스·설정과 저장 코드 관측을 재사용하고, 소스에서 확인한 함수/권한 조건과 실제 코드 관측의 범위를 구분한다. 원본 build 없이 확인하지 못한 연결은 UNKNOWN으로 보존하며 값을 자동 추정하거나 기존 판정을 승격하지 않는다. 향후 실제 배포 관련 검토는 확보된 코드/소스 대응부터 확인하며 기존 분석을 반복하지 않는다. 이 범위 축소는 새 RPC/다운로드/대조 실행 승인이 아니다.
+
 ## 실행
 
 Node.js24.5 이상과 `npm ci`로 설치한 기존 의존성을 사용한다. 실제 조회에는 EIP-1898을 지원하는 EVM RPC가 필요하다. RPC와 인증은 `RPC_URL` 환경변수로 전달한다. CLI 인자·JSON 설정에 인증 URL/키를 넣지 않는다. 다음 명령은 사용자가 선택한 RPC에 실제 읽기 요청을 보내므로 구현 검사에서 외부 RPC를 호출한 것으로 혼동하지 않는다.

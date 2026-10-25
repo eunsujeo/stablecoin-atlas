@@ -2,6 +2,8 @@
 
 ## 집계 기준
 
+2026-10-25 사용자 후속 결정으로 **실제 배포 원본 build 자료 확인은 필수 범위에서 제외**했다. 현재 기준은 [기술 검토 범위](../TOKEN_TECHNICAL_REVIEW.md#현재-검토-범위)다. 아래 UNKNOWN 수는 기존 증거의 상태이며 원본 build·manifest·생성/배포 이력과 이를 전제로 한 immutable 근거 수집을 다시 요구할 잔여 작업 수가 아니다.
+
 이 문서의 UNKNOWN은 **실제 배포 기술 검토의 입증 상태**이며 프로젝트 전체의 미완료 수가 아니다. 고정 소스의 함수/권한 조건 확인으로 충분한 호환성 범위는 ADR0026을 따른다. 사용자 후속 지적에 따라 향후 실제 배포 분석은 코드/소스 대응부터 확인하고 기존 분석을 재사용한다. [신규 취득 A](2026-10-25-independent-deployment-evidence-result.md)는 첫 GET403·시도1/취득0으로 종료했으며 나머지7건은 미송신이다.
 
 2026-10-25 저장 증거 기준이다. 현재 기술 검토 대상 5토큰의 **Ethereum 배포 전체 소스 연결은 5/5 미확인(UNKNOWN)**이다. JPYC의 Polygon/Avalanche/Kaia까지 포함한 이번 검토 목록은 **8배포 중 8배포가 전체 연결 미확인**이다. 이는 두 개의 포함 관계가 있는 분모이며 5와8을 더하지 않는다. 계약 단위로는 JPYC Ethereum 프록시1개의 이전 고정 블록 일치를 확인했다. 구현체가 UNKNOWN이므로 자산 배포 전체를 완료로 세지 않는다.
@@ -10,17 +12,17 @@
 
 최신 선택 보고서의 계약 소스 단위만 따로 세면 **7개 중6 UNKNOWN·1 CONFIRMED**다(USDC1·USDT1·RLUSD1·JPYC2·JPYSC2). CONFIRMED1개는 JPYC Ethereum 프록시다. 모든 프록시/의존성의 전수 집계가 아니며 위 자산5개와 합산하지 않는다. `.state/summarize-token-review-status-20261025.py`가 최신 보고서5개의 hash·상태를 읽어 rc0/PASS로 검증했고, 비공개 `.state/agent-logs/token-review-status-20261025.json`에 분모/경로/시각을 보존했다. 새 요청·기존 보고서 수정0이다.
 
-## 자산별 잔여 작업
+## 자산별 증거와 현재 검토 경계
 
-| 대상 | 확인한 증거 | 소스·배포 연결 | 다음 필요한 입력/작업 |
+| 대상 | 확인한 증거 | 소스·배포 연결 | 현재 검토 경계 |
 | --- | --- | --- | --- |
-| USDC Ethereum | 저장 고정 블록, solc0.6.12 컴파일/정적 경로. 명시 library 후보도 전체 runtime 불일치 | UNKNOWN | 원래 배포 build/metadata/library 대응과 후보 차이 원인. 부분 일치로 완료 처리하지 않음 |
-| USDT Ethereum | solc0.4.18 저장 출력/보완 비교기. 신규 실행은 첫 송신 시도1회에서 실패 종료, 코드 관측 INCONCLUSIVE | UNKNOWN | 정확한 배포 build/metadata·원본 소스 provenance와 RPC 읽기 실패 원인. 재시도는 이번 소비로 허용되지 않음 |
-| RLUSD Ethereum | 고정 solc0.8.29 확보·컴파일 성공, 함수133/정적 진입33 | UNKNOWN | immutable __self ID650의 독립 근거와 별도 고정 블록 코드 관측. V2 snapshot 차이·실제 구현 연결 미확인 유지 |
-| JPYC Ethereum | 이전 고정 블록 proxy 전체 runtime CONFIRMED, 구현체 컴파일 성공 | UNKNOWN(구현체) | 실제 build/배포 manifest·근거 동반 immutable ID173 제출값. 주소/배포 코드에서 값을 자동 추정하지 않음 |
-| JPYSC Ethereum | 고정 solc0.8.34 확보·proxy/implementation 컴파일 성공, 진입1/61 | UNKNOWN | 구현체 immutable __self ID1623의 독립 근거·별도 고정 블록 관측. initialize 경로 CALL_LIMIT/DECLARATION_LIMIT 보존 |
-| JPYC Polygon | proxy/implementation 후보가 Ethereum의 저장 컴파일 입력과 각각 바이트 동일 | UNKNOWN | 체인별 고정 블록 관측과 구현체 immutable 근거. Ethereum 관측을 복사하지 않음 |
-| JPYC Avalanche | proxy/implementation 후보가 Ethereum의 저장 컴파일 입력과 각각 바이트 동일 | UNKNOWN | 위와 동일하되 Avalanche의 별도 관측/한도 계획 필요 |
+| USDC Ethereum | 저장 고정 블록, solc0.6.12 컴파일/정적 경로. 명시 library 후보도 전체 runtime 불일치 | UNKNOWN | 저장 소스 검토와 불일치를 구분해 보존. 원본 build 복원/차이 해소를 완료조건으로 두지 않음 |
+| USDT Ethereum | solc0.4.18 저장 출력/보완 비교기. 신규 실행은 첫 송신 시도1회에서 실패 종료, 코드 관측 INCONCLUSIVE | UNKNOWN | 저장 소스 검토 활용. RPC 실패/코드 미관측을 명시하며 새 조회를 자동 시작하지 않음 |
+| RLUSD Ethereum | 고정 solc0.8.29 확보·컴파일 성공, 함수133/정적 진입33 | UNKNOWN | 저장 소스의 함수/권한 분석 활용. V2 snapshot 대응과 코드 미관측은 제한으로 보존 |
+| JPYC Ethereum | 이전 고정 블록 proxy 전체 runtime CONFIRMED, 구현체 컴파일 성공 | UNKNOWN(구현체) | 저장 소스/블록 관측 활용. 원본 build/manifest·ID173 독립 근거 확보를 필수 후속에서 제외 |
+| JPYSC Ethereum | 고정 solc0.8.34 확보·proxy/implementation 컴파일 성공, 진입1/61 | UNKNOWN | 저장 소스 분석 활용. 코드 미관측과 initialize CALL_LIMIT/DECLARATION_LIMIT 보존 |
+| JPYC Polygon | proxy/implementation 후보가 Ethereum의 저장 컴파일 입력과 각각 바이트 동일 | UNKNOWN | 저장 소스만 활용하며 Ethereum 관측을 복사하지 않음. 새 체인 조회는 자동 진행하지 않음 |
+| JPYC Avalanche | proxy/implementation 후보가 Ethereum의 저장 컴파일 입력과 각각 바이트 동일 | UNKNOWN | Polygon과 동일하게 소스/체인 관측을 구분. 새 조회는 자동 진행하지 않음 |
 | JPYC Kaia | 저장 HTML만 있고 지원된 소스 묶음 추출 미완료 | UNKNOWN | 정확한 소스·compiler/settings·구현체 식별자 확보. 다른 체인 소스를 대입하지 않음 |
 
 자산별 원래 결과는 [USDC](2026-10-25-usdc-offline-source-review.md), [USDT 신규 단발 결과](2026-10-25-usdt-live-runtime-result.md), [RLUSD·JPYSC 신규 분석](2026-10-25-rlusd-jpysc-offline-source-review.md), [JPYC](2026-10-25-jpyc-token-review-live.md), [JPYSC/JPYC 저장 소스](2026-10-25-jpy-public-html-source-review.md)를 따른다. 초기 입력 미확보/미컴파일 문서는 당시 기록으로 보존하며 이 최신 집계와 합산하지 않는다.
@@ -35,11 +37,11 @@ JPYC Ethereum/Polygon/Avalanche의 proxy/implementation 입력6개를 이전 Eth
 
 ## 다음 작업의 경계
 
-[독립 배포 근거 취득 계획](2026-10-25-independent-deployment-evidence-plan.md)을 오프라인으로 구체화했다. 우선 JPYC·RLUSD·JPYSC의 고정 공개 GET8건(A)만 사용자에게 제안하며, RLUSD/JPYSC 신규 RPC16건(B)과 immutable 제출/대조는 별도 후속이다. 이번 계획 작성에서 신규 외부 호출·컴파일·대조는0이고 A/B 모두 미승인·미실행이다.
+[독립 배포 근거 취득 계획](2026-10-25-independent-deployment-evidence-plan.md)은 당시 제안으로 보존한다. A는 후속 승인 후 첫 GET403으로 종료·소비 완료했다. 사용자 범위 축소에 따라 원본 build 취득 목적의 추가 요청은 진행하지 않으며 B도 자동 후속으로 두지 않는다. 원래 plan 바이트·소비·실패 기록은 변경하지 않는다.
 
 RLUSD ID650·JPYSC ID1623·JPYC ID173의 [저장 immutable 소스 참조표](2026-10-25-stored-immutable-source-map.md)를 정리했다. 선언 초기화·생성자 구문·onlyProxy/notDelegated 참조 위치만 확인했고 신규 취득·재컴파일·값 제출·runtime 대조는0이다. 독립 배포 근거의 미확보와 기존 UNKNOWN 집계는 유지한다.
 
-RLUSD·JPYSC의 compiler 확보·사설 검증·저장 입력3개 컴파일은 후속 승인으로 완료했다. 남은 우선 입력은 RLUSD/JPYSC/JPYC의 immutable 독립 근거, USDC의 원본 build/metadata/library, USDT 읽기 실패 원인과 관측이다. 신규 RPC는 주소/체인·메서드·횟수·시간을 고정한 별도 실행 계획으로 구분하며 기존 단발/취득 소비를 재사용하지 않는다. JPYSC initialize의 경로 내부 절단은 범위가 명시된 정적 검토 자료로 보존하고 전체 권한 보장으로 승격하지 않는다.
+RLUSD·JPYSC의 compiler 확보·사설 검증·저장 입력3개 컴파일은 후속 승인으로 완료했다. 현재는 확보된 소스/관측을 재사용하고 미확인·미관측과 JPYSC 경로 내부 절단을 제한으로 명시한다. 원본 build와 그에 의존한 immutable 근거 수집을 우선 입력이나 완료조건으로 요구하지 않는다. 신규 외부 실행은 이번 범위 축소로 승인되지 않으며 기존 단발/취득 소비를 재사용하지 않는다.
 
 [RLUSD·JPYSC 고정 compiler 계획](2026-10-25-rlusd-jpysc-compiler-plan.md)은 총6GET으로 종료·소비했다. 두 compiler 고정 profile을 등록하고 실제 자산 입력3개를 각각1회 컴파일했다. 새 RPC0·기존107파일 불변·두1.2 보고서 PARTIAL/배포 UNKNOWN과 상세 제한은 [실행 결과](2026-10-25-rlusd-jpysc-offline-source-review.md)에 기록했다. 소스 컴파일 완료와 전체 배포 연결 완료를 구분하므로 집계5/5·8/8은 유지한다.
 
