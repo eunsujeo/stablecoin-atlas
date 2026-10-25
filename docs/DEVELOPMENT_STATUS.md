@@ -1,5 +1,8 @@
 # 현재 개발 상태
 
+자산 프로필은 [공통14기능별 소스 유무](research/2026-10-25-source-feature-categories.md)를 있음/없음(검토 경로)/추가 검토와 근거로 표시하며 상태별로 필터링한다. 원래 제품 판정과 과거 기록은 재판정하지 않는다.
+
+
 자산 프로필은 [소스 기준 기본 화면](research/2026-10-25-source-first-profiles.md)으로 검증 결과·소스 확인 상태를 먼저 표시한다. 과거 읽기 UNKNOWN/진단은 [사용자 후속 요청](research/2026-10-25-remove-profile-diagnostics.md)에 따라 자산 프로필에서 제거했다. 연구 원본은 별도 보존한다.
 
 

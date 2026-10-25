@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {sourceReviewProfiles,sourceReviewFor} from './source-review-data.js';
+import {sourceReviewProfiles,sourceReviewFor,sourceFeatureCatalog,sourceFeaturesFor} from './source-review-data.js';
 import {sourceReviewNotes} from '../tools/source-review-notes.mjs';
 import {startPreviewServer} from '../tools/ui-preview.mjs';
 test('stored source profiles keep eight chain-specific deployments and their evidence limits',()=>{
@@ -31,4 +31,26 @@ test('public notes match reviewed fields and expose neither archives nor live ex
     assert.equal((await fetch(base+'/docs/research/2026-10-25-token-review-source-summary.md')).status,404);
     assert.equal((await fetch(base+'/.state/')).status,404);
   }finally{await new Promise(resolve=>server.close(resolve));}
+});
+
+test('source capabilities distinguish a reviewed path absence from missing evidence and keep chain scope',()=>{
+  assert.equal(sourceFeatureCatalog.length,14);
+  const get=(coinId,featureId)=>sourceFeaturesFor(coinId,'1').find(f=>f.id===featureId);
+  assert.equal(get('usdt','zeroReset').status,'PRESENT');
+  for(const coin of ['usdc','rlusd','jpyc','jpysc'])assert.equal(get(coin,'zeroReset').status,'ABSENT_IN_REVIEWED_PATH');
+  assert.equal(get('usdc','fee').status,'ABSENT_IN_REVIEWED_PATH');
+  assert.equal(get('usdt','fee').status,'PRESENT');
+  assert.equal(get('jpyc','fee').status,'NOT_REVIEWED');
+  assert.equal(get('usdc','upgrade').status,'NOT_REVIEWED');
+  assert.match(get('usdt','upgrade').detail,/deprecate.*UUPS/);
+  for(const id of ['approve','revoke','zeroReset'])assert.match(get('usdt',id).detail,/deprecated=false.*local/);
+  assert.match(get('rlusd','blocklist').detail,/pause.*blacklist/);
+  for(const p of sourceReviewProfiles){
+    const rows=sourceFeaturesFor(p.coinId,p.chainId);
+    assert.equal(rows.length,14);assert.equal(new Set(rows.map(f=>f.id)).size,14);
+    assert(rows.every(f=>f.profileId===p.id&&f.detail&&f.evidence&&['PRESENT','ABSENT_IN_REVIEWED_PATH','NOT_REVIEWED'].includes(f.status)));
+  }
+  assert.deepEqual(sourceFeaturesFor('usdc','137'),[]);assert.deepEqual(sourceFeaturesFor('jpyc','999'),[]);assert.deepEqual(sourceFeaturesFor('missing','1'),[]);
+  const rows=sourceFeaturesFor('jpyc','8217');rows[0].status='ABSENT_IN_REVIEWED_PATH';
+  assert.equal(sourceFeaturesFor('jpyc','8217')[0].status,'PRESENT');
 });

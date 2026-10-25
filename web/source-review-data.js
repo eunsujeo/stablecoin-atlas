@@ -73,3 +73,104 @@ export const sourceReviewProfiles=[
   },
 ].map(profile=>({...profile,reviewedAt:sourceReviewDate,sourceReviewStatus:'SOURCE_REVIEWED',deploymentBinding:'UNKNOWN'}));
 export function sourceReviewFor(coinId,chainId){return sourceReviewProfiles.find(p=>p.coinId===coinId&&p.chainId===chainId);}
+
+// Source-path capabilities, independent of Assessment verdicts and deployment binding.
+export const sourceFeatureCatalog=[
+  ['transfer','전송','전송·승인'],['transferFrom','위임 전송','전송·승인'],
+  ['approve','승인','전송·승인'],['revoke','승인 철회','전송·승인'],
+  ['zeroReset','승인 전 0 초기화 강제','전송·승인'],['permit','서명 승인','전송·승인'],
+  ['mint','발행','공급 관리'],['burn','소각','공급 관리'],
+  ['pause','일시정지·재개','발행사 제어'],['blocklist','주소 차단·해제','발행사 제어'],
+  ['forcedFunds','차단 자금 제어','발행사 제어'],['recovery','외부 토큰 회수','발행사 제어'],
+  ['upgrade','구현 변경','발행사 제어'],['fee','전송 수수료 차감','전송 정책'],
+].map(([id,label,group])=>({id,label,group}));
+const present=(detail,evidence)=>({status:'PRESENT',detail,evidence});
+const absent=(detail,evidence)=>({status:'ABSENT_IN_REVIEWED_PATH',detail,evidence});
+const pending=detail=>({status:'NOT_REVIEWED',detail,evidence:'해당 기능의 소스 결론은 추가 검토 필요'});
+const sourceFeatures={
+  usdc:{
+    transfer:present('transfer · pause와 송신·수신 주소 제한 검사. true 반환 구문.','FiatTokenV1:287–320; FiatTokenV2_2:215–225'),
+    transferFrom:present('allowance와 from·caller·to 조건 확인 후 전송.','FiatTokenV1:258–278'),
+    approve:present('approve·increaseAllowance·decreaseAllowance. 최종 V2.2 경로는 pause 조건.','FiatTokenV2_2:262–310; FiatTokenV2:211–238'),
+    revoke:present('approve(spender,0)으로 allowance를 0으로 대입.','FiatTokenV1:_approve 239–250; FiatTokenV2_2:262–310'),
+    zeroReset:absent('검토한 승인 경로에 기존 allowance의 선행 0 전환 조건 없음.','FiatTokenV2_2:262–310; FiatTokenV1:_approve 239–250'),
+    permit:present('permit의 deadline·nonce·서명 검사 후 승인.','FiatTokenV2_2:95–102,275–284; EIP2612:56–111'),
+    mint:present('minter·발행 한도·pause·주소 제한 조건. 공급량 증가.','FiatTokenV1:121–144'),
+    burn:present('minter의 자기 잔액·양수 금액 조건. 공급량 감소.','FiatTokenV1:363–377'),
+    pause:present('pauser의 pause/unpause.','Pausable:70–81'),
+    blocklist:present('blacklister의 blacklist/unBlacklist.','Blacklistable:38–83; FiatTokenV2_2:196–256'),
+    forcedFunds:pending('주소 차단과 별개인 차단 자금 파기·강제 이전 경로는 이 발췌에서 결론 내리지 않음.'),
+    recovery:present('rescuer가 계약 보유 외부 ERC-20을 회수하는 rescueERC20.','Rescuable:43–59'),
+    upgrade:pending('검토 입력은 구현 소스. 별도 proxy 업그레이드 함수·관리자 소스 대응은 확보하지 않음.'),
+    fee:absent('검토한 _transfer는 동일 value를 차감·가산하며 수수료 차감 없음.','FiatTokenV1:_transfer 306–320'),
+  },
+  usdt:{
+    transfer:present('local 전송에 pause·sender blacklist·잔액 조건과 수수료 분기. bool 출력 선언 없음.','STABLECOIN_COMPATIBILITY_MATRIX: Ethereum USDT 전송·승인/발행사 제어'),
+    transferFrom:present('유한 allowance 차감·MAX 유지. from 차단과 수수료 분기를 구분.','STABLECOIN_COMPATIBILITY_MATRIX: Ethereum USDT allowance'),
+    approve:present('deprecated=false의 local approve는 nonzero→nonzero를 거절. Approval 구문·bool 출력 선언 없음.','STABLECOIN_COMPATIBILITY_MATRIX: Ethereum USDT 승인'),
+    revoke:present('deprecated=false의 local 승인 0 초기화 경로. 전달 대상의 조건으로 확대하지 않음.','STABLECOIN_COMPATIBILITY_MATRIX: Ethereum USDT 승인'),
+    zeroReset:present('deprecated=false의 local 경로에서 nonzero→nonzero 변경 전 0 초기화 필요. 전달 대상은 별도.','STABLECOIN_COMPATIBILITY_MATRIX: Ethereum USDT 승인'),
+    permit:pending('서명 승인 경로의 유무는 기존 선택 소스 검토에서 결론 내리지 않음.'),
+    mint:present('owner의 issue. owner 잔액·공급량 증가 경로.','STABLECOIN_COMPATIBILITY_MATRIX: Ethereum USDT issue/redeem'),
+    burn:present('owner의 redeem. owner 잔액·공급량 감소 경로.','STABLECOIN_COMPATIBILITY_MATRIX: Ethereum USDT issue/redeem'),
+    pause:present('owner의 pause·unpause.','STABLECOIN_COMPATIBILITY_MATRIX: Ethereum USDT 발행사 제어'),
+    blocklist:present('owner의 blacklist 관리.','STABLECOIN_COMPATIBILITY_MATRIX: Ethereum USDT 발행사 제어'),
+    forcedFunds:present('차단 자금 파기 경로. 일반 redeem이나 강제 이전과 구분.','STABLECOIN_COMPATIBILITY_MATRIX: Ethereum USDT blacklisted funds 파기'),
+    recovery:pending('issue/redeem과 별개인 외부 ERC-20 회수 경로의 유무는 추가 검토 필요.'),
+    upgrade:present('owner의 deprecate로 전달 대상 변경. UUPS/proxy 업그레이드와 구분.','STABLECOIN_COMPATIBILITY_MATRIX: Ethereum USDT deprecate'),
+    fee:present('상한이 있는 fee 계산과 owner 수수료 전송 경로. 현재 설정값을 뜻하지 않음.','STABLECOIN_COMPATIBILITY_MATRIX: Ethereum USDT capped fee'),
+  },
+  rlusd:{
+    transfer:present('transfer의 명시 true 반환. V2의 주소 제한과 조건부 from 예외를 구분.','STABLECOIN_COMPATIBILITY_MATRIX: RLUSD _update/V2'),
+    transferFrom:present('유한 allowance 차감·MAX 유지. allowance 차감 시 emitEvent=false.','STABLECOIN_COMPATIBILITY_MATRIX: RLUSD allowance'),
+    approve:present('caller·spender·global pause 검사 후 allowance 대입.','STABLECOIN_COMPATIBILITY_MATRIX: RLUSD 승인'),
+    revoke:present('동일 승인 경로에서 allowance를 0으로 대입.','STABLECOIN_COMPATIBILITY_MATRIX: RLUSD 승인'),
+    zeroReset:absent('검토한 approve 경로에서 선행 0 초기화를 강제하지 않음.','STABLECOIN_COMPATIBILITY_MATRIX: RLUSD 승인'),
+    permit:present('owner·spender·caller/global pause 뒤 deadline·nonce·복구 signer 검사.','STABLECOIN_COMPATIBILITY_MATRIX: RLUSD permit'),
+    mint:present('MINTER 역할의 발행 경로.','STABLECOIN_COMPATIBILITY_MATRIX: RLUSD 발행사 제어'),
+    burn:present('BURNER 역할의 소각 경로.','STABLECOIN_COMPATIBILITY_MATRIX: RLUSD 발행사 제어'),
+    pause:present('PAUSER 역할과 계정/global pause 조건.','STABLECOIN_COMPATIBILITY_MATRIX: RLUSD 발행사 제어'),
+    blocklist:present('계정별 pause 제한 경로. blacklist라는 함수명과 동일시하지 않음.','STABLECOIN_COMPATIBILITY_MATRIX: RLUSD pause 조건'),
+    forcedFunds:present('CLAWBACKER 역할의 clawback 경로.','STABLECOIN_COMPATIBILITY_MATRIX: RLUSD 발행사 제어'),
+    recovery:pending('외부 ERC-20 회수 경로의 유무는 기존 선택 소스 검토에서 결론 내리지 않음.'),
+    upgrade:present('UPGRADER 권한 hook과 onlyProxy UUPS 문맥.','STABLECOIN_COMPATIBILITY_MATRIX: RLUSD 발행사 제어'),
+    fee:absent('검토한 _update 경로에 fee 차감 없음.','STABLECOIN_COMPATIBILITY_MATRIX: RLUSD _update'),
+  },
+  jpyc:{
+    transfer:present('transfer에 pause·caller/수신 차단 조건.','FiatTokenV1.sol:287,333'),
+    transferFrom:present('caller/from/to 차단·allowance 검사. MAX allowance는 차감 생략.','FiatTokenV1.sol:315,333'),
+    approve:present('approve에 pause·caller/spender 차단·주소 0 검사.','FiatTokenV1.sol:251,269'),
+    revoke:present('approve(spender,0)도 동일 조건으로 allowance 대입.','FiatTokenV1.sol:251,269'),
+    zeroReset:absent('검토한 승인 본문에 기존 allowance를 먼저 0으로 요구하는 분기 없음.','FiatTokenV1.sol:251,269'),
+    permit:present('permit 진입과 EIP2612 의존 소스. 서명 실행을 뜻하지 않음.','FiatTokenV1.sol:495,533,566,586'),
+    mint:present('minter·수신 차단·pause·양수 금액·발행 한도 검사.','FiatTokenV1.sol:140,152'),
+    burn:present('minter·pause·caller 차단·잔액 조건. 공급량 감소.','FiatTokenV1.sol:180'),
+    pause:present('pauser 일치 조건의 pause/unpause.','Pausable.sol:62,70,78,94'),
+    blocklist:present('blocklister 일치 조건의 blocklist/unBlocklist.','Blocklistable.sol:53,65,86,100'),
+    forcedFunds:pending('주소 차단과 별개인 차단 자금 파기·강제 이전 경로는 기존 발췌에서 결론 내리지 않음.'),
+    recovery:present('rescuer가 계약 보유 외부 ERC-20 회수.','Rescuable.sol:49,60'),
+    upgrade:present('onlyProxy UUPS 진입과 onlyOwner 권한 hook.','UUPSUpgradeable.sol:82,95; FiatTokenV1.sol:598'),
+    fee:pending('전송 수수료 차감 유무를 결론 낼 선택 경로 검토 근거가 이 발췌에 없음.'),
+  },
+  jpysc:{
+    transfer:present('pause·caller/수신 차단 후 transfer.','StablecoinV1.sol:319,869'),
+    transferFrom:present('caller/from/to 차단·allowance 소비. MAX 차감 생략.','StablecoinV1.sol:368,914'),
+    approve:present('pause·caller/spender 차단 뒤 주소 0 검사·allowance 대입.','StablecoinV1.sol:348,896'),
+    revoke:present('approve(spender,0)으로 allowance 대입. 발행 allowance 조건과 별도.','StablecoinV1.sol:348,896'),
+    zeroReset:absent('일반 approve에는 선행 0 초기화 강제 없음. configureMinter의 발행 allowance 0 조건과 별개.','StablecoinV1.sol:348,592–658,896'),
+    permit:pending('서명 전송/취소 소스만으로 permit의 존재를 대신 확정하지 않음.'),
+    mint:present('minter·pause·주소 차단·minter별 수신 whitelist·양수 금액·발행 한도.','StablecoinV1.sol:108,658; Whitelistable.sol:45'),
+    burn:present('minter의 자기 잔액·pause·차단 조건. 공급량 감소.','StablecoinV1.sol:694'),
+    pause:present('pauser 일치 조건의 pause/unpause.','Pausable.sol:32,47'),
+    blocklist:present('blacklister 일치 조건의 단건/일괄 blacklist 및 해제.','Blacklistable.sol:37,42,69,81'),
+    forcedFunds:present('seizer의 seize: 차단 송신자 자금 강제 이전. pause 검사·공급량 갱신 없음.','Seizable.sol:36; StablecoinV1.sol:722'),
+    recovery:present('assetRecoverer가 계약 보유 외부 ERC-20을 safeTransfer.','AssetRecovery.sol:36,53'),
+    upgrade:present('UUPS 업그레이드에 별도 upgradeAuthority. owner와 역할 구분.','StablecoinV1.sol:124,231–266; UUPSUpgradeable.sol:88'),
+    fee:pending('전송 수수료 차감 유무는 기존 선택 경로 발췌에서 결론 내리지 않음.'),
+  },
+};
+export const sourceFeatureLabels={PRESENT:'있음',ABSENT_IN_REVIEWED_PATH:'없음',NOT_REVIEWED:'추가 검토'};
+export function sourceFeaturesFor(coinId,chainId){
+  const profile=sourceReviewFor(coinId,chainId);if(!profile)return [];
+  return sourceFeatureCatalog.map(feature=>({...feature,...(sourceFeatures[coinId]?.[feature.id]??pending('해당 기능의 저장 소스 근거를 추가로 검토해야 합니다.')),profileId:profile.id}));
+}

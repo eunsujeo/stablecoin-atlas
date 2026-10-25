@@ -39,7 +39,7 @@ async function screenshot(name) { await evaluate('new Promise(resolve => setTime
 async function until(expression){for(let i=0;i<180;i++){if(await evaluate(expression))return;await new Promise(r=>setTimeout(r,60));}throw new Error('Not ready '+expression+' '+await evaluate("document.querySelector('[data-source-review]')?.innerText.slice(0,600)"));}
 async function key(key,code,virtual){await send('Input.dispatchKeyEvent',{type:'keyDown',key,code,windowsVirtualKeyCode:virtual});await send('Input.dispatchKeyEvent',{type:'keyUp',key,code,windowsVirtualKeyCode:virtual});}
 
-const {sourceReviewProfiles:profiles}=await import('../web/source-review-data.js');
+const {sourceReviewProfiles:profiles,sourceFeaturesFor,sourceFeatureLabels}=await import('../web/source-review-data.js');
 const views=[];
 try {
  const target=await send('Target.createTarget',{url:'about:blank'},false);session=(await send('Target.attachToTarget',{targetId:target.targetId,flatten:true},false)).sessionId;
@@ -58,21 +58,27 @@ try {
    await evaluate(`(()=>{const r=document.querySelector('[data-source-review]');r.querySelector('[data-coin-id="${p.coinId}"]').click();const n=r.querySelector('[aria-label="소스 검토 네트워크"]');n.value=${JSON.stringify(p.chainId)};n.dispatchEvent(new Event('change'));})()`);
    assert.equal(await evaluate("document.querySelector('[data-source-review]').dataset.reviewId"),p.id);
    const text=await evaluate("document.querySelector('.source-review-detail').textContent");assert(text.includes(p.address));assert(!text.includes('미확인 (UNKNOWN)'));assert(!text.includes('전체 배포 연결'));assert.equal(await evaluate("document.querySelectorAll('.source-review-badge').length"),0);seen.push(text);
+   const features=sourceFeaturesFor(p.coinId,p.chainId);
    for(const label of ['개요','검증 결과','근거·한계']){
     await evaluate(`Array.from(document.querySelectorAll('[role=tab]')).find(t=>t.textContent===${JSON.stringify(label)}).click()`);
     assert.equal(await evaluate("document.querySelectorAll('[role=tabpanel]:not([hidden])').length"),1);
     const visible=await evaluate("document.querySelector('[role=tabpanel]:not([hidden])').innerText");
-    for(const value of label==='검증 결과'?[...p.functions,...p.authorities]:label==='근거·한계'?['소스 검토 근거',p.reviewedAt,...(['jpyc','jpysc','rlusd'].includes(p.coinId)?p.limitations:[])]:[p.address,p.chainId,'소스 확인 완료'])assert(visible.includes(value),p.id+' missing '+value);
+    for(const value of label==='검증 결과'?features.flatMap(f=>[f.label,f.detail,f.evidence,sourceFeatureLabels[f.status]]):label==='근거·한계'?['소스 검토 근거',p.reviewedAt,...(['jpyc','jpysc','rlusd'].includes(p.coinId)?p.limitations:[])]:[p.address,p.chainId,'소스 확인 완료'])assert(visible.includes(value),p.id+' missing '+value);
    }
-   const resultRows=await evaluate("Array.from(document.querySelectorAll('.source-review-results tbody tr')).map(r=>({text:r.textContent,status:r.dataset.reviewStatus}))");
-   assert.equal(resultRows.length,p.functions.length+p.authorities.length);
-   for(const [index,text]of [...p.functions,...p.authorities].entries()){
-    assert(resultRows[index].text.includes(text));assert(resultRows[index].text.includes('소스 확인 완료'));assert.equal(resultRows[index].status,p.sourceReviewStatus);
+   const resultRows=await evaluate("Array.from(document.querySelectorAll('.source-review-results tbody tr')).map(r=>({text:r.textContent,status:r.dataset.featureStatus,id:r.dataset.featureId}))");
+   assert.equal(resultRows.length,14);
+   for(const [index,feature]of features.entries()){
+    assert(resultRows[index].text.includes(feature.label));assert(resultRows[index].text.includes(feature.detail));assert(resultRows[index].text.includes(feature.evidence));assert.equal(resultRows[index].status,feature.status);assert.equal(resultRows[index].id,feature.id);
+   }
+   for(const status of ['PRESENT','ABSENT_IN_REVIEWED_PATH','NOT_REVIEWED','ALL']){
+    await evaluate(`document.querySelector('[data-feature-filter="${status}"]').click()`);
+    const expected=features.filter(f=>status==='ALL'||f.status===status).map(f=>f.id);
+    assert.deepEqual(await evaluate("Array.from(document.querySelectorAll('.source-review-results tbody tr:not([hidden])')).map(r=>r.dataset.featureId)"),expected);
    }
    assert(!text.includes(p.observation));assert(!text.includes(p.bindingDetail));
    await evaluate("document.querySelector('[role=tab][id$=\"-behavior-tab\"]').click()");
    const sourceVisible=await evaluate("document.querySelector('[data-source-review]').innerText");
-   assert(sourceVisible.includes('소스 확인 완료'));assert(!sourceVisible.includes('UNKNOWN'));
+   assert(sourceVisible.includes('검토한 소스 경로 기준'));assert(!/기능 [0-9]|권한 [0-9]/.test(sourceVisible));assert(!sourceVisible.includes('UNKNOWN'));
 
    assert.equal(await evaluate("document.querySelector('.source-review-detail a').getAttribute('href')"),'/source-review-notes.html#'+p.id);
   }
@@ -160,5 +166,5 @@ try {
   assert.equal(await evaluate("document.querySelector('[data-source-review]').dataset.reviewId"),'jpysc-ethereum');
  }
  assert.deepEqual(errors,[]);assert.deepEqual(requests.filter(u=>!u.startsWith(base+'/')&&!u.startsWith('data:')),[]);
- console.log('PASS source profiles and technical overview: 5 tokens/8 deployments, itemized source results/status/evidence links, source-only profiles, no archive or historical diagnostics in DOM, comparison path preserved, compact 5 asset cards and 8/8 source summary, preserved read grade/verdict counts and detail navigation, search/network/tabs/keyboard, evidence failure isolation, dark/light/390px, JS errors=0/external requests=0');
+ console.log('PASS source profiles and technical overview: 5 tokens/8 deployments, 14 shared functional categories, presence/path absence/pending and filters, source evidence links, source-only profiles, no archive or historical diagnostics in DOM, comparison path preserved, compact 5 asset cards and 8/8 source summary, preserved read grade/verdict counts and detail navigation, search/network/tabs/keyboard, evidence failure isolation, dark/light/390px, JS errors=0/external requests=0');
 }finally{try{await send('Fetch.disable');await send('Browser.close',{},false);}catch{}chrome.kill();await new Promise(resolve=>{if(chrome.exitCode!==null)resolve();else chrome.once('exit',resolve);});await rm(profile,{recursive:true,force:true});}
