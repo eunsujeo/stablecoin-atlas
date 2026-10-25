@@ -4,6 +4,8 @@
 
 ## 완료 범위
 
+- 2026-10-25 후속 진행 승인으로 [USDT 신규 고정 해시 코드 대조 계획](research/2026-10-25-usdt-live-runtime-plan.md)을 구체화했다. 저장 compiler 출력 재사용·chainId1 단일 주소·기존 RPC_URL·최대6RPC/120초·재시도/전환0·종료 재확인·새 소비·별도 연구 보고서를 제안한다. 저장 입력25파일 hash를 확인했으며 새 RPC/컴파일/다운로드/실제 대조0이다. 정확한 외부 실행 범위의 사용자 확인 전 실행하지 않는다.
+
 - 2026-10-25 사용자 후속 승인으로 [USDT 저장 compiler 출력 분석](research/2026-10-25-usdt-stored-runtime-analysis.md)을 완료했다. 보완 비교기의 구조 검사는 통과했지만 관측 hash가 없어 ADDRESS_NOT_OBSERVED·matched null·binding UNKNOWN이다. 별도 연구 보조 JSON/Markdown을 보존하고 기존 INVALID_RELOCATION_DATA/PARTIAL·MISMATCH·원문25파일을 유지했다. 고정 compiler 캐시3개의 hash도 확인했으며 재컴파일·RPC·다운로드·배포 대조는0회다.
 - 2026-10-25 사용자 승인으로 [ADR0098](adr/0098-legacy-runtime-omitted-immutable-ranges.md)의 고정 solc0.4.18 비교기 호환성을 보완했다. 정확한 전체 버전·필드 자체 생략만 내부 빈 범위로 해석하며 compiler 원본은 보존한다. 사설 Fixture의 전체 runtime 대조/음성 경로·무HTTP 오프라인 보고서를 검증했다. 실제 USDT 재컴파일·배포 대조·외부 호출·다운로드·기존 보고서 변경은 수행하지 않았다.
 
