@@ -48,6 +48,11 @@ try {
   await send('Page.navigate',{url:'about:blank'});await send('Page.navigate',{url:base+route});
   await until("document.querySelector('[data-source-review]')?.dataset.reviewId==='usdc-ethereum'");
   const isAtlas=route.includes('atlas.html');
+  assert.equal(await evaluate("document.querySelectorAll('.source-review-hero,.source-review-completion').length"),0);
+  assert(!(await evaluate("document.querySelector('[data-source-review]').textContent")).includes('TOKEN PROFILE'));
+  assert((await evaluate("document.querySelector('.source-review-toolbar label').textContent")).includes('검토 네트워크'));
+  assert(!(await evaluate("document.querySelector('.source-review-directory').textContent")).includes('개 배포'));
+
   assert.equal(await evaluate("document.querySelectorAll('#asset-read-archive,#atlas-read-archive,#asset-cards,#asset-detail,#profile-report,#profile-identity,#profile-results').length"),0);
   assert.equal(await evaluate("document.querySelector('[role=tab][aria-selected=true]').textContent"),'검증 결과');
   assert(!(await evaluate("document.querySelector('[data-source-review]').innerText")).includes('UNKNOWN'));
@@ -107,6 +112,7 @@ try {
   for(const mode of ['dark','light']){
    await evaluate(`document.documentElement.dataset.theme='${mode}'`);
    await send('Emulation.setDeviceMetricsOverride',{width:1440,height:1100,deviceScaleFactor:1,mobile:false});
+   assert(await evaluate("document.querySelector('.source-review-tabs').getBoundingClientRect().top-document.querySelector('.source-review-toolbar').getBoundingClientRect().bottom<12"),'tabs must immediately follow compact toolbar');
    await evaluate("document.querySelector('[role=tab][id$=\"-behavior-tab\"]').click();document.querySelector('[data-source-review]').scrollIntoView({block:'start'})");await screenshot('profile-redesign-'+(isAtlas?'atlas-':'legacy-')+mode);
    await send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
    assert(await evaluate('document.documentElement.scrollWidth<=innerWidth+1'));
@@ -115,6 +121,9 @@ try {
     assert(await evaluate('document.documentElement.scrollWidth<=innerWidth+1'));
    }
    await evaluate("document.querySelector('[role=tab][id$=\"-behavior-tab\"]').click();document.querySelector('.source-review-results').scrollIntoView({block:'start',behavior:'instant'})");await screenshot('profile-redesign-'+(isAtlas?'atlas-':'legacy-')+mode+'-mobile');
+   await evaluate("document.querySelector('[data-source-review]').scrollIntoView({block:'start',behavior:'instant'})");
+   assert(await evaluate("(()=>{const gap=document.querySelector('.source-review-tabs').getBoundingClientRect().top-document.querySelector('.source-review-toolbar').getBoundingClientRect().bottom;return gap>=-1&&gap<12;})()"));
+   await screenshot('profile-header-'+(isAtlas?'atlas-':'legacy-')+mode+'-mobile');
   }
   await evaluate("location.hash='#compare'");
   await until(isAtlas?"!document.querySelector('#compare-report-1').disabled&&document.querySelectorAll('#native-comparison-body tr').length>0":"document.querySelectorAll('#comparison-body tr').length>0");
@@ -166,5 +175,5 @@ try {
   assert.equal(await evaluate("document.querySelector('[data-source-review]').dataset.reviewId"),'jpysc-ethereum');
  }
  assert.deepEqual(errors,[]);assert.deepEqual(requests.filter(u=>!u.startsWith(base+'/')&&!u.startsWith('data:')),[]);
- console.log('PASS source profiles and technical overview: 5 tokens/8 deployments, 14 shared functional categories, presence/path absence/pending and filters, source evidence links, source-only profiles, no archive or historical diagnostics in DOM, comparison path preserved, compact 5 asset cards and 8/8 source summary, preserved read grade/verdict counts and detail navigation, search/network/tabs/keyboard, evidence failure isolation, dark/light/390px, JS errors=0/external requests=0');
+ console.log('PASS source profiles and technical overview: 5 tokens/8 deployments, compact title toolbar and reviewed-network scope labels, 14 shared functional categories, presence/path absence/pending and filters, source evidence links, source-only profiles, no archive or historical diagnostics in DOM, comparison path preserved, compact 5 asset cards and 8/8 source summary, preserved read grade/verdict counts and detail navigation, search/network/tabs/keyboard, evidence failure isolation, dark/light/390px, JS errors=0/external requests=0');
 }finally{try{await send('Fetch.disable');await send('Browser.close',{},false);}catch{}chrome.kill();await new Promise(resolve=>{if(chrome.exitCode!==null)resolve();else chrome.once('exit',resolve);});await rm(profile,{recursive:true,force:true});}
