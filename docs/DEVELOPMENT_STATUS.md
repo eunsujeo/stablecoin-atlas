@@ -4,6 +4,7 @@
 
 ## 완료 범위
 
+- 2026-10-25 사용자 후속 승인으로 [USDT 저장 compiler 출력 분석](research/2026-10-25-usdt-stored-runtime-analysis.md)을 완료했다. 보완 비교기의 구조 검사는 통과했지만 관측 hash가 없어 ADDRESS_NOT_OBSERVED·matched null·binding UNKNOWN이다. 별도 연구 보조 JSON/Markdown을 보존하고 기존 INVALID_RELOCATION_DATA/PARTIAL·MISMATCH·원문25파일을 유지했다. 고정 compiler 캐시3개의 hash도 확인했으며 재컴파일·RPC·다운로드·배포 대조는0회다.
 - 2026-10-25 사용자 승인으로 [ADR0098](adr/0098-legacy-runtime-omitted-immutable-ranges.md)의 고정 solc0.4.18 비교기 호환성을 보완했다. 정확한 전체 버전·필드 자체 생략만 내부 빈 범위로 해석하며 compiler 원본은 보존한다. 사설 Fixture의 전체 runtime 대조/음성 경로·무HTTP 오프라인 보고서를 검증했다. 실제 USDT 재컴파일·배포 대조·외부 호출·다운로드·기존 보고서 변경은 수행하지 않았다.
 
 - 2026-10-25 사용자 승인 [USDT 오프라인 재컴파일](research/2026-10-25-usdt-offline-recompile.md)을 완료했다. 저장된 standard JSON 후보를 고정 solc0.4.18로1회 컴파일해 runtime11075바이트·소스 함수31개·정적 entry29개를 얻었다. 새 RPC/다운로드0이며 원본7파일·후보·compiler cache3개 불변을 확인했다. 구버전 출력의 immutableReferences 누락을 보충하지 않아 별도1.2 보고서는 INVALID_RELOCATION_DATA·PARTIAL, 배포 연결 UNKNOWN이다. 기존 전체 MISMATCH/판정은 유지하며 실제 배포 대조는 이번 범위에서 실행하지 않았다.
