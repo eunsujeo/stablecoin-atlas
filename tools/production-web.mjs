@@ -1,4 +1,3 @@
-import {lstat} from 'node:fs/promises';
 import {parseEnv} from 'node:util';
 import {pathToFileURL} from 'node:url';
 import {boundedRead} from './evidence-store.mjs';
@@ -12,15 +11,14 @@ import {databaseActivityReader} from './market-db/activity-preview.mjs';
 import {databaseReviewedSupplyReader} from './market-db/allium-supply-preview.mjs';
 import {databaseSurveyReader} from './market-db/survey-preview.mjs';
 import {validateFX} from '../web/fx-model.js';
+import {readProductionReader} from './production-reader-file.mjs';
 
 export async function productionSettings({configFile,readerFile,revisionFile}){
   if(!deploymentRuntimeSupported()||process.env.NODE_TLS_REJECT_UNAUTHORIZED==='0')throw Error('RUNTIME_UNSUPPORTED');
   const config=JSON.parse((await boundedRead(configFile,16384)).toString('utf8'));
   if(Object.keys(config).some(k=>!['hosts','port','fxFile'].includes(k))||!Number.isInteger(config.port)||config.port<1||config.port>65535||typeof config.fxFile!=='string'||!config.fxFile.startsWith('/'))throw Error('PUBLIC_CONFIG_INVALID');
   validatePublicHosts(config.hosts);
-  const file=await lstat(readerFile);
-  if(!file.isFile()||file.isSymbolicLink()||(file.mode&0o077)!==0||file.uid!==process.getuid?.())throw Error('READER_FILE_PRIVATE_REQUIRED');
-  const env=parseEnv((await boundedRead(readerFile,65536)).toString('utf8'));
+  const env=parseEnv(await readProductionReader(readerFile));
   if(!env.DATABASE_URL||Object.keys(env).some(k=>!['DATABASE_URL','DATABASE_CA_FILE'].includes(k)))throw Error('READER_CONFIG_INVALID');
   const commit=(await boundedRead(revisionFile,128)).toString('utf8').trim();
   if(!/^[a-f0-9]{40}$/.test(commit))throw Error('COMMIT_INVALID');

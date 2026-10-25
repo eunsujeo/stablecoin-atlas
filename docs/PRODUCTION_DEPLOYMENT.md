@@ -69,6 +69,8 @@ sudoedit /etc/atlas-web/web.json /etc/atlas-web/reader.env
 
 `deploy/reader.env.example`을 참고해 `/etc/atlas-web/reader.env`에 기존 전용 reader 접속 URI와 필요한 CA 경로만 넣는다. root:root0600이며 systemd `LoadCredential`이 atlasweb 전용 런타임 credential로 전달한다. writer·admin·Arkham/Allium 키를 넣으면 시작하지 않는다. URI는 Supabase의 실제 direct/session pooler 설정을 사용하며 지역으로 host를 추측하지 않는다. 서버와 가까운 Seoul 프로젝트를 그대로 사용한다. CA는 `/etc/atlas-ca/supabase.crt` 등 공개 인증서 파일로 root 소유0644로 관리한다.
 
+원본 파일과 systemd가 전달한 파일의 소유권/권한은 다를 수 있다. [ADR0106](adr/0106-systemd-reader-credential.md)에 따라 production은 `CREDENTIALS_DIRECTORY=/run/credentials/<단일 unit>`과 정확한 `${CREDENTIALS_DIRECTORY}/reader.env`만 Credential 정책으로 읽는다. root 소유0400/0440 또는 서비스 UID 소유0400/0600을 허용하며 실제 open 성공도 필요하다. root 소유 상위 디렉터리의 쓰기 제한, unit 디렉터리의 root/서비스 소유·other 접근 금지, 전체 경로의 symlink 부재를 검사한다. root unit 디렉터리의 group r/x는 systemd ACL mask를 고려해 허용하지만 group 쓰기는 거절한다. 특수 권한·다른 파일/외부 경로·다른 소유자는 거절하며, 환경변수가 설정됐을 때 일반 파일로 fallback하지 않는다. 환경변수가 없는 직접 실행은 기존 서비스 UID 소유·group/other 권한0 정책을 유지한다. 전달 파일을 chown/chmod하거나 원본0600을 완화하지 않는다. 사용자별 systemd manager 경로는 지원하지 않는다.
+
 원격 TLS의 `rejectUnauthorized=true`를 강제하며 검증 실패 시 중단한다. `NODE_TLS_REJECT_UNAUTHORIZED=0`은 거부한다. web의 각 DB 연결은 reader 등록·실제 로그인과 모든 `atlas_*` 앱 schema의 직접/상속/PUBLIC/컬럼 쓰기권한·소유권·sequence·실행 함수 경로를 검사하고 세션을 읽기 전용으로 설정한다. 기존 invoker `trigger` 반환형 함수만 직접 호출 불가능한 경로로 구분한다. 일반 함수·procedure·event_trigger·security definer trigger는 callable이면 거부한다. 거절될 때 서비스가 GRANT를 고치거나 schema를 변경하지 않는다.
 
 웹 전체 reader가 동시에 최대2개 연결, 대기 최대8개/10초를 공유한다. 기존 DB 접속5초·client query15초·statement10초·transaction60초 제한을 재사용한다. 등록 history의 기존 cache/한도도 유지한다. 운영용 웹 계정은 collector의 credential/receipt/archive에 파일 접근도 할 수 없다.

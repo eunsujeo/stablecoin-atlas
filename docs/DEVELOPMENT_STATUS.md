@@ -1,5 +1,7 @@
 # 현재 개발 상태
 
+Fedora에서 사용자가 보고한 root0440 systemd Credential 거절을 [ADR0106](adr/0106-systemd-reader-credential.md)의 production 전용 정책으로 수정했다. 일반 파일·Preview·DB Reader/TLS 경계는 유지하며, 이번 로컬 검증과 실제 Fedora 재배포 확인은 [수정 기록](research/2026-10-25-systemd-reader-credential.md)에서 구분한다.
+
 사용자 요청에 따라 [Fedora ARM64 운영 배포 준비](PRODUCTION_DEPLOYMENT.md)를 추가했다([ADR0105](adr/0105-production-readiness.md)). 기존 Preview·수집 정책·DB 스키마/판정은 유지하며 production CLI·공개 경계·reader 연결 상한·systemd·정확 SHA 배포/롤백·수동 Actions 구성을 준비한다. 실제 서버·Tunnel·서비스/수집 전환은 미실행이다. 검증과 미확인은 [작업 기록](research/2026-10-25-production-readiness.md)을 따른다.
 
 사용자 요청으로 [기존 UI만 제공](adr/0104-legacy-only-preview.md)한다. `/`가 기본 경로이며 `/index.html`은 같은 화면이다. `/legacy.html`은 query/hash를 유지해 `/`로 이동한다. Atlas 별도 화면과 전용 모듈·검증 근거·자산 비교 메뉴/페이지를 제거했다. 자산 프로필·보고서·원본 판정은 보존한다. 아래 과거 기록의 기본/Atlas·비교/검증 근거 표기는 당시 구현 범위다.
