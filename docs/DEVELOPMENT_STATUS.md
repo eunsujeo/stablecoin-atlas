@@ -4,6 +4,8 @@
 
 ## 완료 범위
 
+- 2026-10-25 [독립 배포 근거 취득 계획](research/2026-10-25-independent-deployment-evidence-plan.md)을 오프라인 작성했다. JPYC 우선 공개 GET8건(A)을 승인 요청 대상으로 고정하고 RLUSD/JPYSC RPC16건(B)·immutable 제출/대조와 분리했다. 신규 외부 호출/컴파일0·기존 UNKNOWN 유지이며 계획은 실행 승인이 아니다.
+
 - 2026-10-25 [저장 immutable 소스 참조표](research/2026-10-25-stored-immutable-source-map.md)를 완료했다. RLUSD ID650·JPYSC ID1623·JPYC ID173의 선언 초기화·생성자·onlyProxy/notDelegated 참조를 저장 AST/소스에서 확인했다. 기존107파일 포함134파일 불변·외부 조회/재컴파일/값 제출/대조0이며 독립 배포 근거 미확보·UNKNOWN 집계를 유지한다.
 - 2026-10-25 승인된 [RLUSD·JPYSC 고정 compiler/오프라인 분석](research/2026-10-25-rlusd-jpysc-offline-source-review.md)을 완료했다. 직접 metadata 각각403 후 보이는 임시 Chrome에서 각각 metadata/artifact200, 총6GET·두 hash·전체 버전 확인·소유 창/프로필 정리를 검증했다. [ADR0099](adr/0099-pinned-rlusd-jpysc-compilers.md)의 두 pin·기본32 유지/정확한 두 버전35/41소스·builtin 인코딩을 사설 검증했다. RLUSD 구현체 및 JPYSC proxy/구현체3컴파일 성공·새 RPC0·기존107파일 불변. 구현체 immutable 미제출/코드 미관측으로 모두 UNKNOWN·두 보고서 PARTIAL이며 JPYSC initialize의 CALL_LIMIT/DECLARATION_LIMIT을 보존했다. 전체564검사 통과, UNKNOWN 자산 집계5/5(추가체인 포함8/8)는 유지한다.
 
