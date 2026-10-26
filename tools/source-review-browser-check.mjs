@@ -1,3 +1,4 @@
+const safariStreams=process.argv.includes('--safari-streams');
 import { spawn } from 'node:child_process';
 import { mkdtemp, writeFile, mkdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -63,6 +64,7 @@ const {sourceReviewProfiles:profiles,sourceFeaturesFor,sourceFeatureLabels,sourc
 const views=[];
 try {
  const target=await send('Target.createTarget',{url:'about:blank'},false);session=(await send('Target.attachToTarget',{targetId:target.targetId,flatten:true},false)).sessionId;
+ if(safariStreams)await send('Page.addScriptToEvaluateOnNewDocument',{source:"Object.defineProperty(ReadableStream.prototype,Symbol.asyncIterator,{value:undefined,configurable:true});Object.defineProperty(AbortSignal,'any',{value:undefined,configurable:true});"});
  await send('Runtime.enable');await send('Page.enable');await send('Network.enable');await send('Fetch.enable',{patterns:[{urlPattern:'*'}]});
  for(const route of ['/#assets','/legacy.html#assets']){
   const pageRequestStart=requests.length;
@@ -77,6 +79,7 @@ try {
   assert.equal(requests.slice(pageRequestStart).filter(url=>url===base+'/asset-review-data.json').length,1);
   assert.equal(await evaluate("document.querySelector('[data-source-review]').getAttribute('aria-busy')"),'false');
   assert.equal(await evaluate('location.pathname'),'/');
+  if(safariStreams){assert.equal(await evaluate('typeof ReadableStream.prototype[Symbol.asyncIterator]'),'undefined');assert.equal(await evaluate('typeof AbortSignal.any'),'undefined');}
   assert.equal(await evaluate('location.hash'),'#assets');
   assert.equal(await evaluate("document.querySelector('#assets-screen').hidden"),false);
   assert.equal(await evaluate("document.querySelectorAll('.source-review-hero,.source-review-completion').length"),0);
@@ -251,6 +254,13 @@ try {
   await evaluate("document.querySelector('[data-coin-id=jpysc]').click()");
   assert.equal(await evaluate("document.querySelector('[data-source-review]').dataset.reviewId"),'jpysc-ethereum');
  }
+ if(safariStreams){
+  await send('Page.navigate',{url:'about:blank'});await send('Page.navigate',{url:base+'/#live'});
+  await until("!document.querySelector('#live-reload')?.disabled&&document.querySelectorAll('#live-metrics .market-stat').length>0");
+  assert.equal(await evaluate("document.querySelector('#live-error').hidden"),true);
+  assert.match(await evaluate("document.querySelector('#live-metrics').textContent"),/\$1/);
+  assert.equal(await evaluate('typeof ReadableStream.prototype[Symbol.asyncIterator]'),'undefined');
+ }
  failSource=true;await send('Page.navigate',{url:'about:blank'});await send('Page.navigate',{url:base+'/#assets'});
  await until("document.querySelector('[data-source-review]')?.dataset.reviewState==='error'&&document.querySelector('#overview-technical')?.dataset.reviewState==='error'");
  assert.equal(await evaluate("document.querySelectorAll('.source-review-asset,#overview-source-rows article').length"),0);
@@ -259,5 +269,6 @@ try {
  await drainFetch();
  assert.deepEqual(requests.filter(url=>/\/(?:source-review-data|source-review-top10-data)\.js$/.test(url)),[]);
  assert.deepEqual(errors,[]);assert.deepEqual(requests.filter(u=>!u.startsWith(base+'/')&&!u.startsWith('data:')),[]);
+ if(safariStreams)console.log('PASS Safari API-condition emulation: ReadableStream asyncIterator/AbortSignal.any absent (Chrome, not an actual iPhone).');
  console.log('PASS legacy-only navigation (removed validation/compare fallback), report data preserved; shared snapshot/single fetch/loading/error cleanup; source profiles: 5 assets/26 profiles, exact search selection by keyboard and scope labels, original 8 preserved, added 18 scoped features and states, 8/26 summary, network keys/search/tabs/filters, evidence links, read grade/verdict counts preserved, both routes/dark/light/390px, JS errors=0/external requests=0');
 }finally{try{await send('Fetch.disable');await send('Browser.close',{},false);}catch{}chrome.kill();await new Promise(resolve=>{if(chrome.exitCode!==null)resolve();else chrome.once('exit',resolve);});await rm(profile,{recursive:true,force:true});}

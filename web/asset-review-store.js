@@ -1,14 +1,11 @@
+import {fetchJSON} from './browser-json.js';
 import {validateAssetReview,assetReviewByteLimit} from './asset-review-model.js';
 import {beginLoading} from './loading.js';
 let pending;
 // Both screens share one exact response, including its snapshot ID and feature states.
 export function readAssetReview(){
  return pending??=(async()=>{
-  const response=await fetch('/asset-review-data.json',{cache:'no-store',signal:AbortSignal.timeout(15000)});
-  if(!response.ok)throw Error('ASSET_REVIEW_UNAVAILABLE');
-  let size=0;const chunks=[];for await(const chunk of response.body){size+=chunk.length;if(size>assetReviewByteLimit)throw Error('READ_LIMIT');chunks.push(chunk);}
-  const bytes=new Uint8Array(size);let offset=0;for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.length;}
-  return validateAssetReview(JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes)));
+  return validateAssetReview(await fetchJSON('/asset-review-data.json',{cache:'no-store',limit:assetReviewByteLimit,timeoutMs:15000}));
  })();
 }
 export function mountAssetReview(root,render,{target=root}={}){

@@ -1,3 +1,4 @@
+import {fetchJSON} from './browser-json.js';
 import {initializeSupplyOverview} from './supply-overview.js';
 import {validateStoredSurvey,storedSurveyChoice} from './survey-model.js';
 import {validateGeography,geographyChoice} from './geography-model.js';
@@ -56,11 +57,7 @@ const rememberTrend=()=>{
 const when=value=>new Date(value).toLocaleString('ko-KR',{hour12:false});
 const labels={PASS:'통과',FAIL:'실패',INCONCLUSIVE:'판정 불충분',NOT_TESTED:'미검증',NOT_APPLICABLE:'비적용',UNSUPPORTED:'지원 범위 밖'};
 async function json(path,{signal,optional=false,revalidate=false}={}){
-  const response=await fetch(path,{cache:revalidate?'no-cache':'no-store',signal:signal?AbortSignal.any([signal,AbortSignal.timeout(15000)]):AbortSignal.timeout(15000)});if(optional&&response.status===404)return null;if(!response.ok)throw new Error('READ_FAILED');
-  let size=0;const chunks=[];
-  for await(const chunk of response.body){size+=chunk.length;if(size>2*1024*1024)throw new Error('READ_LIMIT');chunks.push(chunk);}
-  const bytes=new Uint8Array(size);let offset=0;for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.length;}
-  return JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes));
+  return fetchJSON(path,{cache:revalidate?'no-cache':'no-store',signal,optional,timeoutMs:15000});
 }
 function renderSourceReview(sourceReviewProfiles){
   const assets=new Set(sourceReviewProfiles.map(p=>p.coinId)),networks=new Set(sourceReviewProfiles.map(p=>p.chainId??p.networkKey));

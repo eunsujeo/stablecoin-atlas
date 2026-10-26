@@ -1,0 +1,10 @@
+# Safari JSON 본문 판독 호환성 수정
+
+- 요청: iPhone Safari의 ReadableStream asyncIterator 미지원으로 HTTP200/정상 JSON이 화면 로딩 실패하는 문제. 전체 브라우저 검색·getReader 전환·한도/UTF8/취소/15초 보존·회귀·별도commit/push. 서버 API/DB/Collector/FX 동작·운영 Mac mini 직접 배포 금지.
+- 완료: web/browser-json.js 공통 getReader/read·바이트 제한·fatal UTF8·AbortController/timer·외부 취소·reader/timer/listener cleanup. overview/asset/market의 비동기 반복3곳 제거. 전체 현황은2MiB/15초, asset262144바이트/15초, 기존 시장은2MiB/기존30초 유지. HTTP404 optional·cache/credentials·기존오류/lastgood·공통pending 유지. evidence/app/contract의 text 로더는 비동기 반복 의존 없음/기존조건 유지. 서버 파일은 새 공통 JS 정적 자산 경로 한 줄씩만 등록했고 API 로직/publicData/DB/Collector/FX/운영배포는 변경하지 않았다.
+- 검증: 표적/production 경계20/pass20. Safari-shaped 스트림/한글 바이트 분할/큰 금액 문자열/정확한2MiB/초과/작은한도/UTF8/JSON/nullbody/stream오류/취소·타임아웃·cancel실패/정리/HTTP/cache 검증. 실제 Chrome의 asyncIterator/AbortSignal.any undefined 주입으로 FX API 실패·회복·lastgood·시장/프로필/기술현황·전체26/179·테마/모바일/로딩/JS오류0/외부요청0. 일반 Chrome 회귀도 rc0. 실제 iPhone/Safari/WebKit은 실행하지 않았으므로 조건 재현을 실기기 검증으로 주장하지 않는다.
+- 전체: npm run check rc0 tests670/pass670/fail0/cancelled0/skipped0, git diff --check rc0. 최초 브라우저 시험의 legacy market selector 오류는 .market-stat으로 고쳤고 실패 로그 별도 보존. 의도한 거부 Fixture와 제품 오류를 구분한다.
+- 기록: [연구/재현](../research/2026-10-27-safari-stream-json.md). .state/agent-logs/safari-json-{targeted,fx-browser,profile-browser,profile-browser-attempt1,chrome-regression,check,preview}.log. Lead 3a5b7927b68245eead13cc6b5a614f32 proceed 회수/조건 반영. 추가Agent/임시pane 없음.
+- 실행 중: 기존 소유 local preview PID58493 정상 종료 후 동일 reader 인자로 PID33867/exec session12678 유지. http://127.0.0.1:4173/. 정적 helper GET200만 확인해 실제 DB/API 데이터 호출0. 이 갱신은 작업 PC의 loopback 미리보기이며 운영 Mac mini가 아니다. 종료 시 현재 소유/명령을 확인하고 이 미리보기만 정상 종료한다.
+- Git: 이번 수정만 별도 main commit/origin push. 실제 SHA/원격 HEAD 일치는 .state/agent-logs/safari-json-git.json과 최종 응답으로 확인. 기존 untracked docs/handoff/2026-10-22-router-lead-review.md·.state/키/환경/원문 제외. push 자체의 운영배포 없음(workflow_dispatch 전용).
+- 다음: 현재 수정/검증 완료. 운영 Mac mini에 직접 배포하지 않는다. 사용자 추가 확인 시 실제 iPhone에서 반영 SHA의 화면 재확인은 별도이며 원인 미확인 상태에서 서버/API/DB/FX 수집을 변경하거나 provider/RPC 재실행하지 않는다.

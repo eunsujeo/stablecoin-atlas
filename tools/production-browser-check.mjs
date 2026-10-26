@@ -1,3 +1,4 @@
+const safariStreams=process.argv.includes('--safari-streams');
 import {loopbackRequest} from './loopback-http.mjs';
 import {spawn} from 'node:child_process';
 import {mkdtemp,writeFile,mkdir,rm} from 'node:fs/promises';
@@ -66,10 +67,12 @@ async function screenshot(name) { await evaluate('new Promise(resolve => setTime
 async function until(expression){for(let i=0;i<300;i++){if(await evaluate(expression))return;await new Promise(r=>setTimeout(r,100));}throw Error('Browser readiness timeout '+JSON.stringify({errors,responses}));}
 try{
  const target=await send('Target.createTarget',{url:'about:blank'},false);session=(await send('Target.attachToTarget',{targetId:target.targetId,flatten:true},false)).sessionId;
+ if(safariStreams)await send('Page.addScriptToEvaluateOnNewDocument',{source:"Object.defineProperty(ReadableStream.prototype,Symbol.asyncIterator,{value:undefined,configurable:true});Object.defineProperty(AbortSignal,'any',{value:undefined,configurable:true});"});
  await send('Runtime.enable');await send('Page.enable');await send('Network.enable');await send('Network.setCacheDisabled',{cacheDisabled:true});await send('Fetch.enable',{patterns:[{urlPattern:'*'}]});
  await send('Page.navigate',{url:publicOrigin+'/#overview'});
  await until("document.querySelectorAll('#overview-source-rows article').length===5&&!document.querySelector('#overview-reload').disabled");
  assert.equal(await evaluate("document.documentElement.dataset.deployment"),'production');
+ if(safariStreams){assert.equal(await evaluate('typeof ReadableStream.prototype[Symbol.asyncIterator]'),'undefined');assert.equal(await evaluate('typeof AbortSignal.any'),'undefined');}
  assert.equal(await evaluate("document.querySelectorAll('#market-screen,#reports-screen,#overview-read-history,#overview-geography,.overview-read-grade').length"),0);
  assert.equal(await evaluate("document.querySelector('#overview-screen').hidden"),false);
  if(fxIsolation){
@@ -105,5 +108,6 @@ try{
  assert.deepEqual(requests.filter(url=>!url.startsWith(publicOrigin+'/')&&!url.startsWith('data:')),[]);
  assert(!responses.some(r=>/^\/(?:mock-data\.json$|evidence(?:\/|\.js$)|geography-data\.json$|app\.js$)/.test(r.path)));
  assert.deepEqual(errors,[]);
+ if(safariStreams)console.log('PASS Safari API-condition emulation: ReadableStream asyncIterator/AbortSignal.any absent (Chrome, not an actual iPhone).');
  console.log(fxIsolation?'PASS offline production browser: five APIs200/FX503, USD retained, KRW missing/recovery/last good, renderer failure distinct, private/mock requests0, JS errors0. Actual Cloudflare/Fedora not executed.':'PASS production browser: simulated HTTPS tunnel to loopback, PostgreSQL market200, private/mock requests0, overview/profiles/theme/mobile, JS errors0. Actual Cloudflare/Fedora not executed.');
 }finally{try{await send('Fetch.disable');await send('Browser.close',{},false);}catch{}chrome.kill();await new Promise(r=>{if(chrome.exitCode!==null)r();else chrome.once('exit',r);});await rm(profile,{recursive:true,force:true});await fixture?.stop();}
