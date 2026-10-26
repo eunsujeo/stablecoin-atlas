@@ -82,3 +82,17 @@ npm run review:contract -- \
 Multicall3의 [새 runtime 단발 읽기 계획](research/2026-10-26-multicall3-runtime-read-plan.md)은 사용자 승인 후 첫 eth_chainId에서 TLS_FAILURE로 종료해 [소비 완료](research/2026-10-26-multicall3-runtime-read-result.md)했다. 실제 배포 코드 읽기는 NOT_TESTED다. `node --use-env-proxy tools/contract-review-runtime-read.mjs --preflight`는 저장 입력만 확인하며 성공해도 이미 소비한 `--execute`를 다시 실행할 수 없다. 기존 첫 실패 원인 UNKNOWN은 보존한다. 새 외부 실행은 새 고정 계획 승인 후에만 진행하고 TLS 검증을 끄거나 다른 endpoint로 자동 전환하지 않는다.
 
 고정 블록 runtime과 저장 공급자 artifact의 대응은 확인했다. 후속 원본 버전 compiler pin/독립 재컴파일, 네트워크 없는 Slither runner, custom Proxy 및 protocol별 권한/자산 불변식 확장은 별도 승인/환경에서 진행한다. 실제 Proxy/권한·소스 진위·안전성 보장은 이번 바이트 일치에 포함하지 않는다. 새 외부 읽기도 정확한 endpoint/한도의 새 계획 승인 전 시작하지 않는다. 소스 자동 수집을 운영 서비스/스케줄러에 연결하지 않는다.
+
+## Supabase 요약 저장 (ADR0113)
+
+사용자가 기존 Supabase 반영까지 승인했다. 별도 private `atlas_contract_review`에 검토된 요약만 불변 저장하며 최초 실패와 v3 고정 블록 결과를 별도 보고서로 보존한다. [저장/권한/적용 경계](adr/0113-contract-review-supabase-summary.md)를 따른다.
+
+`npm run review:contract:db -- init|grant|import|read|boundary`가 명시 관리/저장/읽기 CLI다. `grant`는 `--role 이름 --mode reader|writer`, `import`는 `--source 검토파일 --expected-sha256 파일SHA256`, 모든 명령은 `--env-file 비공개설정`을 받는다. 외부 노출 definer가 있으면 `--reviewed-definers 비공개검토파일 --reviewed-sha256 검토파일SHA256`의 기존 고정 검토가 필요하다. init/grant는 admin, import는 writer, read는 reader 설정으로 실행한다. 새 키/접속 URI를 인자로 전달하지 않는다.
+
+입력은 `web/contract-review-reviewed.js`의 `reviewedContractStore`를 명시 JSON으로 내보내 작성한다. 자동 보고서 탐색/원문 변환은 없다. 로컬 웹 DB 모드는 `npm run ui -- --database --database-env .state/market-db-secrets/reader.env`이며 DB 오류에 정적 fallback하지 않는다. production의 컨트랙트 UI/API 제외는 유지한다.
+
+실제 Supabase 적용은 요약2건 입력·동일 입력0건 추가·reader 일치·API 경계·기존8스키마 구조 보존까지 완료했다. [실행/실패 수정/검증/재현 기록](research/2026-10-26-contract-review-supabase.md)·[인계문](handoff/2026-10-26-contract-review-supabase.md).
+
+후속 사용자 정정으로 컨트랙트 화면은 주소/chain별 최신 결과 한 건만 표시한다. 저장 소스 조건 검토·사설 시험의 완료와 저장 코드 대조를 구분하며, 원본 자료의 UNKNOWN 등은 근거/검토 범위에 보존한다. 이전 이력을 별도 카드나 이력 선택으로 제공하지 않는다.
+
+컨트랙트 요약 DB 읽기는 로딩바/스켈레톤을 표시하며 서버의 성공 응답을 1시간 캐시한다. 만료 시 다음 요청에서 재조회하고 오류는 명시적으로 표시한다. 즉시 최신 저장 요약을 읽으려면 로컬 미리보기를 재시작한다. 브라우저와 HTTP 응답은 no-store를 유지한다.

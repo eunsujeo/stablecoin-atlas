@@ -1,3 +1,6 @@
+import {reviewedContractStore} from '../web/contract-review-reviewed.js';
+import {validateContractReviewStore} from '../web/contract-review-model.js';
+import {databaseContractReviewReader} from './market-db/contract-review-preview.mjs';
 import {allowedProductionPath,productionDocument,validatePublicHosts} from './production-policy.mjs';
 import {timedAPI} from './web-timing.mjs';
 import {localRegistrationReader} from './registration-file-preview.mjs';
@@ -22,6 +25,8 @@ import { databaseMarketReader } from './market-db/preview.mjs';
 import {databaseRegistrationReader,registrationRequest} from './market-db/registration-preview.mjs';
 
 const assets = new Map([
+  ['/contract-review-view.js', ['../web/contract-review-view.js', 'text/javascript; charset=utf-8']],
+  ['/contract-review-model.js', ['../web/contract-review-model.js', 'text/javascript; charset=utf-8']],
   ['/contract-review.js', ['../web/contract-review.js', 'text/javascript; charset=utf-8']],
   ['/contract-review-data.js', ['../web/contract-review-data.js', 'text/javascript; charset=utf-8']],
   ['/contract-review.css', ['../web/contract-review.css', 'text/css; charset=utf-8']],
@@ -66,7 +71,7 @@ const assets = new Map([
   ['/mock-data.json', ['../docs/ui/mock-dashboard-data.json', 'application/json; charset=utf-8']],
 ]);
 const csp = "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; object-src 'none'";
-export function createPreviewServer({ evidenceDirectory, marketDirectory, marketReader, registrationReader, fxDirectory, activityReader, reviewedSupplyReader, surveyReader, fxReader, production, geographyReader, onTiming } = {}) {
+export function createPreviewServer({ evidenceDirectory, marketDirectory, marketReader, registrationReader, fxDirectory, activityReader, reviewedSupplyReader, surveyReader, fxReader, contractReviewReader, production, geographyReader, onTiming } = {}) {
   const publicHosts=production?validatePublicHosts(production.hosts):null;
   if(production&&!/^[a-f0-9]{40}$/.test(production.commit??''))throw Error('COMMIT_INVALID');
   if(!production)geographyReader??=storedGeographyReader();
@@ -114,6 +119,12 @@ export function createPreviewServer({ evidenceDirectory, marketDirectory, market
         }catch{fail(503,'SUPPLY_DATA_UNAVAILABLE');}
         return;
       }
+    }
+    if(req.url==='/contract-review-data.json'){
+      try{const data=await (contractReviewReader?contractReviewReader():reviewedContractStore);const bytes=Buffer.from(JSON.stringify(validateContractReviewStore(data)));
+        if(bytes.length>131072)throw Error('READ_LIMIT');
+        res.writeHead(200,{'Content-Type':'application/json; charset=utf-8','Content-Length':bytes.length});res.end(req.method==='HEAD'?undefined:bytes);
+      }catch{fail(503,'CONTRACT_REVIEW_UNAVAILABLE');}return;
     }
     if(req.url==='/geography-data.json'){
       try{const bytes=Buffer.from(JSON.stringify(validateGeography(await geographyReader())));if(bytes.length>2097152)throw Error('READ_LIMIT');res.writeHead(200,{'Content-Type':'application/json; charset=utf-8','Content-Length':bytes.length});res.end(req.method==='HEAD'?undefined:bytes);}catch{fail(503,'GEOGRAPHY_UNAVAILABLE');}return;
@@ -196,7 +207,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     // An explicit file is authoritative; inherited writer credentials cannot override it.
     const env=args.database?await workspaceEnvironment(args.envFile,args.envFile?{}:process.env):undefined;
     if(args.database&&!env.DATABASE_URL)throw new Error('DATABASE_CONFIG_REQUIRED');
-    const server = await startPreviewServer(args.port,{fxDirectory:args.fxDirectory,...(args.registrationFile?{registrationReader:localRegistrationReader(args.registrationFile)}:{}),...(args.surveyFile?{surveyReader:localSurveyReader(args.surveyFile)}:{}),...(args.database?{marketReader:databaseMarketReader({env}),registrationReader:databaseRegistrationReader({env}),activityReader:databaseActivityReader({env}),reviewedSupplyReader:databaseReviewedSupplyReader({env}),surveyReader:databaseSurveyReader({env})}:{})});
+    const server = await startPreviewServer(args.port,{fxDirectory:args.fxDirectory,...(args.registrationFile?{registrationReader:localRegistrationReader(args.registrationFile)}:{}),...(args.surveyFile?{surveyReader:localSurveyReader(args.surveyFile)}:{}),...(args.database?{contractReviewReader:databaseContractReviewReader({env}),marketReader:databaseMarketReader({env}),registrationReader:databaseRegistrationReader({env}),activityReader:databaseActivityReader({env}),reviewedSupplyReader:databaseReviewedSupplyReader({env}),surveyReader:databaseSurveyReader({env})}:{})});
     console.log(`Local preview: http://127.0.0.1:${server.address().port} (${args.database?'PostgreSQL read-only':'local JSON'})`);
     for (const signal of ['SIGINT', 'SIGTERM']) process.once(signal, () => { server.close(() => { process.exitCode = 0; }); server.closeIdleConnections(); });
   } catch { console.error('Preview could not start. Check the port or use --port 0.'); process.exitCode = 1; }

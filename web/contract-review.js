@@ -1,7 +1,11 @@
-import {contractReviews,contractReviewGroups} from './contract-review-data.js';
+import {beginLoading} from './loading.js';
+import {contractReviewGroups} from './contract-review-data.js';
+import {validateContractReviewStore} from './contract-review-model.js';
+import {currentContractReviews} from './contract-review-view.js';
 
 const element=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
-export function initializeContractReview(root){
+export function initializeContractReview(root,contractReviews){
+  if(!contractReviews.length){root.replaceChildren(element('p','저장된 검토 요약이 없습니다.','muted'));return;}
   let selected=contractReviews[0],group='overview';
   const layout=element('div',undefined,'contract-layout');
   const directory=element('aside',undefined,'panel contract-directory');directory.setAttribute('aria-label','저장된 컨트랙트 보고서');
@@ -15,7 +19,7 @@ export function initializeContractReview(root){
     const found=contractReviews.filter(r=>[r.name,r.network,r.chainId,r.address].some(v=>v.toLowerCase().includes(term)));
     for(const report of found){
       const button=element('button',undefined,'contract-report-button');button.type='button';button.dataset.contractReport=report.id;button.setAttribute('aria-pressed',String(selected.id===report.id));
-      button.append(element('strong',report.name),element('small',`${report.network} · ${report.reviewedAt}`),element('span',`${report.status} · runtime 미확인`,'contract-status'));
+      button.append(element('strong',report.name),element('small',`${report.network} · ${report.reviewedAt}`),element('span',report.presentation.label,'contract-status'));
       button.addEventListener('click',()=>{selected=report;group='overview';renderList();renderDetail();});list.append(button);
     }
     count.textContent=`${found.length} / ${contractReviews.length}개 보고서`;empty.hidden=found.length!==0;
@@ -24,11 +28,11 @@ export function initializeContractReview(root){
     root.dataset.contractReview=selected.id;workspace.replaceChildren();
     const header=element('header',undefined,'panel contract-heading'),title=element('div');
     title.append(element('p',`${selected.network} · chainId ${selected.chainId}`,'eyebrow'),element('h2',selected.name),element('p',selected.purpose,'muted'));
-    const status=element('span',`${selected.status} · 배포 연결 미확인`,'contract-status');
+    const status=element('span',selected.presentation.label,'contract-status');
     const heading=element('div',undefined,'panel-heading');heading.append(title,status);
-    header.append(heading,element('p',selected.address,'contract-address'),element('p',`소스 분석 기준일 ${selected.analysisDate} · 실제 기준 블록 UNKNOWN`,'chart-note'));
+    header.append(heading,element('p',selected.address,'contract-address'),element('p',`소스 분석 기준일 ${selected.analysisDate} · 실제 기준 블록 ${selected.runtime?.blockNumber??'UNKNOWN'}`,'chart-note'));
     const metrics=element('div',undefined,'contract-metrics');
-    for(const [value,label]of [['16','소스 함수'],['11','검토 항목'],['10 / 10','사설 검증 PASS'],['UNKNOWN','실제 runtime']]){
+    for(const [value,label]of [[selected.presentation.functions,'소스 함수'],[selected.presentation.sections,'검토 항목'],[selected.presentation.fixtures,'사설 검증 PASS'],[selected.runtime?.equality??'미확인','저장 코드 대조']]){
       const card=element('div');card.append(element('strong',value),element('span',label));metrics.append(card);
     }header.append(metrics);workspace.append(header);
     const tabs=element('div',undefined,'contract-tabs');tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','컨트랙트 분석 내용');
@@ -62,7 +66,16 @@ export function initializeContractReview(root){
 }
 const root=document.querySelector('#contract-review-root');
 if(root){
-  initializeContractReview(root);
+  const loading=element('div',undefined,'panel contract-loading');
+  const message=element('p','컨트랙트 검토 요약을 불러오는 중입니다.','muted');message.setAttribute('role','status');
+  const progress=element('progress',undefined,'contract-load-progress');progress.setAttribute('aria-label','컨트랙트 검토 요약 불러오기');
+  const skeleton=element('div');loading.append(message,progress,skeleton);root.replaceChildren(loading);
+  const finishLoading=beginLoading(root,{targets:[[skeleton,'rows']]});
+  fetch('/contract-review-data.json',{cache:'no-store'}).then(async response=>{
+    if(!response.ok)throw Error('UNAVAILABLE');
+    const raw=await response.text();if(new TextEncoder().encode(raw).length>131072)throw Error('READ_LIMIT');
+    const store=validateContractReviewStore(JSON.parse(raw));initializeContractReview(root,currentContractReviews(store));
+  }).catch(()=>{root.replaceChildren(element('p','컨트랙트 검토 요약을 읽지 못했습니다. 연결을 확인하고 새로고침하세요.','muted'));}).finally(finishLoading);
   const button=document.querySelector('#contract-theme');button.addEventListener('click',()=>document.querySelector('#theme-toggle').click());
   const updateTheme=()=>{const light=document.documentElement.dataset.theme==='light';button.textContent=light?'☾ 다크':'☀ 라이트';button.setAttribute('aria-label',`${light?'다크':'라이트'} 모드로 전환`);};
   new MutationObserver(updateTheme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});updateTheme();

@@ -24,6 +24,8 @@ test('stored source profiles keep eight chain-specific deployments and their evi
 test('public notes match reviewed fields and expose neither archives nor live execution paths',async()=>{
   const html=await readFile(new URL('./source-review-notes.html',import.meta.url),'utf8');
   assert.equal(html,sourceReviewNotes());
+  assert.doesNotMatch(html,/profiles=>|counts=new Map|sourceScopeSummary/);
+  assert.match(html,/검토 기준 2026-10-25 · 5개 토큰 · 26개 배포/);
   assert.equal((html.match(/배포 전체 연결: UNKNOWN/g)??[]).length,26);
   assert.doesNotMatch(html,/\.state|RPC_URL|DATABASE_URL|PRIVATE_KEY|api[_-]?key/i);
   const server=await startPreviewServer(0);const base=`http://127.0.0.1:${server.address().port}`;

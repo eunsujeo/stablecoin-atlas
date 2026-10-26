@@ -1,0 +1,47 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {fixture} from './fixture.mjs';
+import {initialize,grantAccess,structureHash} from '../../tools/market-db/schema.mjs';
+import {connectDatabase,transaction} from '../../tools/market-db/connection.mjs';
+import {initializeContractReview,grantContractReview,importContractReviews,readContractReviews,verifyContractReviewSchema} from '../../tools/market-db/contract-review.mjs';
+import {verifySupplyApiBoundary} from '../../tools/market-db/supply-api-boundary.mjs';
+import {verifyProductionReader} from '../../tools/production-database.mjs';
+import {reviewedContractStore} from '../../web/contract-review-reviewed.js';
+import {digest} from '../../tools/market-db/plan.mjs';
+test('contract review PG17 preserves immutable public summaries, prior failure and isolated least-privilege roles',{timeout:120000},async()=>{
+ const f=await fixture();let writer,reader,second;
+ const encode=s=>Buffer.from(JSON.stringify(s)),bytes=encode(reviewedContractStore);
+ try{
+  await initialize(f.admin);const before=await structureHash(f.admin,'atlas_market');
+  await f.admin.query('CREATE ROLE anon NOLOGIN; CREATE ROLE authenticated NOLOGIN; CREATE ROLE authenticator NOLOGIN; CREATE ROLE service_role NOLOGIN BYPASSRLS');
+  await initializeContractReview(f.admin);assert.equal((await initializeContractReview(f.admin)).state,'UNCHANGED');
+  const wu=await f.createUser('atlas_test_contractwriter'),ru=await f.createUser('atlas_test_contractreader');
+  await grantAccess(f.admin,'atlas_test_contractwriter','writer');await grantAccess(f.admin,'atlas_test_contractreader','reader');
+  await grantContractReview(f.admin,'atlas_test_contractwriter','writer');await grantContractReview(f.admin,'atlas_test_contractreader','reader');
+  assert.equal((await grantContractReview(f.admin,'atlas_test_contractreader','reader')).state,'UNCHANGED');
+  writer=await connectDatabase({DATABASE_URL:wu});second=await connectDatabase({DATABASE_URL:wu});reader=await connectDatabase({DATABASE_URL:ru});
+  assert.deepEqual((await readContractReviews(reader)).reports,[]);
+  const both=await Promise.all([importContractReviews(writer,bytes,digest(bytes)),importContractReviews(second,bytes,digest(bytes))]);
+  assert.deepEqual(both.map(r=>r.inserted).sort(),[0,2]);assert.equal((await importContractReviews(writer,bytes,digest(bytes))).inserted,0);
+  assert.deepEqual(await readContractReviews(reader),reviewedContractStore);
+  const bad=structuredClone(reviewedContractStore);bad.reports[0].purpose+=' changed';const badBytes=encode(bad);
+  await assert.rejects(importContractReviews(writer,badBytes,digest(badBytes)),/ID_CONFLICT/);
+  const mixed=structuredClone(bad);mixed.reports.unshift({...mixed.reports[0],id:'rollback-before-conflict'});const mixedBytes=encode(mixed);
+  await assert.rejects(importContractReviews(writer,mixedBytes,digest(mixedBytes)),/ID_CONFLICT/);assert.equal((await readContractReviews(reader)).reports.length,2);
+  await assert.rejects(importContractReviews(reader,bytes,digest(bytes)));await assert.rejects(importContractReviews(f.admin,bytes,digest(bytes)));await assert.rejects(readContractReviews(writer));
+  for(const sql of ['DELETE FROM atlas_contract_review.report','TRUNCATE atlas_contract_review.report',"UPDATE atlas_contract_review.report SET chain_id='2'",'SELECT atlas_contract_review.reject_mutation()',"INSERT INTO atlas_contract_review.access_grant VALUES('intruder','writer')"])await assert.rejects(writer.query(sql));
+  await assert.rejects(reader.query('INSERT INTO atlas_contract_review.report SELECT * FROM atlas_contract_review.report'));
+  for(const sql of ['CREATE TABLE atlas_contract_review.bad(id int)','CREATE SCHEMA contract_review_bad'])await assert.rejects(reader.query(sql));
+  await assert.rejects(writer.query("INSERT INTO atlas_contract_review.report(report_id,chain_id,address,observed_at,payload_hash,payload) VALUES('missing','1',$1,now(),$2,'{}')",[reviewedContractStore.reports[0].address,Buffer.alloc(32)]));
+  const boundary=()=>transaction(f.admin,()=>verifySupplyApiBoundary(f.admin,{schema:'atlas_contract_review'}),{repeatableRead:true});assert.equal((await boundary()).state,'VERIFIED_EFFECTIVE_ACCESS_DENIED');
+  await f.admin.query('GRANT SELECT(payload) ON atlas_contract_review.report TO anon');await assert.rejects(boundary());await assert.rejects(readContractReviews(reader));await f.admin.query('REVOKE SELECT(payload) ON atlas_contract_review.report FROM anon');
+  await f.admin.query('GRANT atlas_test_contractwriter TO authenticator WITH INHERIT FALSE');await assert.rejects(boundary());await f.admin.query('REVOKE atlas_test_contractwriter FROM authenticator');
+  await f.admin.query('ALTER DEFAULT PRIVILEGES IN SCHEMA atlas_contract_review GRANT SELECT ON TABLES TO PUBLIC');await assert.rejects(boundary());await f.admin.query('ALTER DEFAULT PRIVILEGES IN SCHEMA atlas_contract_review REVOKE SELECT ON TABLES FROM PUBLIC');
+  await f.admin.query('ALTER TABLE atlas_contract_review.report DISABLE TRIGGER immutable_record');await assert.rejects(readContractReviews(reader));await f.admin.query('ALTER TABLE atlas_contract_review.report ENABLE TRIGGER immutable_record');
+  await f.admin.query('GRANT UPDATE(payload) ON atlas_contract_review.report TO atlas_test_contractreader');await assert.rejects(readContractReviews(reader));await f.admin.query('REVOKE UPDATE(payload) ON atlas_contract_review.report FROM atlas_test_contractreader');
+  await verifyProductionReader(reader);
+  await f.admin.query('ALTER TABLE atlas_contract_review.report DISABLE TRIGGER immutable_record');
+  await f.admin.query("UPDATE atlas_contract_review.report SET payload=jsonb_set(payload,'{purpose}','\"tampered\"')");
+  await f.admin.query('ALTER TABLE atlas_contract_review.report ENABLE TRIGGER immutable_record');await assert.rejects(readContractReviews(reader));
+  await verifyContractReviewSchema(f.admin);assert.equal(await structureHash(f.admin,'atlas_market'),before);
+ }finally{await Promise.all([writer,reader,second].filter(Boolean).map(c=>c.end()));await f.stop();}
+});

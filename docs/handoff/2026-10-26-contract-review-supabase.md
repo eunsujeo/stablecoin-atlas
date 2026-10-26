@@ -1,0 +1,11 @@
+# 컨트랙트 검토 요약 Supabase 반영 완료
+
+- 사용자 요청/승인: 최신 요약의 로컬 웹 반영 동의 후 DB 저장 요청, 대상 확인에 “supabase 반영까지야.”라고 승인. ADR0113/AGENTS.md에 예외 범위를 기록했다.
+- 완료: 별도 private atlas_contract_review v1·기존 writer SELECT/report INSERT·reader SELECT·검토 요약 최초 실패/v3 두 건 불변 저장·로컬 웹 DB 읽기 연결. 실제 적용2026-10-26T09:08:50.469Z~09:08:56.621Z 단계11개 COMPLETE. 동일 입력 반복 추가0/UNCHANGED, reader 전체 일치, READER_READY, API 경계 입력 전후 통과, 기존8스키마 구조 hash 불변. 운영 웹 배포·Collector/FX·기존 데이터/주기·키·공급자 API/RPC 변경0.
+- 판정: 전체 두 보고서 UNKNOWN, v3 블록26275729 runtime OBSERVED/개별 artifact equality PASS를 분리. compiler NOT_RUN·소스 진위 UNKNOWN·실제 Proxy/권한 NOT_TESTED·비용 UNKNOWN·최초 실패 UNKNOWN/v2 TLS_FAILURE·기존 토큰 판정 유지. Dashboard exposed schemas 자체는 UNKNOWN.
+- 실패/수정: 첫 표적 시험에서 정규식의 숫자 blockNumber 강제 변환 허용을 확인해 string 검사 추가. SQL 누락 필드 NULL 통과를 막는 필수키/타입/식별자/시각/UNKNOWN CHECK도 보강. 이후 표적7/전체654/실제 적용/Chrome 모두 통과.
+- 검증: `npm run check` rc0 tests654/pass654/fail0/cancelled0/skipped0. 별도 PG17 포함 표적7/pass7. 실제 로컬·Supabase Chrome 두 번 rc0, GET/HEAD200·요약2건 전체 일치·최초 보고서 선택·탭/검색/테마/모바일/API503 오류 확인. 브라우저 외부/비공개 원문 요청0. 기존 runtime 오프라인26/pass26/추가RPC0·v2/v3 hash 불변. `git diff --check` rc0.
+- 근거/재현: [연구 기록](../research/2026-10-26-contract-review-supabase.md)·[ADR0113](../adr/0113-contract-review-supabase-summary.md). CLI `npm run review:contract:db -- read --env-file .state/market-db-secrets/reader.env`. 비공개 `.state/contract-review-supabase-20261026/{receipt.private.json,reviewed-input.json}`0700/0600. receipt SHA256 `3a9eeae7c64a008468abdaf72fc9a6cdc7a97ef662456a89ae7f0fce85430769`. 실제 적용 스크립트는 완료 디렉터리 재사용을 거절하므로 재실행하지 않는다.
+- 실행 중: 사용자 검토용 로컬 웹 `http://127.0.0.1:4173/#contracts`, DB reader 모드. 이번 작업에서 시작한 Node listener PID5494, exec session2286, 로그 `.state/agent-logs/contract-review-supabase-preview.log`. 종료가 필요하면 현재 소유/명령을 확인하고 해당 미리보기만 정상 종료한다. 추가/미회수 Agent/pane 없음. Lead e7a261eb9d544459b743579e581d8a5f revise_plan 회수/조건 반영 완료.
+- 변경: db/contract-review·tools/market-db/contract-review*·web/contract-review-model.js/contract-review-reviewed.js/contract-review.js·로컬 API·구조/API경계 namespace 허용목록·package script·표적/PG/웹/Chrome 검증·AGENTS/ADR/상태/안내/연구/인계. 기존 untracked docs/handoff/2026-10-22-router-lead-review.md는 수정하지 않았다. 이전 대화의 offline-followup 문서2개도 보존했다.
+- 다음 행동: 현재 요청 완료. 사용자 추가 요청 시 범위를 정한다. 새 체인 조회·compiler/Slither·실제 Proxy/권한 검증·공개 운영 웹 배포로 자동 진행하지 않는다. 기존 저장 보고서/소비 재사용·원문/키/접속값 Git/웹 게시 금지.

@@ -9,7 +9,8 @@ await mkdir('.state/agent-logs',{recursive:true});
 if (!/^http:\/\/127\.0\.0\.1:\d+$/.test(base)) throw new Error('Local URL required');
 const profile = await mkdtemp(join(tmpdir(), 'atlas-browser-'));
 const chrome = spawn('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', ['--headless=new', '--remote-debugging-pipe', '--disable-background-networking', '--disable-component-update', '--disable-sync', '--disable-default-apps', '--disable-extensions', '--no-first-run', '--no-default-browser-check', `--user-data-dir=${profile}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe', 'pipe', 'pipe'] });
-let failEvidence=false,id=0,buffer='',session;const requests=[],errors=[],pending=new Map(),fetchWork=new Set(),networkWork=new Set();
+let holdContract=true,failContract=false,failEvidence=false,id=0,buffer='',session;const requests=[],errors=[],pending=new Map(),fetchWork=new Set(),networkWork=new Set();
+const heldContractRequests=[];
 let lastNetworkActivity=Date.now();
 chrome.stderr.on('data', () => {});
 chrome.stdio[4].on('data', data => {
@@ -23,7 +24,8 @@ chrome.stdio[4].on('data', data => {
     if(value.sessionId===session&&value.method==='Fetch.requestPaused'){
       lastNetworkActivity=Date.now();
       const {requestId,request}=value.params;
-      const call=!request.url.startsWith(base+'/')?send('Fetch.failRequest',{requestId,errorReason:'BlockedByClient'}):failEvidence&&request.url.endsWith('/evidence/index.json')?send('Fetch.fulfillRequest',{requestId,responseCode:503,body:Buffer.from('UNAVAILABLE').toString('base64')}):send('Fetch.continueRequest',{requestId});
+      if(holdContract&&request.url===base+'/contract-review-data.json'){heldContractRequests.push(requestId);continue;}
+      const call=failContract&&request.url===base+'/contract-review-data.json'?send('Fetch.fulfillRequest',{requestId,responseCode:503,body:Buffer.from('UNAVAILABLE').toString('base64')}):!request.url.startsWith(base+'/')?send('Fetch.failRequest',{requestId,errorReason:'BlockedByClient'}):failEvidence&&request.url.endsWith('/evidence/index.json')?send('Fetch.fulfillRequest',{requestId,responseCode:503,body:Buffer.from('UNAVAILABLE').toString('base64')}):send('Fetch.continueRequest',{requestId});
       fetchWork.add(call);
       call.then(()=>{fetchWork.delete(call);lastNetworkActivity=Date.now();},e=>{fetchWork.delete(call);lastNetworkActivity=Date.now();errors.push(e.message);});
     }
@@ -62,12 +64,21 @@ try {
  await send('Runtime.enable');await send('Page.enable');await send('Network.enable');await send('Fetch.enable',{patterns:[{urlPattern:'*'}]});
  for(const route of ['/#contracts','/legacy.html#contracts']){
   await send('Page.navigate',{url:base+route});
-  await until("document.querySelector('#contract-review-root')?.dataset.contractReview==='multicall3-ethereum-20261026'&&!document.querySelector('#contracts-screen').hidden");
+  if(holdContract){
+   await until("document.querySelector('#contract-review-root')?.getAttribute('aria-busy')==='true'&&!!document.querySelector('.contract-load-progress')");
+   assert.equal(await evaluate("document.querySelector('.contract-load-progress').hasAttribute('value')"),false);
+   assert.equal(await evaluate("document.querySelectorAll('[data-contract-report]').length"),0);
+   await screenshot('contract-dashboard-loading');
+   holdContract=false;for(const requestId of heldContractRequests.splice(0))await send('Fetch.continueRequest',{requestId});
+  }
+  await until("document.querySelector('#contract-review-root')?.dataset.contractReview==='multicall3-ethereum-20261026-infura-v3'&&!document.querySelector('#contracts-screen').hidden");
   assert.equal(await evaluate('location.pathname'),'/');
+  assert.equal(await evaluate("document.querySelector('#contract-review-root').getAttribute('aria-busy')"),'false');
+  assert.equal(await evaluate("document.querySelector('.contract-load-progress')"),null);
   assert.equal(await evaluate("document.querySelector('[data-screen=contracts]').getAttribute('aria-current')"),'page');
   for(const id of ['overview-screen','evidence-workspace','live-screen','market-screen'])assert.equal(await evaluate(`document.querySelector('#${id}').hidden`),true);
   assert.equal(await evaluate("document.querySelectorAll('[data-contract-section]').length"),11);
-  assert((await evaluate("document.querySelector('.contract-heading').textContent")).includes('UNKNOWN'));
+  assert((await evaluate("document.querySelector('.contract-heading').textContent")).includes('저장 소스 검토 완료'));
   for(const group of ['overview','behavior','risks','evidence']){
    await evaluate(`document.querySelector('#contract-${group}-tab').click()`);
    assert.equal(await evaluate("document.querySelectorAll('.contract-tabpanel:not([hidden])').length"),1);
@@ -78,6 +89,7 @@ try {
   await evaluate("document.querySelector('#contract-evidence-tab').click()");
   const evidence=await evaluate("document.querySelector('#contract-evidence-panel').innerText");
   for(const value of ['10항목 PASS','NOT_RUN','UNKNOWN','NOT_TESTED','2054218939d3fa0f52f8ce1a33658d570a550671f63197356ee5744f7e188b1e'])assert(evidence.includes(value),value);
+  for(const value of ['26275729','로컬 검토 범위','PASS'])assert((await evaluate("document.querySelector('.contract-heading').textContent+document.querySelector('#contract-overview-panel').textContent")).includes(value));
   // Roving keyboard focus changes both the active tab and its owned panel.
   await evaluate("document.querySelector('#contract-overview-tab').click();document.querySelector('#contract-overview-tab').focus()");
   await key('ArrowRight','ArrowRight',39);
@@ -86,7 +98,7 @@ try {
   for(const [query,count]of [['0xca11bde0',1],['Ethereum',1],['missing-report',0],['',1]]){
    await evaluate(`(()=>{const s=document.querySelector('.contract-directory input');s.value=${JSON.stringify(query)};s.dispatchEvent(new Event('input'));})()`);
    assert.equal(await evaluate("document.querySelectorAll('[data-contract-report]').length"),count);
-   assert.equal(await evaluate("document.querySelector('#contract-review-root').dataset.contractReview"),'multicall3-ethereum-20261026');
+   assert.equal(await evaluate("document.querySelector('#contract-review-root').dataset.contractReview"),'multicall3-ethereum-20261026-infura-v3');
    assert.equal(await evaluate("document.querySelector('.contract-directory > .muted').hidden"),count!==0);
   }
   for(const width of [1440,390]){
@@ -109,14 +121,24 @@ try {
   await evaluate("document.querySelector('[data-screen=contracts]').click()");
   await until("!document.querySelector('#contracts-screen').hidden");
  }
+ assert.equal(await evaluate("document.querySelectorAll('[data-contract-report]').length"),1);
+ assert.equal(await evaluate("document.querySelector('[data-contract-report=multicall3-ethereum-20261026]')"),null);
+ assert.equal(await evaluate("document.querySelector('#contract-review-root').textContent.includes('최초 실패')"),false);
+ assert.equal(await evaluate("document.querySelector('#overview-source-note')"),null);
+ assert.equal(await evaluate("document.body.textContent.includes('profiles=>')"),false);
  // Failure of the unrelated evidence API cannot suppress the reviewed excerpt.
  failEvidence=true;
  await send('Page.reload');
- await until("!document.querySelector('#contracts-screen').hidden&&document.querySelector('#contract-review-root')?.dataset.contractReview==='multicall3-ethereum-20261026'&&!document.querySelector('#evidence-error').hidden");
+ await until("!document.querySelector('#contracts-screen').hidden&&document.querySelector('#contract-review-root')?.dataset.contractReview==='multicall3-ethereum-20261026-infura-v3'&&!document.querySelector('#evidence-error').hidden");
  await drainFetch();
+ failContract=true;await send('Page.reload');
+ await until("document.querySelector('#contract-review-root')?.innerText.includes('검토 요약을 읽지 못했습니다')");
+ assert.equal(await evaluate("document.querySelectorAll('[data-contract-section]').length"),0);
+ assert.equal(await evaluate("document.querySelector('#contract-review-root').getAttribute('aria-busy')"),'false');
+ assert.equal(await evaluate("document.querySelector('.contract-load-progress')"),null);
  assert.deepEqual(errors,[]);
  assert.deepEqual(requests.filter(url=>!url.startsWith(base+'/')&&!url.startsWith('data:')),[]);
  assert.deepEqual(requests.filter(url=>/snapshot|review\.json|\.state|review:contract/.test(url)),[]);
- console.log('PASS contract dashboard: main/legacy navigation, 11 sections/16 functions, tabs/keyboard/search, dark/light/1440px/390px, evidence503 independence, runtimeErrors0/externalRequests0/privateReportRequests0');
+ console.log('PASS contract dashboard: main/legacy navigation, indeterminate loading/cleanup, 11 sections/16 functions, tabs/keyboard/search, dark/light/1440px/390px, evidence503 independence, runtimeErrors0/externalRequests0/privateReportRequests0');
 }finally{try{await send('Fetch.disable');await send('Browser.close',{},false);}catch{}chrome.kill();await new Promise(resolve=>{if(chrome.exitCode!==null)resolve();else chrome.once('exit',resolve);});await rm(profile,{recursive:true,force:true});}
 

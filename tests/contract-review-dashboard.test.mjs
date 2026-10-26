@@ -9,7 +9,7 @@ const read=(server,path,{method='GET',host}={})=>new Promise((resolve,reject)=>{
   });req.on('error',reject);req.end();
 });
 const stop=server=>new Promise(resolve=>{server.close(resolve);server.closeIdleConnections();});
-const assets=['/contract-review.js','/contract-review-data.js','/contract-review.css'];
+const assets=['/contract-review.js','/contract-review-data.js','/contract-review.css','/contract-review-model.js','/contract-review-view.js','/contract-review-data.json'];
 
 test('local dashboard serves reviewed contract excerpts and never serves raw report or snapshot paths',async()=>{
   const server=await startPreviewServer(0);
@@ -38,5 +38,19 @@ test('production omits contract UI and denies all new assets for GET/HEAD withou
     }
     for(const method of ['GET','HEAD'])for(const path of assets.flatMap(p=>[p,p+'?x=1']))assert.equal((await read(server,path,{method,host:'atlas.example.com'})).status,404,path);
     assert.equal(calls,0);
+  }finally{await stop(server);}
+});
+
+test('contract summary endpoint reads only configured stored data and never falls back after a DB failure',async()=>{
+  const {reviewedContractStore}=await import('../web/contract-review-reviewed.js');
+  let calls=0,broken=false;
+  const server=await startPreviewServer(0,{contractReviewReader:async()=>{calls++;if(broken)throw Error('postgresql://private');return reviewedContractStore;}});
+  try{
+    const response=await read(server,'/contract-review-data.json');assert.equal(response.status,200);assert.deepEqual(JSON.parse(response.body),reviewedContractStore);
+    assert.equal((await read(server,'/contract-review-data.json',{method:'HEAD'})).body,'');assert.equal(calls,2);
+    assert.equal((await read(server,'/contract-review-data.json?file=secret')).status,404);
+    assert.equal((await read(server,'/contract-review-data.json',{method:'POST'})).status,405);
+    assert.equal((await read(server,'/contract-review-data.json',{host:'evil.example'})).status,403);assert.equal(calls,2);
+    broken=true;const failure=await read(server,'/contract-review-data.json');assert.equal(failure.status,503);assert.equal(failure.body,'CONTRACT_REVIEW_UNAVAILABLE');assert(!failure.body.includes('private'));
   }finally{await stop(server);}
 });

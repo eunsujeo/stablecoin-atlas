@@ -16,7 +16,7 @@ import {renderNetworkSupplyChart, networkSupplySeries} from './market-chart.js';
 import { dashboardEvidence, VERDICTS, reportLinks } from './evidence-model.js';
 import { validateMarket, displayAmount, ratio, units } from './market-model.js';
 import { overviewSummary, overviewEvidenceRanking } from './overview-model.js';
-import {sourceReviewProfiles,sourceReviewDate,sourceScopeSummary} from './source-review-data.js';
+import {sourceReviewProfiles,sourceScopeSummary} from './source-review-data.js';
 const $=selector=>document.querySelector(selector);
 const publicMode=document.documentElement.dataset.deployment==='production';
 const node=(tag,text,cls)=>{const el=document.createElement(tag);if(text!==undefined)el.textContent=String(text);if(cls)el.className=cls;return el;};
@@ -74,7 +74,6 @@ function renderSourceReview(){
   const gradeNote=node('p','저장 보고서 로딩 중');gradeNote.id='overview-read-grade-note';
   const gradeRow=node('div',undefined,'metric-value');gradeRow.append(gradeValue);
   gradeCard.append(node('p','읽기 실행 등급'),gradeRow,gradeNote);if(!publicMode)metrics.append(gradeCard);
-  $('#overview-source-note').textContent=`${sourceReviewDate,sourceScopeSummary} 기준 · 저장 소스·문서 검토 범위`;
   const rows=$('#overview-source-rows');rows.replaceChildren();
   for(const coinId of assets){
     const profiles=sourceReviewProfiles.filter(p=>p.coinId===coinId);
