@@ -9,6 +9,9 @@
   <link rel="stylesheet" href="/styles.css"><script type="module" src="/app.js"></script><script type="module" src="/evidence.js"></script><script type="module" src="/market-view.js"></script><script type="module" src="/overview.js"></script>
   <link rel="stylesheet" href="/loading.css">
   <link rel="stylesheet" href="/source-review.css"><script type="module" src="/source-review.js"></script>
+  <!-- local-contract-assets:start -->
+  <link rel="stylesheet" href="/contract-review.css"><script type="module" src="/contract-review.js"></script>
+  <!-- local-contract-assets:end -->
 </head>
 <body>
   <a class="skip-link" href="#main">본문으로 이동</a>
@@ -18,9 +21,19 @@
     <nav aria-label="주 메뉴">
       <a class="nav-link active" href="#overview" data-screen="overview"><span aria-hidden="true">◈</span><span>전체 현황<small>공급량 · 전송량</small></span></a>
       <a class="nav-link" href="#assets" data-screen="assets"><span aria-hidden="true">▤</span><span>자산 프로필<small>자산 · 네트워크</small></span></a>
+      <!-- local-contract-nav:start -->
+      <a class="nav-link" href="#contracts" data-screen="contracts"><span aria-hidden="true">⌘</span><span>컨트랙트 분석<small>함수 · 위험 · 사용 조건</small></span></a>
+      <!-- local-contract-nav:end -->
     </nav>
   </aside>
   <main id="main" tabindex="-1">
+    <!-- local-contract-screen:start -->
+    <section id="contracts-screen" hidden aria-label="저장된 컨트랙트 분석">
+      <header class="page-header"><div><p class="eyebrow">WORKSPACE / CONTRACT REVIEW</p><h1>컨트랙트 분석</h1><p class="muted">저장된 분석의 함수·호출 흐름과 사용 조건을 살펴봅니다.</p></div><div class="header-actions"><button id="contract-theme" class="quiet-button">☀ 라이트</button></div></header>
+      <p class="mock-notice">검토된 요약 · 전체 상태 UNKNOWN은 근거 부족을 뜻합니다. 사설 시험 PASS는 개별 시나리오의 성공이며 자산 안전성·지원 인증이 아닙니다.</p>
+      <div id="contract-review-root"></div>
+    </section>
+    <!-- local-contract-screen:end -->
     <section id="overview-screen" hidden aria-label="스테이블코인 시장 흐름과 공급량 현황">
       <header class="page-header"><div><p class="eyebrow">WORKSPACE / OVERVIEW</p><h1>전체 현황</h1><p class="muted">스테이블코인의 공급량과 전송 흐름을 네트워크별로 살펴봅니다.</p></div><div class="header-actions"><button id="overview-reload" class="quiet-button">전체 다시 읽기 ↻</button><button id="overview-theme" class="quiet-button">☀ 라이트</button></div></header>
       <p id="overview-error" class="error-message" role="alert" hidden></p>

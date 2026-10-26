@@ -1,5 +1,7 @@
 # 현재 개발 상태
 
+사용자 승인으로 기존 로컬 웹에 **컨트랙트 분석** 메뉴(`/#contracts`)를 연결했다. Multicall3의 검토된 저장 요약·16함수·11개 검토 항목을 기존 테마로 표시한다. 웹은 원문 보고서/snapshot·분석·외부 조회를 사용하지 않으며 실제 runtime UNKNOWN·사설 개별 PASS를 구분한다. 전용 메뉴/자료는 production에서 제외한다. [ADR0112](adr/0112-contract-review-dashboard.md)·[검증/재현 기록](research/2026-10-26-contract-review-dashboard.md).
+
 독립 [Contract Intelligence & Security Review](CONTRACT_REVIEW.md)를 추가했다. Sourcify/Etherscan 자동 수집·고정 hash EVM 읽기·표준 Proxy 후보·AST 함수/호출/권한 조건·근거 기반 위험 및 사용 위험·JSON/Markdown/별도 로컬 대시보드를 제공한다. Multicall3 실제 소스16함수와 새 사설 Anvil10항목을 검증했지만 첫 공개 RPC 요청은 실패하여 기준 블록/runtime 연결은 UNKNOWN이다. 원본 compiler 재컴파일/Slither 실행은 미완료다. [ADR0111](adr/0111-contract-intelligence-review.md)·[수행/검증/한계](research/2026-10-26-contract-review-multicall3.md). 운영 Mac mini/Supabase/Atlas 웹/Collector/FX는 변경하지 않았다.
 
 Web Reader의 첫 페이지 성능 개선으로 시장 성공 캐시 기본5분·최대2개 DB 세션 재사용·API별 연결/권한/쿼리/응답 계측을 추가했다. 매 대여 권한 검사·기존 응답/장애/갱신 정책을 유지한다. [ADR0109](adr/0109-web-reader-performance.md)·[수행/검증/미확인](research/2026-10-25-web-reader-performance.md). 운영 Mac mini/Supabase에 적용하지 않았으며 Collector·스케줄러·FX 서비스는 변경하지 않았다.

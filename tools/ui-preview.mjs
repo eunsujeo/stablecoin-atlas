@@ -22,6 +22,9 @@ import { databaseMarketReader } from './market-db/preview.mjs';
 import {databaseRegistrationReader,registrationRequest} from './market-db/registration-preview.mjs';
 
 const assets = new Map([
+  ['/contract-review.js', ['../web/contract-review.js', 'text/javascript; charset=utf-8']],
+  ['/contract-review-data.js', ['../web/contract-review-data.js', 'text/javascript; charset=utf-8']],
+  ['/contract-review.css', ['../web/contract-review.css', 'text/css; charset=utf-8']],
   ['/production.js',['../web/production.js','text/javascript; charset=utf-8']],
   ['/source-review.js', ['../web/source-review.js', 'text/javascript; charset=utf-8']],
   ['/source-review-top10-data.js', ['../web/source-review-top10-data.js', 'text/javascript; charset=utf-8']],

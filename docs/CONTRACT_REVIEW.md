@@ -56,6 +56,8 @@ Proxy는 EIP1967 implementation/admin/beacon 슬롯·Beacon implementation()·�
 
 ## Multicall3 재현
 
+기존 로컬 웹 대시보드의 **컨트랙트 분석** 메뉴에서도 검토된 저장 요약을 읽을 수 있다. `npm run ui` 후 `http://127.0.0.1:4173/#contracts`로 연다(`-- --port 0`은 임시 포트). 기존 다크/라이트 테마와 메뉴를 공유한다. 함수·흐름·권한·위험·사용 조건·근거를 표시하며 웹 요청은 CLI/외부 조회를 실행하지 않는다. 원문 보고서/snapshot 대신 연구 기록의 수동 발췌를 제공하므로 새 CLI 출력이 자동으로 목록에 추가되지는 않는다. 새 요약은 검토 후 `web/contract-review-data.js`에 추가한다. 이 메뉴와 전용 자료는 production에서 제외한다. [ADR0112](adr/0112-contract-review-dashboard.md).
+
 [첫 실제 수집·실패·소스 검토·사설 검증](research/2026-10-26-contract-review-multicall3.md). 검토한 source SHA256이 선택된 Multicall3 소스와 일치할 때만 구체 usage profile을 적용한다. 이름/주소가 같다는 이유로 적용하지 않는다.
 
 ```sh

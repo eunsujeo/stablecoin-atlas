@@ -23,6 +23,7 @@ export function productionDocument(bytes){
   let html=bytes.toString('utf8');
   // These exact markers deliberately fail closed if the preview layout changes.
   const cut=(start,end,consume=false)=>{const a=html.indexOf(start),b=html.indexOf(end,a);if(a<0||b<0)throw Error('PUBLIC_TEMPLATE_CHANGED');html=html.slice(0,a)+html.slice(b+(consume?end.length:0));};
+  for(const part of ['assets','nav','screen'])cut(`<!-- local-contract-${part}:start -->`,`<!-- local-contract-${part}:end -->`,true);
   cut('    <div id="market-screen"','  </main>');
   cut('      <details id="overview-read-history"','\n      </section>');
   cut('      <section id="overview-geography"','      </section>',true);
