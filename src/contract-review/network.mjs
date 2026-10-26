@@ -22,6 +22,25 @@ export function wordAddress(value) {
   return /^0x0{64}$/.test(word) ? null : address(`0x${word.slice(-40)}`);
 }
 const methods = new Set(['eth_chainId', 'eth_getBlockByNumber', 'eth_getCode', 'eth_getStorageAt', 'eth_call']);
+// Only fixed categories leave this module. Never copy provider messages, URLs or raw codes.
+const connectionKinds = new Map([
+  ...['ENOTFOUND', 'EAI_AGAIN'].map(code => [code, 'DNS_FAILURE']),
+  ...['ERR_TLS_CERT_ALTNAME_INVALID', 'CERT_HAS_EXPIRED', 'CERT_NOT_YET_VALID', 'DEPTH_ZERO_SELF_SIGNED_CERT', 'SELF_SIGNED_CERT_IN_CHAIN', 'UNABLE_TO_VERIFY_LEAF_SIGNATURE'].map(code => [code, 'TLS_FAILURE']),
+  ...['ECONNREFUSED', 'ECONNRESET', 'ENETUNREACH', 'EHOSTUNREACH'].map(code => [code, 'CONNECTION_FAILURE']),
+  ...['ETIMEDOUT', 'UND_ERR_CONNECT_TIMEOUT'].map(code => [code, 'CONNECTION_TIMEOUT']),
+  ['UND_ERR_HEADERS_TIMEOUT', 'RESPONSE_TIMEOUT'], ['UND_ERR_BODY_TIMEOUT', 'BODY_TIMEOUT'],
+]);
+function failureKind(error, signal, phase) {
+  if (signal.aborted) return 'REQUEST_TIMEOUT';
+  if (phase !== 'CONNECT') return phase;
+  const seen = new Set();
+  for (let depth = 0; error && typeof error === 'object' && depth < 5 && !seen.has(error); depth++) {
+    seen.add(error);
+    if (connectionKinds.has(error.code)) return connectionKinds.get(error.code);
+    error = error.cause;
+  }
+  return 'UNKNOWN';
+}
 export class Transport {
   constructor(rpcURL, fetcher = fetch, policy = limits) {
     const url = new URL(rpcURL);
@@ -34,21 +53,27 @@ export class Transport {
     if (this[key] >= max) throw Error('REQUEST_LIMIT');
     this[key]++;
     const event = { kind, operation: label, status: 'UNKNOWN', bytes: 0 }; this.events.push(event);
+    const signal = AbortSignal.timeout(Math.max(1, Math.min(this.policy.requestMs, this.policy.timeoutMs - (Date.now() - this.started))));
+    let phase = 'CONNECT';
     try {
-      const response = await this.fetcher(url, { ...init, redirect: 'error', signal: AbortSignal.timeout(Math.max(1, Math.min(this.policy.requestMs, this.policy.timeoutMs - (Date.now() - this.started)))) });
+      const response = await this.fetcher(url, { ...init, redirect: 'error', signal });
       event.httpStatus = response.status;
+      phase = 'BODY_READ_FAILED';
       const chunks = [];
       for await (const chunk of response.body ?? []) {
         const b = Buffer.from(chunk); event.bytes += b.length; this.bytes += b.length;
-        if (event.bytes > this.policy.responseBytes || this.bytes > this.policy.totalBytes) throw Error('BYTE_LIMIT');
+        if (event.bytes > this.policy.responseBytes || this.bytes > this.policy.totalBytes) { phase = 'BYTE_LIMIT'; throw Error('BYTE_LIMIT'); }
         chunks.push(b);
       }
       const body = Buffer.concat(chunks);
       if (kind === 'GET') this.sourceCaptures.push({ provider: label, httpStatus: response.status, bodyBase64: body.toString('base64') });
-      if (!response.ok) throw Error('HTTP_FAILURE');
-      const result = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(body));
+      if (!response.ok) { phase = 'HTTP_FAILURE'; throw Error('HTTP_FAILURE'); }
+      phase = 'INVALID_UTF8';
+      const decoded = new TextDecoder('utf-8', { fatal: true }).decode(body);
+      phase = 'INVALID_JSON';
+      const result = JSON.parse(decoded);
       event.status = 'RECEIVED'; return result;
-    } catch { event.status = 'FAILED'; throw Error('READ_FAILED'); } // Never forward URL, credentials, provider body or error text.
+    } catch (error) { event.status = 'FAILED'; event.failureKind = failureKind(error, signal, phase); throw Error('READ_FAILED'); }
   }
   get(url, provider) {
     const parsed = new URL(url);
@@ -59,8 +84,15 @@ export class Transport {
   async rpc(method, params = []) {
     if (!methods.has(method)) throw Error('METHOD_NOT_ALLOWED');
     const id = this.rpcCount + 1;
+    const eventIndex = this.events.length;
     const body = await this.request('RPC', this.rpcURL, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id, method, params }) }, method);
-    if (body?.jsonrpc !== '2.0' || body.id !== id || Object.hasOwn(body, 'error') || !Object.hasOwn(body, 'result')) throw Error('RPC_RESULT_INVALID');
+    const event = this.events[eventIndex];
+    if (body?.jsonrpc !== '2.0' || body.id !== id || Object.hasOwn(body, 'error') || !Object.hasOwn(body, 'result')) {
+      event.rpcStatus = 'INVALID';
+      event.failureKind = body?.jsonrpc === '2.0' && body.id === id && Object.hasOwn(body, 'error') ? 'RPC_ERROR_RESPONSE' : 'RPC_ENVELOPE_INVALID';
+      throw Error('RPC_RESULT_INVALID');
+    }
+    event.rpcStatus = 'VALID';
     return body.result;
   }
 }

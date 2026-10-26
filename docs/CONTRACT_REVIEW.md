@@ -77,4 +77,8 @@ npm run review:contract -- \
 
 ## 다음 개발 단위
 
-먼저 실제 기준 블록/runtime 연결 미확인을 해소하려면 실패 소비를 보존하고 정확한 endpoint/한도의 새 실행 계획을 확인한다. 그다음 별도 승인/환경에서 원본 버전 compiler pin과 독립 재컴파일, 네트워크 없는 Slither runner, custom Proxy 및 protocol별 권한/자산 불변식을 확장한다. 소스 자동 수집을 운영 서비스/스케줄러에 연결하지 않는다.
+사용자 승인 후 [Infura v3 실제 읽기](research/2026-10-26-multicall3-infura-runtime-result.md)를 완료했다. 블록26275729의 runtime3808바이트와 저장 공급자 두 artifact가 전체 바이트 일치했고, 실제4RPC/GET0·재시도/전환0에서 소비 완료했다. `node --use-env-proxy tools/contract-review-infura-runtime-read.mjs --preflight`는 기존 `RPC_URL`의 허용 형식과 입력4개 pin만 확인하며, 성공해도 소비한 `--execute`를 다시 실행할 수 없다. 기존 PublicNode v2 원본/실패는 보존한다.
+
+Multicall3의 [새 runtime 단발 읽기 계획](research/2026-10-26-multicall3-runtime-read-plan.md)은 사용자 승인 후 첫 eth_chainId에서 TLS_FAILURE로 종료해 [소비 완료](research/2026-10-26-multicall3-runtime-read-result.md)했다. 실제 배포 코드 읽기는 NOT_TESTED다. `node --use-env-proxy tools/contract-review-runtime-read.mjs --preflight`는 저장 입력만 확인하며 성공해도 이미 소비한 `--execute`를 다시 실행할 수 없다. 기존 첫 실패 원인 UNKNOWN은 보존한다. 새 외부 실행은 새 고정 계획 승인 후에만 진행하고 TLS 검증을 끄거나 다른 endpoint로 자동 전환하지 않는다.
+
+고정 블록 runtime과 저장 공급자 artifact의 대응은 확인했다. 후속 원본 버전 compiler pin/독립 재컴파일, 네트워크 없는 Slither runner, custom Proxy 및 protocol별 권한/자산 불변식 확장은 별도 승인/환경에서 진행한다. 실제 Proxy/권한·소스 진위·안전성 보장은 이번 바이트 일치에 포함하지 않는다. 새 외부 읽기도 정확한 endpoint/한도의 새 계획 승인 전 시작하지 않는다. 소스 자동 수집을 운영 서비스/스케줄러에 연결하지 않는다.
