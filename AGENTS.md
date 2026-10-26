@@ -2,6 +2,8 @@
 
 이 저장소는 독립적인 Multi-Chain Asset Compatibility Lab이다. 기존 Integration Test Kit 코드를 복사하거나 의존하지 않는다. Codex 단독으로 개발하며 하위 에이전트에 위임하지 않는다.
 
+- 사용자 범용 컨트랙트 분석 승인(2026-10-26): ADR0111의 독립 Contract Review CLI·Sourcify/Etherscan 자동 소스/ABI 취득·고정 블록 EVM 읽기·Proxy 후보/AST 기반 동작·위험/사용 위험 보고서·별도 로컬 보고서 대시보드·Multicall3 실제 읽기 및 사설 Fixture 재현을 허용한다. 기존 토큰/Atlas 판정과 분리하며 운영 Mac mini/Supabase/Atlas 웹/Collector/FX는 변경하지 않는다. 제품 LLM·외부 서명/거래·자동 compiler/도구 설치·스케줄은 추가하지 않는다. 최초 실제 조회의 정확한 대상·한도는 ADR0111을 따른다.
+
 - Phase 1 ERC-20 구현·로컬 검증을 완료했고, 사용자가 후속 TRON 진행을 승인했다. TRC-20 읽기 전용과, 사용자가 추가 승인한 프로그램 생성·소유·격리가 확인된 신규 사설 TRON TVM Fixture의 로컬 실행을 범위로 한다. 외부 TRON RPC는 계속 읽기 전용이다. 운영 키·공개망/테스트넷 쓰기, Solana/XRPL 실행 Adapter, 제품 내부 LLM, 웹 UI는 이번 범위에 넣지 않는다. 사용자 추가 요청에 따른 Solana USDC/USDT·XRPL USDC/RLUSD와 Ethereum RLUSD의 공식 식별자·프로필 조사는 research-only로 포함한다.
 - 사용자 후속 진행 승인(2026-10-21): Solana USDC/USDT mint의 연구 전용 읽기 CLI를 허용한다. ADR0027에 따라 genesis·공통 context slot·program/82-byte mint 설정만 관측하며 제품 실행 Adapter·거래·서명·SDK는 추가하지 않는다. SOLANA_RPC_URL 또는 명시적 공개 RPC 선택을 사용한다.
 - 사용자 후속 진행 승인(2026-10-21): XRPL USDC/RLUSD issuer AccountRoot의 연구 전용 읽기를 ADR0028 범위로 허용한다. XRPL_RPC_URL 또는 명시적 공개 RPC 선택, network_id·validated ledger hash 고정과 설정 관측만 수행하며 제품 Adapter·서명/거래·trust-line/Payment 구현은 추가하지 않는다.

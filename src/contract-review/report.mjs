@@ -1,0 +1,27 @@
+import { createHash } from 'node:crypto';
+export const escapeHTML = value => String(value ?? 'UNKNOWN').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+const json = x => JSON.stringify(x, null, 2);
+const fenced = x => `\n~~~~json\n${json(x).replace(/~/g, '\\u007e')}\n~~~~\n`;
+export function sections(report) {
+  return [
+    ['Contract Overview', { status: report.status, statusMeaning: report.statusMeaning, chainId: report.chainId, address: report.address, block: report.block, observedAt: report.observedAt, analyzedAt: report.analyzedAt, contracts: report.contracts.map(c => ({ address: c.address, purpose: c.usage.purpose, codeHash: c.codeHash })) }],
+    ['Source Verification', report.contracts.map(c => ({ address: c.address, ...c.source, verification: c.verification, analysisMode: c.analysis.mode, tool: c.analysis.tool }))],
+    ['Contract Architecture / Proxy', report.contracts.map(c => ({ address: c.address, ...c.architecture }))],
+    ['Function Inventory', report.contracts.map(c => ({ address: c.address, status: c.analysis.status, reason: c.analysis.reason, functions: c.analysis.functions }))],
+    ['Call Flow', report.contracts.map(c => ({ address: c.address, calls: c.analysis.callFlow, bytecodeCandidates: c.bytecodeAnalysis, contexts: c.usage.contexts, behavior: c.usage.behavior }))],
+    ['Asset Flow', report.contracts.map(c => ({ address: c.address, flows: c.analysis.callFlow.filter(x => x.forwardsValue || ['CALL', 'DELEGATECALL', 'EXTERNAL_TYPED_CALL', 'SEND', 'TRANSFER'].includes(x.kind)), stateVariables: c.analysis.stateVariables, scope: 'Static candidate flows. Runtime balances, token recipients and downstream effects are not exhaustively resolved.' }))],
+    ['Access Control', report.contracts.map(c => ({ address: c.address, status: 'UNKNOWN', modifiers: c.analysis.modifiers, namedRoleCandidates: c.analysis.stateVariables.filter(v => /owner|admin|role|timelock|multisig/i.test(v.name)), entryConditions: c.analysis.functions.map(f => ({ name: f.name, modifiers: f.modifiers, guards: f.guards, contexts: f.contexts, writes: f.directStateWrites })), scope: 'Modifier/guard references and direct state writes only. Names are candidates, not actual roles. No claim that absent named modifiers means unrestricted access. Inline/inherited/internal authorization requires review; roles/multisig/timelock state NOT_TESTED.' }))],
+    ['Security Findings', report.contracts.flatMap(c => [...c.analysis.findings, ...(c.usage.findings ?? [])].map(f => ({ address: c.address, ...f })))],
+    ['Usage Risks', report.contracts.map(c => ({ address: c.address, profile: c.usage.name, risks: c.usage.risks }))],
+    ['Recommended Usage', report.contracts.map(c => ({ address: c.address, conditions: c.usage.recommended }))],
+    ['Evidence & References', { tools: report.tools, replay: report.replay ?? null, privateExperiments: report.privateExperiments ?? { status: 'NOT_TESTED' }, limits: report.limits, transport: report.transport, errors: report.errors, contractErrors: report.contracts.map(c => ({ address: c.address, errors: c.errors })), coverage: report.contracts.map(c => ({ address: c.address, notProvenOrNotTested: c.analysis.coverage })), references: report.references }],
+  ];
+}
+export function markdown(report) {
+  return `# Contract Intelligence & Security Review\n\n${report.status} — chain ${report.chainId}, ${report.address}\n\n` + sections(report).map(([name, value]) => `## ${name}\n${fenced(value)}`).join('\n');
+}
+const script = "const q=document.querySelector('input');q.addEventListener('input',()=>{const term=q.value.toLowerCase();for(const s of document.querySelectorAll('section'))s.hidden=!!term&&!s.textContent.toLowerCase().includes(term);});";
+export function dashboard(report) {
+  const csp = `default-src 'none'; script-src 'sha256-${createHash('sha256').update(script).digest('base64')}'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; object-src 'none'; connect-src 'none'`;
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><meta http-equiv="Content-Security-Policy" content="${escapeHTML(csp)}"><title>Contract Review · ${escapeHTML(report.address)}</title><style>body{font:16px system-ui;background:#101823;color:#e3edf7;margin:0}main{max-width:1150px;margin:auto;padding:32px}header,section{background:#192637;border:1px solid #34465b;border-radius:12px;padding:24px;margin-bottom:20px}h1{font-size:28px}h2{font-size:20px;color:#98dacc}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:13px ui-monospace,monospace;line-height:1.6}input{padding:14px;width:90%;background:#101823;color:inherit;border:1px solid #98dacc;border-radius:8px}.badge{color:#f7ca83;font-weight:700}p{overflow-wrap:anywhere}</style></head><body><main><header><h1>Contract Intelligence &amp; Security Review</h1><p class="badge">${escapeHTML(report.status)}</p><p>Chain ${escapeHTML(report.chainId)} · ${escapeHTML(report.address)}</p><p>Block ${escapeHTML(report.block?.number)} · ${escapeHTML(report.block?.hash)}</p><p>Saved report · read only · findings require contextual review</p><label>Filter report sections <input type="search" aria-label="Filter report sections" placeholder="Function, finding, proxy, approval…"></label></header>${sections(report).map(([name, value]) => `<section><h2>${escapeHTML(name)}</h2><pre>${escapeHTML(json(value))}</pre></section>`).join('')}</main><script>${script}</script></body></html>`;
+}

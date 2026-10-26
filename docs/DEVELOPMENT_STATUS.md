@@ -1,5 +1,7 @@
 # 현재 개발 상태
 
+독립 [Contract Intelligence & Security Review](CONTRACT_REVIEW.md)를 추가했다. Sourcify/Etherscan 자동 수집·고정 hash EVM 읽기·표준 Proxy 후보·AST 함수/호출/권한 조건·근거 기반 위험 및 사용 위험·JSON/Markdown/별도 로컬 대시보드를 제공한다. Multicall3 실제 소스16함수와 새 사설 Anvil10항목을 검증했지만 첫 공개 RPC 요청은 실패하여 기준 블록/runtime 연결은 UNKNOWN이다. 원본 compiler 재컴파일/Slither 실행은 미완료다. [ADR0111](adr/0111-contract-intelligence-review.md)·[수행/검증/한계](research/2026-10-26-contract-review-multicall3.md). 운영 Mac mini/Supabase/Atlas 웹/Collector/FX는 변경하지 않았다.
+
 Web Reader의 첫 페이지 성능 개선으로 시장 성공 캐시 기본5분·최대2개 DB 세션 재사용·API별 연결/권한/쿼리/응답 계측을 추가했다. 매 대여 권한 검사·기존 응답/장애/갱신 정책을 유지한다. [ADR0109](adr/0109-web-reader-performance.md)·[수행/검증/미확인](research/2026-10-25-web-reader-performance.md). 운영 Mac mini/Supabase에 적용하지 않았으며 Collector·스케줄러·FX 서비스는 변경하지 않았다.
 
 시장 MISS는 [ADR0110](adr/0110-market-miss-query-batching.md)에 따라 동일 snapshot의 독립 검증 SELECT를 통합해 로컬 전체 스키마 기준100→64왕복으로 줄였고, health는 기존 인덱스로 정의별 최신1건을 먼저 조회한다. 모든 role/권한·schema/RLS/정합성 검사와5분 캐시/풀을 유지한다. [쿼리 분류·실행 계획·검증·예상 효과](research/2026-10-26-market-miss-performance.md). 운영 적용/개선율은 미확인이다.
