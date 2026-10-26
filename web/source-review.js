@@ -1,8 +1,12 @@
-import {sourceReviewProfiles,sourceReviewDate,sourceReviewNotice,sourceReviewFor,sourceFeaturesFor,sourceFeatureLabels,sourceProfileKey,sourceProfileStatus} from './source-review-data.js';
+import {sourceFeatureLabels,sourceProfileKey,sourceProfileStatus} from './asset-review-model.js';
+import {mountAssetReview} from './asset-review-store.js';
 const node=(tag,text,cls)=>{const el=document.createElement(tag);if(text!==undefined)el.textContent=text;if(cls)el.className=cls;return el;};
-const coins=[...new Set(sourceReviewProfiles.map(p=>p.coinId))];
 const sections=[['overview','개요'],['behavior','검증 결과'],['evidence','근거·한계']];
-export function initializeSourceReview(root){
+export function initializeSourceReview(root,snapshot){
+  const {profiles:sourceReviewProfiles,reviewedAt:sourceReviewDate,notice:sourceReviewNotice}=snapshot;
+  const coins=[...new Set(sourceReviewProfiles.map(p=>p.coinId))];
+  const sourceReviewFor=(coinId,key)=>sourceReviewProfiles.find(p=>p.coinId===coinId&&sourceProfileKey(p)===key);
+  const sourceFeaturesFor=(coinId,key)=>sourceReviewFor(coinId,key)?.features??[];
   let coinId=coins[0],chainId='1',activeSection='behavior';
   const rememberedChains=new Map();
   const heading=node('div',undefined,'source-review-heading');
@@ -95,7 +99,7 @@ export function initializeSourceReview(root){
       const content=node('td');content.dataset.label='소스·문서 조건·근거';content.append(node('p',feature.detail),node('small',feature.evidence,'source-review-feature-evidence'));
       row.append(title,status,content);body.append(row);
     }
-    for(const [value,label]of [['ALL','전체'],...Object.entries(sourceFeatureLabels).filter(([state])=>p.features?p.features.some(f=>f.status===state):['PRESENT','ABSENT_IN_REVIEWED_PATH','NOT_REVIEWED'].includes(state))]){
+    for(const [value,label]of [['ALL','전체'],...Object.entries(sourceFeatureLabels).filter(([state])=>p.sourceReviewStatus==='RESEARCH_SCOPE_REVIEWED'?p.features.some(f=>f.status===state):['PRESENT','ABSENT_IN_REVIEWED_PATH','NOT_REVIEWED'].includes(state))]){
       const count=value==='ALL'?features.length:features.filter(f=>f.status===value).length;
       const button=node('button',`${label} ${count}`);button.type='button';button.dataset.featureFilter=value;button.setAttribute('aria-pressed',String(value==='ALL'));
       button.addEventListener('click',()=>{
@@ -118,4 +122,4 @@ export function initializeSourceReview(root){
   }
   search.addEventListener('input',renderDirectory);network.addEventListener('change',()=>{chainId=network.value;render();});renderDirectory();networks();render();
 }
-for(const root of document.querySelectorAll('[data-source-review]'))initializeSourceReview(root);
+for(const root of document.querySelectorAll('[data-source-review]'))mountAssetReview(root,snapshot=>initializeSourceReview(root,snapshot));

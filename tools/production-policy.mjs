@@ -1,6 +1,7 @@
 // Separate publication policy. A newly added preview route is private by default.
 export const publicAssets=new Set([
   '/','/index.html','/legacy.html','/production.js','/styles.css','/loading.css','/loading.js',
+  '/asset-review-model.js','/asset-review-store.js',
   '/source-review.js','/source-review-data.js','/source-review-top10-data.js','/source-review.css','/source-review-notes.html',
   '/overview.js','/overview-model.js','/overview-market-model.js','/overview-preferences.js',
   '/market-view.js','/market-model.js','/market-chart.js','/token-profile.js','/token-profile-model.js',
@@ -8,7 +9,7 @@ export const publicAssets=new Set([
   '/allium-dashboard-model.js','/fx-model.js','/activity-model.js','/reviewed-supply-model.js','/reviewed-supply.js',
   '/survey-model.js','/survey.js','/geography-model.js','/geography.js','/evidence-model.js',
 ]);
-const publicData=new Set(['/market-data.json','/registration-index.json','/activity-data.json','/reviewed-supply-data.json','/survey-data.json','/fx-data.json']);
+const publicData=new Set(['/asset-review-data.json','/market-data.json','/registration-index.json','/activity-data.json','/reviewed-supply-data.json','/survey-data.json','/fx-data.json']);
 export function allowedProductionPath(url){
   if(typeof url!=='string'||url.length>2048)return false;
   if(publicAssets.has(url)||publicData.has(url)||url==='/healthz')return true;

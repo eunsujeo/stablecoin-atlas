@@ -1,0 +1,43 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {fixture} from './fixture.mjs';
+import {initialize,grantAccess,structureHash} from '../../tools/market-db/schema.mjs';
+import {connectDatabase,transaction} from '../../tools/market-db/connection.mjs';
+import {initializeAssetReview,grantAssetReview,importAssetReview,readAssetReview,verifyAssetReviewSchema} from '../../tools/market-db/asset-review.mjs';
+import {verifySupplyApiBoundary} from '../../tools/market-db/supply-api-boundary.mjs';
+import {verifyProductionReader} from '../../tools/production-database.mjs';
+import {reviewedAssetSnapshot} from '../../tools/asset-review-source.mjs';
+import {digest} from '../../tools/market-db/plan.mjs';
+test('asset review PG17 keeps atomic immutable snapshots and source states behind least-privilege roles',{timeout:120000},async()=>{
+ const f=await fixture();let writer,reader,second;const encode=s=>Buffer.from(JSON.stringify(s)),bytes=encode(reviewedAssetSnapshot);
+ try{
+  await initialize(f.admin);const before=await structureHash(f.admin,'atlas_market');
+  await f.admin.query('CREATE ROLE anon NOLOGIN; CREATE ROLE authenticated NOLOGIN; CREATE ROLE authenticator NOLOGIN; CREATE ROLE service_role NOLOGIN BYPASSRLS');
+  await initializeAssetReview(f.admin);assert.equal((await initializeAssetReview(f.admin)).state,'UNCHANGED');
+  const wu=await f.createUser('atlas_test_assetwriter'),ru=await f.createUser('atlas_test_assetreader');
+  await grantAccess(f.admin,'atlas_test_assetwriter','writer');await grantAccess(f.admin,'atlas_test_assetreader','reader');
+  await grantAssetReview(f.admin,'atlas_test_assetwriter','writer');await grantAssetReview(f.admin,'atlas_test_assetreader','reader');
+  writer=await connectDatabase({DATABASE_URL:wu});second=await connectDatabase({DATABASE_URL:wu});reader=await connectDatabase({DATABASE_URL:ru});
+  await assert.rejects(readAssetReview(reader),/NOT_AVAILABLE/);
+  const both=await Promise.all([importAssetReview(writer,bytes,digest(bytes)),importAssetReview(second,bytes,digest(bytes))]);assert.deepEqual(both.map(r=>r.inserted).sort(),[0,1]);
+  assert.equal((await importAssetReview(writer,bytes,digest(bytes))).inserted,0);assert.deepEqual(await readAssetReview(reader),reviewedAssetSnapshot);
+  const bad=structuredClone(reviewedAssetSnapshot);bad.notice+=' changed';let b=encode(bad);await assert.rejects(importAssetReview(writer,b,digest(b)),/ID_CONFLICT/);
+  const count=async()=>(await f.admin.query('SELECT count(*)::int AS n FROM atlas_asset_review.snapshot')).rows[0].n;
+  const later=structuredClone(reviewedAssetSnapshot);later.id='asset-source-review-new-v2';b=encode(later);
+  const faulty={query:async(...args)=>{const r=await writer.query(...args);if(typeof args[0]==='string'&&args[0].startsWith('INSERT INTO atlas_asset_review.snapshot'))throw Error('INJECT_AFTER_INSERT');return r;}};
+  await assert.rejects(importAssetReview(faulty,b,digest(b)),/INJECT_AFTER_INSERT/);assert.equal(await count(),1);
+  await importAssetReview(writer,b,digest(b));assert.equal((await readAssetReview(reader)).id,later.id);
+  await assert.rejects(importAssetReview(reader,bytes,digest(bytes)));await assert.rejects(importAssetReview(f.admin,bytes,digest(bytes)));await assert.rejects(readAssetReview(writer));
+  for(const sql of ['DELETE FROM atlas_asset_review.snapshot','TRUNCATE atlas_asset_review.snapshot',"UPDATE atlas_asset_review.snapshot SET profile_count=1",'SELECT atlas_asset_review.reject_mutation()',"INSERT INTO atlas_asset_review.access_grant VALUES('intruder','writer')"])await assert.rejects(writer.query(sql));
+  for(const sql of ['CREATE TABLE atlas_asset_review.bad(id int)','CREATE SCHEMA asset_review_bad','INSERT INTO atlas_asset_review.snapshot SELECT * FROM atlas_asset_review.snapshot'])await assert.rejects(reader.query(sql));
+  await assert.rejects(writer.query("INSERT INTO atlas_asset_review.snapshot(snapshot_id,reviewed_at,profile_count,payload_hash,payload) VALUES('missing','2026-10-25',1,$1,'{}')",[Buffer.alloc(32)]));
+  const boundary=()=>transaction(f.admin,()=>verifySupplyApiBoundary(f.admin,{schema:'atlas_asset_review'}),{repeatableRead:true});assert.equal((await boundary()).state,'VERIFIED_EFFECTIVE_ACCESS_DENIED');
+  await f.admin.query('GRANT SELECT(payload) ON atlas_asset_review.snapshot TO anon');await assert.rejects(boundary());await assert.rejects(readAssetReview(reader));await f.admin.query('REVOKE SELECT(payload) ON atlas_asset_review.snapshot FROM anon');
+  await f.admin.query('GRANT atlas_test_assetwriter TO authenticator WITH INHERIT FALSE');await assert.rejects(boundary());await f.admin.query('REVOKE atlas_test_assetwriter FROM authenticator');
+  await f.admin.query('ALTER DEFAULT PRIVILEGES IN SCHEMA atlas_asset_review GRANT SELECT ON TABLES TO PUBLIC');await assert.rejects(boundary());await f.admin.query('ALTER DEFAULT PRIVILEGES IN SCHEMA atlas_asset_review REVOKE SELECT ON TABLES FROM PUBLIC');
+  await f.admin.query('ALTER TABLE atlas_asset_review.snapshot DISABLE TRIGGER immutable_record');await assert.rejects(readAssetReview(reader));await f.admin.query('ALTER TABLE atlas_asset_review.snapshot ENABLE TRIGGER immutable_record');
+  await f.admin.query('GRANT UPDATE(payload) ON atlas_asset_review.snapshot TO atlas_test_assetreader');await assert.rejects(readAssetReview(reader));await f.admin.query('REVOKE UPDATE(payload) ON atlas_asset_review.snapshot FROM atlas_test_assetreader');
+  await verifyProductionReader(reader);
+  await f.admin.query('ALTER TABLE atlas_asset_review.snapshot DISABLE TRIGGER immutable_record');await f.admin.query("UPDATE atlas_asset_review.snapshot SET payload=jsonb_set(payload,'{notice}','\"tampered\"')");await f.admin.query('ALTER TABLE atlas_asset_review.snapshot ENABLE TRIGGER immutable_record');await assert.rejects(readAssetReview(reader));
+  await verifyAssetReviewSchema(f.admin);assert.equal(await structureHash(f.admin,'atlas_market'),before);
+ }finally{await Promise.all([writer,reader,second].filter(Boolean).map(c=>c.end()));await f.stop();}
+});

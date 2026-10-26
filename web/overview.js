@@ -16,8 +16,10 @@ import {renderNetworkSupplyChart, networkSupplySeries} from './market-chart.js';
 import { dashboardEvidence, VERDICTS, reportLinks } from './evidence-model.js';
 import { validateMarket, displayAmount, ratio, units } from './market-model.js';
 import { overviewSummary, overviewEvidenceRanking } from './overview-model.js';
-import {sourceReviewProfiles,sourceScopeSummary} from './source-review-data.js';
+import {sourceScopeSummary} from './asset-review-model.js';
+import {mountAssetReview} from './asset-review-store.js';
 const $=selector=>document.querySelector(selector);
+const optionalText=(selector,value)=>{const element=$(selector);if(element)element.textContent=value;};
 const publicMode=document.documentElement.dataset.deployment==='production';
 const node=(tag,text,cls)=>{const el=document.createElement(tag);if(text!==undefined)el.textContent=String(text);if(cls)el.className=cls;return el;};
 const savedChart=readChartURL(location.href)??readChartPreferences();
@@ -60,7 +62,7 @@ async function json(path,{signal,optional=false,revalidate=false}={}){
   const bytes=new Uint8Array(size);let offset=0;for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.length;}
   return JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes));
 }
-function renderSourceReview(){
+function renderSourceReview(sourceReviewProfiles){
   const assets=new Set(sourceReviewProfiles.map(p=>p.coinId)),networks=new Set(sourceReviewProfiles.map(p=>p.chainId??p.networkKey));
   const confirmed=sourceReviewProfiles.filter(p=>p.sourceReviewStatus==='SOURCE_REVIEWED');
   const metrics=$('#overview-source-metrics');metrics.replaceChildren();
@@ -93,17 +95,17 @@ function renderSourceReview(){
     card.append(heading,networks,footer);rows.append(card);
   }
 }
-renderSourceReview();
+mountAssetReview($('#overview-technical'),snapshot=>{renderSourceReview(snapshot.profiles);if(!publicMode)renderEvidence();},{target:$('#overview-source-rows')});
 function renderEvidence(){
   const host=$('#overview-metrics'),verdicts=$('#overview-verdicts');host.replaceChildren();verdicts.replaceChildren();
-  if(!state.index){$('#overview-read-grade').textContent='미산정';$('#overview-read-grade-note').textContent='저장된 실행 근거 없음';$('#overview-scope-summary').textContent='검토 범위 · 자료 미확보';host.append(node('p','저장된 검증 근거가 없습니다. 점수와 등급을 산정하지 않습니다.','semantic-note'));return;}
+  if(!state.index){optionalText('#overview-read-grade','미산정');optionalText('#overview-read-grade-note','저장된 실행 근거 없음');$('#overview-scope-summary').textContent='검토 범위 · 자료 미확보';host.append(node('p','저장된 검증 근거가 없습니다. 점수와 등급을 산정하지 않습니다.','semantic-note'));return;}
   const summary=overviewSummary(state.index,$('#overview-scope').value);
   const assets=new Set(summary.reports.map(r=>r.asset).filter(Boolean));
   const networks=new Set(summary.reports.filter(r=>r.chain&&r.identity?.networkId).map(r=>JSON.stringify([r.chain,r.identity.networkId])));
   $('#overview-scope-summary').textContent=`검토 범위 · ${assets.size}개 자산 · ${networks.size}개 네트워크 · ${summary.reports.length}개 자산·네트워크 프로필`;
   const grade=summary.grade===null?'등급 없음':`${summary.provisional?'잠정 ':''}${summary.grade}`;
-  $('#overview-read-grade').textContent=grade;
-  $('#overview-read-grade-note').textContent=summary.score===null?'판정 완료 항목 없음':`통과 점수 ${summary.score}점 · 판정 완료 ${summary.coverage}%`;
+  optionalText('#overview-read-grade',grade);
+  optionalText('#overview-read-grade-note',summary.score===null?'판정 완료 항목 없음':`통과 점수 ${summary.score}점 · 판정 완료 ${summary.coverage}%`);
   for(const [label,value,note,cls] of [
     ['검토한 자산',`${assets.size}개`,[...assets].join(' · ')||'자산 식별 정보 미확보','lead-purple'],
     ['검토한 네트워크',`${networks.size}개`,`${summary.reports.length}개 자산·네트워크 프로필 · 저장된 조회 근거`,'lead-teal'],

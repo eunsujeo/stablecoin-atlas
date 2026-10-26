@@ -1,3 +1,5 @@
+import {sourceProfileKey,sourceProfileStatus,sourceScopeSummary,sourceFeatureLabels} from './asset-review-model.js';
+export {sourceProfileKey,sourceProfileStatus,sourceScopeSummary,sourceFeatureLabels};
 import {top10SourceProfiles} from './source-review-top10-data.js';
 // Reviewed public excerpts of the stored 2026-10-25 research. No source archives or RPC inputs.
 export const sourceReviewDate='2026-10-25';
@@ -74,9 +76,6 @@ const existingSourceProfiles=[
   },
 ].map(profile=>({...profile,reviewedAt:sourceReviewDate,sourceReviewStatus:'SOURCE_REVIEWED',deploymentBinding:'UNKNOWN'}));
 export const sourceReviewProfiles=[...existingSourceProfiles,...top10SourceProfiles];
-export const sourceProfileKey=p=>p.networkKey??p.chainId;
-export const sourceProfileStatus=p=>p.scopeLabel??'소스 확인 완료';
-export const sourceScopeSummary=profiles=>{const counts=new Map();for(const p of profiles){const label=p.scopeLabel??'기존 소스 확인';counts.set(label,(counts.get(label)??0)+1);}return [...counts].map(([label,count])=>`${label} ${count}곳`).join(' · ');};
 export function sourceReviewFor(coinId,key){return sourceReviewProfiles.find(p=>p.coinId===coinId&&sourceProfileKey(p)===key);}
 
 // Source-path capabilities, independent of Assessment verdicts and deployment binding.
@@ -174,7 +173,6 @@ const sourceFeatures={
     fee:pending('전송 수수료 차감 유무는 기존 선택 경로 발췌에서 결론 내리지 않음.'),
   },
 };
-export const sourceFeatureLabels={PRESENT:'있음',ABSENT_IN_REVIEWED_PATH:'없음',NOT_REVIEWED:'추가 검토',SOURCE_PRESENT:'소스 조건 확인',NOT_IN_REVIEWED_PATH:'없음(검토 경로)',PROTOCOL_CAPABILITY:'공통 프로토콜 기능',DOCUMENTED_ONLY:'공식 문서 기재',INPUT_REQUIRED:'추가 근거 필요',NOT_APPLICABLE:'해당 없음',STORED_SETTING:'과거 설정 관측'};
 export function sourceFeaturesFor(coinId,chainId){
   const profile=sourceReviewFor(coinId,chainId);if(!profile)return [];
   if(profile.features)return profile.features.map(feature=>({...feature,profileId:profile.id}));

@@ -78,3 +78,7 @@ npm run market:db:import -- --source market-store/collected/실제UUID.json
 ```
 
 IMPORTING이 남았거나 UNCONFIRMED이면 crash/COMMIT 응답 유실로 성공 여부가 불명확할 수 있다. 재import는 원문/매핑/기존 행까지 비교해 중복을 방지한다. 수동 import 성공은 별도 CLI 결과이며 이전 자동 수집 상태 파일을 소급 수정하지 않는다. 확인 후 수동으로 scheduler를 재시작한다. 원격 접속은 운영 환경에서 승인된 native PostgreSQL 경로를 사용하며 관리형 네트워크/proxy 설정은 변경하지 않는다.
+
+## 자산 기술 프로필 검토 자료
+
+후속 사용자 승인 ADR0114로 자산 프로필·기술 검증 현황의 공통 검토26프로필/179기능을 별도 private `atlas_asset_review` 불변 snapshot으로 저장한다. 기존 catalog 기본정보를 대체하지 않으며 웹은 기존 reader 설정으로 읽는다. [전용 CLI/권한/캐시 안내](ASSET_REVIEW_STORAGE.md)·[실제 적용 기록](research/2026-10-26-asset-review-supabase.md)를 따른다.
