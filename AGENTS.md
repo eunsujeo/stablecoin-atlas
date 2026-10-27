@@ -2,6 +2,8 @@
 
 이 저장소는 독립적인 Multi-Chain Asset Compatibility Lab이다. 기존 Integration Test Kit 코드를 복사하거나 의존하지 않는다. Codex 단독으로 개발하며 하위 에이전트에 위임하지 않는다.
 
+- 사용자 네트워크 활동 비교 UI 승인(2026-10-28): ADR0116의 기존 검증된 survey 자료로 전체 현황의 전송량·USD 전송금액·전송 이벤트 건수·전송 포함 트랜잭션 수 선택과 동일 자산/집계일의 이벤트당 평균 USD 비교표를 추가한다. bigint·원 시각/출처·누락·PROVIDER_DAY/시간대 UNKNOWN을 유지하고 평균을 합산/비중화하지 않는다. 새 API/키·Arkham 소비 재실행·DB/Collector/FX·운영 Mac mini 직접배포 없이 검증 후 commit/push한다. 활성 주소/중앙값/DEX 전체/결제 분류는 미확보로 보존한다.
+
 - 사용자 Arkham 활용 지표 단발 승인(2026-10-27): docs/research/2026-10-27-arkham-usage-probe.md의 기존 Ethereum USDC·UTC2026-10-22 전송 histogram과 Uniswap 관련swap1건을 기존 키로 최대2GET/0run/4MiB/120초·재시도/추가페이지/전환0으로 승인했고 실제2GET/HTTP200두건/1986bytes로 완료·소비했다. 새 영속 슬롯과 기존 공통 송신 lock·원문/이전 소비 보존·비용 UNKNOWN을 유지한다. DB/UI/Collector/FX·자동수집·운영 Mac mini·결제/전체활성주소·다른 endpoint로 확대하지 않는다. 실제 결과/소비는 해당 연구 기록을 따르며 재실행하지 않는다.
 
 - 사용자 브라우저 캐시/요청 정책 승인(2026-10-27): ADR0115의 검증된 정상 JSON IndexedDB·API별TTL·stale/last-good 표시·탭당 요청2/간격250ms/대기32·동일요청병합·429 Retry-After/origin cooldown/자동재시도0을 허용한다. 같은 API의 검증된 이전 응답만 보존하며 원래 시각/출처/금액·판정을 바꾸지 않는다. 서버캐시/API·Collector/FX·Supabase스키마·Cloudflare규칙·운영Macmini 직접배포는 변경하지 않고 테스트 후 별도commit/push한다.

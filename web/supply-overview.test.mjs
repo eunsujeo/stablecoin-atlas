@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import {mkdtemp,writeFile,rm,symlink} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {overviewSupplyGroups,readOverviewHistories,legacyOverviewDetails,overviewNetworkRanking,supplyQuantityLabel,overviewTransferGroups,transferComposition} from './supply-overview-model.js';
+import {overviewSupplyGroups,readOverviewHistories,legacyOverviewDetails,overviewNetworkRanking,supplyQuantityLabel,overviewTransferGroups,transferComposition,overviewUsageRows} from './supply-overview-model.js';
 import {supplyComparisonGeometry,dailySupplySegments} from './market-chart.js';
 import {localRegistrationReader} from '../tools/registration-file-preview.mjs';
 import {parsePreviewArguments,startPreviewServer} from '../tools/ui-preview.mjs';
@@ -86,4 +86,26 @@ test('transfer composition pins token/source/window/day and never carries missin
  for(const field of ['coinId','sourceHash','updatedAt','dateBasis','aggregateTimezone']){const mixed=structuredClone(groups);mixed[1][field]='different';assert.throws(()=>transferComposition(mixed));}
  const mixedWindow=structuredClone(groups);mixedWindow[1].sourceWindow.from='2026-10-17';assert.throws(()=>transferComposition(mixedWindow));assert.throws(()=>transferComposition(groups,'2026-02-30'));
  const unchanged=overviewTransferGroups(dto,'usdc').groups;assert.deepEqual(unchanged,original);const saved=structuredClone(groups);transferComposition(groups);assert.deepEqual(groups,saved);
+});
+
+test('activity fields preserve separate USD/event/transaction values and reject mixed metrics',async()=>{
+ const dto=await surveyDto(),snapshot=dto.snapshots.find(s=>s.survey==='volume'),r=snapshot.rows.find(r=>r.deploymentId==='usdc-ethereum');
+ r.values.transfer_volume_usd='9007199254740993.123456789012345678';r.values.transfer_count='9007199254740995';r.values.transfer_tx_count='9007199254740994';const original=structuredClone(dto);
+ for(const [field,unit]of [['transfer_volume_usd','USD'],['transfer_count','건'],['transfer_tx_count','건']]){const view=overviewTransferGroups(dto,'usdc',field);assert.equal(view.groups[0].rows[0].amount,r.values[field]);assert.equal(view.groups[0].unit,unit);assert.equal(view.groups[0].sourceHash,snapshot.sourceHash);assert.equal(view.groups[0].updatedAt,snapshot.queriedAt);}
+ const a=overviewTransferGroups(dto,'usdc','transfer_count').groups,b=overviewTransferGroups(dto,'usdc','transfer_tx_count').groups;assert.throws(()=>transferComposition([a[0],b[1]]));
+ assert.throws(()=>overviewTransferGroups(dto,'usdc','averageUSD'));assert.deepEqual(dto,original);
+ r.values.transfer_volume_usd=null;assert(!overviewTransferGroups(dto,'usdc','transfer_volume_usd').groups[0].rows.some(p=>p.observedAt.startsWith(r.providerDay)));
+});
+
+test('same-day activity averages use exact integer division, not median or summed token transactions',async()=>{
+ const dto=await surveyDto(),s=dto.snapshots.find(s=>s.survey==='volume'),row=id=>s.rows.find(r=>r.deploymentId===id&&r.providerDay==='2026-10-16');
+ Object.assign(row('usdc-ethereum').values,{transfer_volume_usd:'9007199254740993.123456789',transfer_count:'3',transfer_tx_count:'2'});
+ Object.assign(row('usdc-solana').values,{transfer_volume_usd:'0',transfer_count:'5',transfer_tx_count:'0'});const original=structuredClone(dto);
+ const rows=overviewUsageRows(dto,'usdc','2026-10-16');assert.equal(rows.length,2);assert.equal(rows[0].usd,'9007199254740993.123456789');assert.equal(rows[0].averageUSD,'3002399751580331.04');assert.equal(rows[0].transfers,'3');assert.equal(rows[0].transactions,'2');assert.equal(rows[1].averageUSD,'0.00');assert.equal(rows[1].averageBelowCent,false);assert.deepEqual(dto,original);
+ assert(overviewUsageRows(dto,'usdc','2026-10-15').every(r=>r.usd===null&&r.transfers===null&&r.averageUSD===null));assert.equal(overviewUsageRows(null,'usdc','2026-10-16').length,0);
+ for(const count of ['0',null]){row('usdc-ethereum').values.transfer_count=count;assert.equal(overviewUsageRows(dto,'usdc','2026-10-16')[0].averageUSD,null);}
+ Object.assign(row('usdc-ethereum').values,{transfer_volume_usd:'0.000000001',transfer_count:'9007199254740993'});assert.equal(overviewUsageRows(dto,'usdc','2026-10-16')[0].averageBelowCent,true);
+ Object.assign(row('usdc-ethereum').values,{transfer_volume_usd:'1.999999999999999999999999999999999999',transfer_count:'2'});assert.equal(overviewUsageRows(dto,'usdc','2026-10-16')[0].averageUSD,'0.99');
+ row('usdc-ethereum').values.transfer_volume_usd=null;assert.equal(overviewUsageRows(dto,'usdc','2026-10-16')[0].averageUSD,null);
+ assert(overviewUsageRows(dto,'jpyc','2026-10-16').find(r=>r.networkId==='kaia').usd===null);
 });

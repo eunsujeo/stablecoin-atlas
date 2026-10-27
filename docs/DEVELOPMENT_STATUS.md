@@ -1,5 +1,7 @@
 # 현재 개발 상태
 
+전체 현황에 [저장 네트워크 활동 지표 비교](adr/0116-network-usage-metrics.md)를 추가했다. 기존 토큰 전송량 외 USD 전송금액·전송 건수·전송 포함 트랜잭션 수를 선택하고, 같은 자산/집계일의 건당 평균 USD를 표에서 비교한다. 새 수집/DB/Collector/FX/운영 배포 없이 기존 검증된 저장 자료를 사용하며 사람 수/결제/안전성을 판정하지 않는다.
+
 브라우저의 반복 새로고침429 대응으로 [공통 IndexedDB 캐시/요청 정책](BROWSER_REQUEST_CACHE.md)을 추가했다. 정상 JSON만 재검증·보관하고 시장5분/기술1시간 TTL·캐시 우선 표시·중복 병합·탭당 요청2·Retry-After·last-good/오래됨 표시를 적용한다. 서버 캐시/수집기/FX/Supabase/Cloudflare규칙과 운영 배포는 변경하지 않는다. [ADR0115](adr/0115-browser-json-cache-and-request-policy.md)·[검증 기록](research/2026-10-27-browser-json-cache.md).
 
 자산 프로필과 기술 검증 현황을 같은 검토 snapshot으로 연결하는 [ADR0114](adr/0114-asset-review-supabase-snapshot.md)를 구현했다. 기존26프로필/179기능·원래 검토일/상태를 별도 private Supabase에 실제 저장·reader 대조 완료했고, 두 화면의 로딩바·공통 요청·1시간 서버 캐시를 사용한다. [운영/재현 안내](ASSET_REVIEW_STORAGE.md)·[실제 적용 결과](research/2026-10-26-asset-review-supabase.md)를 따른다. 기존 catalog 기본정보/판정·Collector/FX와 실제 운영 웹 배포는 변경하지 않는다.
