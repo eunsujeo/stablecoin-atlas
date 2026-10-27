@@ -1,0 +1,67 @@
+{
+  "approvalRequired": "Exact bounded authenticated call scope and unknown cost; earlier generic verification request does not supply a monetary ceiling. No calls before confirmation.",
+  "costStatus": "UNCONFIRMED",
+  "credentialsRead": 0,
+  "excluded": [
+    "/networks/history: native asset market history, not activity",
+    "token-volume: supplied text does not specify this route",
+    "base=all swaps: not established by supplied docs",
+    "DEX full volume or active-address aggregation",
+    "payments, usage, schedules, DB/UI/Collector/FX, operating Mac mini"
+  ],
+  "executionPrerequisites": [
+    "New persistent owned slot, fixed query/approval hash and existing common send lock",
+    "Existing ARKM_API_KEY only; no key output/logging",
+    "Stop on transport failure, 429, access denial or byte/time limit without retries or argument changes; later unstarted job stays NOT_TESTED",
+    "Strict UTF-8/JSON and raw numeric lexeme preservation; source/time/bytes/hash recorded privately"
+  ],
+  "jobs": [
+    {
+      "id": "transfer-histogram",
+      "meaning": "Complete filtered aggregation as specified; omitted buckets are not automatically converted to zero; response fields require schema review.",
+      "method": "GET",
+      "path": "/transfers/histogram",
+      "query": {
+        "base": "all",
+        "chains": "ethereum",
+        "granularity": "1d",
+        "timeGte": "2026-10-22T00:00:00Z",
+        "timeLte": "2026-10-22T23:59:59Z",
+        "tokens": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+      }
+    },
+    {
+      "id": "uniswap-swap-sample",
+      "meaning": "Uniswap entity-related sample only, not all Ethereum swaps, network volume, active users or payments. Capability/empty response is not coverage proof.",
+      "method": "GET",
+      "path": "/swaps",
+      "query": {
+        "base": "uniswap",
+        "chains": "ethereum",
+        "limit": 1,
+        "offset": 0,
+        "timeGte": "2026-10-22T00:00:00Z",
+        "timeLte": "2026-10-22T23:59:59Z",
+        "tokens": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+      }
+    }
+  ],
+  "kind": "ARKHAM_USAGE_PROBE_CANDIDATE_NOT_AUTHORIZED",
+  "limits": {
+    "endpointSwitches": 0,
+    "extraPages": 0,
+    "maxAuthenticatedHTTP": 2,
+    "maxResponseBytes": 2097152,
+    "maxRuns": 0,
+    "maxTotalResponseBytes": 4194304,
+    "minimumRequestSpacingSeconds": 1,
+    "redirects": 0,
+    "requestTimeoutSeconds": 20,
+    "retries": 0,
+    "totalSeconds": 120
+  },
+  "providerRequests": 0,
+  "scope": "Existing registered Ethereum USDC, one fixed historical day; no multi-chain or payment inference",
+  "source": "User-provided GetSwaps/GetTransfersHistogram/GetNetworkHistory documentation, 2026-10-27",
+  "version": 1
+}
