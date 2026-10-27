@@ -239,3 +239,5 @@ select option{background:var(--panel);color:var(--ink);font-weight:400}
 .overview-summary-grid:has(>.overview-summary-card:only-child){grid-template-columns:1fr}
 .overview-rank-heading{display:flex;align-items:center;justify-content:space-between;gap:8px}.overview-network-count{font-size:9px;color:var(--muted);background:var(--track);padding:2px 5px;border-radius:4px}
 .overview-chart-plot .market-price-chart .trend-axis{font-size:10px}
+
+.browser-cache-status{margin:12px 0;padding:12px 16px;border-radius:8px;background:var(--notice);color:var(--notice-ink);overflow-wrap:anywhere}.browser-cache-status[hidden]{display:none}

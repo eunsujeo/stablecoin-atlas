@@ -88,6 +88,7 @@ try{
   assert.equal(await evaluate("document.querySelector('#overview-error').hidden"),true);
   assert.match(await evaluate("document.querySelector('#overview-market-rows').textContent"),/₩1,000/);
   fixture.setFXFailed(true);
+  await evaluate("import('/browser-data.js').then(m=>m.browserData.clear())");
   await evaluate("document.querySelector('#overview-reload').click()");await until("!document.querySelector('#overview-reload').disabled");
   assert.match(await evaluate("document.querySelector('#overview-market-rows').textContent"),/₩1,000/);
   // A caught renderer exception has a different message from an endpoint failure.

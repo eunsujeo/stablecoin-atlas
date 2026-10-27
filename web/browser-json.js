@@ -36,7 +36,7 @@ export async function fetchJSON(url,{limit=defaultJSONByteLimit,timeoutMs=15000,
   timer=setTimeout(()=>controller.abort(new DOMException('The request timed out.','TimeoutError')),timeoutMs);
   const response=await fetch(url,{...options,signal:controller.signal});
   if(controller.signal.aborted){if(response.body)cancel(response.body);throw abortReason(controller.signal);}
-  if(!response.ok){if(response.body)cancel(response.body);if(optional&&response.status===404)return null;throw Error('READ_FAILED');}
+  if(!response.ok){if(response.body)cancel(response.body);if(optional&&response.status===404)return null;throw Object.assign(Error('READ_FAILED'),{status:response.status,...(response.status===429?{retryAfter:response.headers?.get('Retry-After')??null,serverDate:response.headers?.get('Date')??null}:{})});}
   return await readResponseJSON(response,{limit,signal:controller.signal});
  }finally{clearTimeout(timer);signal?.removeEventListener('abort',abort);}
 }

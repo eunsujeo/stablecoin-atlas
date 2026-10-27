@@ -1,3 +1,5 @@
+import {cachedJSON,browserData} from './browser-data.js';
+import {bindCacheStatus} from './browser-cache-ui.js';
 import {beginLoading} from './loading.js';
 // Native selects may retain :focus-visible after a pointer opens their picker.
 // Keep keyboard focus visible without leaving a ring after mouse/touch selection.
@@ -141,20 +143,20 @@ function applyTheme(theme) {
   setText('#theme-toggle', theme === 'dark' ? '☀ 라이트' : '☾ 다크'); $('#theme-toggle').setAttribute('aria-label', `${theme === 'dark' ? '라이트' : '다크'} 모드로 전환`);
   try { localStorage.setItem('atlas-theme', theme); } catch { /* Theme still works when browser storage is unavailable. */ }
 }
+let cacheRefreshPending=false;
+bindCacheStatus($('#dashboard'),url=>url==='/mock-data.json');
+browserData.subscribe(event=>{if(event.updated&&event.url==='/mock-data.json'){if(state.loading)cacheRefreshPending=true;else load();}});
 async function load() {
   if (state.loading) return;
   state.loading = true; $('#reload').disabled = true; $('#error').hidden = true;
   const finish=beginLoading($('#dashboard'),{ready:!!state.data,targets:[['#history','chart'],['#ranking','rows'],['#chains','rows']]});
   try {
-    const response = await fetch('/mock-data.json', { cache: 'no-store', signal: AbortSignal.timeout(10000), credentials: 'omit' });
-    if (!response.ok) throw new Error('MOCK_READ_FAILED');
-    const text = await response.text(); if (text.length > 64000) throw new Error('MOCK_TOO_LARGE');
-    const data = validateMock(JSON.parse(text)); state.data = data; state.loadedAt = new Date().toLocaleTimeString('ko-KR', { hour12: false }); render();
+    const data = validateMock(await cachedJSON('/mock-data.json',{cache:'no-store',credentials:'omit',timeoutMs:10000,validate:validateMock})); state.data = data; state.loadedAt = new Date().toLocaleTimeString('ko-KR', { hour12: false }); render();
     setText('#status', `목데이터 · 자료 시각 12:00:00 [가상] · 화면 읽음 ${state.loadedAt} · 외부 조회 없음`);
   } catch {
     setText('#error', state.data ? '목데이터를 다시 읽지 못했습니다. 마지막으로 읽은 자료와 시각을 유지합니다.' : '목데이터를 읽지 못했습니다. 로컬 미리보기 서버가 실행 중인지 확인한 뒤 다시 읽기를 눌러주세요.'); $('#error').hidden = false; $('#dashboard').setAttribute('aria-busy', 'false');
     if (!state.data) setText('#status', '자료 없음 · 미확인 수량을 0으로 채우지 않습니다.');
-  } finally { finish(); state.loading = false; $('#reload').disabled = false; }
+  } finally { finish(); state.loading = false; $('#reload').disabled = false;if(cacheRefreshPending){cacheRefreshPending=false;queueMicrotask(load);} }
 }
 for (const button of document.querySelectorAll('[data-mode]')) button.addEventListener('click', () => { state.mode = button.dataset.mode; render(); });
 for (const button of document.querySelectorAll('[data-asset]')) button.addEventListener('click', () => { state.asset = button.dataset.asset; if (state.asset !== 'all') state.focusAsset = state.asset; render(); });

@@ -1,6 +1,6 @@
 // Separate publication policy. A newly added preview route is private by default.
 export const publicAssets=new Set([
-  '/browser-json.js',
+  '/browser-json.js','/browser-idb.js','/browser-cache.js','/browser-data.js','/browser-cache-ui.js',
   '/','/index.html','/legacy.html','/production.js','/styles.css','/loading.css','/loading.js',
   '/asset-review-model.js','/asset-review-store.js',
   '/source-review.js','/source-review-data.js','/source-review-top10-data.js','/source-review.css','/source-review-notes.html',

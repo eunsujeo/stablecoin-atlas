@@ -1,5 +1,7 @@
 # 현재 개발 상태
 
+브라우저의 반복 새로고침429 대응으로 [공통 IndexedDB 캐시/요청 정책](BROWSER_REQUEST_CACHE.md)을 추가했다. 정상 JSON만 재검증·보관하고 시장5분/기술1시간 TTL·캐시 우선 표시·중복 병합·탭당 요청2·Retry-After·last-good/오래됨 표시를 적용한다. 서버 캐시/수집기/FX/Supabase/Cloudflare규칙과 운영 배포는 변경하지 않는다. [ADR0115](adr/0115-browser-json-cache-and-request-policy.md)·[검증 기록](research/2026-10-27-browser-json-cache.md).
+
 자산 프로필과 기술 검증 현황을 같은 검토 snapshot으로 연결하는 [ADR0114](adr/0114-asset-review-supabase-snapshot.md)를 구현했다. 기존26프로필/179기능·원래 검토일/상태를 별도 private Supabase에 실제 저장·reader 대조 완료했고, 두 화면의 로딩바·공통 요청·1시간 서버 캐시를 사용한다. [운영/재현 안내](ASSET_REVIEW_STORAGE.md)·[실제 적용 결과](research/2026-10-26-asset-review-supabase.md)를 따른다. 기존 catalog 기본정보/판정·Collector/FX와 실제 운영 웹 배포는 변경하지 않는다.
 
 사용자 승인으로 [Infura v3 단발 읽기](research/2026-10-26-multicall3-infura-runtime-result.md)를 완료했다. 기존 RPC_URL·단일 Multicall3 주소에서 실제4RPC/정상4/51033바이트·GET0·재시도/전환0이며 v3 소비 완료다. Ethereum 블록26275729/hash 고정 runtime3808바이트와 저장 공급자 두 artifact가 전체 바이트 일치했다. 개별 artifact equality PASS이며 원본 compiler NOT_RUN·소스 진위 UNKNOWN·Proxy/권한 NOT_TESTED·비용 UNKNOWN을 유지한다. 입력4개/기존 실패 원본은 불변이고 실제 원문/키/URL·결과 자동 웹 반영은 없다.

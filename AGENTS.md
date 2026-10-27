@@ -2,6 +2,7 @@
 
 이 저장소는 독립적인 Multi-Chain Asset Compatibility Lab이다. 기존 Integration Test Kit 코드를 복사하거나 의존하지 않는다. Codex 단독으로 개발하며 하위 에이전트에 위임하지 않는다.
 
+- 사용자 브라우저 캐시/요청 정책 승인(2026-10-27): ADR0115의 검증된 정상 JSON IndexedDB·API별TTL·stale/last-good 표시·탭당 요청2/간격250ms/대기32·동일요청병합·429 Retry-After/origin cooldown/자동재시도0을 허용한다. 같은 API의 검증된 이전 응답만 보존하며 원래 시각/출처/금액·판정을 바꾸지 않는다. 서버캐시/API·Collector/FX·Supabase스키마·Cloudflare규칙·운영Macmini 직접배포는 변경하지 않고 테스트 후 별도commit/push한다.
 - 사용자 자산 프로필·기술 검증 현황 DB 반영 승인(2026-10-26): ADR0114의 기존 검토26프로필/179기능을 별도 private atlas_asset_review 불변 snapshot으로 실제 기존 Supabase에 저장하고 두 화면을 공통 reader/API·로딩바·1시간 캐시에 연결한다. 기존 catalog 기본정보/판정/소스 검토 범위는 유지한다. 새 공급자/체인RPC/키·Collector/FX·기존 데이터 변경·실제 운영 웹 배포는 포함하지 않는다. 사설 PG17·전체 검사 후 명시 적용/reader/화면 확인과 완료 후 push를 진행한다.
 - 사용자 표시 정정(2026-10-26): 컨트랙트 화면에서 이전 이력을 노출하지 않고 chainId+주소별 최신 결과 한 건만 표시한다. 저장 소스 조건 검토와 사설 시험의 완료를 해당 범위에 한정해 표시하며 실제 권한/소스 진위/배포 재현을 새 완료 필수조건으로 요구하지 않는다. 기존 UNKNOWN/NOT_RUN/NOT_TESTED와 비공개 원본은 보존하되 전체 UNKNOWN을 작업 완료 상태로 사용하지 않는다. 전체 현황의 함수 코드가 노출된 안내 문구는 제거한다.
 - 사용자 컨트랙트 요약 Supabase 반영 승인(2026-10-26): ADR0113의 별도 private atlas_contract_review 스키마·기존 writer INSERT/reader SELECT·검토 요약 불변 저장·로컬 웹 읽기 연결과 실제 기존 Supabase 적용을 허용한다. 최초 실패 이력과 고정 블록 equality PASS/전체 UNKNOWN을 분리하며 원문·키·URL은 저장/게시하지 않는다. 사설 PG17 검증 후 명시 migration/grant/import·reader 재확인만 수행한다. 운영 웹 배포·Mac mini/Collector/FX·기존 데이터/수집 주기·새 공급자 API/RPC/키는 제외한다.

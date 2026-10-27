@@ -1,3 +1,5 @@
+import {cachedJSON,browserData} from './browser-data.js';
+import {bindCacheStatus} from './browser-cache-ui.js';
 import {beginLoading} from './loading.js';
 import {contractReviewGroups} from './contract-review-data.js';
 import {validateContractReviewStore} from './contract-review-model.js';
@@ -71,11 +73,12 @@ if(root){
   const progress=element('progress',undefined,'contract-load-progress');progress.setAttribute('aria-label','컨트랙트 검토 요약 불러오기');
   const skeleton=element('div');loading.append(message,progress,skeleton);root.replaceChildren(loading);
   const finishLoading=beginLoading(root,{targets:[[skeleton,'rows']]});
-  fetch('/contract-review-data.json',{cache:'no-store'}).then(async response=>{
-    if(!response.ok)throw Error('UNAVAILABLE');
-    const raw=await response.text();if(new TextEncoder().encode(raw).length>131072)throw Error('READ_LIMIT');
-    const store=validateContractReviewStore(JSON.parse(raw));initializeContractReview(root,currentContractReviews(store));
-  }).catch(()=>{root.replaceChildren(element('p','컨트랙트 검토 요약을 읽지 못했습니다. 연결을 확인하고 새로고침하세요.','muted'));}).finally(finishLoading);
+  bindCacheStatus(root,url=>url==='/contract-review-data.json');
+  const read=()=>cachedJSON('/contract-review-data.json',{cache:'no-store',validate:validateContractReviewStore});
+  const display=store=>initializeContractReview(root,currentContractReviews(store));
+  document.addEventListener('atlas:navigate',()=>{if(!root.closest('[hidden]'))read().then(store=>{if(!root.dataset.contractReview)display(store);}).catch(()=>{});});
+  browserData.subscribe(event=>{if(event.updated&&event.url==='/contract-review-data.json')read().then(display).catch(()=>{});});
+  read().then(display).catch(()=>{root.replaceChildren(element('p','컨트랙트 검토 요약을 읽지 못했습니다. 연결을 확인하고 새로고침하세요.','muted'));}).finally(finishLoading);
   const button=document.querySelector('#contract-theme');button.addEventListener('click',()=>document.querySelector('#theme-toggle').click());
   const updateTheme=()=>{const light=document.documentElement.dataset.theme==='light';button.textContent=light?'☾ 다크':'☀ 라이트';button.setAttribute('aria-label',`${light?'다크':'라이트'} 모드로 전환`);};
   new MutationObserver(updateTheme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});updateTheme();

@@ -70,11 +70,16 @@ test('smaller asset limit is enforced and cancellation promises never delay the 
  const stream=body([encode(' '.repeat(262145))],{cancel:()=>new Promise(()=>{})});mockFetch(t,async()=>({ok:true,status:200,body:stream}));
  await assert.rejects(fetchJSON('/asset-review-data.json',{limit:262144}),/READ_LIMIT/);assert.equal(stream.locked,false);
 });
-test('all browser stream consumers use the common reader and other loader modes remain explicit',async()=>{
+test('all browser loaders use the validated request layer above the Safari reader',async()=>{
  for(const file of (await readdir(new URL('.',import.meta.url))).filter(f=>f.endsWith('.js'))){const text=await readFile(new URL(file,import.meta.url),'utf8');assert.doesNotMatch(text,/for\s+await\s*\(/,file);assert.doesNotMatch(text,/\[Symbol\.asyncIterator\]/,file);}
- for(const file of ['overview.js','market-view.js','asset-review-store.js'])assert.match(await readFile(new URL(file,import.meta.url),'utf8'),/fetchJSON/);
+ for(const file of ['overview.js','market-view.js','asset-review-store.js','app.js','evidence.js','contract-review.js'])assert.match(await readFile(new URL(file,import.meta.url),'utf8'),/cachedJSON/);
  assert.match(await readFile(new URL('overview.js',import.meta.url),'utf8'),/timeoutMs:15000/);
  assert.match(await readFile(new URL('asset-review-store.js',import.meta.url),'utf8'),/limit:assetReviewByteLimit,timeoutMs:15000/);
  assert.match(await readFile(new URL('market-view.js',import.meta.url),'utf8'),/timeoutMs:30000/);
- for(const file of ['app.js','evidence.js','contract-review.js'])assert.match(await readFile(new URL(file,import.meta.url),'utf8'),/response\.text\(/);
+ assert.match(await readFile(new URL('browser-cache.js',import.meta.url),'utf8'),/fetchJSON/);
+});
+test('429 carries only bounded retry metadata to the request policy and cancels its unread body',async t=>{
+ let cancelled=0;const stream=new ReadableStream({cancel(){cancelled++;}});
+ mockFetch(t,async()=>({ok:false,status:429,body:stream,headers:new Headers({'Retry-After':'120','Date':'Tue, 27 Oct 2026 00:00:00 GMT'})}));
+ await assert.rejects(fetchJSON('/market-data.json'),e=>e.message==='READ_FAILED'&&e.status===429&&e.retryAfter==='120'&&e.serverDate==='Tue, 27 Oct 2026 00:00:00 GMT');assert.equal(cancelled,1);assert.equal(stream.locked,false);
 });

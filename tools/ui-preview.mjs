@@ -28,6 +28,11 @@ import { databaseMarketReader } from './market-db/preview.mjs';
 import {databaseRegistrationReader,registrationRequest} from './market-db/registration-preview.mjs';
 
 const assets = new Map([
+  ['/browser-idb.js', ['../web/browser-idb.js', 'text/javascript; charset=utf-8']],
+  ['/browser-cache.js', ['../web/browser-cache.js', 'text/javascript; charset=utf-8']],
+  ['/browser-data.js', ['../web/browser-data.js', 'text/javascript; charset=utf-8']],
+  ['/browser-cache-ui.js', ['../web/browser-cache-ui.js', 'text/javascript; charset=utf-8']],
+
   ['/browser-json.js', ['../web/browser-json.js', 'text/javascript; charset=utf-8']],
   ['/asset-review-model.js', ['../web/asset-review-model.js', 'text/javascript; charset=utf-8']],
   ['/asset-review-store.js', ['../web/asset-review-store.js', 'text/javascript; charset=utf-8']],

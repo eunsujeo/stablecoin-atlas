@@ -1,4 +1,5 @@
-import {fetchJSON} from './browser-json.js';
+import {cachedJSON,browserData} from './browser-data.js';
+import {bindCacheStatus} from './browser-cache-ui.js';
 import {tokenInfoButton} from './token-profile.js';
 import {beginLoading} from './loading.js';
 import {sparkline,renderMarketChart} from './market-chart.js';
@@ -69,7 +70,10 @@ function render(){if(!state.data)return;const data=state.data,selected=$('#live-
   const table=$('#live-rows');table.replaceChildren();for(const d of deployments){const o=latest(data,{coinId:selected,deploymentId:d.id,metric:d.networkId==='xrpl'?'OBLIGATIONS':'CHAIN_TOTAL'})[0];const row=node('tr'),assetCell=node('td'),info=tokenInfoButton(data,d.id,`${c.symbol} · ${network(d.networkId).name} ⓘ`);assetCell.append(info??document.createTextNode(`${c.symbol} · ${network(d.networkId).name}`));row.append(assetCell,node('td',o?METRICS[o.metric].label:'해당 공급량 미확보'),node('td',o?exactDecimal(o.amount):'미확보','exact'),node('td',o?when(o.observedAt):'—'));const action=node('td');if(o){const b=node('button','상세 ↗','quiet-button');b.addEventListener('click',()=>detail(o,b));action.append(b);}row.append(action);table.append(row);}
   trend();chart();const networks=$('#live-networks');networks.replaceChildren();for(const n of data.registry.networks){const observation=data.networks.find(x=>x.networkId===n.id),card=node('article',undefined,'market-network-status');card.append(node('h3',n.name),node('span',observation?(observation.active?'활성 보고':'비활성 보고'):'미확보',observation?.active?'network-report-active':'muted'),node('small',observation?'블록 / 슬롯 '+observation.tip:'별도 관측 필요','muted'),node('small',observation?'기준 '+when(observation.sourceAt):'자료 없음','muted'));card.title=observation?'수집 관측 '+when(observation.observedAt):'공급자 자료가 없습니다.';networks.append(card);}
 }
-async function load(){if(state.loading)return;state.loading=true;$('#live-reload').disabled=true;const finish=beginLoading($('#live-screen'),{ready:!!state.data,targets:[['#live-metrics','cards'],['#live-trend','chart'],['#live-ranking','rows'],['#live-bars','rows'],['#live-networks','cards']]});try{const data=validateMarket(await fetchJSON('/market-data.json',{cache:'no-store',timeoutMs:30000}));state.data=data;
+let cacheRefreshPending=false;
+bindCacheStatus($('#live-screen'),url=>url==='/market-data.json');
+browserData.subscribe(event=>{if(event.updated&&event.url==='/market-data.json'){if(state.loading)cacheRefreshPending=true;else if(state.data)load();}});
+async function load(){if(state.loading)return;state.loading=true;$('#live-reload').disabled=true;const finish=beginLoading($('#live-screen'),{ready:!!state.data,targets:[['#live-metrics','cards'],['#live-trend','chart'],['#live-ranking','rows'],['#live-bars','rows'],['#live-networks','cards']]});try{const data=validateMarket(await cachedJSON('/market-data.json',{cache:'no-store',timeoutMs:30000}));state.data=data;
     const select=$('#live-coin'),old=select.value;select.replaceChildren();for(const c of data.registry.coins){const option=node('option',c.symbol);option.value=c.id;select.append(option);}if(data.registry.coins.some(c=>c.id===old))select.value=old;
     const last=data.observations.reduce((t,o)=>o.observedAt>t?o.observedAt:t,'');const minutes=last?Math.max(0,Math.floor((Date.now()-Date.parse(last))/60000)):null;
     $('#live-status').textContent=`최근 시장 데이터 수집 ${when(last)}${minutes===null?'':` · ${minutes}분 경과`}`;
@@ -96,7 +100,7 @@ async function load(){if(state.loading)return;state.loading=true;$('#live-reload
     if(collection)$('#live-status').textContent+=` · 수집 ${collection.state==='SUCCESS'?'완료':collection.state==='RUNNING'?'시작 기록 (완료 미확인)':'실패'} ${when(collection.attemptedAt)}`;
     $('#live-error').hidden=data.lastBuildState!=='FAILED'&&collection?.state!=='FAILED'&&scheduler?.state!=='FAILED';
     $('#live-error').textContent=(collection?.state==='FAILED'&&collection.published?'자료는 발행되었으나 완료 상태 기록 중 오류가 발생했습니다.': scheduler?.state==='FAILED'&&collection?.state==='SUCCESS'?'자동 수집을 중단했습니다. 마지막으로 발행된 정상 자료와 원본 관측 시각을 표시합니다.': '최근 수집 또는 자료 묶음 생성에 실패했습니다. 이전 정상 저장본과 원본 관측 시각을 유지합니다.')+(collection?.httpStatus?` HTTP ${collection.httpStatus}.`:'')+(collection?.retryAfterSeconds?` 공급자 재시도 대기 ${collection.retryAfterSeconds}초 (자동 재시도 없음).`:'');render();
-  }catch{$('#live-error').hidden=false;$('#live-error').textContent=state.data?'저장 자료를 다시 읽지 못했습니다. 이전 자료와 원본 시각을 유지합니다.':'시장 자료를 읽지 못했습니다. 서버의 조회 모드와 연결 상태를 확인하세요.';}finally{finish();state.loading=false;$('#live-reload').disabled=false;}}
+  }catch{$('#live-error').hidden=false;$('#live-error').textContent=state.data?'저장 자료를 다시 읽지 못했습니다. 이전 자료와 원본 시각을 유지합니다.':'시장 자료를 읽지 못했습니다. 서버의 조회 모드와 연결 상태를 확인하세요.';}finally{finish();state.loading=false;$('#live-reload').disabled=false;if(cacheRefreshPending){cacheRefreshPending=false;queueMicrotask(load);}}}
 $('#live-reload').addEventListener('click',load);$('#live-mode').addEventListener('change',render);$('#live-coin').addEventListener('change',render);$('#live-theme').addEventListener('click',()=>$('#theme-toggle').click());
 const theme=()=>{$('#live-theme').textContent=document.documentElement.dataset.theme==='light'?'☾ 다크':'☀ 라이트';};new MutationObserver(theme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});theme();
 function activate(){if(location.hash==='#live'&&!state.data)load();}window.addEventListener('hashchange',activate);activate();

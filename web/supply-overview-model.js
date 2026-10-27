@@ -9,8 +9,8 @@ export async function readOverviewHistories(index,read,previous=[]){
  const coins=overviewCoins.filter(id=>index.coins.find(c=>c.id===id)?.metrics.some(m=>m.metric===metric));
  const results=new Array(coins.length);let next=0;
  async function worker(){while(next<coins.length){const slot=next++,coinId=coins[slot];
-  try{const query=new URLSearchParams({selection:index.selectionId,coin:coinId,metric});
-   const detail=validateRegisteredHistory(await read('/registration-history.json?'+query),index,{coinId,metric});results[slot]={detail,failed:false};
+  try{const pin=index.coins.find(c=>c.id===coinId).metrics.find(m=>m.metric===metric);const query=new URLSearchParams({selection:index.selectionId,coin:coinId,metric});
+   const detail=validateRegisteredHistory(await read('/registration-history.json?'+query,{validate:d=>validateRegisteredHistory(d,index,{coinId,metric}),context:JSON.stringify([pin.sourceId,pin.from,pin.to])}),index,{coinId,metric});results[slot]={detail,failed:false};
   }catch{results[slot]={detail:previous.find(d=>sameRegisteredSource(d,index,{coinId,metric}))??null,failed:true};}
  }}
  await Promise.all([worker(),worker()]);return {details:results.flatMap(r=>r.detail?[r.detail]:[]),failed:results.some(r=>r.failed)};

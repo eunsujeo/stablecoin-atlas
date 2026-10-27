@@ -127,10 +127,12 @@ try {
  assert.equal(await evaluate("document.querySelector('#overview-source-note')"),null);
  assert.equal(await evaluate("document.body.textContent.includes('profiles=>')"),false);
  // Failure of the unrelated evidence API cannot suppress the reviewed excerpt.
+ await evaluate("import('/browser-data.js').then(m=>m.browserData.clear())");
  failEvidence=true;
  await send('Page.reload');
  await until("!document.querySelector('#contracts-screen').hidden&&document.querySelector('#contract-review-root')?.dataset.contractReview==='multicall3-ethereum-20261026-infura-v3'&&!document.querySelector('#evidence-error').hidden");
  await drainFetch();
+ await evaluate("import('/browser-data.js').then(m=>m.browserData.clear())");
  failContract=true;await send('Page.reload');
  await until("document.querySelector('#contract-review-root')?.innerText.includes('검토 요약을 읽지 못했습니다')");
  assert.equal(await evaluate("document.querySelectorAll('[data-contract-section]').length"),0);

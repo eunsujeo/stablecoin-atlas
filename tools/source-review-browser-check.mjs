@@ -76,7 +76,7 @@ try {
   await until("document.querySelector('[data-source-review]')?.dataset.reviewId==='usdc-ethereum'&&document.querySelector('#overview-technical')?.dataset.reviewState==='ready'");
   assert.equal(await evaluate("document.querySelector('[data-source-review]').dataset.snapshotId"),'asset-source-review-20261025-v1');
   assert.equal(await evaluate("document.querySelector('#overview-technical').dataset.snapshotId"),'asset-source-review-20261025-v1');
-  assert.equal(requests.slice(pageRequestStart).filter(url=>url===base+'/asset-review-data.json').length,1);
+  assert.equal(requests.slice(pageRequestStart).filter(url=>url===base+'/asset-review-data.json').length,route==='/#assets'?1:0);
   assert.equal(await evaluate("document.querySelector('[data-source-review]').getAttribute('aria-busy')"),'false');
   assert.equal(await evaluate('location.pathname'),'/');
   if(safariStreams){assert.equal(await evaluate('typeof ReadableStream.prototype[Symbol.asyncIterator]'),'undefined');assert.equal(await evaluate('typeof AbortSignal.any'),'undefined');}
@@ -237,6 +237,7 @@ try {
   assert.equal(await evaluate("document.querySelectorAll('#validation-screen,[data-screen=validation],a[href=\"#validation\"],#compare-screen,[data-screen=compare],a[href=\"#compare\"]').length"),0);
   assert.equal(await evaluate("document.querySelectorAll('#overview-verdicts button,.overview-evidence-row:is(button)').length"),0);
  }
+ await evaluate("import('/browser-data.js').then(m=>m.browserData.clear())");
  failEvidence=true;
  await send('Page.navigate',{url:'about:blank'});await send('Page.navigate',{url:base+'/#overview'});
  await until("document.querySelectorAll('#overview-source-rows article').length===5&&!document.querySelector('#overview-error').hidden");
@@ -261,6 +262,7 @@ try {
   assert.match(await evaluate("document.querySelector('#live-metrics').textContent"),/\$1/);
   assert.equal(await evaluate('typeof ReadableStream.prototype[Symbol.asyncIterator]'),'undefined');
  }
+ await evaluate("import('/browser-data.js').then(m=>m.browserData.clear())");
  failSource=true;await send('Page.navigate',{url:'about:blank'});await send('Page.navigate',{url:base+'/#assets'});
  await until("document.querySelector('[data-source-review]')?.dataset.reviewState==='error'&&document.querySelector('#overview-technical')?.dataset.reviewState==='error'");
  assert.equal(await evaluate("document.querySelectorAll('.source-review-asset,#overview-source-rows article').length"),0);
