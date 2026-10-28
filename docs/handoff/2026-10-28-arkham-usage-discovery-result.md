@@ -1,5 +1,7 @@
 # 인계: 전체 자산 네트워크 Arkham 메타데이터 완료
 
+후속: 아래13후보도 추가 승인 후 완료·소비했다. [실제13GET 결과](2026-10-28-arkham-usage-expansion-result.md)를 따른다. 아래 미승인은 당시 준비 상태 기록이다.
+
 사용자 “추가 승인할께”는 직전 제시한 메타데이터4GET/8MiB/120초/재시도0·기존 키·비용UNKNOWN의 고정 계획 승인이다. 실제4GET 모두HTTP200/총885bytes(162/450/215/58)로 완료·소비했다. 기존 키 hash 일치와 기존 root 전체 manifest 보존을 확인했다. Node --use-env-proxy 사용, 우회/재시도/DB/Collector/FX/운영 배포0이다. Allium 수집 종료는 유지한다.
 
 원문/승인/receipt/스크립트는 .state/usage-discovery-live-20261028 및 .state/allium-executor/arkham-network-usage-discovery-20261028-v1에 비공개 보존했다. 소비를 재사용하지 않는다. receiptSHA34213f119f4ea3d54ea4095dbbac8649725a0ba84c7a55271b881339d6ace7d2, 고정 planSHA175d14a1bc2c6324808d3b66116bc247bec6109f7d83ac469258329136c9a011.

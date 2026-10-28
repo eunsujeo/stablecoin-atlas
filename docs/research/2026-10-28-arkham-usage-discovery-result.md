@@ -1,5 +1,7 @@
 # Arkham 전체 등록 범위 메타데이터 단발 실행 결과
 
+후속: 아래13후보도 추가 승인 후 완료·소비했다. [실제13GET 결과](2026-10-28-arkham-usage-expansion-result.md)를 따른다. 아래 미승인은 당시 준비 상태 기록이다.
+
 상태: 승인된 4GET 실행 완료·소비. 추가 histogram/DB/UI/Collector/FX/운영 배포는 실행하지 않았다.
 
 ## 승인과 실제 소비

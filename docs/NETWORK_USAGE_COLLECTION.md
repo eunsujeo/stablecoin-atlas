@@ -1,5 +1,7 @@
 # 네트워크 활동 자료 수집·저장
 
+추가13GET도 [실제 완료·소비](research/2026-10-28-arkham-usage-expansion-result.md)했다. 기존5쌍과 합쳐18쌍의 사설검토본을 확보했으나 DB/UI의 기존35행은 변경하지 않았다. 아래 과거 실행 명령을 재사용하지 않는다.
+
 메타데이터4GET의 [실제 완료·소비와 다음13후보](research/2026-10-28-arkham-usage-discovery-result.md)를 확인한다. 추가histogram/DB 변경은 미실행이다. 전체 등록33쌍 확대와 Allium 수집 종료는 [후속 준비 기록](research/2026-10-28-all-asset-usage-expansion.md)을 따른다. 아래 최초5쌍 기록은 보존하며 추가28쌍 수집 완료를 의미하지 않는다.
 
 [ADR0117](adr/0117-arkham-network-usage-pipeline.md)의 수동 도구다. 최초 승인 실행은 실제5GET/HTTP200다섯건/2535bytes·35관측/DB snapshot1건으로 완료·소비했다. [실제 결과](research/2026-10-28-network-usage-live.md)를 따른다. 아래 수집 명령을 다시 실행하지 않으며 가상 자료를 실제 DB에 넣지 않는다. 웹은 저장 자료만 읽는다. Collector/FX/자동수집/운영 배포와 분리한다.

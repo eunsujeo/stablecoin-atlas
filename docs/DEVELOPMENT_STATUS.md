@@ -1,6 +1,6 @@
 # 현재 개발 상태
 
-전체 등록5자산/33쌍 후속 [Arkham metadata 단발실행](research/2026-10-28-arkham-usage-discovery-result.md)을 승인4GET/HTTP200네건/885bytes로 완료·소비했다. 기존5쌍 외13조회후보를 정확주소/기간 고정 계획으로 준비했고13chain미등재/2주소미확보는 보존한다. 추가histogram/DB/UI/운영변경0이며 새13GET은 승인 대기다. Allium 수집/키 전달 종료와 이전자료 읽기를 유지한다.
+전체 등록33쌍 후속 [Arkham 추가13조합 histogram](research/2026-10-28-arkham-usage-expansion-result.md)을 승인13GET/HTTP200전부/6266bytes로 완료·소비했다. 새89관측/JPYSC2일누락을 보존했고 기존5쌍/35관측과 오프라인대조해 총18쌍/124관측/2누락의 사설검토본을 확보했다. 나머지15쌍은 미확인이다. 기존DB/UI의5쌍·35행은변경하지 않았으며 새Supabase/UI/운영반영은별도범위다. Allium수집/키전달차단을유지한다.
 
 [Arkham 수집·DB·명시 출처 UI](NETWORK_USAGE_COLLECTION.md)의 최초 실제 반영을 완료했다([실제 결과](research/2026-10-28-network-usage-live.md)). 승인된5GET 모두200·2535bytes·35관측을 기존 Supabase의 별도 불변snapshot1건으로 저장했고 재입력0·reader/로컬화면 대조를 마쳤다. 기존10schema/68table 구조·자료 지문은 동일하며 자동반복/운영Macmini 배포는 없다. 이번 호출은 소비 완료이며 새 기간을 자동 수집하지 않는다.
 
