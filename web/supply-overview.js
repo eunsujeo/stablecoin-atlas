@@ -20,8 +20,8 @@ function metricTitle(text,kind,field='transfer_volume'){
  wrap.append(button,tip);row.append(node('h2',text),wrap);return row;
 }
 export function initializeSupplyOverview(root,{read}){
- let details=[],index=null,currency='USD',period='1y',comparison='amount',failed=false,loading=false,sequence=0,transferDay=null,transferField='transfer_volume';
- let transferSurvey={data:null,state:'MISSING'},usageSource='ALLIUM',sourceChosen=false,surveySources={};
+ let details=[],index=null,currency='USD',period='1y',comparison='amount',failed=false,loading=false,sequence=0,transferDay=null,transferField='transfer_volume_usd';
+ let transferSurvey={data:null,state:'DISABLED'};const usageSource='ARKHAM';
  const hidden=new Set(),hiddenTransfers=new Set(),selectedCoins={USD:'usdc',JPY:'jpysc'};
  const svg=(tag,attrs)=>{const n=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const [key,value]of Object.entries(attrs))n.setAttribute(key,String(value));return n;};
  function chart(plot,groups,{kind,from,to,comparison='amount',hidden,onPointSelect}){
@@ -83,7 +83,6 @@ export function initializeSupplyOverview(root,{read}){
   const buttons=(label,options,value,change,target)=>{const box=node('div',undefined,'chart-filters');box.setAttribute('role','group');box.setAttribute('aria-label',label);for(const [id,text]of options){const b=node('button',text);b.type='button';b.setAttribute('aria-label',label+' · '+text);b.setAttribute('aria-pressed',String(id===value));b.addEventListener('click',()=>{change(id);render();});box.append(b);}target.append(box);};
   buttons('연동 통화',[['USD','USD'],['JPY','JPY']],currency,v=>currency=v,currencyTabs);coinButtons.setAttribute('role','group');coinButtons.setAttribute('aria-label','토큰 하나 선택');
   for(const id of coins){const b=node('button',id.toUpperCase(),'supply-coin');b.type='button';b.style.setProperty('--coin-color',colors[id]);b.setAttribute('aria-label',id.toUpperCase()+' 선택');b.disabled=!allGroups.some(g=>g.coinId===id)&&!Object.keys(transferMetrics).some(field=>overviewTransferGroups(transferSurvey.data,id,field).groups.length);b.setAttribute('aria-pressed',String(id===selectedCoin));b.addEventListener('click',()=>{selectedCoins[currency]=id;render();});coinButtons.append(b);}
-  buttons('활동 자료 출처',[['ARKHAM','Arkham 수집 저장'],['ALLIUM','Allium 기존 저장']],usageSource,v=>{usageSource=v;sourceChosen=true;transferSurvey=surveySources[v]??{data:null,state:'DISABLED'};transferDay=null;},selection);
   selection.append(currencyTabs,coinButtons);toolbar.append(selection,node('span',selectedCoin.toUpperCase()+' / '+currency,'overview-token-label'));root.append(toolbar);
   const status=node('p',loading?'저장 자료 읽는 중…':failed?details.length?'저장 자료 읽기 실패 · 이전 정상 자료 표시':'저장 자료 읽기 실패':'','chart-note overview-load-status');status.setAttribute('role','status');root.append(status);if(!transferSurvey.data)root.append(node('p',usageSource+' 활동 자료 '+(transferSurvey.state==='UNAVAILABLE'?'조회 실패':'미연결 또는 미확보')+' · 다른 출처로 자동 전환하지 않습니다.','chart-note'));
   const summaries=node('div',undefined,'overview-summary-grid');root.append(summaries);
@@ -121,8 +120,8 @@ export function initializeSupplyOverview(root,{read}){
   }finally{if(minHeight)root.style.setProperty('min-height',minHeight,minPriority);else root.style.removeProperty('min-height');}
  }
  let observedWidth=0;const observer=new ResizeObserver(([entry])=>{const width=Math.round(entry.contentRect.width);if(width!==observedWidth){observedWidth=width;if(details.length||transferSurvey.data)requestAnimationFrame(render);}});observer.observe(root);
- return async ({index:next,market,indexFailed,survey={data:null,state:'MISSING'},usage={data:null,state:'DISABLED'}})=>{
-  const run=++sequence;surveySources={ALLIUM:survey,ARKHAM:{...usage,data:usage.data?networkUsageView(usage.data):null}};if(!sourceChosen)usageSource=usage.state==='DISABLED'?'ALLIUM':'ARKHAM';transferSurvey=surveySources[usageSource];if(indexFailed){failed=true;loading=false;render();return;}
+ return async ({index:next,market,indexFailed,usage={data:null,state:'DISABLED'}})=>{
+  const run=++sequence;transferSurvey={...usage,data:usage.data?networkUsageView(usage.data):null};if(indexFailed){failed=true;loading=false;render();return;}
   const previous=details;index=next;details=next?previous.filter(d=>sameRegisteredSource(d,next,{coinId:d.coinId,metric:'NETWORK_CIRCULATING'})):[];failed=false;loading=true;render();
   const result=next?await readOverviewHistories(next,read,previous):{details:legacyOverviewDetails(market),failed:false};if(run!==sequence)return;details=result.details;failed=result.failed;loading=false;render();
  };

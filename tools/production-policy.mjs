@@ -28,7 +28,6 @@ export function productionDocument(bytes){
   for(const part of ['assets','nav','screen'])cut(`<!-- local-contract-${part}:start -->`,`<!-- local-contract-${part}:end -->`,true);
   cut('    <div id="market-screen"','  </main>');
   cut('      <details id="overview-read-history"','\n      </section>');
-  cut('      <section id="overview-geography"','      </section>',true);
   html=html.replace(/<div id="reports-screen"[^\n]*\n/,'');
   html=html.replace('src="/app.js"','src="/production.js"').replace('<script type="module" src="/evidence.js"></script>','');
   html=html.replace('<html lang="ko"','<html data-deployment="production" lang="ko"');
