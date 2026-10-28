@@ -1,5 +1,7 @@
 # Arkham 수집·DB·UI 준비 인계
 
+상태 업데이트: 이후 새 사용자 승인으로 실제 수집·DB 반영을 완료·소비했다. 현재 정본은 [실제 완료 인계](2026-10-28-network-usage-live.md)다. 아래는 준비 당시 기록이며 동일 호출/승인을 다시 요청하거나 재실행하지 않는다.
+
 - 사용자 최신 수집/DB/화면 연결 진행 요청에 따라 [ADR0117](../adr/0117-arkham-network-usage-pipeline.md)의 전체 경로를 구현/로컬 검증했다. **실제5GET/키읽기/운영 DB init·grant·import/운영 배포는 아직0이다.** 준비를 실자료 반영 완료로 보고하지 않는다.
 - [고정 최초 실행안과 CLI](../NETWORK_USAGE_COLLECTION.md), [수행·실패/수정·검증 기록](../research/2026-10-28-network-usage-pipeline.md)을 따른다.
 - 최초 대상5개: USDT Ethereum/TRON/Solana, USDC Ethereum/Solana. 요청2026-10-21T00:00:00Z~27T23:59:59Z. 각 histogram1회, 총5GET/0run/10MiB/120초·간격1초·재시도/페이지/redirect/전환/반복0·비용 UNKNOWN. 기존키만 사용. 새 슬롯 arkham-network-usage-20261028-v1, 기존 .state/allium-executor root/common lock 사용. 기존 소비2GET는 재사용하지 않는다.

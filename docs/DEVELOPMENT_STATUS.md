@@ -1,6 +1,6 @@
 # 현재 개발 상태
 
-[Arkham 수집·DB·명시 출처 UI 경로](NETWORK_USAGE_COLLECTION.md)를 로컬에서 준비했다([ADR0117](adr/0117-arkham-network-usage-pipeline.md)). 기존5배포·최근 고정7일의 수동 histogram 계획과 private 불변 snapshot/5분 reader·Arkham/Allium 분리를 구현했다. **실제 첫5GET와 Supabase schema/grant/import는 고정 범위 확인 전 미실행**이며 자동 반복/운영 배포는 없다. 준비/검증을 실제 최신 자료 반영 완료로 간주하지 않는다.
+[Arkham 수집·DB·명시 출처 UI](NETWORK_USAGE_COLLECTION.md)의 최초 실제 반영을 완료했다([실제 결과](research/2026-10-28-network-usage-live.md)). 승인된5GET 모두200·2535bytes·35관측을 기존 Supabase의 별도 불변snapshot1건으로 저장했고 재입력0·reader/로컬화면 대조를 마쳤다. 기존10schema/68table 구조·자료 지문은 동일하며 자동반복/운영Macmini 배포는 없다. 이번 호출은 소비 완료이며 새 기간을 자동 수집하지 않는다.
 
 전체 현황에 [저장 네트워크 활동 지표 비교](adr/0116-network-usage-metrics.md)를 추가했다. 기존 토큰 전송량 외 USD 전송금액·전송 건수·전송 포함 트랜잭션 수를 선택하고, 같은 자산/집계일의 건당 평균 USD를 표에서 비교한다. 새 수집/DB/Collector/FX/운영 배포 없이 기존 검증된 저장 자료를 사용하며 사람 수/결제/안전성을 판정하지 않는다.
 

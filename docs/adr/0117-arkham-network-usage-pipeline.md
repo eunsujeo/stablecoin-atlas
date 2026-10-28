@@ -1,6 +1,6 @@
 # ADR0117: Arkham 수동 수집·불변 DB·명시 출처 UI
 
-- 상태: 로컬 구현/검증 준비. 유료 첫 호출과 실제 Supabase 반영은 아래 고정 범위 확인 전 미실행.
+- 상태: 사용자 고정 승인 아래 최초 실제5GET·Supabase 반영 완료/소비. [실제 결과](../research/2026-10-28-network-usage-live.md). 자동 반복/운영 배포 제외.
 - 날짜: 2026-10-28
 
 ## 결정
@@ -15,7 +15,7 @@ DB의 source payload는 최대35관측칸(5배포×7일)을 담은 JSON snapshot
 
 GET/HEAD /network-usage-data.json은 DB reader만 사용한다. 웹/서버 시작/화면 전환은 공급자를 호출하지 않는다. 5분 서버 캐시와 기존 공통 IndexedDB/요청 병합/동시성2/429/UTF-8/AbortSignal 경로를 적용한다. 화면의 Arkham/Allium 출처는 명시 선택하며 오류 시 다른 공급자로 자동 전환하지 않는다. 같은 자산/출처/window/집계일만 비교하고 평균은 비중/합계에 사용하지 않는다.
 
-## 최초 실제 실행 후보
+## 최초 실제 실행 — 완료·소비
 
 정본 [계획](../../data/arkham-network-usage-20261028-plan.json): UTC요청2026-10-21T00:00:00Z~2026-10-27T23:59:59Z, granularity1d. 최대5GET/0run·각2MiB/총10MiB·각20초/총120초·간격1초·재시도/추가페이지/redirect0, 비용 UNCONFIRMED. 기존 키만 사용한다. 이것은 최초 단발 범위이며 자동 반복·일별 스케줄/사용량 조회·운영 Mac mini 배포 승인이 아니다.
 

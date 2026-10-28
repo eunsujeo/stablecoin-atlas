@@ -1,8 +1,8 @@
 # 네트워크 활동 자료 수집·저장
 
-[ADR0117](adr/0117-arkham-network-usage-pipeline.md)의 수동 도구다. 현재 유료 API/실제 Supabase 적용은 미실행이며 가상 자료를 실제 DB에 넣지 않는다. 웹은 저장 자료만 읽는다. Collector/FX/자동수집/운영 배포와 분리한다.
+[ADR0117](adr/0117-arkham-network-usage-pipeline.md)의 수동 도구다. 최초 승인 실행은 실제5GET/HTTP200다섯건/2535bytes·35관측/DB snapshot1건으로 완료·소비했다. [실제 결과](research/2026-10-28-network-usage-live.md)를 따른다. 아래 수집 명령을 다시 실행하지 않으며 가상 자료를 실제 DB에 넣지 않는다. 웹은 저장 자료만 읽는다. Collector/FX/자동수집/운영 배포와 분리한다.
 
-## 고정 최초 후보
+## 고정 최초 실행 — 완료·소비
 
 | 항목 | 값 |
 | --- | --- |
@@ -19,6 +19,8 @@
 대상 주소와 정확한 인자는 [JSON 계획](../data/arkham-network-usage-20261028-plan.json)에 있다. 기존 registry와 metadata hash가 달라지면 계획을 임의로 고치거나 주소를 추정하지 않는다. 날짜 변경도 새 계획/소비 범위다. 원문 providerTime을 보존하나 일말 하위 초 포함 범위·집계 시간대/금액 정확성을 인증하지 않는다.
 
 ## 명령 — 실제 실행 승인 후에만
+
+아래는 사용법 기록이다. 이번 최초5GET·DB 적용은 이미 완료/소비했으므로 그대로 재실행하지 않는다. 새 기간에는 새 고정 계획/승인/소비가 필요하다.
 
 계획 작성은 키/API/DB 없이 로컬 파일만 읽는다.
 
@@ -42,7 +44,7 @@ npm run market:usage -- project \
 
 송신 전 intent를 영속 기록하며 슬롯은 한 번만 생성된다. lost response·429·거절·timeout·한도 초과 뒤 소비를 재사용하지 않는다. partial 원문도 hash/바이트와 함께 보존한다. 모든 결과가 빈 배열이어도 수집 근거는 보존하지만 새 관측 snapshot을 만들지 않는다. 일부 날짜의 생략은 MISSING으로 보존한다.
 
-## 실제 DB 적용 후보 — 실자료 검증 후
+## 실제 DB 적용 — 최초 반영 완료
 
 db/network-usage/001-initial.sql의 새 private atlas_network_usage만 생성한다. PG17 구조 pin은5a19f99626ccd958de1357795eb4fed2327b4fad30644b34e7e6cd06a449d905이다. 기존10개 schema의 구조/자료를 변경하지 않는다. 기존 writer/reader만 사용하고 API용 역할/PUBLIC의 직접 접근과 미검토 SECURITY DEFINER 경로를 차단한다.
 
@@ -60,7 +62,7 @@ npm run market:usage:db -- read --env-file .state/market-db-secrets/reader.env
 
 ## 읽기와 화면
 
-로컬 `npm run ui -- --database --database-env .state/market-db-secrets/reader.env`는 새 reader를 사용한다. 화면은 새 API의 정상 응답을5분 캐시하고 Arkham 수집 저장/Allium 기존 저장을 분리한다. 새 DB/table이 없으면 조회 실패/미연결로 표시하고 다른 공급자 자료로 자동 대체하지 않는다. 기존 운영 웹에 실제 배포하지 않았다.
+로컬 `npm run ui -- --database --database-env .state/market-db-secrets/reader.env`는 새 reader를 사용한다. 화면은 새 API의 정상 응답을5분 캐시하고 Arkham 수집 저장/Allium 기존 저장을 분리한다. 새 DB/table이 없으면 조회 실패/미연결로 표시하고 다른 공급자 자료로 자동 대체하지 않는다. 실제 reader/로컬 화면에서35관측을 대조했다. 기존 운영 웹에 실제 배포하지 않았다.
 
 Arkham은 USD금액/전송 이벤트 건수와 그 평균만 제공한다. 토큰 수량/고유 트랜잭션 수·활성 주소·중앙값·전체 DEX·결제 분류는 이 수집에서 얻지 않는다. 평균·금액·빈도는 사람 수/고래/안전성/결제량 판정이 아니다.
 

@@ -1,5 +1,7 @@
 # Arkham 수집→DB→UI 경로 준비 — 2026-10-28
 
+이 문서는 실행 전 준비 기록이다. 이후 사용자 승인으로 [실제5GET·Supabase 반영](2026-10-28-network-usage-live.md)을 완료·소비했다. 아래의 미실행/확인 대기는 준비 당시 상태이며 현재 정본은 실제 결과를 따른다.
+
 사용자가 최신 자료 수집·DB 저장·화면 연결 진행을 요청했다. 기존 단발2GET 승인은 소비 완료이므로 재사용하지 않는다. 먼저 [ADR0117](../adr/0117-arkham-network-usage-pipeline.md)의 전체 로컬 경로와 [최초 고정 실행안](../NETWORK_USAGE_COLLECTION.md)을 구현/검증했다. **실제 공급자 호출·키 읽기·Supabase init/grant/import·운영 배포는 아직0**이다. 가상 결과를 실제 자료로 올리지 않았다.
 
 ## 준비한 경로
