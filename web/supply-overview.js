@@ -70,6 +70,10 @@ export function initializeSupplyOverview(root,{read}){
   // Keep the initial placeholders while the registered histories are still pending.
   if(loading&&!details.length)return;
   const focused=root.contains(document.activeElement)?document.activeElement.getAttribute('aria-label'):null;
+  // Keep the page tall while chart measurement forces layout during the rebuild.
+  const minHeight=root.style.getPropertyValue('min-height'),minPriority=root.style.getPropertyPriority('min-height');
+  root.style.setProperty('min-height',Math.ceil(root.getBoundingClientRect().height)+'px','important');
+  try{
   const {groups:allGroups,from,to}=overviewSupplyGroups(details,{period}),coins=overviewCoins.filter(id=>currency==='USD'?['usdc','usdt','rlusd'].includes(id):['jpysc','jpyc'].includes(id)),selectedCoin=selectedCoins[currency];
   if(usageSource==='ARKHAM'&&!['transfer_volume_usd','transfer_count'].includes(transferField))transferField='transfer_volume_usd';
   const groups=allGroups.filter(g=>g.coinId===selectedCoin),transfers=overviewTransferGroups(transferSurvey.data,selectedCoin,transferField),hasTransfers=Object.keys(transferMetrics).some(field=>overviewTransferGroups(transferSurvey.data,selectedCoin,field).groups.length)||!!transferSurvey.data?.snapshots.find(s=>s.survey==='volume');
@@ -114,6 +118,7 @@ export function initializeSupplyOverview(root,{read}){
    chart(plot,transfers.groups,{kind:'volume',from:transfers.from,to:transfers.to,hidden:hiddenTransfers,onPointSelect:point=>{if(!donut.isConnected)return;transferDay=point.observedAt.slice(0,10);updateComposition();}});
   }
   if(focused)[...root.querySelectorAll('[aria-label]')].find(n=>n.getAttribute('aria-label')===focused)?.focus({preventScroll:true});
+  }finally{if(minHeight)root.style.setProperty('min-height',minHeight,minPriority);else root.style.removeProperty('min-height');}
  }
  let observedWidth=0;const observer=new ResizeObserver(([entry])=>{const width=Math.round(entry.contentRect.width);if(width!==observedWidth){observedWidth=width;if(details.length||transferSurvey.data)requestAnimationFrame(render);}});observer.observe(root);
  return async ({index:next,market,indexFailed,survey={data:null,state:'MISSING'},usage={data:null,state:'DISABLED'}})=>{
