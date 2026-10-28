@@ -1,0 +1,559 @@
+{
+  "schemaVersion": 2,
+  "kind": "ARKHAM_NETWORK_USAGE_EXPANSION_PLAN",
+  "status": "AWAITING_USER_APPROVAL",
+  "slot": "arkham-network-usage-expansion-20261028-v2",
+  "root": ".state/allium-executor",
+  "origin": "https://api.arkm.com",
+  "discoveryPlanHash": "175d14a1bc2c6324808d3b66116bc247bec6109f7d83ac469258329136c9a011",
+  "discoveryReceiptHash": "34213f119f4ea3d54ea4095dbbac8649725a0ba84c7a55271b881339d6ace7d2",
+  "sources": {
+    "data/asset-registry.json": "3640f26b14e1fb45a82c96849dfe23aa62dc3115c1ead0cf42f6cc5867d98217",
+    "data/market-registration.json": "0430e6c7a1d6ec75f5dedba02bd93ed160c35d7c9ae36a33fef52a1f32e5f1c6",
+    "web/source-review-data.js": "b28e646708b97e2313d03c93fcf1441c300037b4ff32d8481c85af1cfa6b8d5a",
+    "web/source-review-top10-data.js": "8d712f6473c87092a0c73311cba406c0d2541168b8fe617dbfba40faff3a6f44"
+  },
+  "window": {
+    "from": "2026-10-21",
+    "untilExclusive": "2026-10-28"
+  },
+  "counts": {
+    "STORED_WINDOW_AVAILABLE": 5,
+    "HISTOGRAM_CANDIDATE": 13,
+    "CHAIN_NOT_LISTED": 13,
+    "EXACT_ADDRESS_NOT_AVAILABLE": 2
+  },
+  "coverage": [
+    {
+      "coinId": "usdt",
+      "networkId": "tron",
+      "chain": "tron",
+      "state": "STORED_WINDOW_AVAILABLE",
+      "tokenMap": "MATCH"
+    },
+    {
+      "coinId": "usdt",
+      "networkId": "ethereum",
+      "chain": "ethereum",
+      "state": "STORED_WINDOW_AVAILABLE",
+      "tokenMap": "MATCH"
+    },
+    {
+      "coinId": "usdt",
+      "networkId": "bsc",
+      "chain": "bsc",
+      "state": "HISTOGRAM_CANDIDATE",
+      "tokenMap": "NOT_LISTED"
+    },
+    {
+      "coinId": "usdt",
+      "networkId": "solana",
+      "chain": "solana",
+      "state": "STORED_WINDOW_AVAILABLE",
+      "tokenMap": "MATCH"
+    },
+    {
+      "coinId": "usdt",
+      "networkId": "arbitrum",
+      "chain": "arbitrum_one",
+      "state": "HISTOGRAM_CANDIDATE",
+      "tokenMap": "NOT_LISTED"
+    },
+    {
+      "coinId": "usdt",
+      "networkId": "polygon",
+      "chain": "polygon",
+      "state": "HISTOGRAM_CANDIDATE",
+      "tokenMap": "NOT_LISTED"
+    },
+    {
+      "coinId": "usdt",
+      "networkId": "plasma",
+      "chain": "plasma",
+      "state": "CHAIN_NOT_LISTED",
+      "tokenMap": "NOT_LISTED"
+    },
+    {
+      "coinId": "usdt",
+      "networkId": "ton",
+      "chain": "ton",
+      "state": "CHAIN_NOT_LISTED",
+      "tokenMap": "NOT_LISTED"
+    },
+    {
+      "coinId": "usdt",
+      "networkId": "aptos",
+      "chain": "aptos",
+      "state": "CHAIN_NOT_LISTED",
+      "tokenMap": "NOT_LISTED"
+    },
+    {
+      "coinId": "usdt",
+      "networkId": "mantle",
+      "chain": "mantle",
+      "state": "CHAIN_NOT_LISTED",
+      "tokenMap": "NOT_LISTED"
+    },
+    {
+      "coinId": "usdc",
+      "networkId": "ethereum",
+      "chain": "ethereum",
+      "state": "STORED_WINDOW_AVAILABLE",
+      "tokenMap": "MATCH"
+    },
+    {
+      "coinId": "usdc",
+      "networkId": "solana",
+      "chain": "solana",
+      "state": "STORED_WINDOW_AVAILABLE",
+      "tokenMap": "MATCH"
+    },
+    {
+      "coinId": "usdc",
+      "networkId": "hyperliquid-l1",
+      "chain": "hyperliquid-l1",
+      "state": "CHAIN_NOT_LISTED",
+      "tokenMap": "NOT_LISTED"
+    },
+    {
+      "coinId": "usdc",
+      "networkId": "base",
+      "chain": "base",
+      "state": "HISTOGRAM_CANDIDATE",
+      "tokenMap": "MATCH"
+    },
+    {
+      "coinId": "usdc",
+      "networkId": "arbitrum",
+      "chain": "arbitrum_one",
+      "state": "HISTOGRAM_CANDIDATE",
+      "tokenMap": "MATCH"
+    },
+    {
+      "coinId": "usdc",
+      "networkId": "polygon",
+      "chain": "polygon",
+      "state": "HISTOGRAM_CANDIDATE",
+      "tokenMap": "MATCH"
+    },
+    {
+      "coinId": "usdc",
+      "networkId": "bsc",
+      "chain": "bsc",
+      "state": "HISTOGRAM_CANDIDATE",
+      "tokenMap": "NOT_LISTED"
+    },
+    {
+      "coinId": "usdc",
+      "networkId": "arc",
+      "chain": "arc",
+      "state": "CHAIN_NOT_LISTED",
+      "tokenMap": "NOT_LISTED"
+    },
+    {
+      "coinId": "usdc",
+      "networkId": "avalanche",
+      "chain": "avalanche",
+      "state": "HISTOGRAM_CANDIDATE",
+      "tokenMap": "MATCH"
+    },
+    {
+      "coinId": "usdc",
+      "networkId": "stellar",
+      "chain": "stellar",
+      "state": "CHAIN_NOT_LISTED",
+      "tokenMap": "NOT_LISTED"
+    },
+    {
+      "coinId": "usdc",
+      "networkId": "xrpl",
+      "chain": "xrpl",
+      "state": "CHAIN_NOT_LISTED",
+      "tokenMap": "NOT_LISTED"
+    },
+    {
+      "coinId": "rlusd",
+      "networkId": "ethereum",
+      "chain": "ethereum",
+      "state": "HISTOGRAM_CANDIDATE",
+      "tokenMap": "MATCH"
+    },
+    {
+      "coinId": "rlusd",
+      "networkId": "xrpl",
+      "chain": "xrpl",
+      "state": "CHAIN_NOT_LISTED",
+      "tokenMap": "NOT_LISTED"
+    },
+    {
+      "coinId": "rlusd",
+      "networkId": "base",
+      "chain": "base",
+      "state": "EXACT_ADDRESS_NOT_AVAILABLE",
+      "tokenMap": "NOT_LISTED"
+    },
+    {
+      "coinId": "rlusd",
+      "networkId": "ink",
+      "chain": "ink",
+      "state": "CHAIN_NOT_LISTED",
+      "tokenMap": "NOT_LISTED"
+    },
+    {
+      "coinId": "rlusd",
+      "networkId": "optimism",
+      "chain": "optimism",
+      "state": "EXACT_ADDRESS_NOT_AVAILABLE",
+      "tokenMap": "NOT_LISTED"
+    },
+    {
+      "coinId": "rlusd",
+      "networkId": "unichain",
+      "chain": "unichain",
+      "state": "CHAIN_NOT_LISTED",
+      "tokenMap": "NOT_LISTED"
+    },
+    {
+      "coinId": "rlusd",
+      "networkId": "xrpl-evm",
+      "chain": "xrpl-evm",
+      "state": "CHAIN_NOT_LISTED",
+      "tokenMap": "NOT_LISTED"
+    },
+    {
+      "coinId": "jpyc",
+      "networkId": "ethereum",
+      "chain": "ethereum",
+      "state": "HISTOGRAM_CANDIDATE",
+      "tokenMap": "NOT_LISTED"
+    },
+    {
+      "coinId": "jpyc",
+      "networkId": "polygon",
+      "chain": "polygon",
+      "state": "HISTOGRAM_CANDIDATE",
+      "tokenMap": "NOT_LISTED"
+    },
+    {
+      "coinId": "jpyc",
+      "networkId": "avalanche",
+      "chain": "avalanche",
+      "state": "HISTOGRAM_CANDIDATE",
+      "tokenMap": "NOT_LISTED"
+    },
+    {
+      "coinId": "jpyc",
+      "networkId": "kaia",
+      "chain": "kaia",
+      "state": "CHAIN_NOT_LISTED",
+      "tokenMap": "NOT_LISTED"
+    },
+    {
+      "coinId": "jpysc",
+      "networkId": "ethereum",
+      "chain": "ethereum",
+      "state": "HISTOGRAM_CANDIDATE",
+      "tokenMap": "NOT_LISTED"
+    }
+  ],
+  "jobs": [
+    {
+      "id": "usdt-bsc",
+      "coinId": "usdt",
+      "networkId": "bsc",
+      "addressEvidence": {
+        "file": "web/source-review-top10-data.js",
+        "profileId": "usdt-bsc"
+      },
+      "identityStatus": "STORED_ADDRESS_CANDIDATE_NOT_CURRENT_CERTIFICATION",
+      "tokenMap": "NOT_LISTED",
+      "method": "GET",
+      "path": "/transfers/histogram",
+      "query": {
+        "base": "all",
+        "chains": "bsc",
+        "tokens": "0x55d398326f99059ff775485246999027b3197955",
+        "timeGte": "2026-10-21T00:00:00Z",
+        "timeLte": "2026-10-27T23:59:59Z",
+        "granularity": "1d"
+      }
+    },
+    {
+      "id": "usdt-arbitrum",
+      "coinId": "usdt",
+      "networkId": "arbitrum",
+      "addressEvidence": {
+        "file": "web/source-review-top10-data.js",
+        "profileId": "usdt-arbitrum"
+      },
+      "identityStatus": "STORED_ADDRESS_CANDIDATE_NOT_CURRENT_CERTIFICATION",
+      "tokenMap": "NOT_LISTED",
+      "method": "GET",
+      "path": "/transfers/histogram",
+      "query": {
+        "base": "all",
+        "chains": "arbitrum_one",
+        "tokens": "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+        "timeGte": "2026-10-21T00:00:00Z",
+        "timeLte": "2026-10-27T23:59:59Z",
+        "granularity": "1d"
+      }
+    },
+    {
+      "id": "usdt-polygon",
+      "coinId": "usdt",
+      "networkId": "polygon",
+      "addressEvidence": {
+        "file": "web/source-review-top10-data.js",
+        "profileId": "usdt-polygon"
+      },
+      "identityStatus": "STORED_ADDRESS_CANDIDATE_NOT_CURRENT_CERTIFICATION",
+      "tokenMap": "NOT_LISTED",
+      "method": "GET",
+      "path": "/transfers/histogram",
+      "query": {
+        "base": "all",
+        "chains": "polygon",
+        "tokens": "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+        "timeGte": "2026-10-21T00:00:00Z",
+        "timeLte": "2026-10-27T23:59:59Z",
+        "granularity": "1d"
+      }
+    },
+    {
+      "id": "usdc-base",
+      "coinId": "usdc",
+      "networkId": "base",
+      "addressEvidence": {
+        "file": "web/source-review-top10-data.js",
+        "profileId": "usdc-base"
+      },
+      "identityStatus": "STORED_ADDRESS_CANDIDATE_NOT_CURRENT_CERTIFICATION",
+      "tokenMap": "MATCH",
+      "method": "GET",
+      "path": "/transfers/histogram",
+      "query": {
+        "base": "all",
+        "chains": "base",
+        "tokens": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "timeGte": "2026-10-21T00:00:00Z",
+        "timeLte": "2026-10-27T23:59:59Z",
+        "granularity": "1d"
+      }
+    },
+    {
+      "id": "usdc-arbitrum",
+      "coinId": "usdc",
+      "networkId": "arbitrum",
+      "addressEvidence": {
+        "file": "web/source-review-top10-data.js",
+        "profileId": "usdc-arbitrum"
+      },
+      "identityStatus": "STORED_ADDRESS_CANDIDATE_NOT_CURRENT_CERTIFICATION",
+      "tokenMap": "MATCH",
+      "method": "GET",
+      "path": "/transfers/histogram",
+      "query": {
+        "base": "all",
+        "chains": "arbitrum_one",
+        "tokens": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+        "timeGte": "2026-10-21T00:00:00Z",
+        "timeLte": "2026-10-27T23:59:59Z",
+        "granularity": "1d"
+      }
+    },
+    {
+      "id": "usdc-polygon",
+      "coinId": "usdc",
+      "networkId": "polygon",
+      "addressEvidence": {
+        "file": "web/source-review-top10-data.js",
+        "profileId": "usdc-polygon"
+      },
+      "identityStatus": "STORED_ADDRESS_CANDIDATE_NOT_CURRENT_CERTIFICATION",
+      "tokenMap": "MATCH",
+      "method": "GET",
+      "path": "/transfers/histogram",
+      "query": {
+        "base": "all",
+        "chains": "polygon",
+        "tokens": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+        "timeGte": "2026-10-21T00:00:00Z",
+        "timeLte": "2026-10-27T23:59:59Z",
+        "granularity": "1d"
+      }
+    },
+    {
+      "id": "usdc-bsc",
+      "coinId": "usdc",
+      "networkId": "bsc",
+      "addressEvidence": {
+        "file": "web/source-review-top10-data.js",
+        "profileId": "usdc-bsc"
+      },
+      "identityStatus": "STORED_ADDRESS_CANDIDATE_NOT_CURRENT_CERTIFICATION",
+      "tokenMap": "NOT_LISTED",
+      "method": "GET",
+      "path": "/transfers/histogram",
+      "query": {
+        "base": "all",
+        "chains": "bsc",
+        "tokens": "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
+        "timeGte": "2026-10-21T00:00:00Z",
+        "timeLte": "2026-10-27T23:59:59Z",
+        "granularity": "1d"
+      }
+    },
+    {
+      "id": "usdc-avalanche",
+      "coinId": "usdc",
+      "networkId": "avalanche",
+      "addressEvidence": {
+        "file": "web/source-review-top10-data.js",
+        "profileId": "usdc-avalanche"
+      },
+      "identityStatus": "STORED_ADDRESS_CANDIDATE_NOT_CURRENT_CERTIFICATION",
+      "tokenMap": "MATCH",
+      "method": "GET",
+      "path": "/transfers/histogram",
+      "query": {
+        "base": "all",
+        "chains": "avalanche",
+        "tokens": "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
+        "timeGte": "2026-10-21T00:00:00Z",
+        "timeLte": "2026-10-27T23:59:59Z",
+        "granularity": "1d"
+      }
+    },
+    {
+      "id": "rlusd-ethereum",
+      "coinId": "rlusd",
+      "networkId": "ethereum",
+      "addressEvidence": {
+        "file": "data/asset-registry.json",
+        "deploymentId": "rlusd-ethereum"
+      },
+      "identityStatus": "STORED_ADDRESS_CANDIDATE_NOT_CURRENT_CERTIFICATION",
+      "tokenMap": "MATCH",
+      "method": "GET",
+      "path": "/transfers/histogram",
+      "query": {
+        "base": "all",
+        "chains": "ethereum",
+        "tokens": "0x8292Bb45bf1Ee4d140127049757C2E0fF06317eD",
+        "timeGte": "2026-10-21T00:00:00Z",
+        "timeLte": "2026-10-27T23:59:59Z",
+        "granularity": "1d"
+      }
+    },
+    {
+      "id": "jpyc-ethereum",
+      "coinId": "jpyc",
+      "networkId": "ethereum",
+      "addressEvidence": {
+        "file": "data/market-registration.json",
+        "deploymentId": "jpyc-ethereum"
+      },
+      "identityStatus": "STORED_ADDRESS_CANDIDATE_NOT_CURRENT_CERTIFICATION",
+      "tokenMap": "NOT_LISTED",
+      "method": "GET",
+      "path": "/transfers/histogram",
+      "query": {
+        "base": "all",
+        "chains": "ethereum",
+        "tokens": "0xE7C3D8C9a439feDe00D2600032D5dB0Be71C3c29",
+        "timeGte": "2026-10-21T00:00:00Z",
+        "timeLte": "2026-10-27T23:59:59Z",
+        "granularity": "1d"
+      }
+    },
+    {
+      "id": "jpyc-polygon",
+      "coinId": "jpyc",
+      "networkId": "polygon",
+      "addressEvidence": {
+        "file": "data/market-registration.json",
+        "deploymentId": "jpyc-polygon"
+      },
+      "identityStatus": "STORED_ADDRESS_CANDIDATE_NOT_CURRENT_CERTIFICATION",
+      "tokenMap": "NOT_LISTED",
+      "method": "GET",
+      "path": "/transfers/histogram",
+      "query": {
+        "base": "all",
+        "chains": "polygon",
+        "tokens": "0xE7C3D8C9a439feDe00D2600032D5dB0Be71C3c29",
+        "timeGte": "2026-10-21T00:00:00Z",
+        "timeLte": "2026-10-27T23:59:59Z",
+        "granularity": "1d"
+      }
+    },
+    {
+      "id": "jpyc-avalanche",
+      "coinId": "jpyc",
+      "networkId": "avalanche",
+      "addressEvidence": {
+        "file": "data/market-registration.json",
+        "deploymentId": "jpyc-avalanche"
+      },
+      "identityStatus": "STORED_ADDRESS_CANDIDATE_NOT_CURRENT_CERTIFICATION",
+      "tokenMap": "NOT_LISTED",
+      "method": "GET",
+      "path": "/transfers/histogram",
+      "query": {
+        "base": "all",
+        "chains": "avalanche",
+        "tokens": "0xE7C3D8C9a439feDe00D2600032D5dB0Be71C3c29",
+        "timeGte": "2026-10-21T00:00:00Z",
+        "timeLte": "2026-10-27T23:59:59Z",
+        "granularity": "1d"
+      }
+    },
+    {
+      "id": "jpysc-ethereum",
+      "coinId": "jpysc",
+      "networkId": "ethereum",
+      "addressEvidence": {
+        "file": "data/market-registration.json",
+        "deploymentId": "jpysc-ethereum"
+      },
+      "identityStatus": "STORED_ADDRESS_CANDIDATE_NOT_CURRENT_CERTIFICATION",
+      "tokenMap": "NOT_LISTED",
+      "method": "GET",
+      "path": "/transfers/histogram",
+      "query": {
+        "base": "all",
+        "chains": "ethereum",
+        "tokens": "0x6781d5631BFe47432b089e64e3EaB3b6eDd26177",
+        "timeGte": "2026-10-21T00:00:00Z",
+        "timeLte": "2026-10-27T23:59:59Z",
+        "granularity": "1d"
+      }
+    }
+  ],
+  "limits": {
+    "maxHTTP": 13,
+    "maxResponseBytes": 2097152,
+    "maxTotalBytes": 27262976,
+    "requestMs": 20000,
+    "totalMs": 300000,
+    "spacingMs": 1000,
+    "retries": 0,
+    "extraPages": 0,
+    "redirects": 0,
+    "runs": 0
+  },
+  "costStatus": "UNKNOWN",
+  "automatic": false,
+  "onFailure": "Stop on first failure; preserve consumed slot and evidence; no retries or fallback",
+  "excludes": [
+    "previous five histogram requests",
+    "unlisted or missing-address targets",
+    "Allium",
+    "new provider/key",
+    "active-address/payment/DEX metrics",
+    "Supabase/schema changes",
+    "Collector/FX changes",
+    "production deployment"
+  ]
+}

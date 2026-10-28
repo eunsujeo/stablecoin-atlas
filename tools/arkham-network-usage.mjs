@@ -23,6 +23,7 @@ async function manifest(root,slot){
  }
  await walk();return hash(JSON.stringify(rows));
 }
+export {manifest as networkUsagePriorManifest};
 export async function collectNetworkUsage({root,planBytes,expectedPlanHash,key,approvalBytes,expectedApprovalHash,fetcher=fetch,clock=()=>performance.now(),now=()=>new Date().toISOString(),sleep=ms=>new Promise(r=>setTimeout(r,ms))}){
  if(hash(planBytes)!==expectedPlanHash||!key||!Buffer.isBuffer(approvalBytes)||!approvalBytes.length||hash(approvalBytes)!==expectedApprovalHash)stop('INPUT_REJECTED');
  const plan=await validateUsagePlan(JSON.parse(planBytes)),{slot,planHash}=plan;

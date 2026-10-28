@@ -2,7 +2,7 @@
 
 이 저장소는 독립적인 Multi-Chain Asset Compatibility Lab이다. 기존 Integration Test Kit 코드를 복사하거나 의존하지 않는다. Codex 단독으로 개발하며 하위 에이전트에 위임하지 않는다.
 
-- 사용자 전체 자산·네트워크 수집 준비/Allium 수집 종료 요청(2026-10-28): 등록5자산 coverage33쌍을 대상으로 하며 실제 배포/공급자 지원을 단정하지 않는다. Allium 실제 CLI·기본/주입 송신·키 전달은 종료하고 기존 원문/DB/소비·저장본 읽기와 네트워크 권한 없는 사설 회귀는 보존한다. 기존 Arkham5쌍/35관측과 소비는 재사용/재실행하지 않는다. 새 지원 확인은 data/arkham-network-usage-discovery-20261028-plan.json의 정확한4GET/8MiB/120초/재시도0 계획으로 준비했으나 아직 미승인·실행0이다. 결과 후 추가 histogram의 정확한 체인/주소/한도와 실제 DB 변경은 별도 고정 승인 전 시작하지 않는다. docs/research/2026-10-28-all-asset-usage-expansion.md를 따른다.
+- 사용자 전체 자산·네트워크/Allium 종료 후속 승인(2026-10-28): 메타데이터 고정계획 data/arkham-network-usage-discovery-20261028-plan.json의 기존키4GET/8MiB/120초/재시도0/비용UNKNOWN을 추가 승인했고, 실제4GET/HTTP200네건/885bytes/기존root manifest 보존으로 완료·소비했다. 기존5쌍/35관측·원문/DB와 Allium 수집 종료/키 전달 차단을 유지한다. 등록33쌍은 기존5+새조회후보13+chain목록미등재13+정확주소미확보2이며 지원 인증/0으로 바꾸지 않는다. 다음13histogram의 정확주소/기간/최대13GET·26MiB·300초·재시도0 고정계획은 data/arkham-network-usage-expansion-20261028-plan.json에 준비했으나 아직미승인/실행0이다. 실제 DB/Supabase/UI 확장·Collector/FX/운영배포도 이번승인에 포함하지 않는다. 기존2GET/5GET/이번4GET 소비를 재사용하지 않는다. 결과는 docs/research/2026-10-28-arkham-usage-discovery-result.md를 따른다.
 
 - 사용자 Arkham 수집→DB→UI 실제 반영 승인(2026-10-28): ADR0117의 고정5배포·2026-10-21~27·최대5GET/10MiB/120초·재시도0·비용미확인과 실제 Supabase init/기존두역할 grant/검토snapshot1건을 승인했고, 실제5GET/HTTP200다섯건/2535bytes/35관측·DB1건/재입력0·reader/로컬화면 확인으로 완료·소비했다. 기존10schema/68table 구조·자료 지문과 이전원문/판정을 보존했다. 결과는 docs/research/2026-10-28-network-usage-live.md를 따른다. 기존2GET/이번5GET 소비를 재사용하지 않으며 자동반복/새키/운영Macmini 배포/다른기간·지표로 확대하지 않는다.
 
