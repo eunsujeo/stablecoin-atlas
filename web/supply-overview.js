@@ -53,10 +53,9 @@ export function initializeSupplyOverview(root,{read}){
   return (entry,missingDay=null)=>{const row=entry?.row??entry?.last;value.replaceChildren(node('span',row?supplyQuantityLabel(row.amount):missingDay?'관측 없음':'선택 필요'));if(row)value.append(node('small',kind==='supply'||transferField==='transfer_volume'?coinId.toUpperCase():transferMetrics[transferField].unit));meta.replaceChildren(node('span',entry?.network.name??'표시 네트워크'));if(row||missingDay){const day=(row?.observedAt.slice(0,10))??missingDay,time=node('time',day);time.dateTime=day;meta.append(time);}card.title=row?exactDecimal(row.amount)+' '+(entry.unit??'tokens')+' · '+entry.network.name+' · '+row.observedAt.slice(0,10):'선택일 또는 표시 네트워크를 확인하세요.';card.setAttribute('aria-label',kind==='supply'?'표시 네트워크 중 최신 관측 공급량 최대':'선택 집계일의 표시 네트워크 중 '+transferMetrics[transferField].label+' 최대');};
  }
  function renderUsage(host,coinId,day){
-  host.replaceChildren(node('h2','네트워크 전송 활동 비교'));
+  host.replaceChildren();
   const snapshot=transferSurvey.data?.snapshots.find(s=>s.survey==='volume');
-  const note=node('p',(day??'선택일 없음')+' · '+(transferSurvey.data?.provider??usageSource)+' 공급자 집계일 · 집계 시간대 미확인'+(snapshot?' · 조회 '+snapshot.queriedAt:''),'chart-note');host.append(note);
-  const scroll=node('div',undefined,'usage-table-scroll'),table=node('table'),caption=node('caption',coinId.toUpperCase()+' · 같은 자산·집계일의 관측값');table.append(caption);
+  const scroll=node('div',undefined,'usage-table-scroll'),table=node('table'),caption=node('caption',coinId.toUpperCase()+' 네트워크별 전송금액 및 건수','sr-only');table.append(caption);
   const head=node('tr');for(const label of ['네트워크','전송금액 (USD)','전송 건수','전송 포함 트랜잭션 수','전송 이벤트당 평균 (USD)']){const th=node('th',label);th.scope='col';head.append(th);}const thead=node('thead');thead.append(head);table.append(thead);
   const body=node('tbody');for(const r of overviewUsageRows(transferSurvey.data,coinId,day).filter(r=>!hiddenTransfers.has(r.key))){
    const tr=node('tr'),name=node('th',index?.networks.find(n=>n.id===r.networkId)?.name??r.networkId.toUpperCase());name.scope='row';if(r.state==='NOT_TESTED')name.append(node('small',r.reason==='CHAIN_NOT_LISTED'?' · 체인 목록 미확인':' · 정확 주소 미확보','chart-note'));else if(r.state==='MISSING')name.append(node('small',' · 해당일 관측 없음','chart-note'));tr.append(name);

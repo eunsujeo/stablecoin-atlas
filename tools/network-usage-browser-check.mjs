@@ -25,6 +25,9 @@ try{
  const views=[];for(const[width,height]of [[1440,1100],[390,1100]])for(const theme of ['light','dark']){
   await send('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:width<500});await evaluate(`document.documentElement.dataset.theme='${theme}';new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))`);
   assert.equal(await evaluate(`document.querySelector('[aria-label="활동 자료 출처"]')===null`),true);assert.equal(await evaluate(`document.querySelector('#overview-supply').textContent.includes('Allium')`),false);
+  assert.equal(await evaluate(`document.querySelector('.overview-usage > h2')===null`),true);
+  assert.equal(await evaluate(`document.querySelector('.overview-usage caption').classList.contains('sr-only')`),true);
+  assert.equal(await evaluate(`document.querySelector('.overview-usage').textContent.includes('공급자 집계일')`),false);
   for(const[label,unit]of [['전송금액','USD'],['전송 건수','건']]){await click('전송 활동 지표 · '+label);assert.equal(await evaluate(`document.querySelector('.overview-transfer-row .network-axis-title').textContent`),unit);assert.equal(await evaluate(`document.querySelectorAll('[aria-label="전송 활동 지표"] button').length`),2);}
   assert.equal(await evaluate(`document.querySelector('.overview-usage tbody tr').cells[2].textContent`),'9,007,199,254,740,993');views.push({width,theme});
  }
