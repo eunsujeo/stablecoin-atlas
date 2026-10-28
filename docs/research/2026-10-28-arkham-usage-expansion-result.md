@@ -1,5 +1,7 @@
 # Arkham 추가13조합 histogram 단발 수집 결과
 
+후속: 추가사용자요청으로v2 Supabase/로컬UI반영을완료하고운영자동수집을준비했다. [후속기록](2026-10-28-usage-v2-supabase-auto.md)을따른다. 아래DB/UI미반영은당시수집단계기록이다.
+
 상태: 승인된13GET 완료·소비. 새 DB/Supabase/UI 반영·Collector/FX·운영 배포는 수행하지 않았다.
 
 ## 승인·실제 소비

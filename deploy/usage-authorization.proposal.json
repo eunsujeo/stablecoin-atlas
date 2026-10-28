@@ -1,0 +1,11 @@
+{
+  "kind": "ARKHAM_USAGE_PERIOD_AUTHORIZATION_PROPOSAL",
+  "policyHash": "3f53df9d23f14ea4fb37de58bf6bd867043653f6ee5238f0914b914049283b0b",
+  "fromDay": "2026-10-29",
+  "untilExclusive": "2026-11-28",
+  "maxHTTPPerDay": 18,
+  "maxTotalHTTP": 540,
+  "maxBytesPerDay": 37748736,
+  "maxTotalBytes": 1132462080,
+  "costStatus": "UNKNOWN_REQUIRES_APPROVAL"
+}

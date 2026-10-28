@@ -2,7 +2,7 @@
 export const publicAssets=new Set([
   '/browser-json.js','/browser-idb.js','/browser-cache.js','/browser-data.js','/browser-cache-ui.js',
   '/','/index.html','/legacy.html','/production.js','/styles.css','/loading.css','/loading.js',
-  '/asset-review-model.js','/asset-review-store.js','/network-usage-model.js',
+  '/asset-review-model.js','/asset-review-store.js','/network-usage-targets.js','/network-usage-model.js',
   '/source-review.js','/source-review-data.js','/source-review-top10-data.js','/source-review.css','/source-review-notes.html',
   '/overview.js','/overview-model.js','/overview-market-model.js','/overview-preferences.js',
   '/market-view.js','/market-model.js','/market-chart.js','/token-profile.js','/token-profile-model.js',

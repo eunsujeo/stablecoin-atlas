@@ -1,0 +1,22 @@
+[Unit]
+Description=Bounded daily Arkham stablecoin usage collection
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=atlascollector
+Group=atlascollector
+WorkingDirectory=/opt/stablecoin-atlas/collector-current
+EnvironmentFile=-/etc/atlas-collector/proxy.env
+ExecStart=/usr/bin/node --use-env-proxy tools/usage-operating-cli.mjs run --config /etc/atlas-usage/config.json
+TimeoutStartSec=600
+Restart=no
+StateDirectory=atlas-usage
+StateDirectoryMode=0700
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/atlas-usage

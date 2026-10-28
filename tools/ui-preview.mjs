@@ -30,7 +30,7 @@ import { databaseMarketReader } from './market-db/preview.mjs';
 import {databaseRegistrationReader,registrationRequest} from './market-db/registration-preview.mjs';
 
 const assets = new Map([
- ['/network-usage-model.js', ['../web/network-usage-model.js','text/javascript; charset=utf-8']],
+ ['/network-usage-targets.js',['../web/network-usage-targets.js','text/javascript; charset=utf-8']],['/network-usage-model.js', ['../web/network-usage-model.js','text/javascript; charset=utf-8']],
   ['/browser-idb.js', ['../web/browser-idb.js', 'text/javascript; charset=utf-8']],
   ['/browser-cache.js', ['../web/browser-cache.js', 'text/javascript; charset=utf-8']],
   ['/browser-data.js', ['../web/browser-data.js', 'text/javascript; charset=utf-8']],

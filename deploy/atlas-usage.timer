@@ -1,0 +1,10 @@
+[Unit]
+Description=Collect previous seven complete UTC days once daily
+
+[Timer]
+OnCalendar=*-*-* 00:20:00 UTC
+Persistent=false
+Unit=atlas-usage.service
+
+[Install]
+WantedBy=timers.target

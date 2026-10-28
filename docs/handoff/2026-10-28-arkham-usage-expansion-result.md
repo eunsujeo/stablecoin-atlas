@@ -1,5 +1,7 @@
 # 인계: 추가13조합 histogram 수집 완료
 
+후속: 추가사용자요청으로v2 Supabase/로컬UI반영을완료하고운영자동수집을준비했다. [후속기록](2026-10-28-usage-v2-supabase-auto.md)을따른다. 아래DB/UI미반영은당시수집단계기록이다.
+
 사용자 “네 승인할께”는 직전 정확13조회·기존키·최대13GET/26MiB/300초/재시도0/비용UNKNOWN 고정계획 승인이다. 실제13GET 모두HTTP200/6266bytes로 완료·소비했다. 재시도/redirect/추가페이지/공급자전환0, 기존root manifest/키hash/discovery receipt/소스4pin 대조, Node --use-env-proxy 경계를 지켰다. Allium 신규수집/키전달차단 유지. 운영 Mac mini/DB/UI/Collector/FX 변경0.
 
 원본슬롯 .state/allium-executor/arkham-network-usage-expansion-20261028-v2. PlanSHA2914dcf96dc7f28c2abd6b8704498c6fae3925cbe8a0a6234c0eebf490934031, receiptSHA8504a1045cfac430507f00ba25fbdf5ddfb2202eb3304aab5939a5b5b43d39a1. 원문/승인/authorization/intent/receipt 비공개 보존, 소비 재사용 금지. 계획JSON의승인전status도hash증거로보존했으며 실제상태는본기록/receipt를따른다.

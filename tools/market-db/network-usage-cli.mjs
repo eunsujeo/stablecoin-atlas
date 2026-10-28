@@ -2,11 +2,11 @@ import {pathToFileURL} from 'node:url';
 import {workspaceEnvironment} from '../workspace-env.mjs';
 import {boundedRead} from '../evidence-store.mjs';
 import {connectDatabase,transaction} from './connection.mjs';
-import {initializeNetworkUsage,grantNetworkUsage,importNetworkUsage,readNetworkUsage,reviewedNetworkUsageImport} from './network-usage.mjs';
+import {initializeNetworkUsage,upgradeNetworkUsage,grantNetworkUsage,importNetworkUsage,readNetworkUsage,reviewedNetworkUsageImport} from './network-usage.mjs';
 import {verifySupplyApiBoundary} from './supply-api-boundary.mjs';
 import {digest} from './plan.mjs';
 export function networkUsageArguments(args){
- const command=args[0],flags={init:[],grant:['--role','--mode'],import:['--source','--expected-sha256'],read:[],boundary:['--reviewed-definers','--reviewed-sha256']}[command];
+ const command=args[0],flags={upgrade:[],init:[],grant:['--role','--mode'],import:['--source','--expected-sha256'],read:[],boundary:['--reviewed-definers','--reviewed-sha256']}[command];
  if(!flags)throw Error('INVALID_COMMAND');const p={command};
  for(let i=1;i<args.length;i+=2){const k=args[i],v=args[i+1];if(!['--env-file','--reviewed-definers','--reviewed-sha256',...flags].includes(k)||Object.hasOwn(p,k)||!v||v.startsWith('--')||/[\x00-\x1f]/.test(v))throw Error('INVALID_ARGUMENTS');p[k]=v;}
  if(command!=='boundary'&&flags.some(k=>!p[k]))throw Error('MISSING_ARGUMENT');
@@ -22,6 +22,7 @@ export async function main(args){
  }
  const env=await workspaceEnvironment(p['--env-file'],p['--env-file']?{}:process.env),c=await connectDatabase(env);
  try{
+  if(p.command==='upgrade')return await upgradeNetworkUsage(c,{reviewedDefiners});
   if(p.command==='init')return await initializeNetworkUsage(c,{reviewedDefiners});
   if(p.command==='grant')return await grantNetworkUsage(c,p['--role'],p['--mode'],{reviewedDefiners});
   if(p.command==='import')return await importNetworkUsage(c,bytes,p['--expected-sha256'],{reviewedDefiners});

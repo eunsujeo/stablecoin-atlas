@@ -1,0 +1,8 @@
+{
+ "stateRoot":"/var/lib/atlas-usage",
+ "envFile":"/etc/atlas-usage/writer.env",
+ "authorizationFile":"/etc/atlas-usage/authorization.json",
+ "authorizationHash":"REPLACE_WITH_REVIEWED_SHA256",
+ "reviewedDefinersFile":"/etc/atlas-usage/reviewed-definers.json",
+ "reviewedDefinersHash":"REPLACE_WITH_EXISTING_REVIEWED_SHA256"
+}
