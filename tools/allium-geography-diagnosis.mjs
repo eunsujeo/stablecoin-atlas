@@ -1,8 +1,8 @@
+import {retiredAlliumCollection,retiredAlliumFetch,assertAlliumFixtureTransport} from './retired-allium.mjs';
 import {join} from 'node:path';
-import {pathToFileURL,fileURLToPath} from 'node:url';
+import {pathToFileURL} from 'node:url';
 import {file} from './allium-offline-files.mjs';
 import {canonical} from './market-db/plan.mjs';
-import {workspaceEnvironment} from './workspace-env.mjs';
 import {alliumHash,alliumExecutionStorage as io,alliumBoundedRequest,withAlliumSendLock} from './allium-executor.mjs';
 import {geographyPlan,geographyLegacyManifest,previousGeographyManifest} from './allium-geography.mjs';
 
@@ -27,7 +27,8 @@ export async function prepareGeographyDiagnosis(root,{apiKey,approvalBytes,now=n
  if(typeof apiKey!=='string'||!apiKey||!Buffer.isBuffer(approvalBytes)||!approvalBytes.length||approvalBytes.length>65536||!Number.isFinite(Date.parse(now)))fail();
  return withAlliumSendLock(root,async()=>Buffer.from(canonical({version:1,kind:'ALLIUM_GEOGRAPHY_DIAGNOSIS_ONCE',slot,...await context(root),keyHash:alliumHash(Buffer.from(apiKey)),approvalHash:alliumHash(approvalBytes),authorizedAt:now,expiresAt:new Date(Date.parse(now)+900000).toISOString(),maxHttpRequests:1,maxRuns:0,retries:0,costStatus:'UNCONFIRMED'})),{live:true});
 }
-export async function collectGeographyDiagnosis(root,{apiKey,approvalBytes,authorizationBytes,reviewedHash,now=()=>new Date().toISOString(),fetcher=globalThis.fetch}){
+export async function collectGeographyDiagnosis(root,{apiKey,approvalBytes,authorizationBytes,reviewedHash,now=()=>new Date().toISOString(),fetcher=retiredAlliumFetch}){
+ assertAlliumFixtureTransport(fetcher);
  return withAlliumSendLock(root,async()=>{
   if(!Buffer.isBuffer(authorizationBytes)||authorizationBytes.length>65536||alliumHash(authorizationBytes)!==reviewedHash)fail();
   const a=JSON.parse(authorizationBytes),expected=JSON.parse(await prepareUnlocked());
@@ -55,16 +56,5 @@ export async function collectGeographyDiagnosis(root,{apiKey,approvalBytes,autho
  },{live:true});
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
- try{
-  const [command,approvalPath,authorizationPath,reviewedHash,...extra]=process.argv.slice(2);
-  if(!['prepare','collect'].includes(command)||!approvalPath||!authorizationPath||extra.length||command==='collect'&&!reviewedHash||command==='prepare'&&reviewedHash)fail();
-  const root=fileURLToPath(new URL('../.state/allium-executor/',import.meta.url)),approvalBytes=Buffer.from(await file(approvalPath,65536)),{ALLIUM_API_KEY:apiKey}=await workspaceEnvironment();
-  const output=fileURLToPath(new URL('../.state/allium-geography-authorization/balances-diagnosis-20261024.json',import.meta.url));
-  if(authorizationPath!==output)fail();
-  if(command==='prepare'){
-   const b=await prepareGeographyDiagnosis(root,{apiKey,approvalBytes});await io.durableFile(output,b);console.log(JSON.stringify({state:'PREPARED_NOT_SENT',authorizationHash:alliumHash(b),maxHttpRequests:1,maxRuns:0}));
-  }else{
-   const r=await collectGeographyDiagnosis(root,{apiKey,approvalBytes,authorizationBytes:Buffer.from(await file(output,65536)),reviewedHash});console.log(JSON.stringify(r));if(r.state==='UNKNOWN')process.exitCode=1;
-  }
- }catch{console.error('GEOGRAPHY_DIAGNOSIS_BLOCKED: private evidence or permanent reservation unavailable.');process.exitCode=1;}
+ try{retiredAlliumCollection();}catch{console.error('ALLIUM_COLLECTION_RETIRED');process.exitCode=1;}
 }

@@ -1,3 +1,4 @@
+import {retiredAlliumFetch,assertAlliumFixtureTransport} from './retired-allium.mjs';
 import {readdir,lstat,readFile} from 'node:fs/promises';
 import {join} from 'node:path';
 import {alliumHash,alliumExecutionStorage as io,alliumBoundedRequest,withAlliumSendLock} from './allium-executor.mjs';
@@ -53,7 +54,8 @@ export async function prepareGeography(root,{apiKey,approvalBytes,now=new Date()
   return Buffer.from(canonical(a));
  },{live:true});
 }
-export async function collectGeography(root,{apiKey,approvalBytes,authorizationBytes,reviewedHash,fetcher=globalThis.fetch,now=()=>new Date().toISOString(),sleep=ms=>new Promise(r=>setTimeout(r,ms))}){
+export async function collectGeography(root,{apiKey,approvalBytes,authorizationBytes,reviewedHash,fetcher=retiredAlliumFetch,now=()=>new Date().toISOString(),sleep=ms=>new Promise(r=>setTimeout(r,ms))}){
+ assertAlliumFixtureTransport(fetcher);
  return withAlliumSendLock(root,async()=>{
   if(!Buffer.isBuffer(authorizationBytes)||authorizationBytes.length>65536||alliumHash(authorizationBytes)!==reviewedHash)fail();
   const a=JSON.parse(authorizationBytes),plan=geographyPlan(a.plan?.kind);

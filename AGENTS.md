@@ -2,6 +2,8 @@
 
 이 저장소는 독립적인 Multi-Chain Asset Compatibility Lab이다. 기존 Integration Test Kit 코드를 복사하거나 의존하지 않는다. Codex 단독으로 개발하며 하위 에이전트에 위임하지 않는다.
 
+- 사용자 전체 자산·네트워크 수집 준비/Allium 수집 종료 요청(2026-10-28): 등록5자산 coverage33쌍을 대상으로 하며 실제 배포/공급자 지원을 단정하지 않는다. Allium 실제 CLI·기본/주입 송신·키 전달은 종료하고 기존 원문/DB/소비·저장본 읽기와 네트워크 권한 없는 사설 회귀는 보존한다. 기존 Arkham5쌍/35관측과 소비는 재사용/재실행하지 않는다. 새 지원 확인은 data/arkham-network-usage-discovery-20261028-plan.json의 정확한4GET/8MiB/120초/재시도0 계획으로 준비했으나 아직 미승인·실행0이다. 결과 후 추가 histogram의 정확한 체인/주소/한도와 실제 DB 변경은 별도 고정 승인 전 시작하지 않는다. docs/research/2026-10-28-all-asset-usage-expansion.md를 따른다.
+
 - 사용자 Arkham 수집→DB→UI 실제 반영 승인(2026-10-28): ADR0117의 고정5배포·2026-10-21~27·최대5GET/10MiB/120초·재시도0·비용미확인과 실제 Supabase init/기존두역할 grant/검토snapshot1건을 승인했고, 실제5GET/HTTP200다섯건/2535bytes/35관측·DB1건/재입력0·reader/로컬화면 확인으로 완료·소비했다. 기존10schema/68table 구조·자료 지문과 이전원문/판정을 보존했다. 결과는 docs/research/2026-10-28-network-usage-live.md를 따른다. 기존2GET/이번5GET 소비를 재사용하지 않으며 자동반복/새키/운영Macmini 배포/다른기간·지표로 확대하지 않는다.
 
 - 사용자 네트워크 활동 비교 UI 승인(2026-10-28): ADR0116의 기존 검증된 survey 자료로 전체 현황의 전송량·USD 전송금액·전송 이벤트 건수·전송 포함 트랜잭션 수 선택과 동일 자산/집계일의 이벤트당 평균 USD 비교표를 추가한다. bigint·원 시각/출처·누락·PROVIDER_DAY/시간대 UNKNOWN을 유지하고 평균을 합산/비중화하지 않는다. 새 API/키·Arkham 소비 재실행·DB/Collector/FX·운영 Mac mini 직접배포 없이 검증 후 commit/push한다. 활성 주소/중앙값/DEX 전체/결제 분류는 미확보로 보존한다.

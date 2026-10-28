@@ -4,11 +4,11 @@ import { spawn } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
 export const environmentKeys = ['RPC_URL','TRON_RPC_URL','SOLANA_RPC_URL','XRPL_RPC_URL','ARKM_API_KEY','ALLIUM_API_KEY','DATABASE_URL','DATABASE_CA_FILE'];
 export async function workspaceEnvironment(path = new URL('../.env.local',import.meta.url), inherited = process.env) {
-  const env = {...inherited};
+  const env = {...inherited};delete env.ALLIUM_API_KEY;
   try {
     const parsed=parseEnv((await boundedRead(path,65536)).toString('utf8'));
     if(Object.keys(parsed).some(key=>!environmentKeys.includes(key)))throw new Error('UNSUPPORTED_ENV_VARIABLE');
-    for(const key of environmentKeys)if(!Object.hasOwn(inherited,key)&&parsed[key]?.trim())env[key]=parsed[key];
+    for(const key of environmentKeys)if(key!=='ALLIUM_API_KEY'&&!Object.hasOwn(inherited,key)&&parsed[key]?.trim())env[key]=parsed[key];
   }catch(error){if(error.code!=='ENOENT')throw new Error('ENV_FILE_UNREADABLE');}
   return env;
 }

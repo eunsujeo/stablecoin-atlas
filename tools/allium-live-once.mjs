@@ -1,3 +1,4 @@
+import {retiredAlliumFetch,assertAlliumFixtureTransport} from './retired-allium.mjs';
 import {readdir, lstat} from 'node:fs/promises';
 import {join} from 'node:path';
 import {randomUUID} from 'node:crypto';
@@ -72,9 +73,10 @@ async function surveyPlan(day) {
 export const executeLiveOnce = (plan,options) => liveExecution(plan,options,false);
 export const resumeLiveOnce = (plan,options) => liveExecution(plan,options,true);
 async function liveExecution(plan,options,resume) {
+  assertAlliumFixtureTransport(options.fetcher);
   verifyDailyPlan(plan);
   const {root,authorizationBytes,approvalBytes,apiKey,reviewedHash}=options;
-  const deps={apiKey,fetcher:options.fetcher??globalThis.fetch,now:options.now??(()=>new Date().toISOString()),
+  const deps={apiKey,fetcher:options.fetcher??retiredAlliumFetch,now:options.now??(()=>new Date().toISOString()),
     sleep:options.sleep??(ms=>new Promise(r=>setTimeout(r,ms)))};
   return withAlliumSendLock(root,async()=>{
     const legacyManifest=await liveLegacyManifest(root);

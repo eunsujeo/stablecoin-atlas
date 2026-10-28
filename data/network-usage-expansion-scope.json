@@ -1,0 +1,338 @@
+{
+  "schemaVersion": 1,
+  "kind": "REGISTERED_NETWORK_USAGE_SCOPE",
+  "source": "data/market-registration.json",
+  "registrationReviewedAt": "2026-10-22T06:27:10.991Z",
+  "rows": [
+    {
+      "coinId": "usdt",
+      "networkId": "tron",
+      "state": "STORED_WINDOW_AVAILABLE",
+      "providerSupport": "HISTOGRAM_OBSERVED_FOR_STORED_WINDOW",
+      "requestedWindow": {
+        "from": "2026-10-21",
+        "untilExclusive": "2026-10-28"
+      }
+    },
+    {
+      "coinId": "usdt",
+      "networkId": "ethereum",
+      "state": "STORED_WINDOW_AVAILABLE",
+      "providerSupport": "HISTOGRAM_OBSERVED_FOR_STORED_WINDOW",
+      "requestedWindow": {
+        "from": "2026-10-21",
+        "untilExclusive": "2026-10-28"
+      }
+    },
+    {
+      "coinId": "usdt",
+      "networkId": "bsc",
+      "state": "NOT_COLLECTED",
+      "providerSupport": "NOT_VERIFIED",
+      "requestedWindow": {
+        "from": "2026-10-21",
+        "untilExclusive": "2026-10-28"
+      }
+    },
+    {
+      "coinId": "usdt",
+      "networkId": "solana",
+      "state": "STORED_WINDOW_AVAILABLE",
+      "providerSupport": "HISTOGRAM_OBSERVED_FOR_STORED_WINDOW",
+      "requestedWindow": {
+        "from": "2026-10-21",
+        "untilExclusive": "2026-10-28"
+      }
+    },
+    {
+      "coinId": "usdt",
+      "networkId": "arbitrum",
+      "state": "NOT_COLLECTED",
+      "providerSupport": "NOT_VERIFIED",
+      "requestedWindow": {
+        "from": "2026-10-21",
+        "untilExclusive": "2026-10-28"
+      }
+    },
+    {
+      "coinId": "usdt",
+      "networkId": "polygon",
+      "state": "NOT_COLLECTED",
+      "providerSupport": "NOT_VERIFIED",
+      "requestedWindow": {
+        "from": "2026-10-21",
+        "untilExclusive": "2026-10-28"
+      }
+    },
+    {
+      "coinId": "usdt",
+      "networkId": "plasma",
+      "state": "NOT_COLLECTED",
+      "providerSupport": "NOT_VERIFIED",
+      "requestedWindow": {
+        "from": "2026-10-21",
+        "untilExclusive": "2026-10-28"
+      }
+    },
+    {
+      "coinId": "usdt",
+      "networkId": "ton",
+      "state": "NOT_COLLECTED",
+      "providerSupport": "NOT_VERIFIED",
+      "requestedWindow": {
+        "from": "2026-10-21",
+        "untilExclusive": "2026-10-28"
+      }
+    },
+    {
+      "coinId": "usdt",
+      "networkId": "aptos",
+      "state": "NOT_COLLECTED",
+      "providerSupport": "NOT_VERIFIED",
+      "requestedWindow": {
+        "from": "2026-10-21",
+        "untilExclusive": "2026-10-28"
+      }
+    },
+    {
+      "coinId": "usdt",
+      "networkId": "mantle",
+      "state": "NOT_COLLECTED",
+      "providerSupport": "NOT_VERIFIED",
+      "requestedWindow": {
+        "from": "2026-10-21",
+        "untilExclusive": "2026-10-28"
+      }
+    },
+    {
+      "coinId": "usdc",
+      "networkId": "ethereum",
+      "state": "STORED_WINDOW_AVAILABLE",
+      "providerSupport": "HISTOGRAM_OBSERVED_FOR_STORED_WINDOW",
+      "requestedWindow": {
+        "from": "2026-10-21",
+        "untilExclusive": "2026-10-28"
+      }
+    },
+    {
+      "coinId": "usdc",
+      "networkId": "solana",
+      "state": "STORED_WINDOW_AVAILABLE",
+      "providerSupport": "HISTOGRAM_OBSERVED_FOR_STORED_WINDOW",
+      "requestedWindow": {
+        "from": "2026-10-21",
+        "untilExclusive": "2026-10-28"
+      }
+    },
+    {
+      "coinId": "usdc",
+      "networkId": "hyperliquid-l1",
+      "state": "NOT_COLLECTED",
+      "providerSupport": "NOT_VERIFIED",
+      "requestedWindow": {
+        "from": "2026-10-21",
+        "untilExclusive": "2026-10-28"
+      }
+    },
+    {
+      "coinId": "usdc",
+      "networkId": "base",
+      "state": "NOT_COLLECTED",
+      "providerSupport": "NOT_VERIFIED",
+      "requestedWindow": {
+        "from": "2026-10-21",
+        "untilExclusive": "2026-10-28"
+      }
+    },
+    {
+      "coinId": "usdc",
+      "networkId": "arbitrum",
+      "state": "NOT_COLLECTED",
+      "providerSupport": "NOT_VERIFIED",
+      "requestedWindow": {
+        "from": "2026-10-21",
+        "untilExclusive": "2026-10-28"
+      }
+    },
+    {
+      "coinId": "usdc",
+      "networkId": "polygon",
+      "state": "NOT_COLLECTED",
+      "providerSupport": "NOT_VERIFIED",
+      "requestedWindow": {
+        "from": "2026-10-21",
+        "untilExclusive": "2026-10-28"
+      }
+    },
+    {
+      "coinId": "usdc",
+      "networkId": "bsc",
+      "state": "NOT_COLLECTED",
+      "providerSupport": "NOT_VERIFIED",
+      "requestedWindow": {
+        "from": "2026-10-21",
+        "untilExclusive": "2026-10-28"
+      }
+    },
+    {
+      "coinId": "usdc",
+      "networkId": "arc",
+      "state": "NOT_COLLECTED",
+      "providerSupport": "NOT_VERIFIED",
+      "requestedWindow": {
+        "from": "2026-10-21",
+        "untilExclusive": "2026-10-28"
+      }
+    },
+    {
+      "coinId": "usdc",
+      "networkId": "avalanche",
+      "state": "NOT_COLLECTED",
+      "providerSupport": "NOT_VERIFIED",
+      "requestedWindow": {
+        "from": "2026-10-21",
+        "untilExclusive": "2026-10-28"
+      }
+    },
+    {
+      "coinId": "usdc",
+      "networkId": "stellar",
+      "state": "NOT_COLLECTED",
+      "providerSupport": "NOT_VERIFIED",
+      "requestedWindow": {
+        "from": "2026-10-21",
+        "untilExclusive": "2026-10-28"
+      }
+    },
+    {
+      "coinId": "usdc",
+      "networkId": "xrpl",
+      "state": "NOT_COLLECTED",
+      "providerSupport": "NOT_VERIFIED",
+      "requestedWindow": {
+        "from": "2026-10-21",
+        "untilExclusive": "2026-10-28"
+      }
+    },
+    {
+      "coinId": "rlusd",
+      "networkId": "ethereum",
+      "state": "NOT_COLLECTED",
+      "providerSupport": "NOT_VERIFIED",
+      "requestedWindow": {
+        "from": "2026-10-21",
+        "untilExclusive": "2026-10-28"
+      }
+    },
+    {
+      "coinId": "rlusd",
+      "networkId": "xrpl",
+      "state": "NOT_COLLECTED",
+      "providerSupport": "NOT_VERIFIED",
+      "requestedWindow": {
+        "from": "2026-10-21",
+        "untilExclusive": "2026-10-28"
+      }
+    },
+    {
+      "coinId": "rlusd",
+      "networkId": "base",
+      "state": "NOT_COLLECTED",
+      "providerSupport": "NOT_VERIFIED",
+      "requestedWindow": {
+        "from": "2026-10-21",
+        "untilExclusive": "2026-10-28"
+      }
+    },
+    {
+      "coinId": "rlusd",
+      "networkId": "ink",
+      "state": "NOT_COLLECTED",
+      "providerSupport": "NOT_VERIFIED",
+      "requestedWindow": {
+        "from": "2026-10-21",
+        "untilExclusive": "2026-10-28"
+      }
+    },
+    {
+      "coinId": "rlusd",
+      "networkId": "optimism",
+      "state": "NOT_COLLECTED",
+      "providerSupport": "NOT_VERIFIED",
+      "requestedWindow": {
+        "from": "2026-10-21",
+        "untilExclusive": "2026-10-28"
+      }
+    },
+    {
+      "coinId": "rlusd",
+      "networkId": "unichain",
+      "state": "NOT_COLLECTED",
+      "providerSupport": "NOT_VERIFIED",
+      "requestedWindow": {
+        "from": "2026-10-21",
+        "untilExclusive": "2026-10-28"
+      }
+    },
+    {
+      "coinId": "rlusd",
+      "networkId": "xrpl-evm",
+      "state": "NOT_COLLECTED",
+      "providerSupport": "NOT_VERIFIED",
+      "requestedWindow": {
+        "from": "2026-10-21",
+        "untilExclusive": "2026-10-28"
+      }
+    },
+    {
+      "coinId": "jpyc",
+      "networkId": "ethereum",
+      "state": "NOT_COLLECTED",
+      "providerSupport": "NOT_VERIFIED",
+      "requestedWindow": {
+        "from": "2026-10-21",
+        "untilExclusive": "2026-10-28"
+      }
+    },
+    {
+      "coinId": "jpyc",
+      "networkId": "polygon",
+      "state": "NOT_COLLECTED",
+      "providerSupport": "NOT_VERIFIED",
+      "requestedWindow": {
+        "from": "2026-10-21",
+        "untilExclusive": "2026-10-28"
+      }
+    },
+    {
+      "coinId": "jpyc",
+      "networkId": "avalanche",
+      "state": "NOT_COLLECTED",
+      "providerSupport": "NOT_VERIFIED",
+      "requestedWindow": {
+        "from": "2026-10-21",
+        "untilExclusive": "2026-10-28"
+      }
+    },
+    {
+      "coinId": "jpyc",
+      "networkId": "kaia",
+      "state": "NOT_COLLECTED",
+      "providerSupport": "NOT_VERIFIED",
+      "requestedWindow": {
+        "from": "2026-10-21",
+        "untilExclusive": "2026-10-28"
+      }
+    },
+    {
+      "coinId": "jpysc",
+      "networkId": "ethereum",
+      "state": "NOT_COLLECTED",
+      "providerSupport": "NOT_VERIFIED",
+      "requestedWindow": {
+        "from": "2026-10-21",
+        "untilExclusive": "2026-10-28"
+      }
+    }
+  ]
+}

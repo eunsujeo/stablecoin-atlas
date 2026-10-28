@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "kind": "ARKHAM_NETWORK_USAGE_DISCOVERY_PLAN",
+  "slot": "arkham-network-usage-discovery-20261028-v1",
+  "root": ".state/allium-executor",
+  "lock": "existing common send lock",
+  "purpose": "Resolve registered asset/network mappings before fixing new histogram requests",
+  "scopeFile": "data/network-usage-expansion-scope.json",
+  "origin": "https://api.arkm.com",
+  "jobs": [
+    {
+      "id": "chains",
+      "method": "GET",
+      "path": "/chains",
+      "query": {}
+    },
+    {
+      "id": "usdc-addresses",
+      "method": "GET",
+      "path": "/token/addresses/usd-coin",
+      "query": {}
+    },
+    {
+      "id": "usdt-addresses",
+      "method": "GET",
+      "path": "/token/addresses/tether",
+      "query": {}
+    },
+    {
+      "id": "rlusd-addresses",
+      "method": "GET",
+      "path": "/token/addresses/ripple-usd",
+      "query": {}
+    }
+  ],
+  "limits": {
+    "maxHTTP": 4,
+    "maxResponseBytes": 2097152,
+    "maxTotalBytes": 8388608,
+    "requestMs": 20000,
+    "totalMs": 120000,
+    "spacingMs": 1000,
+    "retries": 0,
+    "redirects": 0,
+    "extraPages": 0,
+    "runs": 0
+  },
+  "costStatus": "UNKNOWN",
+  "credential": "existing ARKM_API_KEY; no new key",
+  "automatic": false,
+  "onFailure": "Stop; preserve intent, response and consumed slot; no fallback",
+  "excluded": [
+    "histogram requests",
+    "JPYC/JPYSC token ID guesses",
+    "Allium requests",
+    "usage or billing calls",
+    "DB changes",
+    "Collector/FX changes",
+    "production deployment"
+  ]
+}

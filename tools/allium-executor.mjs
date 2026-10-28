@@ -1,3 +1,4 @@
+import {retiredAlliumFetch,assertAlliumFixtureTransport} from './retired-allium.mjs';
 import {mkdir, open, rename, lstat, realpath, readdir, rmdir} from 'node:fs/promises';
 import {join, resolve} from 'node:path';
 import {createHash, randomUUID} from 'node:crypto';
@@ -100,6 +101,7 @@ export function alliumReceiptView(receipt) {
 }
 
 async function request(receipt, directory, kind, path, body, deps) {
+  assertAlliumFixtureTransport(deps.fetcher);
   if (receipt.attempts.length >= (receipt.kind==='ALLIUM_USAGE_RECEIPT'?1:receipt.authorization?.mode==='USER_AUTHORIZED_LIVE_ONCE'?26:receipt.authorization?.mode==='MANUAL_UNCAPPED_SURVEY'?156:39)) fail();
   if (receipt.authorization) {
     const now=epochMicros(deps.now());
@@ -137,7 +139,7 @@ async function request(receipt, directory, kind, path, body, deps) {
   return {bytes,value:JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes)),attempt};
 }
 export const alliumBoundedRequest = request;
-const dependencies = options => ({fetcher:options.fetcher??globalThis.fetch,now:options.now??(()=>new Date().toISOString()),sleep:options.sleep??(ms=>new Promise(r=>setTimeout(r,ms))),random:options.random??Math.random,apiKey:options.apiKey});
+const dependencies = options => ({fetcher:options.fetcher??retiredAlliumFetch,now:options.now??(()=>new Date().toISOString()),sleep:options.sleep??(ms=>new Promise(r=>setTimeout(r,ms))),random:options.random??Math.random,apiKey:options.apiKey});
 
 async function surveyRequest(receipt,directory,kind,path,body,deps) {
   for(let retry=0;;retry++) {
@@ -182,7 +184,7 @@ async function reserveSurvey(root,plan,authorization,manual) {
     const directory=join(root,'survey-'+plan.asOfDay);await exclusiveDirectory(directory);return directory;
 }
 
-export const alliumUsage = options => withAlliumSendLock(options.root, () => usageUnlocked(options));
+export const alliumUsage = async options => {assertAlliumFixtureTransport(options.fetcher);return withAlliumSendLock(options.root, () => usageUnlocked(options));};
 async function usageUnlocked({root, ...options}) {
   const deps=dependencies(options); if(!deps.apiKey)fail();
   await privateDirectory(root);
@@ -205,9 +207,9 @@ async function usageUnlocked({root, ...options}) {
   return alliumReceiptView(receipt);
 }
 
-export const executeAlliumSurvey=(plan,options)=>withAlliumSendLock(options.root,()=>executeSurvey(plan,options,false));
-export const executeAlliumManualSurvey=(plan,options)=>withAlliumSendLock(options.root,()=>executeSurvey(plan,options,true));
-export const resumeAlliumManualSurvey=(plan,options)=>withAlliumSendLock(options.root,()=>executeSurvey(plan,options,true,true));
+export const executeAlliumSurvey=async(plan,options)=>{assertAlliumFixtureTransport(options.fetcher);return withAlliumSendLock(options.root,()=>executeSurvey(plan,options,false));};
+export const executeAlliumManualSurvey=async(plan,options)=>{assertAlliumFixtureTransport(options.fetcher);return withAlliumSendLock(options.root,()=>executeSurvey(plan,options,true));};
+export const resumeAlliumManualSurvey=async(plan,options)=>{assertAlliumFixtureTransport(options.fetcher);return withAlliumSendLock(options.root,()=>executeSurvey(plan,options,true,true));};
 
 async function reviewedCheckpoint(root,plan,authorization,authorizationBytes,approvalBytes,sqlReviewBytes,reviewedSqlReviewHash,now) {
   const directory=join(root,'survey-'+plan.asOfDay),bytes=await boundedRead(join(directory,'receipt.json'),131072),receipt=JSON.parse(bytes);
