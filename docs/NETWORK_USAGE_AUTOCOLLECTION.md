@@ -1,5 +1,7 @@
 # 네트워크 활동 자동 수집 운영
 
+초기30일 예산은 사용자 추가 승인으로 확정했다. 2026-10-29~11-27 UTC·하루18GET/총540GET·총1080MiB·비용UNKNOWN 수용이며 [승인 기록](research/2026-10-28-usage-period-authorization.md)을 따른다. 실제 운영서버 설치/활성화는 아직 미실행이다.
+
 사용자는 Supabase/UI 반영과 운영 자동 수집을 요청했다. 이 도구는 기존 시장/등록자산/FX 수집과 독립된 daily job이다. 기존 주기·예약·키·원문을 변경하지 않는다. 실제 운영 서버 설치나 timer 활성화는 이 저장소 변경으로 실행되지 않는다.
 
 ## 수집 계약
@@ -25,8 +27,8 @@ UTC00:20 하루1회(systemd timer), 최대18GET/0run·응답2MiB/하루36MiB·42
 
 ```sh
 sudo install -d -m 0700 -o atlascollector -g atlascollector /etc/atlas-usage /var/lib/atlas-usage
-sudo install -m 0600 -o atlascollector -g atlascollector deploy/usage.config.example.json /etc/atlas-usage/config.json
-sudo install -m 0600 -o atlascollector -g atlascollector deploy/usage-authorization.proposal.json /etc/atlas-usage/authorization.json
+sudo install -m 0600 -o atlascollector -g atlascollector deploy/usage.config.20261029-20261127.json /etc/atlas-usage/config.json
+sudo install -m 0600 -o atlascollector -g atlascollector deploy/usage-authorization.20261029-20261127.json /etc/atlas-usage/authorization.json
 ```
 
 `/etc/atlas-usage/writer.env`에 기존 DATABASE_URL/필요 CA 경로/ARKM_API_KEY만 atlascollector 소유0600으로 넣는다. 웹 reader나 admin 키를 넣지 않는다. PostgreSQL TLS 검증은 유지한다. 공개 API 노출 경계의 기존 reviewed-definers 검토본을 해당소유0600의 `/etc/atlas-usage/reviewed-definers.json`으로 비공개 이동한다. 새로운 definer를 자동 승인하지 않는다. Web 프로세스에 공급자 키나 writer를 전달하지 않는다.
@@ -37,11 +39,11 @@ sudo install -m 0600 -o atlascollector -g atlascollector deploy/usage-authorizat
 
 아래는 실행하지 않은 운영 절차다. 먼저 `npm run collector:usage -- plan --day YYYY-MM-DD`로 정확주소/7일창과 policyHash를 확인한다(외부/DB0). policyHash는 날짜와 독립적이며 대상/한도/등록소스가 바뀌면 달라져 기존 authorization을 거절한다.
 
-제공한 proposal은 2026-10-29~2026-11-27의30일, 최대540GET/1080MiB 누적 예시다. 그대로는 실행되지 않는다. 원 사용자/운영 예산 승인을 확인한 뒤만 kind를 `ARKHAM_USAGE_PERIOD_AUTHORIZATION`, costStatus를 `UNKNOWN_ACCEPTED`로 바꾼다. 날짜를 실제 승인기간에 맞추고 상한을 정확히 계산한다. 실제 승인 원문은 별도 사설 보존한다. 다음 값은 현재 정책이다.
+초기30일 승인 파일 `deploy/usage-authorization.20261029-20261127.json`은 실제 사용자 추가 승인을 반영했다. 날짜·상한·정책을 수정하지 않고 사용한다. 승인 원문은 비공개 보존했다. 최초 실행 예정은 2026-10-29 00:20 UTC(한국09:20), 마지막은 11-27이며 11-28 UTC부터 만료다. 제안용 `usage-authorization.proposal.json`은 당시 준비본으로 보존하며 승인 파일을 대신하지 않는다. 기간 연장·대상/한도 확대를 자동 승인하지 않는다. 다음 값은 현재 정책이다.
 
 `policyHash=3f53df9d23f14ea4fb37de58bf6bd867043653f6ee5238f0914b914049283b0b`
 
-authorization과 reviewed-definers 두 파일의 SHA256을 운영자가 대조해 config.json의 해당 hash에 입력한다. 원문을 출력하지 않는다. 읽는파일은 소유·권한·symlink·크기/hash를 검증한다. 기간이 유효한 UTC 날짜에 아래 check는 DB구조 읽기만 수행하며 새 API/선점을 하지 않는다.
+승인 파일 SHA256은 `a4c3e2c4f911ec38cc236ca632d9a05a4fc59ea887e15b27ca2d47f8e171f4ac`이다. 제공 config에는 승인 hash와 기존 reviewed-definers hash가 반영되어 있으므로 운영자는 실제 파일 hash를 대조한다. 원문을 출력하지 않는다. 읽는파일은 소유·권한·symlink·크기/hash를 검증한다. 10-28은 승인기간 전이므로 check/run이 기간 검증에서 거절되는 것이 정상이다. timer는 미리 설치할 수 있으나 즉시 service를 수동 실행하지 않는다. 기간이 유효한 UTC 날짜에 아래 check는 DB구조 읽기만 수행하며 새 API/선점을 하지 않는다.
 
 ```sh
 sudo -u atlascollector /usr/bin/node --use-env-proxy /opt/stablecoin-atlas/collector-current/tools/usage-operating-cli.mjs check --config /etc/atlas-usage/config.json

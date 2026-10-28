@@ -1,5 +1,7 @@
 # 현재 개발 상태
 
+[자동수집 초기30일 예산 승인](research/2026-10-28-usage-period-authorization.md)을 반영한 승인JSON과 해시기입config를 준비했다. 2026-10-29~11-27 UTC·하루18GET/총540GET·비용UNKNOWN 수용이다. 실제운영서버배포/활성화는미실행이며 [설치절차](NETWORK_USAGE_AUTOCOLLECTION.md)를 따른다. 같은기간예산을 다시 승인받지 않는다.
+
 [18조합 Supabase/UI와 자동수집 준비](research/2026-10-28-usage-v2-supabase-auto.md)를 완료했다. 실제v2 snapshot126행/124관측/2누락·미수집15 표시와reader/로컬UI를대조했고기존자료를보존했다. UTC00:20하루18GET 자동수집CLI/service/timer를추가했으며실제운영설치/새API/활성화는미실행이다. 운영웹/수집기는같은새SHA배포가필요하고 [운영안내](NETWORK_USAGE_AUTOCOLLECTION.md)를따른다.
 
 전체 등록33쌍 후속 [Arkham 추가13조합 histogram](research/2026-10-28-arkham-usage-expansion-result.md)을 승인13GET/HTTP200전부/6266bytes로 완료·소비했다. 새89관측/JPYSC2일누락을 보존했고 기존5쌍/35관측과 오프라인대조해 총18쌍/124관측/2누락의 사설검토본을 확보했다. 나머지15쌍은 미확인이다. 기존DB/UI의5쌍·35행은변경하지 않았으며 새Supabase/UI/운영반영은별도범위다. Allium수집/키전달차단을유지한다.
