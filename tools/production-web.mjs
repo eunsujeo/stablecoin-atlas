@@ -1,3 +1,4 @@
+import {databaseNetworkUsageReader} from './market-db/network-usage-preview.mjs';
 import {databaseAssetReviewReader} from './market-db/asset-review-preview.mjs';
 import {parseEnv} from 'node:util';
 import {isCLIEntrypoint} from './cli-entrypoint.mjs';
@@ -34,7 +35,7 @@ export async function startProduction({config,env,commit},{connector=productionC
     const connect=connector.connect;
     server=await startPreviewServer(config.port,{
       production:{hosts:config.hosts,commit},
-      onTiming,assetReviewReader:databaseAssetReviewReader({env,connect}),
+      onTiming,networkUsageReader:databaseNetworkUsageReader({env,connect}),assetReviewReader:databaseAssetReviewReader({env,connect}),
       marketReader:databaseMarketReader({env,connect,includeLocalStatus:false}),registrationReader:databaseRegistrationReader({env,connect}),
       activityReader:databaseActivityReader({env,connect}),reviewedSupplyReader:databaseReviewedSupplyReader({env,connect}),surveyReader:databaseSurveyReader({env,connect}),
       fxReader:()=>readPublicFX(config.fxFile),

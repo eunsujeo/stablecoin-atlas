@@ -1,0 +1,50 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {fixture} from './fixture.mjs';
+import {initialize,grantAccess,structureHash} from '../../tools/market-db/schema.mjs';
+import {connectDatabase,transaction} from '../../tools/market-db/connection.mjs';
+import {initializeNetworkUsage,grantNetworkUsage,importNetworkUsage,readNetworkUsage,verifyNetworkUsageSchema} from '../../tools/market-db/network-usage.mjs';
+import {verifySupplyApiBoundary} from '../../tools/market-db/supply-api-boundary.mjs';
+import {verifyProductionReader} from '../../tools/production-database.mjs';
+import {networkUsageFixture} from '../network-usage-fixture.mjs';
+import {digest,canonical} from '../../tools/market-db/plan.mjs';
+import {databaseNetworkUsageReader} from '../../tools/market-db/network-usage-preview.mjs';
+import {startPreviewServer} from '../../tools/ui-preview.mjs';
+test('network usage PG17 keeps atomic immutable snapshots and source states behind least-privilege roles',{timeout:120000},async()=>{
+ const usageSnapshot=await networkUsageFixture();const f=await fixture();let writer,reader,second;const encode=s=>Buffer.from(JSON.stringify(s)),bytes=encode(usageSnapshot);
+ try{
+  await initialize(f.admin);const before=await structureHash(f.admin,'atlas_market');
+  await f.admin.query('CREATE ROLE anon NOLOGIN; CREATE ROLE authenticated NOLOGIN; CREATE ROLE authenticator NOLOGIN; CREATE ROLE service_role NOLOGIN BYPASSRLS');
+  await initializeNetworkUsage(f.admin);assert.equal((await initializeNetworkUsage(f.admin)).state,'UNCHANGED');
+  const wu=await f.createUser('atlas_test_usagewriter'),ru=await f.createUser('atlas_test_usagereader');
+  await grantAccess(f.admin,'atlas_test_usagewriter','writer');await grantAccess(f.admin,'atlas_test_usagereader','reader');
+  await grantNetworkUsage(f.admin,'atlas_test_usagewriter','writer');await grantNetworkUsage(f.admin,'atlas_test_usagereader','reader');
+  writer=await connectDatabase({DATABASE_URL:wu});second=await connectDatabase({DATABASE_URL:wu});reader=await connectDatabase({DATABASE_URL:ru});
+  await assert.rejects(readNetworkUsage(reader),/NOT_AVAILABLE/);
+  const both=await Promise.all([importNetworkUsage(writer,bytes,digest(bytes)),importNetworkUsage(second,bytes,digest(bytes))]);assert.deepEqual(both.map(r=>r.inserted).sort(),[0,1]);
+  assert.equal((await importNetworkUsage(writer,bytes,digest(bytes))).inserted,0);assert.deepEqual(await readNetworkUsage(reader),usageSnapshot);
+  const missing=structuredClone(usageSnapshot);missing.receiptHash='f'.repeat(64);missing.id='arkham-usage-'+missing.receiptHash;missing.rows.forEach(r=>Object.assign(r,{state:'MISSING',providerTime:null,usd:null,transfers:null}));const mb=encode(missing);await assert.rejects(importNetworkUsage(writer,mb,digest(mb)));assert.equal((await readNetworkUsage(reader)).id,usageSnapshot.id);
+  await assert.rejects(writer.query('INSERT INTO atlas_network_usage.snapshot(snapshot_id,window_end,queried_at,row_count,payload_hash,payload) VALUES($1,$2,$3,$4,$5,$6)',[missing.id,missing.window.untilExclusive,missing.rows[0].queriedAt,35,Buffer.from(digest(canonical(missing)),'hex'),JSON.stringify(missing)]));assert.equal((await readNetworkUsage(reader)).id,usageSnapshot.id);
+  const bad=structuredClone(usageSnapshot);bad.rows[0].usd='2';let b=encode(bad);await assert.rejects(importNetworkUsage(writer,b,digest(b)),/ID_CONFLICT/);
+  const count=async()=>(await f.admin.query('SELECT count(*)::int AS n FROM atlas_network_usage.snapshot')).rows[0].n;
+  const later=structuredClone(usageSnapshot);later.receiptHash='d'.repeat(64);later.id='arkham-usage-'+later.receiptHash;b=encode(later);
+  const faulty={query:async(...args)=>{const r=await writer.query(...args);if(typeof args[0]==='string'&&args[0].startsWith('INSERT INTO atlas_network_usage.snapshot'))throw Error('INJECT_AFTER_INSERT');return r;}};
+  await assert.rejects(importNetworkUsage(faulty,b,digest(b)),/INJECT_AFTER_INSERT/);assert.equal(await count(),1);
+  await importNetworkUsage(writer,b,digest(b));assert.equal((await readNetworkUsage(reader)).id,later.id);
+  const older=structuredClone(later);older.receiptHash='e'.repeat(64);older.id='arkham-usage-'+older.receiptHash;older.rows.forEach(r=>r.queriedAt='2026-10-28T00:00:00.000Z');const olderBytes=encode(older);await importNetworkUsage(writer,olderBytes,digest(olderBytes));assert.equal((await readNetworkUsage(reader)).id,later.id);
+  const server=await startPreviewServer(0,{networkUsageReader:databaseNetworkUsageReader({env:{DATABASE_URL:ru}})});
+  try{const url='http://127.0.0.1:'+server.address().port+'/network-usage-data.json';const response=await fetch(url);assert.equal(response.status,200);assert.deepEqual(await response.json(),later);assert.equal((await fetch(url,{method:'HEAD'})).status,200);assert.equal(await count(),3);}finally{server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}
+  await assert.rejects(importNetworkUsage(reader,bytes,digest(bytes)));await assert.rejects(importNetworkUsage(f.admin,bytes,digest(bytes)));await assert.rejects(readNetworkUsage(writer));
+  for(const sql of ['DELETE FROM atlas_network_usage.snapshot','TRUNCATE atlas_network_usage.snapshot',"UPDATE atlas_network_usage.snapshot SET row_count=1",'SELECT atlas_network_usage.reject_mutation()',"INSERT INTO atlas_network_usage.access_grant VALUES('intruder','writer')"])await assert.rejects(writer.query(sql));
+  for(const sql of ['CREATE TABLE atlas_network_usage.bad(id int)','CREATE SCHEMA network_usage_bad','INSERT INTO atlas_network_usage.snapshot SELECT * FROM atlas_network_usage.snapshot'])await assert.rejects(reader.query(sql));
+  await assert.rejects(writer.query("INSERT INTO atlas_network_usage.snapshot(snapshot_id,window_end,row_count,payload_hash,payload) VALUES('missing','2026-10-28',35,$1,'{}')",[Buffer.alloc(32)]));
+  const boundary=()=>transaction(f.admin,()=>verifySupplyApiBoundary(f.admin,{schema:'atlas_network_usage'}),{repeatableRead:true});assert.equal((await boundary()).state,'VERIFIED_EFFECTIVE_ACCESS_DENIED');
+  await f.admin.query('GRANT SELECT(payload) ON atlas_network_usage.snapshot TO anon');await assert.rejects(boundary());await assert.rejects(readNetworkUsage(reader));await f.admin.query('REVOKE SELECT(payload) ON atlas_network_usage.snapshot FROM anon');
+  await f.admin.query('GRANT atlas_test_usagewriter TO authenticator WITH INHERIT FALSE');await assert.rejects(boundary());await f.admin.query('REVOKE atlas_test_usagewriter FROM authenticator');
+  await f.admin.query('ALTER DEFAULT PRIVILEGES IN SCHEMA atlas_network_usage GRANT SELECT ON TABLES TO PUBLIC');await assert.rejects(boundary());await f.admin.query('ALTER DEFAULT PRIVILEGES IN SCHEMA atlas_network_usage REVOKE SELECT ON TABLES FROM PUBLIC');
+  await f.admin.query('ALTER TABLE atlas_network_usage.snapshot DISABLE TRIGGER immutable_record');await assert.rejects(readNetworkUsage(reader));await f.admin.query('ALTER TABLE atlas_network_usage.snapshot ENABLE TRIGGER immutable_record');
+  await f.admin.query('GRANT UPDATE(payload) ON atlas_network_usage.snapshot TO atlas_test_usagereader');await assert.rejects(readNetworkUsage(reader));await f.admin.query('REVOKE UPDATE(payload) ON atlas_network_usage.snapshot FROM atlas_test_usagereader');
+  await verifyProductionReader(reader);
+  await f.admin.query('ALTER TABLE atlas_network_usage.snapshot DISABLE TRIGGER immutable_record');await f.admin.query("UPDATE atlas_network_usage.snapshot SET payload=jsonb_set(payload,'{provider}','\"tampered\"')");await f.admin.query('ALTER TABLE atlas_network_usage.snapshot ENABLE TRIGGER immutable_record');await assert.rejects(readNetworkUsage(reader));
+  await verifyNetworkUsageSchema(f.admin);assert.equal(await structureHash(f.admin,'atlas_market'),before);
+ }finally{await Promise.all([writer,reader,second].filter(Boolean).map(c=>c.end()));await f.stop();}
+});

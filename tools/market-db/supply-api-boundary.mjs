@@ -26,7 +26,7 @@ export async function definerSchemaHash(c,namespace){
  if(!rows.length)fail();return hash(JSON.stringify({version:2,namespace,rows}));
 }
 export async function verifySupplyApiBoundary(c,{privateRoles=[],reviewedDefiners=[],schema='atlas_supply'}={}){
- if(!['atlas_supply','atlas_survey','atlas_contract_review','atlas_asset_review'].includes(schema))fail();
+ if(!['atlas_supply','atlas_survey','atlas_contract_review','atlas_asset_review','atlas_network_usage'].includes(schema))fail();
  if(!Array.isArray(privateRoles)||privateRoles.some(r=>typeof r!=='string'||!/^[a-z][a-z0-9_]{0,62}$/.test(r)))fail();
  if(!Array.isArray(reviewedDefiners)||reviewedDefiners.length>16||reviewedDefiners.some(r=>!r||r.state!=='SOURCE_REVIEWED'||typeof r.namespace!=='string'||typeof r.name!=='string'||typeof r.arguments!=='string'||r.arguments.length>512||!hex(r.definitionHash)||!hex(r.schemaHash)))fail();
  const roles=(await c.query('SELECT oid,rolname,rolsuper,rolcreaterole,rolbypassrls FROM pg_roles WHERE rolname=ANY($1)',[apiRoles])).rows;

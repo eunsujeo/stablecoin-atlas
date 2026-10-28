@@ -1,4 +1,5 @@
 import {overviewCoins,readOverviewHistories,overviewSupplyGroups,legacyOverviewDetails,overviewNetworkRanking,supplyQuantityLabel,overviewTransferGroups,transferComposition,transferMetrics,overviewUsageRows} from './supply-overview-model.js';
+import {networkUsageView} from './network-usage-model.js';
 import {exactDecimal} from './market-model.js';
 import {sameRegisteredSource} from './registration-model.js';
 import {renderNetworkSupplyChart} from './market-chart.js';
@@ -20,7 +21,7 @@ function metricTitle(text,kind,field='transfer_volume'){
 }
 export function initializeSupplyOverview(root,{read}){
  let details=[],index=null,currency='USD',period='1y',comparison='amount',failed=false,loading=false,sequence=0,transferDay=null,transferField='transfer_volume';
- let transferSurvey={data:null,state:'MISSING'};
+ let transferSurvey={data:null,state:'MISSING'},usageSource='ALLIUM',sourceChosen=false,surveySources={};
  const hidden=new Set(),hiddenTransfers=new Set(),selectedCoins={USD:'usdc',JPY:'jpysc'};
  const svg=(tag,attrs)=>{const n=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const [key,value]of Object.entries(attrs))n.setAttribute(key,String(value));return n;};
  function chart(plot,groups,{kind,from,to,comparison='amount',hidden,onPointSelect}){
@@ -54,14 +55,15 @@ export function initializeSupplyOverview(root,{read}){
  function renderUsage(host,coinId,day){
   host.replaceChildren(node('h2','네트워크 전송 활동 비교'));
   const snapshot=transferSurvey.data?.snapshots.find(s=>s.survey==='volume');
-  const note=node('p',(day??'선택일 없음')+' · ALLIUM 공급자 집계일 · 집계 시간대 미확인'+(snapshot?' · 조회 '+snapshot.queriedAt:''),'chart-note');host.append(note);
+  const note=node('p',(day??'선택일 없음')+' · '+(transferSurvey.data?.provider??usageSource)+' 공급자 집계일 · 집계 시간대 미확인'+(snapshot?' · 조회 '+snapshot.queriedAt:''),'chart-note');host.append(note);
   const scroll=node('div',undefined,'usage-table-scroll'),table=node('table'),caption=node('caption',coinId.toUpperCase()+' · 같은 자산·집계일의 관측값');table.append(caption);
   const head=node('tr');for(const label of ['네트워크','전송금액 (USD)','전송 건수','전송 포함 트랜잭션 수','전송 이벤트당 평균 (USD)']){const th=node('th',label);th.scope='col';head.append(th);}const thead=node('thead');thead.append(head);table.append(thead);
   const body=node('tbody');for(const r of overviewUsageRows(transferSurvey.data,coinId,day).filter(r=>!hiddenTransfers.has(r.key))){
    const tr=node('tr'),name=node('th',index?.networks.find(n=>n.id===r.networkId)?.name??r.networkId.toUpperCase());name.scope='row';tr.append(name);
-   for(const key of ['usd','transfers','transactions','averageUSD']){const value=r[key],cell=node('td',value===null?'—':key==='averageUSD'?(r.averageBelowCent?'<0.01':exactDecimal(value)):key==='usd'?supplyQuantityLabel(value):exactDecimal(value));cell.title=value===null?'자료 미확보 또는 평균 계산 불가':key==='averageUSD'?'전송금액 '+r.usd+' USD ÷ 전송 '+r.transfers+'건 · 소수 2자리까지 표시(이하 절사)':value+(key==='usd'?' USD':'건');tr.append(cell);}body.append(tr);
-  }if(!body.children.length){const tr=node('tr'),td=node('td','목록에서 네트워크를 선택하세요.');td.colSpan=5;tr.append(td);body.append(tr);}table.append(body);scroll.append(table);host.append(node('p','좌우로 밀어 금액·건수·평균을 함께 확인하세요.','chart-note usage-table-hint'),scroll,node('p','평균은 공급자 평가 USD 전송금액 ÷ 전송 이벤트 수이며 소수 둘째 자리까지 표시하고 이후 자릿수는 버립니다. 중앙값·결제 객단가가 아닙니다. 전송과 트랜잭션은 봇·DEX·반복 이동을 포함할 수 있으며 사람 수·안전성을 뜻하지 않습니다. 토큰별 트랜잭션 수를 합쳐 네트워크 전체 건수로 사용하지 않습니다.','chart-note'),node('p','활성 주소·중앙값·금액대별 건수·DEX 전체 매매량·결제 분류: 자료 미확보','chart-note'));
-  if(snapshot)host.title='출처 ALLIUM · source SHA-256 '+snapshot.sourceHash;
+   for(const key of ['usd','transfers','transactions','averageUSD']){const value=r[key],cell=node('td',value===null?'—':key==='averageUSD'?(r.averageBelowCent?'<0.01':exactDecimal(value)):key==='usd'?supplyQuantityLabel(value):exactDecimal(value));cell.title=value===null?'자료 미확보 또는 평균 계산 불가':key==='averageUSD'?'전송금액 '+r.usd+' USD ÷ 전송 '+r.transfers+'건 · 소수 2자리까지 표시(이하 절사)':value+(key==='usd'?' USD':'건');cell.title+=' · 조회 '+r.queriedAt+(r.providerTime?' · 공급자 버킷 '+r.providerTime:'');tr.append(cell);}body.append(tr);
+  }if(!body.children.length){const tr=node('tr'),td=node('td',overviewUsageRows(transferSurvey.data,coinId,day).length?'목록에서 네트워크를 선택하세요.':'이 출처에서 선택한 자산의 네트워크 자료가 없습니다.');td.colSpan=5;tr.append(td);body.append(tr);}table.append(body);scroll.append(table);host.append(node('p','좌우로 밀어 금액·건수·평균을 함께 확인하세요.','chart-note usage-table-hint'),scroll,node('p','평균은 공급자 평가 USD 전송금액 ÷ 전송 이벤트 수이며 소수 둘째 자리까지 표시하고 이후 자릿수는 버립니다. 중앙값·결제 객단가가 아닙니다. 전송과 트랜잭션은 봇·DEX·반복 이동을 포함할 수 있으며 사람 수·안전성을 뜻하지 않습니다. 토큰별 트랜잭션 수를 합쳐 네트워크 전체 건수로 사용하지 않습니다.','chart-note'),node('p','활성 주소·중앙값·금액대별 건수·DEX 전체 매매량·결제 분류: 자료 미확보','chart-note'));
+  if(transferSurvey.data?.provider==='ARKHAM')host.append(node('p','Arkham: 토큰 수량·전송 포함 트랜잭션 수 미지원 · 조회 종료일 마지막 초의 하위 초 포함 범위 미확인','chart-note'));
+  if(snapshot)host.title='출처 '+(transferSurvey.data?.provider??usageSource)+' · source SHA-256 '+snapshot.sourceHash;
  }
  function render(){
   root.setAttribute('aria-busy',String(loading));
@@ -69,15 +71,17 @@ export function initializeSupplyOverview(root,{read}){
   if(loading&&!details.length)return;
   const focused=root.contains(document.activeElement)?document.activeElement.getAttribute('aria-label'):null;
   const {groups:allGroups,from,to}=overviewSupplyGroups(details,{period}),coins=overviewCoins.filter(id=>currency==='USD'?['usdc','usdt','rlusd'].includes(id):['jpysc','jpyc'].includes(id)),selectedCoin=selectedCoins[currency];
-  const groups=allGroups.filter(g=>g.coinId===selectedCoin),transfers=overviewTransferGroups(transferSurvey.data,selectedCoin,transferField),hasTransfers=Object.keys(transferMetrics).some(field=>overviewTransferGroups(transferSurvey.data,selectedCoin,field).groups.length);
+  if(usageSource==='ARKHAM'&&!['transfer_volume_usd','transfer_count'].includes(transferField))transferField='transfer_volume_usd';
+  const groups=allGroups.filter(g=>g.coinId===selectedCoin),transfers=overviewTransferGroups(transferSurvey.data,selectedCoin,transferField),hasTransfers=Object.keys(transferMetrics).some(field=>overviewTransferGroups(transferSurvey.data,selectedCoin,field).groups.length)||!!transferSurvey.data?.snapshots.find(s=>s.survey==='volume');
   for(const group of [...groups,...transfers.groups]){group.color=networkColors[group.networkId]??'#638bff';group.dash='';group.network.name=index?.networks.find(n=>n.id===group.networkId)?.name??group.networkId.toUpperCase();}
   root.hidden=false;root.replaceChildren();root.classList.add('balanced-overview');
   const toolbar=node('div',undefined,'overview-toolbar'),selection=node('div',undefined,'supply-selection'),currencyTabs=node('div',undefined,'supply-currency-tabs'),coinButtons=node('div',undefined,'supply-coins');
   const buttons=(label,options,value,change,target)=>{const box=node('div',undefined,'chart-filters');box.setAttribute('role','group');box.setAttribute('aria-label',label);for(const [id,text]of options){const b=node('button',text);b.type='button';b.setAttribute('aria-label',label+' · '+text);b.setAttribute('aria-pressed',String(id===value));b.addEventListener('click',()=>{change(id);render();});box.append(b);}target.append(box);};
   buttons('연동 통화',[['USD','USD'],['JPY','JPY']],currency,v=>currency=v,currencyTabs);coinButtons.setAttribute('role','group');coinButtons.setAttribute('aria-label','토큰 하나 선택');
   for(const id of coins){const b=node('button',id.toUpperCase(),'supply-coin');b.type='button';b.style.setProperty('--coin-color',colors[id]);b.setAttribute('aria-label',id.toUpperCase()+' 선택');b.disabled=!allGroups.some(g=>g.coinId===id)&&!Object.keys(transferMetrics).some(field=>overviewTransferGroups(transferSurvey.data,id,field).groups.length);b.setAttribute('aria-pressed',String(id===selectedCoin));b.addEventListener('click',()=>{selectedCoins[currency]=id;render();});coinButtons.append(b);}
+  buttons('활동 자료 출처',[['ARKHAM','Arkham 수집 저장'],['ALLIUM','Allium 기존 저장']],usageSource,v=>{usageSource=v;sourceChosen=true;transferSurvey=surveySources[v]??{data:null,state:'DISABLED'};transferDay=null;},selection);
   selection.append(currencyTabs,coinButtons);toolbar.append(selection,node('span',selectedCoin.toUpperCase()+' / '+currency,'overview-token-label'));root.append(toolbar);
-  const status=node('p',loading?'저장 자료 읽는 중…':failed?details.length?'저장 자료 읽기 실패 · 이전 정상 자료 표시':'저장 자료 읽기 실패':'','chart-note overview-load-status');status.setAttribute('role','status');root.append(status);
+  const status=node('p',loading?'저장 자료 읽는 중…':failed?details.length?'저장 자료 읽기 실패 · 이전 정상 자료 표시':'저장 자료 읽기 실패':'','chart-note overview-load-status');status.setAttribute('role','status');root.append(status);if(!transferSurvey.data)root.append(node('p',usageSource+' 활동 자료 '+(transferSurvey.state==='UNAVAILABLE'?'조회 실패':'미연결 또는 미확보')+' · 다른 출처로 자동 전환하지 않습니다.','chart-note'));
   const summaries=node('div',undefined,'overview-summary-grid');root.append(summaries);
   if(groups.length){const update=summaryCard(summaries,'supply',selectedCoin,failed);update(overviewNetworkRanking(groups.filter(g=>!hidden.has(g.key)))[0]);}
   let updateTransferSummary;
@@ -91,16 +95,16 @@ export function initializeSupplyOverview(root,{read}){
   if(hasTransfers){
    const row=node('section',undefined,'overview-metric-row overview-transfer-row supply-volume-section');row.dataset.metric='volume';row.setAttribute('aria-label',selectedCoin.toUpperCase()+' '+transferMetrics[transferField].label);
    const card=node('article',undefined,'overview-card overview-trend-card'),header=node('div',undefined,'overview-card-heading'),window=node('span','7D','supply-volume-window'),plot=node('div',undefined,'supply-combined-plot overview-chart-plot');window.title=transfers.from+' ~ '+transfers.to;header.append(metricTitle(transferMetrics[transferField].label+' 추이','volume',transferField),window);card.append(header);
-   buttons('전송 활동 지표',Object.entries(transferMetrics).map(([id,m])=>[id,m.label]),transferField,v=>transferField=v,card);
+   buttons('전송 활동 지표',Object.entries(transferMetrics).filter(([id])=>usageSource!=='ARKHAM'||['transfer_volume_usd','transfer_count'].includes(id)).map(([id,m])=>[id,m.label]),transferField,v=>transferField=v,card);
    if(transferSurvey.state==='LAST_GOOD'){const warning=node('p','전송량 읽기 실패 · 이전 정상 자료 표시','chart-note');warning.setAttribute('role','status');card.append(warning);}card.append(plot);
    const donut=node('aside',undefined,'overview-card overview-donut-card supply-network-ranking');donut.setAttribute('aria-label',selectedCoin.toUpperCase()+' 표시 네트워크의 관측 '+transferMetrics[transferField].label+' 비중');row.append(card,donut);root.append(row);
    const usage=node('section',undefined,'overview-card overview-usage');usage.setAttribute('aria-label','네트워크 전송 활동 비교');root.append(usage);
    const updateComposition=()=>{
-    const view=transferComposition(transfers.groups,transferDay,hiddenTransfers);if(transferDay===null)transferDay=view.day;
+    const view=transferComposition(transfers.groups,transferDay??(usageSource==='ARKHAM'?transfers.to:null),hiddenTransfers);if(transferDay===null)transferDay=view.day;
     renderUsage(usage,selectedCoin,view.day);
     updateTransferSummary(view.entries.find(e=>!e.hidden),view.state==='MISSING'?view.day:null);
     donut.replaceChildren();const top=node('div',undefined,'overview-donut-heading');top.append(node('h3','네트워크 비중'));const day=node('time',view.day??'','donut-date');if(view.day)day.dateTime=view.day;top.append(day);donut.append(top,node('p','표시 네트워크의 관측 '+transferMetrics[transferField].label+' · '+view.entries.filter(e=>!e.hidden).length+'/'+overviewUsageRows(transferSurvey.data,selectedCoin,view.day).length+'곳 관측 · 숨김 '+view.entries.filter(e=>e.hidden).length+'곳','donut-scope'));
-    const latest=transferComposition(transfers.groups).day;if(view.day!==latest){const reset=node('button','최근일','donut-latest');reset.type='button';reset.setAttribute('aria-label','전송량 최신일 선택');reset.addEventListener('click',()=>{transferDay=latest;updateComposition();});top.append(reset);}
+    const latest=transferComposition(transfers.groups).day;if(latest&&view.day!==latest){const reset=node('button','최근일','donut-latest');reset.type='button';reset.setAttribute('aria-label','전송량 최신일 선택');reset.addEventListener('click',()=>{transferDay=latest;updateComposition();});top.append(reset);}
     const figure=node('div',undefined,'overview-donut'),ring=svg('svg',{viewBox:'0 0 180 180',role:'img','aria-label':view.day+' · 표시 네트워크 '+transferMetrics[transferField].label+' 비중'});ring.append(svg('circle',{cx:90,cy:90,r:68,fill:'none',stroke:'var(--track)','stroke-width':17}));
     let offset=0;for(const entry of view.entries.filter(e=>!e.hidden&&e.arc>0)){const slice=svg('circle',{cx:90,cy:90,r:68,fill:'none',stroke:entry.color,'stroke-width':17,pathLength:100,'stroke-dasharray':entry.arc+' '+(100-entry.arc),'stroke-dashoffset':-offset,transform:'rotate(-90 90 90)','data-share-network':entry.key});const title=svg('title',{});title.textContent=entry.network.name+' · '+exactDecimal(entry.row.amount)+' '+transferMetrics[transferField].unit+' · '+entry.share+'%';slice.append(title);ring.append(slice);offset+=entry.arc;}
     const center=node('div',undefined,'donut-center');if(view.state==='OBSERVED'){const entries=view.entries.filter(e=>!e.hidden);center.append(node('strong',entries.length===1?supplyQuantityLabel(entries[0].row.amount):selectedCoin.toUpperCase()),node('small',entries.length===1?transferMetrics[transferField].unit:entries.length+'개 네트워크'));}else center.append(node('strong',view.state==='ZERO'?'0':view.state==='FILTERED'?'선택 필요':'관측 없음'),node('small',view.state==='ZERO'?transferMetrics[transferField].unit:view.day??''));figure.append(ring,center);donut.append(figure);
@@ -112,8 +116,8 @@ export function initializeSupplyOverview(root,{read}){
   if(focused)[...root.querySelectorAll('[aria-label]')].find(n=>n.getAttribute('aria-label')===focused)?.focus({preventScroll:true});
  }
  let observedWidth=0;const observer=new ResizeObserver(([entry])=>{const width=Math.round(entry.contentRect.width);if(width!==observedWidth){observedWidth=width;if(details.length||transferSurvey.data)requestAnimationFrame(render);}});observer.observe(root);
- return async ({index:next,market,indexFailed,survey={data:null,state:'MISSING'}})=>{
-  const run=++sequence;transferSurvey=survey;if(indexFailed){failed=true;loading=false;render();return;}
+ return async ({index:next,market,indexFailed,survey={data:null,state:'MISSING'},usage={data:null,state:'DISABLED'}})=>{
+  const run=++sequence;surveySources={ALLIUM:survey,ARKHAM:{...usage,data:usage.data?networkUsageView(usage.data):null}};if(!sourceChosen)usageSource=usage.state==='DISABLED'?'ALLIUM':'ARKHAM';transferSurvey=surveySources[usageSource];if(indexFailed){failed=true;loading=false;render();return;}
   const previous=details;index=next;details=next?previous.filter(d=>sameRegisteredSource(d,next,{coinId:d.coinId,metric:'NETWORK_CIRCULATING'})):[];failed=false;loading=true;render();
   const result=next?await readOverviewHistories(next,read,previous):{details:legacyOverviewDetails(market),failed:false};if(run!==sequence)return;details=result.details;failed=result.failed;loading=false;render();
  };

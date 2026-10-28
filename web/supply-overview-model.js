@@ -1,4 +1,4 @@
-import {alliumSeries} from './allium-dashboard-model.js';
+import {usageTargets} from './network-usage-model.js';
 import {surveyWindow,surveyTargets} from './survey-model.js';
 import {units} from './market-model.js';
 import {validateRegisteredHistory,sameRegisteredSource} from './registration-model.js';
@@ -55,23 +55,23 @@ export const transferMetrics=Object.freeze({
 });
 export function overviewUsageRows(data,coinId,day){
  const snapshot=data?.snapshots.find(s=>s.survey==='volume');if(!snapshot||!day)return [];
- return surveyTargets.filter(t=>t.coinId===coinId).map(t=>{
+ return (data.provider==='ARKHAM'?usageTargets:surveyTargets).filter(t=>t.coinId===coinId).map(t=>{
   const p=snapshot.rows.find(r=>r.deploymentId===t.deploymentId&&r.providerDay===day&&r.state==='OBSERVED'),v=p?.values;
   const usd=v?.transfer_volume_usd??null,count=v?.transfer_count??null;
   const cents=usd!==null&&count!==null&&BigInt(count)>0n?units(usd)*100n/(10n**36n*BigInt(count)):null;
   return {networkId:t.networkId,key:coinId+':'+t.networkId,day,usd,transfers:count,transactions:v?.transfer_tx_count??null,
-   averageUSD:cents===null?null:String(cents/100n)+'.'+String(cents%100n).padStart(2,'0'),averageBelowCent:cents===0n&&units(usd)>0n,sourceHash:snapshot.sourceHash,queriedAt:snapshot.queriedAt};
+   averageUSD:cents===null?null:String(cents/100n)+'.'+String(cents%100n).padStart(2,'0'),averageBelowCent:cents===0n&&units(usd)>0n,sourceHash:p?.sourceHash??snapshot.sourceHash,queriedAt:p?.queriedAt??snapshot.queriedAt,providerTime:p?.providerTime??null};
  });
 }
 export function overviewTransferGroups(data,coinId,field='transfer_volume'){
  if(!Object.hasOwn(transferMetrics,field))throw Error('INVALID_TRANSFER_METRIC');
  const snapshot=data?.snapshots.find(s=>s.survey==='volume');if(!snapshot)return {groups:[],from:null,to:null};
  const window=data.window??snapshot.window??surveyWindow;
- const series=field==='transfer_volume_usd'?surveyTargets.filter(t=>t.coinId===coinId).map(t=>({...t,queriedAt:snapshot.queriedAt,points:snapshot.rows.filter(r=>r.deploymentId===t.deploymentId&&r.state==='OBSERVED'&&r.values[field]!==null).map(r=>({day:r.providerDay,amount:r.values[field]})).sort((a,b)=>a.day.localeCompare(b.day))})).filter(s=>s.points.length):alliumSeries(data,coinId,'volume',field);
+ const series=(data.provider==='ARKHAM'?usageTargets:surveyTargets).filter(t=>t.coinId===coinId).map(t=>({...t,queriedAt:snapshot.queriedAt,points:snapshot.rows.filter(r=>r.deploymentId===t.deploymentId&&r.state==='OBSERVED'&&r.values[field]!==null).map(r=>({day:r.providerDay,amount:r.values[field],sourceHash:r.sourceHash??snapshot.sourceHash,queriedAt:r.queriedAt??snapshot.queriedAt,providerTime:r.providerTime??null})).sort((a,b)=>a.day.localeCompare(b.day))})).filter(s=>s.points.length);
  return {from:window.from,to:new Date(Date.parse(window.untilExclusive)-86400000).toISOString().slice(0,10),
-  groups:series.map(s=>({key:s.coinId+':'+s.networkId,coinId:s.coinId,networkId:s.networkId,updatedAt:s.queriedAt,metric:field,unit:transferMetrics[field].unit,
+  groups:series.map(s=>({key:s.coinId+':'+s.networkId,coinId:s.coinId,networkId:s.networkId,updatedAt:s.queriedAt,provider:data.provider??'ALLIUM',metric:field,unit:transferMetrics[field].unit,
    network:{id:s.coinId+':'+s.networkId,name:s.networkId.toUpperCase()},dateBasis:snapshot.window?.dateBasis??null,aggregateTimezone:snapshot.window?.aggregateTimezone??null,sourceHash:snapshot.sourceHash,sourceWindow:{from:window.from,untilExclusive:window.untilExclusive},
-   rows:s.points.map(p=>({amount:p.amount,observedAt:p.day+'T00:00:00.000Z'})),
+   rows:s.points.map(p=>({amount:p.amount,observedAt:p.day+'T00:00:00.000Z',queriedAt:p.queriedAt,sourceHash:p.sourceHash,providerTime:p.providerTime})),
   }))};
 }
 
@@ -79,7 +79,7 @@ export function overviewTransferGroups(data,coinId,field='transfer_volume'){
 export function transferComposition(groups,selectedDay=null,hidden=new Set()){
  if(selectedDay!==null&&(!/^\d{4}-\d\d-\d\d$/.test(selectedDay)||!Number.isFinite(Date.parse(selectedDay))||new Date(selectedDay).toISOString().slice(0,10)!==selectedDay))throw Error('INVALID_TRANSFER_DAY');
  const first=groups[0];
- if(first&&(!/^[a-f0-9]{64}$/.test(first.sourceHash)||!first.sourceWindow?.from||!first.sourceWindow?.untilExclusive||new Set(groups.map(g=>g.networkId)).size!==groups.length||groups.some(g=>g.metric!==first.metric||g.unit!==first.unit||g.coinId!==first.coinId||g.sourceHash!==first.sourceHash||g.sourceWindow?.from!==first.sourceWindow.from||g.sourceWindow?.untilExclusive!==first.sourceWindow.untilExclusive||g.updatedAt!==first.updatedAt||g.dateBasis!=='PROVIDER_DAY'||g.aggregateTimezone!=='UNKNOWN')))throw Error('INVALID_TRANSFER_COMPOSITION_SCOPE');
+ if(first&&(!/^[a-f0-9]{64}$/.test(first.sourceHash)||!first.sourceWindow?.from||!first.sourceWindow?.untilExclusive||new Set(groups.map(g=>g.networkId)).size!==groups.length||groups.some(g=>g.provider!==first.provider||g.metric!==first.metric||g.unit!==first.unit||g.coinId!==first.coinId||g.sourceHash!==first.sourceHash||g.sourceWindow?.from!==first.sourceWindow.from||g.sourceWindow?.untilExclusive!==first.sourceWindow.untilExclusive||g.updatedAt!==first.updatedAt||g.dateBasis!=='PROVIDER_DAY'||g.aggregateTimezone!=='UNKNOWN')))throw Error('INVALID_TRANSFER_COMPOSITION_SCOPE');
  const day=selectedDay??groups.flatMap(g=>g.rows.map(r=>r.observedAt.slice(0,10))).sort().at(-1)??null;
  const entries=groups.flatMap(g=>{const matching=g.rows.filter(r=>r.observedAt.slice(0,10)===day);if(matching.length>1)throw Error('DUPLICATE_TRANSFER_DAY');return matching.length?[{...g,row:matching[0],hidden:hidden.has(g.key)}]:[];}).sort((a,b)=>units(a.row.amount)>units(b.row.amount)?-1:units(a.row.amount)<units(b.row.amount)?1:a.networkId.localeCompare(b.networkId));
  const visible=entries.filter(e=>!e.hidden),total=visible.reduce((n,e)=>n+units(e.row.amount),0n),scale=10n**36n;

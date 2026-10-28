@@ -6,7 +6,8 @@ import {join} from 'node:path';
 import assert from 'node:assert/strict';
 import {startPreviewServer} from './ui-preview.mjs';
 import {surveyDto} from '../tests/survey-fixture.mjs';
-const server=await startPreviewServer(0),base='http://127.0.0.1:'+server.address().port;
+import {networkUsageFixture} from '../tests/network-usage-fixture.mjs';
+let publishedUsage;const server=await startPreviewServer(0,{networkUsageReader:async()=>{if(!publishedUsage)throw Error('NOT_READY');return publishedUsage;}}),base='http://127.0.0.1:'+server.address().port;
 const profile=await mkdtemp(join(tmpdir(),'atlas-usage-browser-'));
 const chrome=spawn('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',['--headless=new','--remote-debugging-pipe','--disable-background-networking','--disable-component-update','--disable-sync','--disable-default-apps','--disable-extensions','--no-first-run',`--user-data-dir=${profile}`,'about:blank'],{stdio:['ignore','ignore','ignore','pipe','pipe']});
 let id=0,buffer='',session;const pending=new Map(),errors=[],requests=[];
@@ -56,8 +57,22 @@ try{
  await click('전송 활동 지표 · 전송 건수');assert.equal(await evaluate("document.querySelectorAll('[aria-label=\"전송 활동 지표\"] button').length"),4);assert((await evaluate("document.querySelector('.overview-transfer-row').textContent")).includes('관측값이 없습니다'));
  await click('전송 활동 지표 · 전송금액');assert(await evaluate("!!document.querySelector('.overview-transfer-row svg.market-price-chart')"));
  assert.equal(await evaluate('window.readCalls'),0);assert.equal(await evaluate('typeof ReadableStream.prototype[Symbol.asyncIterator]'),'undefined');assert.equal(requests.filter(u=>!u.startsWith(base+'/')).length,0);assert.equal(requests.filter(u=>u.includes('.json')).length,0);assert.deepEqual(errors,[]);
+ publishedUsage=await networkUsageFixture();
+ await evaluate(`window.cachedUsage=(await import('${base}/browser-data.js')).cachedJSON;window.arkhamData=await window.cachedUsage('/network-usage-data.json');await window.renderUsageView({index:null,market:null,indexFailed:false,survey:{data:window.usageData,state:'AVAILABLE'},usage:{data:window.arkhamData,state:'AVAILABLE'}});`);
+ assert((await evaluate("document.querySelector('.overview-usage .chart-note').textContent")).includes('ARKHAM'));
+ assert.equal(await evaluate("document.querySelectorAll('[aria-label=\"전송 활동 지표\"] button').length"),2);
+ assert.equal(await evaluate("document.querySelector('.overview-usage tbody tr').cells[3].textContent"),'—');
+ assert.equal(await evaluate("document.querySelector('.overview-usage tbody tr').cells[4].textContent"),'<0.01');
+ await click('활동 자료 출처 · Allium 기존 저장');assert((await evaluate("document.querySelector('.overview-usage .chart-note').textContent")).includes('ALLIUM'));
+ await click('활동 자료 출처 · Arkham 수집 저장');await click('전송 활동 지표 · 전송 건수');
+ assert.equal(await evaluate("document.querySelector('.overview-usage tbody tr').cells[2].textContent"),'9,007,199,254,740,993');
+ await evaluate("await window.cachedUsage('/network-usage-data.json');await window.renderUsageView({index:null,market:null,indexFailed:false,survey:{data:window.usageData,state:'AVAILABLE'},usage:{data:window.arkhamData,state:'LAST_GOOD'}})");
+ assert((await evaluate("document.querySelector('.overview-transfer-row').textContent")).includes('이전 정상 자료'));
+ await evaluate("await window.renderUsageView({index:null,market:null,indexFailed:false,survey:{data:window.usageData,state:'AVAILABLE'},usage:{data:null,state:'UNAVAILABLE'}})");
+ assert((await evaluate("document.querySelector('#overview-supply').textContent")).includes('ARKHAM 활동 자료 조회 실패'));
+ assert.equal(requests.filter(u=>u.includes('/network-usage-data.json')).length,1);assert.equal(requests.filter(u=>!u.startsWith(base+'/')).length,0);assert.deepEqual(errors,[]);
  await mkdir('.state/agent-logs',{recursive:true});await writeFile('.state/agent-logs/network-usage-browser.png',Buffer.from((await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:true})).data,'base64'));
- console.log(JSON.stringify({state:'PASS',views,sourceReads:0,externalRequests:0,jsErrors:0,safariStreamAPIs:'DISABLED_CHROME_EMULATION'}));
+ console.log(JSON.stringify({state:'PASS',views,sourceReads:0,arkhamAPIReads:1,sourceSwitchRequests:0,externalRequests:0,jsErrors:0,safariStreamAPIs:'DISABLED_CHROME_EMULATION'}));
 }finally{
  for(const p of pending.values()){clearTimeout(p.timer);p.reject(Error('Closing'));}pending.clear();chrome.kill();await new Promise(r=>chrome.exitCode!==null?r():chrome.once('exit',r));await rm(profile,{recursive:true,force:true});server.closeAllConnections();await new Promise(r=>server.close(r));
 }

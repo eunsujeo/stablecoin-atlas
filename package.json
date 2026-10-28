@@ -78,6 +78,8 @@
     "market:supply:db": "node --use-env-proxy tools/market-db/allium-supply-cli.mjs",
     "start": "node --use-env-proxy tools/production-web.mjs",
     "check:production": "node --use-env-proxy --test tests/production*.test.mjs",
+    "market:usage": "node --use-env-proxy tools/arkham-network-usage.mjs",
+    "market:usage:db": "node --use-env-proxy tools/market-db/network-usage-cli.mjs",
     "review:asset:db": "node --use-env-proxy tools/market-db/asset-review-cli.mjs",
     "review:contract:db": "node --use-env-proxy tools/market-db/contract-review-cli.mjs",
     "review:contract": "node --use-env-proxy src/contract-review/cli.mjs",

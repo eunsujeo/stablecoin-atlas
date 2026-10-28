@@ -1,3 +1,4 @@
+import {validateNetworkUsage} from './network-usage-model.js';
 import {createJSONClient} from './browser-cache.js';
 import {validateMarket} from './market-model.js';
 import {validateFX} from './fx-model.js';
@@ -18,6 +19,7 @@ export const apiCachePolicies=Object.freeze({
  '/contract-review-data.json':{ttl:hour,label:'컨트랙트 검토',limit:131072},
  '/activity-data.json':{ttl:5*minute,label:'활동 자료',validate:validateActivity},
  '/reviewed-supply-data.json':{ttl:hour,label:'저장 공급량',validate:validateReviewedSupply},
+ '/network-usage-data.json':{ttl:5*minute,label:'Arkham 활동 자료',validate:validateNetworkUsage,limit:131072},
  '/survey-data.json':{ttl:hour,label:'저장 조사',validate:validateStoredSurvey},
  '/geography-data.json':{ttl:hour,label:'지리 연구',validate:validateGeography},
  '/evidence/index.json':{ttl:hour,label:'실행 근거',validate:validateIndex,credentials:'omit'},

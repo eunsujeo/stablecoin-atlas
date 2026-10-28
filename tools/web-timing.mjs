@@ -1,7 +1,7 @@
 import {AsyncLocalStorage} from 'node:async_hooks';
 
 const context=new AsyncLocalStorage();
-const routes=new Set(['/market-data.json','/registration-index.json','/registration-history.json','/activity-data.json','/reviewed-supply-data.json','/survey-data.json','/fx-data.json']);
+const routes=new Set(['/network-usage-data.json','/market-data.json','/registration-index.json','/registration-history.json','/activity-data.json','/reviewed-supply-data.json','/survey-data.json','/fx-data.json']);
 export function addWebTiming(key,value=1){const metrics=context.getStore();if(metrics)metrics[key]=(metrics[key]??0)+value;}
 export function marketCacheTiming(state){const metrics=context.getStore();if(metrics)metrics.cache=state;}
 // Fixed route names and numbers only: never SQL, query strings, credentials or errors.

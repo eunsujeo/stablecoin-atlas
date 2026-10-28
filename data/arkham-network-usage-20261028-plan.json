@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "kind": "ARKHAM_NETWORK_USAGE_PLAN",
+  "slot": "arkham-network-usage-20261028-v1",
+  "window": {
+    "from": "2026-10-21",
+    "untilExclusive": "2026-10-28"
+  },
+  "registryHash": "3640f26b14e1fb45a82c96849dfe23aa62dc3115c1ead0cf42f6cc5867d98217",
+  "metadataHash": "0430e6c7a1d6ec75f5dedba02bd93ed160c35d7c9ae36a33fef52a1f32e5f1c6",
+  "jobs": [
+    {
+      "id": "usdt-ethereum",
+      "coinId": "usdt",
+      "networkId": "ethereum",
+      "method": "GET",
+      "path": "/transfers/histogram",
+      "query": {
+        "base": "all",
+        "chains": "ethereum",
+        "tokens": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+        "timeGte": "2026-10-21T00:00:00Z",
+        "timeLte": "2026-10-27T23:59:59Z",
+        "granularity": "1d"
+      }
+    },
+    {
+      "id": "usdt-tron",
+      "coinId": "usdt",
+      "networkId": "tron",
+      "method": "GET",
+      "path": "/transfers/histogram",
+      "query": {
+        "base": "all",
+        "chains": "tron",
+        "tokens": "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+        "timeGte": "2026-10-21T00:00:00Z",
+        "timeLte": "2026-10-27T23:59:59Z",
+        "granularity": "1d"
+      }
+    },
+    {
+      "id": "usdt-solana",
+      "coinId": "usdt",
+      "networkId": "solana",
+      "method": "GET",
+      "path": "/transfers/histogram",
+      "query": {
+        "base": "all",
+        "chains": "solana",
+        "tokens": "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+        "timeGte": "2026-10-21T00:00:00Z",
+        "timeLte": "2026-10-27T23:59:59Z",
+        "granularity": "1d"
+      }
+    },
+    {
+      "id": "usdc-ethereum",
+      "coinId": "usdc",
+      "networkId": "ethereum",
+      "method": "GET",
+      "path": "/transfers/histogram",
+      "query": {
+        "base": "all",
+        "chains": "ethereum",
+        "tokens": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        "timeGte": "2026-10-21T00:00:00Z",
+        "timeLte": "2026-10-27T23:59:59Z",
+        "granularity": "1d"
+      }
+    },
+    {
+      "id": "usdc-solana",
+      "coinId": "usdc",
+      "networkId": "solana",
+      "method": "GET",
+      "path": "/transfers/histogram",
+      "query": {
+        "base": "all",
+        "chains": "solana",
+        "tokens": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        "timeGte": "2026-10-21T00:00:00Z",
+        "timeLte": "2026-10-27T23:59:59Z",
+        "granularity": "1d"
+      }
+    }
+  ],
+  "limits": {
+    "maxHTTP": 5,
+    "maxResponseBytes": 2097152,
+    "maxTotalBytes": 10485760,
+    "requestMs": 20000,
+    "totalMs": 120000,
+    "spacingMs": 1000,
+    "retries": 0,
+    "extraPages": 0,
+    "redirects": 0
+  },
+  "costStatus": "UNCONFIRMED",
+  "automatic": false,
+  "planHash": "3a0b22eb59ee06965a51bbfe0d5be95c1676215324cec7e1094dd4ac67d644ab"
+}
