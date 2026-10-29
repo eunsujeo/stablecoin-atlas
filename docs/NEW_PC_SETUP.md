@@ -2,6 +2,10 @@
 
 코드와 개발 문서는 Git으로 공유한다. API 키, 환경파일, 관측 원본과 이동 파일은 각 PC에 별도로 둔다. 현재 구현과 다음 작업은 [개발 상태](DEVELOPMENT_STATUS.md)에 기록한다.
 
+## Herdr 설정부터 옮기는 경우
+
+현재 개발 방식의 핵심인 **Herdr의 router-impl / router-lead / 선택적 router-coord와 프로젝트 Router hook**은 [Herdr 새 PC 설정](ai/HERDR_NEW_PC_SETUP.md)을 따른다. 역할·검사·로컬 runtime 생성 도구는 Git으로 공유하며, 살아 있는 pane ID·Codex/Claude 인증·모델 가중치·전역 설정은 복사하지 않는다. 새 PC에서 `python3 tools/intelligent-router/adapters/setup.py check`로 다운로드/Agent 생성 없이 준비 상태를 확인한다.
+
 ## 1. 소스와 실행 환경
 
 ```sh
@@ -93,4 +97,16 @@ npm run check:db는 Docker28+·캐시된 postgres:17-alpine으로 새 소유 loo
 
 ## 5분 자동 수집
 
-사용자 승인된 제한 실행은 `npm run market:watch`이다. 기본12회 후 종료하며 오류 시 중단한다. 실행·중지·UI 확인은 [자동 수집 안내](MARKET_AUTO_COLLECTION.md)를 따른다. 명시 `--database` 저장은 [Supabase 설정](SUPABASE_SETUP.md)을 먼저 완료한다. 웹 조회는 JSON을 유지한다.
+사용자 승인된 제한 실행은 `npm run market:watch`이다. 기본12회 후 종료하며 오류 시 중단한다. 실행·중지·UI 확인은 [자동 수집 안내](MARKET_AUTO_COLLECTION.md)를 따른다. 명시 `--database` 저장은 [Supabase 설정](SUPABASE_SETUP.md)을 먼저 완료한다. 기본 웹은 저장 JSON이며 명시 DB 읽기 모드는 아래 절을 따른다.
+
+## 같은 Supabase를 읽는 로컬 웹
+
+현재 개발 화면은 기존 원격 Supabase의 전용 reader를 사용하는 DB 모드다. 기본 `npm run ui`의 저장 JSON 모드와 구분한다. 같은 코드만 받으면 인증이 자동 이전되지는 않는다.
+
+새 PC에 `.state/market-db-secrets` 디렉터리를 만들고, 해당 PC에 제공된 기존 reader 전용 `DATABASE_URL`과 TLS CA 경로만 `reader.env`에0600으로 설정한다. 형식은 `deploy/reader.env.example`을 참고하되 `/etc/atlas-ca` 예시 경로를 해당 PC의 실제 CA 파일 위치로 바꾼다. 원문을 Git/터미널 로그/이슈에 올리지 않는다. writer/admin·공급자/RPC 키는 이 파일에 넣지 않는다. 비공개 연결정보/CA는 별도 안전한 전달 경로로 준비하며 새 키를 자동 발급하지 않는다.
+
+```sh
+npm run ui -- --database --database-env .state/market-db-secrets/reader.env
+```
+
+`http://127.0.0.1:4173/#overview`를 연다. 포트 충돌 시 기존 프로세스를 종료하지 말고 `--port 4174`를 추가한다. DB 모드 웹 시작/조회는 공급자 수집이나 DB migration/write를 실행하지 않는다. 공급량은 별도 일별 등록 수집기, 전송 활동은 별도 Arkham 수집기가 저장한 시각을 표시한다. 오래된 DB 자료를 새 PC 설치만으로 최신화하지 않는다. FX/비공개 로컬 근거와 compiler cache는 이 reader 파일로 옮겨지지 않는다. 개발 PC에서 운영 수집기/timer를 켜지 않으며 기존 단발 소비·30일 공통 예산을 복제하지 않는다.

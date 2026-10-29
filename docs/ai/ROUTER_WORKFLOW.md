@@ -9,6 +9,10 @@
 5. 결과와 검증을 통합한다. 추가 Agent의 결과를 먼저 회수하고, 완료를 확인한 뒤 그 작업에서 만든 임시 pane만 제거한다. 기존 구현 pane과 router-lead는 유지한다.
 6. 작업 완료·검증·인계 저장 후 새 작업 경계에서 `/new`를 사용한다. 연관된 디버깅을 이어갈 때는 필요한 맥락을 보존한다.
 
+## 다른 PC에서 재현
+
+[Herdr 새 PC 설정](HERDR_NEW_PC_SETUP.md)의 역할/pane/integration/hook/runtime 순서를 따른다. `adapters/setup.py check`는 비밀 없이 로컬 준비 상태만 확인하고, `runtime`은 pin된 manifest 확인 후 해당 PC 경로를 ignored0600 설정으로 새로 기록한다. Agent 생성/인증/설치/추론은 자동 실행하지 않는다.
+
 ## 최초 활성화
 
 프로젝트 `.codex/hooks.json`을 추가했다. 설치 Codex 0.163.0은 hooks=true다. **구현 Agent의 Codex에서 `/hooks`를 열어 프로젝트의 `UserPromptSubmit` 정의를 검토·신뢰해야 한다.** 이미 실행 중인 세션에서 파일이 보이지 않으면 인계를 저장한 뒤 재시작하고 `/hooks`로 확인한다. 현재 세션의 hot reload를 보장하지 않는다. 승인 UI를 Herdr로 대신 승인하거나 trust bypass 옵션을 사용하지 않는다.
