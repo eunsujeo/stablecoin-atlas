@@ -20,7 +20,7 @@ function metricTitle(text,kind,field='transfer_volume'){
  wrap.append(button,tip);row.append(node('h2',text),wrap);return row;
 }
 export function initializeSupplyOverview(root,{read}){
- let details=[],index=null,currency='USD',period='1y',comparison='amount',failed=false,loading=false,sequence=0,transferDay=null,transferField='transfer_volume_usd';
+ let details=[],index=null,currency='USD',period='1y',comparison='amount',failed=false,loading=false,sequence=0,transferDay=null,transferField='transfer_count';
  let transferSurvey={data:null,state:'DISABLED'};const usageSource='ARKHAM';
  const hidden=new Set(),hiddenTransfers=new Set(),selectedCoins={USD:'usdc',JPY:'jpysc'};
  const svg=(tag,attrs)=>{const n=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const [key,value]of Object.entries(attrs))n.setAttribute(key,String(value));return n;};
@@ -62,7 +62,7 @@ export function initializeSupplyOverview(root,{read}){
   root.style.setProperty('min-height',Math.ceil(root.getBoundingClientRect().height)+'px','important');
   try{
   const {groups:allGroups,from,to}=overviewSupplyGroups(details,{period}),coins=overviewCoins.filter(id=>currency==='USD'?['usdc','usdt','rlusd'].includes(id):['jpysc','jpyc'].includes(id)),selectedCoin=selectedCoins[currency];
-  if(usageSource==='ARKHAM'&&!['transfer_volume_usd','transfer_count'].includes(transferField))transferField='transfer_volume_usd';
+  if(usageSource==='ARKHAM'&&!['transfer_volume_usd','transfer_count'].includes(transferField))transferField='transfer_count';
   const groups=allGroups.filter(g=>g.coinId===selectedCoin),transfers=overviewTransferGroups(transferSurvey.data,selectedCoin,transferField),hasTransfers=Object.keys(transferMetrics).some(field=>overviewTransferGroups(transferSurvey.data,selectedCoin,field).groups.length)||!!transferSurvey.data?.snapshots.find(s=>s.survey==='volume');
   for(const group of [...groups,...transfers.groups]){group.color=networkColors[group.networkId]??'#638bff';group.dash='';group.network.name=index?.networks.find(n=>n.id===group.networkId)?.name??group.networkId.toUpperCase();}
   root.hidden=false;root.replaceChildren();root.classList.add('balanced-overview');
@@ -73,9 +73,9 @@ export function initializeSupplyOverview(root,{read}){
   selection.append(currencyTabs,coinButtons);toolbar.append(selection,node('span',selectedCoin.toUpperCase()+' / '+currency,'overview-token-label'));root.append(toolbar);
   const status=node('p',loading?'저장 자료 읽는 중…':failed?details.length?'저장 자료 읽기 실패 · 이전 정상 자료 표시':'저장 자료 읽기 실패':'','chart-note overview-load-status');status.setAttribute('role','status');root.append(status);if(!transferSurvey.data)root.append(node('p',usageSource+' 활동 자료 '+(transferSurvey.state==='UNAVAILABLE'?'조회 실패':'미연결 또는 미확보')+' · 다른 출처로 자동 전환하지 않습니다.','chart-note'));
   const summaries=node('div',undefined,'overview-summary-grid');root.append(summaries);
-  if(groups.length){const update=summaryCard(summaries,'supply',selectedCoin,failed);update(overviewNetworkRanking(groups.filter(g=>!hidden.has(g.key)))[0]);}
   let updateTransferSummary;
   if(hasTransfers)updateTransferSummary=summaryCard(summaries,'volume',selectedCoin,transferSurvey.state==='LAST_GOOD');
+  if(groups.length){const update=summaryCard(summaries,'supply',selectedCoin,failed);update(overviewNetworkRanking(groups.filter(g=>!hidden.has(g.key)))[0]);}
   const supplyRow=node('section',undefined,'overview-metric-row');supplyRow.dataset.metric='supply';supplyRow.setAttribute('aria-label',selectedCoin.toUpperCase()+' 공급량');
   const supplyCard=node('article',undefined,'overview-card overview-trend-card'),supplyHeader=node('div',undefined,'overview-card-heading'),switches=node('div',undefined,'supply-switches'),supplyPlot=node('div',undefined,'supply-combined-plot overview-chart-plot');
   supplyHeader.append(metricTitle('공급량 추이','supply'));buttons('조회 기간',[['30d','30D'],['90d','3M'],['1y','1Y']],period,v=>period=v,switches);buttons('비교 방식',[['amount','공급량 규모'],['change','증감률 (%)']],comparison,v=>comparison=v,switches);supplyHeader.append(switches);supplyCard.append(supplyHeader,supplyPlot);
@@ -85,9 +85,9 @@ export function initializeSupplyOverview(root,{read}){
   if(hasTransfers){
    const row=node('section',undefined,'overview-metric-row overview-transfer-row supply-volume-section');row.dataset.metric='volume';row.setAttribute('aria-label',selectedCoin.toUpperCase()+' '+transferMetrics[transferField].label);
    const card=node('article',undefined,'overview-card overview-trend-card'),header=node('div',undefined,'overview-card-heading'),window=node('span','7D','supply-volume-window'),plot=node('div',undefined,'supply-combined-plot overview-chart-plot');window.title=transfers.from+' ~ '+transfers.to;header.append(metricTitle(transferMetrics[transferField].label+' 추이','volume',transferField),window);card.append(header);
-   buttons('전송 활동 지표',Object.entries(transferMetrics).filter(([id])=>usageSource!=='ARKHAM'||['transfer_volume_usd','transfer_count'].includes(id)).map(([id,m])=>[id,m.label]),transferField,v=>transferField=v,card);
+   buttons('전송 활동 지표',['transfer_count','transfer_volume_usd'].map(id=>[id,transferMetrics[id].label]),transferField,v=>transferField=v,card);
    if(transferSurvey.state==='LAST_GOOD'){const warning=node('p','전송량 읽기 실패 · 이전 정상 자료 표시','chart-note');warning.setAttribute('role','status');card.append(warning);}card.append(plot);
-   const donut=node('aside',undefined,'overview-card overview-donut-card supply-network-ranking');donut.setAttribute('aria-label',selectedCoin.toUpperCase()+' 표시 네트워크의 관측 '+transferMetrics[transferField].label+' 비중');row.append(card,donut);root.append(row);
+   const donut=node('aside',undefined,'overview-card overview-donut-card supply-network-ranking');donut.setAttribute('aria-label',selectedCoin.toUpperCase()+' 표시 네트워크의 관측 '+transferMetrics[transferField].label+' 비중');row.append(card,donut);root.insertBefore(row,supplyRow);
    const updateComposition=()=>{
     const view=transferComposition(transfers.groups,transferDay??(usageSource==='ARKHAM'?transfers.to:null),hiddenTransfers);if(transferDay===null)transferDay=view.day;
     updateTransferSummary(view.entries.find(e=>!e.hidden),view.state==='MISSING'?view.day:null);
