@@ -25,11 +25,10 @@ try{
  const views=[];for(const[width,height]of [[1440,1100],[390,1100]])for(const theme of ['light','dark']){
   await send('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:width<500});await evaluate(`document.documentElement.dataset.theme='${theme}';new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))`);
   assert.equal(await evaluate(`document.querySelector('[aria-label="활동 자료 출처"]')===null`),true);assert.equal(await evaluate(`document.querySelector('#overview-supply').textContent.includes('Allium')`),false);
-  assert.equal(await evaluate(`document.querySelector('.overview-usage > h2')===null`),true);
-  assert.equal(await evaluate(`document.querySelector('.overview-usage caption').classList.contains('sr-only')`),true);
-  assert.equal(await evaluate(`document.querySelector('.overview-usage').textContent.includes('공급자 집계일')`),false);
+  assert.equal(await evaluate(`document.querySelector('.overview-usage')===null`),true);
+  assert.equal(await evaluate(`document.querySelector('#overview-supply').textContent.includes('전송 이벤트당 평균')`),false);
   for(const[label,unit]of [['전송금액','USD'],['전송 건수','건']]){await click('전송 활동 지표 · '+label);assert.equal(await evaluate(`document.querySelector('.overview-transfer-row .network-axis-title').textContent`),unit);assert.equal(await evaluate(`document.querySelectorAll('[aria-label="전송 활동 지표"] button').length`),2);}
-  assert.equal(await evaluate(`document.querySelector('.overview-usage tbody tr').cells[2].textContent`),'9,007,199,254,740,993');views.push({width,theme});
+  assert.equal(await evaluate(`document.querySelector('.overview-donut-card svg title').textContent.includes('9,007,199,254,740,993')`),true);views.push({width,theme});
  }
  await evaluate(`await updateUsage({index:null,market:null,indexFailed:false,survey:{data:oldSurvey,state:'AVAILABLE'},usage:{data:usageSnapshot,state:'LAST_GOOD'}})`);assert((await evaluate(`document.querySelector('#overview-supply').textContent`)).includes('이전 정상 자료'));
  await evaluate(`await updateUsage({index:null,market:null,indexFailed:false,survey:{data:oldSurvey,state:'AVAILABLE'},usage:{data:null,state:'UNAVAILABLE'}})`);const failed=await evaluate(`document.querySelector('#overview-supply').textContent`);assert(failed.includes('ARKHAM 활동 자료 조회 실패'));assert(!failed.includes('Allium'));assert.equal(await evaluate(`document.querySelector('.overview-transfer-row')===null`),true);

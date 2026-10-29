@@ -52,18 +52,6 @@ export function initializeSupplyOverview(root,{read}){
   const value=node('strong',undefined,'summary-value'),meta=node('div',undefined,'summary-meta');card.append(heading,value,meta);if(stale)card.append(node('span','이전 정상 자료','summary-stale'));container.append(card);
   return (entry,missingDay=null)=>{const row=entry?.row??entry?.last;value.replaceChildren(node('span',row?supplyQuantityLabel(row.amount):missingDay?'관측 없음':'선택 필요'));if(row)value.append(node('small',kind==='supply'||transferField==='transfer_volume'?coinId.toUpperCase():transferMetrics[transferField].unit));meta.replaceChildren(node('span',entry?.network.name??'표시 네트워크'));if(row||missingDay){const day=(row?.observedAt.slice(0,10))??missingDay,time=node('time',day);time.dateTime=day;meta.append(time);}card.title=row?exactDecimal(row.amount)+' '+(entry.unit??'tokens')+' · '+entry.network.name+' · '+row.observedAt.slice(0,10):'선택일 또는 표시 네트워크를 확인하세요.';card.setAttribute('aria-label',kind==='supply'?'표시 네트워크 중 최신 관측 공급량 최대':'선택 집계일의 표시 네트워크 중 '+transferMetrics[transferField].label+' 최대');};
  }
- function renderUsage(host,coinId,day){
-  host.replaceChildren();
-  const snapshot=transferSurvey.data?.snapshots.find(s=>s.survey==='volume');
-  const scroll=node('div',undefined,'usage-table-scroll'),table=node('table'),caption=node('caption',coinId.toUpperCase()+' 네트워크별 전송금액 및 건수','sr-only');table.append(caption);
-  const head=node('tr');for(const label of ['네트워크','전송금액 (USD)','전송 건수','전송 포함 트랜잭션 수','전송 이벤트당 평균 (USD)']){const th=node('th',label);th.scope='col';head.append(th);}const thead=node('thead');thead.append(head);table.append(thead);
-  const body=node('tbody');for(const r of overviewUsageRows(transferSurvey.data,coinId,day).filter(r=>!hiddenTransfers.has(r.key))){
-   const tr=node('tr'),name=node('th',index?.networks.find(n=>n.id===r.networkId)?.name??r.networkId.toUpperCase());name.scope='row';if(r.state==='NOT_TESTED')name.append(node('small',r.reason==='CHAIN_NOT_LISTED'?' · 체인 목록 미확인':' · 정확 주소 미확보','chart-note'));else if(r.state==='MISSING')name.append(node('small',' · 해당일 관측 없음','chart-note'));tr.append(name);
-   for(const key of ['usd','transfers','transactions','averageUSD']){const value=r[key],cell=node('td',value===null?'—':key==='averageUSD'?(r.averageBelowCent?'<0.01':exactDecimal(value)):key==='usd'?supplyQuantityLabel(value):exactDecimal(value));cell.title=value===null?'자료 미확보 또는 평균 계산 불가':key==='averageUSD'?'전송금액 '+r.usd+' USD ÷ 전송 '+r.transfers+'건 · 소수 2자리까지 표시(이하 절사)':value+(key==='usd'?' USD':'건');cell.title+=(r.queriedAt?' · 조회 '+r.queriedAt:' · 미수집')+(r.providerTime?' · 공급자 버킷 '+r.providerTime:'');tr.append(cell);}body.append(tr);
-  }if(!body.children.length){const tr=node('tr'),td=node('td',overviewUsageRows(transferSurvey.data,coinId,day).length?'목록에서 네트워크를 선택하세요.':'이 출처에서 선택한 자산의 네트워크 자료가 없습니다.');td.colSpan=5;tr.append(td);body.append(tr);}table.append(body);scroll.append(table);host.append(node('p','좌우로 밀어 금액·건수·평균을 함께 확인하세요.','chart-note usage-table-hint'),scroll,node('p','평균은 공급자 평가 USD 전송금액 ÷ 전송 이벤트 수이며 소수 둘째 자리까지 표시하고 이후 자릿수는 버립니다. 중앙값·결제 객단가가 아닙니다. 전송과 트랜잭션은 봇·DEX·반복 이동을 포함할 수 있으며 사람 수·안전성을 뜻하지 않습니다. 토큰별 트랜잭션 수를 합쳐 네트워크 전체 건수로 사용하지 않습니다.','chart-note'),node('p','활성 주소·중앙값·금액대별 건수·DEX 전체 매매량·결제 분류: 자료 미확보','chart-note'));
-  if(transferSurvey.data?.provider==='ARKHAM')host.append(node('p','Arkham: 토큰 수량·전송 포함 트랜잭션 수 미지원 · 조회 종료일 마지막 초의 하위 초 포함 범위 미확인','chart-note'));
-  if(snapshot)host.title='출처 '+(transferSurvey.data?.provider??usageSource)+' · source SHA-256 '+snapshot.sourceHash;
- }
  function render(){
   root.setAttribute('aria-busy',String(loading));
   // Keep the initial placeholders while the registered histories are still pending.
@@ -100,10 +88,8 @@ export function initializeSupplyOverview(root,{read}){
    buttons('전송 활동 지표',Object.entries(transferMetrics).filter(([id])=>usageSource!=='ARKHAM'||['transfer_volume_usd','transfer_count'].includes(id)).map(([id,m])=>[id,m.label]),transferField,v=>transferField=v,card);
    if(transferSurvey.state==='LAST_GOOD'){const warning=node('p','전송량 읽기 실패 · 이전 정상 자료 표시','chart-note');warning.setAttribute('role','status');card.append(warning);}card.append(plot);
    const donut=node('aside',undefined,'overview-card overview-donut-card supply-network-ranking');donut.setAttribute('aria-label',selectedCoin.toUpperCase()+' 표시 네트워크의 관측 '+transferMetrics[transferField].label+' 비중');row.append(card,donut);root.append(row);
-   const usage=node('section',undefined,'overview-card overview-usage');usage.setAttribute('aria-label','네트워크 전송 활동 비교');root.append(usage);
    const updateComposition=()=>{
     const view=transferComposition(transfers.groups,transferDay??(usageSource==='ARKHAM'?transfers.to:null),hiddenTransfers);if(transferDay===null)transferDay=view.day;
-    renderUsage(usage,selectedCoin,view.day);
     updateTransferSummary(view.entries.find(e=>!e.hidden),view.state==='MISSING'?view.day:null);
     donut.replaceChildren();const top=node('div',undefined,'overview-donut-heading');top.append(node('h3','네트워크 비중'));const day=node('time',view.day??'','donut-date');if(view.day)day.dateTime=view.day;top.append(day);donut.append(top,node('p','표시 네트워크의 관측 '+transferMetrics[transferField].label+' · '+view.entries.filter(e=>!e.hidden).length+'/'+overviewUsageRows(transferSurvey.data,selectedCoin,view.day).length+'곳 관측 · 숨김 '+view.entries.filter(e=>e.hidden).length+'곳','donut-scope'));
     const latest=transferComposition(transfers.groups).day;if(latest&&view.day!==latest){const reset=node('button','최근일','donut-latest');reset.type='button';reset.setAttribute('aria-label','전송량 최신일 선택');reset.addEventListener('click',()=>{transferDay=latest;updateComposition();});top.append(reset);}
