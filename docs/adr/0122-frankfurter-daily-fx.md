@@ -10,6 +10,6 @@
 - 개발 DB/production/preflight는 명시 Frankfurter reader를 사용하며 ECB 자동 fallback은 하지 않는다. 기본 JSON 모드의 과거 오프라인 자료 읽기는 유지한다. 두 형식의 표시 모델은 분리된 출처를 검증하고 웹에는 검토한 projection만 제공한다. 표시는 `Frankfurter 일별 참고환율 · 기준일 …`이다. 기존 USD 금액은 바꾸지 않고 KRW 참고값만 bigint로 계산한다.
 - 최신 선택은 기준일→수집시각 내림차순이다. 부재/미래 수집시각/손상/7일 초과 만료는 FX_UNAVAILABLE/503이다. 관측 date를 새 날짜로 바꾸거나 누락을0으로 대체하지 않는다. HTTP 오류/잘못된 정상응답의 bounded 원문과 고정 실패 코드를 보존하며 timeout 등 본문이 없는 실패는 원문 수신 성공으로 표시하지 않는다.
 
-실제1회 조회는 UND_ERR_CONNECT_TIMEOUT/HTTP응답0으로 실패했다. 승인된 시도는 소비 완료다. 유효한 표본이 없어 실제 Supabase init/grant/import와 웹 서버의 적용 전환을 수행하지 않았다. 새 데이터 없이 DDL 적용/배포만 먼저 완료했다고 보고하지 않는다. 후속 새 조회가 필요하면 별도 계획/승인을 확인하며 기존 root/claim을 보존한다.
+최초1회 조회는 UND_ERR_CONNECT_TIMEOUT/HTTP응답0으로 실패·소비했고 당시 실제 DB/웹 전환을 보류했다. 이후 사용자가 기존실패보존 추가1회를 명시승인해 기존root의 별도불변additional authorization/claim으로 HTTP200/63bytes를 확보했다. 기존실패claim/원문은 보존하고 새 실제 수집시각·기준일·십진값을 검증해 실제 Supabase init/grant/import1/재입력0·기존12schema77table지문보존·reader/API200·로컬웹 재시작/브라우저 원화 표시를 완료했다. 추가승인은 이번1회만 소비했고 정상 일별 한도나 운영 스케줄로 전용하지 않는다. 상세 결과는 [완료 기록](../research/2026-10-30-frankfurter-live-completion.md)을 따른다.
 
-실행·실패·검증/인계는 [연구 기록](../research/2026-10-30-frankfurter-fx.md)을 따른다. 운영 적용 전에는 유효 표본·실제 DB 적용과 기존12schema/자료 지문 대조가 필요하다. 현재 코드와 자동 배포 preflight는 새 스키마/유효 자료가 없으면 준비 완료로 통과하지 않는다. 코드 push는 운영 적용 성공이 아니다.
+최초 실행·실패·준비 기록은 [연구 기록](../research/2026-10-30-frankfurter-fx.md)에 보존한다. 운영 적용은 최초 bootstrap/제어면 검토와 별개이며 자동 배포 preflight는 유효 자료가 없으면 준비 완료로 통과하지 않는다. 코드 push와 실제 DB/로컬 웹 성공을 운영 서버 적용 성공으로 확대하지 않는다.

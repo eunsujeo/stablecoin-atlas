@@ -2,6 +2,8 @@
 
 이 저장소는 독립적인 Multi-Chain Asset Compatibility Lab이다. 기존 Integration Test Kit 코드를 복사하거나 의존하지 않는다. Codex 단독으로 개발하며 하위 에이전트에 위임하지 않는다.
 
+- 사용자 Frankfurter 추가 단발 승인·실제 반영(2026-10-30): 기존실패보존 추가1GET/64KiB/20초/재시도0을 명시승인했고 기존provider root의별도불변additional authorization/claim으로 실제1GET/HTTP200/63bytes를 확보했다. 원수집시각·기준일/십진문자열·기존ECB원문/양쪽실패claim을보존하고 이전DB·웹승인에따라 private atlas_fx_frankfurter/기존writer INSERT·reader SELECT·snapshot1/재입력0/기존12schema77table지문보존·실제reader/API200·브라우저출처/기준일/원화표시를완료했다. 원래일별claim삭제/재사용·정상일별한도확대0이며 추가승인은이번1회만소비했다. 운영서버배포·timer/자동수집활성화0이다. docs/research/2026-10-30-frankfurter-live-completion.md를따른다. 아래첫실패/준비기록은당시이력으로보존한다.
+
 - 사용자 Frankfurter 환율 변경 승인(2026-10-30): 고정 USD/KRW endpoint 최대1GET/64KiB/20초/재시도0 표본 후 DB·웹반영을 승인했고 실제1송신시도/HTTP응답0·본문수신0/UND_ERR_CONNECT_TIMEOUT으로 종료·소비했다. ADR0122의 별도provider root/십진문자열 schemaVersion2/새 private DDL·기존역할·명시reader·출처표시 코드를 사설PG17에서 준비했지만 유효표본이 없어 실제Supabase init/grant/import·웹재시작·운영배포/자동수집활성화0이다. 기존ECB 원문/판정/당일실패claim과 새당일claim을보존하고 재시도/endpoint·도구·proxy전환0이다. Lead8ff2246a7a484b8d946cee4676229874는 모델capacity오류로 미응답·명시cancelled이며 승인으로간주하지않는다. docs/research/2026-10-30-frankfurter-fx.md를따른다.
 
 - 사용자 ECB 환율 단발 승인(2026-10-30): 기존 FX root/당일claim을 유지한 최대1GET/64KiB/20초/재시도0/비용UNKNOWN·수집→DB반영→웹확인을 승인했고 실제1송신시도/HTTP응답0·본문수신0/UND_ERR_CONNECT_TIMEOUT으로 실패 종료했다. 해당단발소비와UTC2026-10-30미확정claim을 보존하며 재시도/claim삭제/새root우회/브라우저·endpoint·proxy전환0이다. 새snapshot/receipt·DB쓰기0·기존만료환율/API503을 유지한다. 구체네트워크원인UNKNOWN이며 proxy정책차단으로단정하지 않는다. docs/research/2026-10-30-ecb-fx-refresh-once.md를 따른다.

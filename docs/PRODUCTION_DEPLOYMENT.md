@@ -1,6 +1,6 @@
 # Stablecoin Atlas 운영 배포
 
-2026-10-30 Frankfurter 전환 준비와 실제 미적용 경계는 [ADR0122](adr/0122-frankfurter-daily-fx.md)를 따른다. 유효 표본/실제 DB 준비 전 새 웹 코드를 운영 배포하지 않는다.
+2026-10-30 Frankfurter 전환은 [ADR0122](adr/0122-frankfurter-daily-fx.md)를 따른다. [실제 DB·로컬 웹 읽기](research/2026-10-30-frankfurter-live-completion.md)를 완료했으며 운영 제어면 설치/배포·자동수집 활성화는 별도다.
 
 2026-10-30: 신규 설치와 배포 자동화의 정본은 [자동 CI/CD와 최초 bootstrap](AUTOMATED_DEPLOYMENT.md)이다. 아래 수동 설치·부분 helper 복사·Git/npm stage 명령은 이전 운영 기록이다. 새 bootstrap 이후에는 고정 제어면과 CI artifact 기반 `atlas-release`를 사용하며, 기존 부분 helper 설치 명령을 재실행하지 않는다. 기존 수집 계약·보존 데이터·설정은 유지한다.
 

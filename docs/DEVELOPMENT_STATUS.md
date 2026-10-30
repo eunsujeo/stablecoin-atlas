@@ -1,5 +1,7 @@
 # 현재 개발 상태
 
+2026-10-30 최신: [Frankfurter 실제 수집→DB→웹 반영](research/2026-10-30-frankfurter-live-completion.md)을 완료했다. 추가 승인1GET/HTTP200/63bytes·USD/KRW1337.57/기준일2026-10-30을 원시각대로 저장했고 실제Supabase snapshot1/재입력0·기존12schema77table보존·reader/API200·실제브라우저 원화/출처/기준일을 확인했다. 기존 실패는 보존한다. 운영자동수집/배포는 미실행이다. 아래 준비/실패 기록은 당시 상태다.
+
 2026-10-30 Frankfurter 후속: [키 없는 USD/KRW 전환 준비](research/2026-10-30-frankfurter-fx.md)와 사설 PG17 검증을 진행했다. 승인된1회 조회는 UND_ERR_CONNECT_TIMEOUT/정상HTTP0으로 실패·소비했다. 실제 DB 새 스키마/자료와 운영 반영은 미실행이다. 현재 코드의 명시 Frankfurter reader는 새 스키마/유효 자료가 없으면503이며 ECB로 자동전환하지 않는다. 기존 ECB 자료/실패/현재 웹 프로세스는 보존한다.
 
 2026-10-30 후속: [승인된 ECB 환율 단발](research/2026-10-30-ecb-fx-refresh-once.md)은 1송신시도/정상HTTP응답0·본문수신0/UND_ERR_CONNECT_TIMEOUT으로 실패 종료했다. 당일claim·실패를 보존하고 재시도0·새DB쓰기0이며 기존 만료 환율/API503을 유지한다.
