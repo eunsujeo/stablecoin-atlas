@@ -46,7 +46,14 @@ jobs:
         run: npm run compiler:prepare
       - run: npm run doctor:full
       - name: Full regression (bounded concurrency; fixtures only)
-        run: npm run check > ci-check.log 2>&1
+        run: |
+          if npm run check > ci-check.log 2>&1; then
+            tail -12 ci-check.log
+          else
+            rg -n -C 14 'not ok|^✖|AssertionError|error:|failureType:' ci-check.log | tail -260 || true
+            tail -40 ci-check.log
+            exit 1
+          fi
       - name: Owned PostgreSQL deployment and reader fixtures (no production credentials)
         run: |
           docker pull postgres:17-alpine

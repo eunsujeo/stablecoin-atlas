@@ -33,7 +33,7 @@ Hosted CI는 검사와 production 의존성 준비를 맡고 서버에서는 npm
 - bash -n deploy/atlas-bootstrap deploy/atlas-deploy-admin deploy/atlas-release — rc0.
 - Ruby YAML safe_load 두 workflow 및 git diff --check — rc0.
 - 최종 npm run check: rc0, 기본725+보존74=799pass/0fail.
-- GitHub Actions ARM64 CI: 커밋 작성 시점에는 미실행이며 Push 후 해당 SHA의 Actions 결과를 별도로 확인한다. 운영 ACK 비활성 상태는 NOT_ENABLED로 구분한다.
+- 최초 ARM64 CI run40981513924는 환경 진단 성공 후 npm run check에서 rc1로 종료했다. 로그를 파일로만 보내고 summary에만 요약한 탓에 원격 진단 로그에 실패 본문이 남지 않았다. 실패 문맥과 tail을 유한 길이로 Actions 로그에도 출력하도록 보완하고 후속 CI로 원인을 확인한다. 릴리스 업로드/운영 배포는 실행되지 않았다. 운영 ACK 비활성 상태는 NOT_ENABLED로 구분한다.
 
 ## 미확인과 재현
 
