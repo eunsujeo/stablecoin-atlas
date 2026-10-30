@@ -24,6 +24,8 @@ bootstrap은 root 고정 도구·계정·제한 polkit·unit/timer를 설치/ver
 
 ## 검증과 관측
 
+2026-10-31 사용자 지정 운영 구성 예외: `verifyConfiguredFile`에서 root0644 `/etc/atlas-collector/schedule.env`의 직상위 디렉터리가 atlascollector0700인 경우만 허용한다. 기존 `[root, 파일소유자]` 규칙은 이 조합을 root/root로 평가해 거부했다. 다른 파일/조상에는 적용하지 않으며 symlink·group/other 쓰기·임의 소유자·해시 불일치는 계속 거부한다. 해당 읽기는 nofollow 파일 핸들과 inode/메타데이터/상한/해시·읽기 후 경로 동일성으로 고정하며 기존 운영 소유권/권한은 변경하지 않는다. 로컬 회귀/경계와 실제 운영 재검증은 [연구 기록](../research/2026-10-31-schedule-parent-ownership.md)을 따른다.
+
 웹 health는 정확 SHA, 필수 public asset, market/registration/asset-review/usage/FX 검증을 포함한다. 실패 시 이전 릴리스에서 같은 검증으로 복원 성공 여부까지 확인한다. 외부 공급자0·schema 변경0. GitHub commit status와 별도 Actions 결과 workflow가 현재/마지막 성공 SHA·상태·실패/롤백 코드를 표시하며 서버에는 제한된 JSON journal과 로그를 보관한다.
 
 가상 GitHub/실제 temp FS/HTTP/systemd adapter로 성공·실패·동시성·tamper·단계별 crash·rollback failure·중복송신0을 검증하고 npm run check를 실행한다. 실제 Fedora/systemd/GitHub App 권한/새 workflow·운영 종단 검증은 최초 bootstrap 단계이며 이번 작업에서 SSH/설치/서비스 변경을 실행하지 않는다.

@@ -42,6 +42,8 @@ App private key와 다음 파일은 **운영 보안 저장소**에서 관리한�
 - Collector를 승인할 때만 기존 writer/registered-writer/schedule 및 영속 `/var/lib/atlas-collector` 필요
 - Usage를 승인할 때만 `/etc/atlas-usage`의 config/authorization/writer/reviewed-definers와 기존 `/var/lib/atlas-usage` 필요
 
+`verifyConfiguredFile()`의 상위 경로 소유권 예외는 정확히 `/etc/atlas-collector/schedule.env`의 root 소유0644 파일이 직상위 `/etc/atlas-collector`의 atlascollector 소유0700 디렉터리에 있는 조합만 허용한다. 파일 SHA-256은 승인 설정과 일치해야 한다. 다른 파일·상위 조상 경로·임의 소유자나0700 외 collector 디렉터리로 확장하지 않는다. 모든 경로의 symlink와 group/other 쓰기를 거부하고, 이 예외에서는 파일을 `O_NOFOLLOW`로 열어 inode/소유권/권한/크기·해시와 읽기 후 파일/직상위 디렉터리 동일성을 확인한다. 기존 소유권·권한을 고치거나 디렉터리를 생성하지 않는 읽기 전용 검사다. Vault 복원 등의 별도 정책은 변경하지 않는다.
+
 GitHub repository variable `ATLAS_DEPLOY_REPORTING_ENABLED=true`를 한 번 설정한다. 이 변수는 **결과 보고**용이며 서버 배포를 켜거나 끄지 않는다. Bootstrap의 enable은 보고 권한·이 변수·status 생성까지 검증한다. 설정 전에는 결과 workflow가 NOT_ENABLED라고 표시하며 CI 성공을 운영 배포 성공이라고 하지 않는다.
 
 Node24.5 이상/지원 proxy flag, Linux ARM64, systemd/polkit/flock/systemd-creds와 기존 atlasweb/atlascollector 계정이 필요하다. Node·OS 업데이트나 SELinux/TLS/proxy 변경을 자동 수행하지 않는다. Node ABI 불일치/권한/파일 누락은 preflight에서 해결한다. 관리형 proxy 설정은 유지한다.
