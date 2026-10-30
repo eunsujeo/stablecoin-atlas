@@ -1,0 +1,54 @@
+name: Atlas deployment result
+on:
+  workflow_run:
+    workflows: [Atlas CI release]
+    types: [completed]
+permissions:
+  contents: read
+  statuses: read
+jobs:
+  result:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.event != 'pull_request' && github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPOSITORY: ${{ github.repository }}
+      REVISION: ${{ github.event.workflow_run.head_sha }}
+      SOURCE_RUN: ${{ github.event.workflow_run.id }}
+      SOURCE_ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
+      RUN_TITLE: ${{ github.event.workflow_run.display_title }}
+      REPORTING_ENABLED: ${{ vars.ATLAS_DEPLOY_REPORTING_ENABLED }}
+    steps:
+      # No checkout or workflow artifact execution in this reporting job.
+      - name: Wait for the server's durable deployment status
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$REPORTING_ENABLED" != 'true' ]]; then
+            echo 'NOT_ENABLED: CI release is ready; production bootstrap and deployment reporting are not enabled yet.' >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          [[ "$REPOSITORY" == 'eunsujeo/stablecoin-atlas' ]]
+          [[ "$REVISION" =~ ^[a-f0-9]{40}$ ]]
+          [[ "$SOURCE_RUN" =~ ^[0-9]+$ ]]
+          [[ "$SOURCE_ATTEMPT" =~ ^[0-9]+$ ]]
+          component="${RUN_TITLE%% / *}"
+          [[ "$component" =~ ^(web|collector|usage)$ ]]
+          for ((i=0; i<128; i++)); do
+            current=$(gh api "repos/$REPOSITORY/commits/main" --jq .sha)
+            if [[ "$current" != "$REVISION" ]]; then
+              echo "SUPERSEDED: newer main $current replaces requested $REVISION. No stale deployment requested." >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            states=$(gh api "repos/$REPOSITORY/commits/$REVISION/statuses?per_page=100")
+            state=$(jq -r --arg context "atlas/$component" --arg target "https://github.com/$REPOSITORY/actions/runs/$SOURCE_RUN/attempts/$SOURCE_ATTEMPT" '[.[] | select(.context==$context and .target_url==$target)][0].state // "waiting"' <<< "$states")
+            if [[ "$state" == success || "$state" == failure || "$state" == error ]]; then
+              jq -r --arg context "atlas/$component" --arg target "https://github.com/$REPOSITORY/actions/runs/$SOURCE_RUN/attempts/$SOURCE_ATTEMPT" '[.[] | select(.context==$context and .target_url==$target)][0] | "Component: \(.context)\nCommit: '"$REVISION"'\nResult: \(.state)\n\(.description)"' <<< "$states" >> "$GITHUB_STEP_SUMMARY"
+              [[ "$state" == success ]]
+              exit
+            fi
+            sleep 15
+          done
+          echo 'No terminal server acknowledgement within 32 minutes. Check bootstrap activation, server journal and GitHub credential permissions. CI success is not deployment success.' >> "$GITHUB_STEP_SUMMARY"
+          exit 1

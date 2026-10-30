@@ -4,10 +4,11 @@ import {spawn,execFile} from 'node:child_process';
 import {promisify} from 'node:util';
 import {pathToFileURL} from 'node:url';
 import {randomUUID} from 'node:crypto';
+import {syncDirectory} from './deploy/files.mjs';
 const exec=promisify(execFile),shaPattern=/^[a-f0-9]{40}$/;
-export async function stageRelease({root,sha,prepare}){
+export async function stageRelease({root,sha,prepare,lockHeld=false}){
   if(!shaPattern.test(sha))throw Error('RELEASE_SHA_INVALID');
-  const lock=join(root,'.stage-lock'),target=join(root,'releases',sha);await mkdir(lock,{mode:0o700});
+  const lock=join(root,'.stage-lock'),target=join(root,'releases',sha);if(!lockHeld)await mkdir(lock,{mode:0o700});
   let staging,claimed=false,published=false;
   try{
     try{await lstat(target);throw Error('RELEASE_ALREADY_EXISTS');}catch(error){if(error.code!=='ENOENT')throw error;}
@@ -18,12 +19,12 @@ export async function stageRelease({root,sha,prepare}){
     const file=await open(revision,'wx',0o644);
     try{await file.writeFile(sha+'\n');await file.chmod(0o644);await file.sync();}finally{await file.close();}
     // mkdir claims even a dangling symlink atomically; rename replaces only our empty directory.
-    await mkdir(target,{mode:0o700});claimed=true;await rename(staging,target);published=true;
+    await mkdir(target,{mode:0o700});claimed=true;await rename(staging,target);published=true;await syncDirectory(join(root,'releases'));
     return {state:'STAGED',commit:sha};
   }finally{
     if(staging&&!published)await rm(staging,{recursive:true,force:true});
     if(claimed&&!published)await rmdir(target).catch(()=>{});
-    await rmdir(lock);
+    if(!lockHeld)await rmdir(lock);
   }
 }
 async function permissions(path){

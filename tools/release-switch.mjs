@@ -4,27 +4,28 @@ import {execFile} from 'node:child_process';
 import {promisify} from 'node:util';
 import {setTimeout as wait} from 'node:timers/promises';
 import {pathToFileURL} from 'node:url';
+import {syncDirectory} from './deploy/files.mjs';
 import {loopbackRequest} from './loopback-http.mjs';
 const exec=promisify(execFile),shaPattern=/^[a-f0-9]{40}$/;
-async function release(root,sha){
+export async function release(root,sha){
   if(!shaPattern.test(sha))throw Error('RELEASE_SHA_INVALID');
   const path=join(root,'releases',sha),stat=await lstat(path);
   const revision=join(path,'REVISION'),marker=await lstat(revision);
   if(!stat.isDirectory()||stat.isSymbolicLink()||!marker.isFile()||marker.isSymbolicLink()||(await readFile(revision,'utf8')).trim()!==sha)throw Error('RELEASE_INVALID');
   return path;
 }
-async function pointer(root,name){
+export async function pointer(root,name){
   const path=join(root,name);let value;
   try{value=await readlink(path);}catch(error){if(error.code==='ENOENT')return null;throw Error('RELEASE_POINTER_INVALID');}
   const target=resolve(dirname(path),value),sha=target.split('/').at(-1);
   if(target!==await release(root,sha))throw Error('RELEASE_POINTER_INVALID');return sha;
 }
-async function point(root,name,sha){
+export async function point(root,name,sha){
   const target=await release(root,sha),temp=join(root,'.'+name+'-'+process.pid);
-  try{await symlink(target,temp);await rename(temp,join(root,name));}finally{await unlink(temp).catch(()=>{});}
+  try{await symlink(target,temp);await rename(temp,join(root,name));await syncDirectory(root);}finally{await unlink(temp).catch(()=>{});}
 }
-export async function activateRelease({root,sha,rollback=false,restart,health,stop}){
-  const lock=join(root,'.deployment-lock');await mkdir(lock,{mode:0o700});
+export async function activateRelease({root,sha,rollback=false,restart,health,stop,lockHeld=false}){
+  const lock=join(root,'.deployment-lock');if(!lockHeld)await mkdir(lock,{mode:0o700});
   let old,switched=false;
   try{
     if(rollback)sha=await pointer(root,'previous');
@@ -40,7 +41,7 @@ export async function activateRelease({root,sha,rollback=false,restart,health,st
       throw Error('DEPLOY_FAILED_ROLLED_BACK');
     }
     await unlink(join(root,'current'));await stop();throw Error('FIRST_DEPLOY_FAILED_STOPPED');
-  }finally{await rmdir(lock);}
+  }finally{if(!lockHeld)await rmdir(lock);}
 }
 export async function checkWebHealth(sha,{host,port=4173,attempts=8}={}){
   for(let i=0;i<attempts;i++){

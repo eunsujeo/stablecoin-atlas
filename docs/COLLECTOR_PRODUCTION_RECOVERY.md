@@ -1,5 +1,7 @@
 # Mac mini 수집기 준비와 FX 복구
 
+2026-10-30: 신규 설치와 배포 자동화의 정본은 [자동 CI/CD와 최초 bootstrap](AUTOMATED_DEPLOYMENT.md)이다. 아래 수동 설치·부분 helper 복사·Git/npm stage 명령은 이전 운영 기록이다. 새 bootstrap 이후에는 고정 제어면과 CI artifact 기반 `atlas-release`를 사용하며, 기존 부분 helper 설치 명령을 재실행하지 않는다. 기존 수집 계약·보존 데이터·설정은 유지한다.
+
 Arkham의 현재 기본 주기는1h/24예약이다. 새 schedule.env·별도 정책 설치·미래 UTC일 전환·Arkham만의 포인터/설정/호환 코드 롤백은 [스케줄 운영 정본](ARKHAM_SCHEDULER.md)을 먼저 따른다. 아래 기존 복구 절차의 FX/등록 unit 재설치·전체 서비스 정지는 이번 Arkham 설정 전환에 적용하지 않는다. Web/FX/등록 서비스는 유지한다.
 
 이 절차는 운영자가 서버에서 적용할 인계 지침이다. 이번 구현 작업은 로컬 수정·시험·Git push만 수행하며, 서버 접속·DB 변경·공급자 호출·서비스 활성화는 하지 않는다. 사용자가 보고한 웹/Reader/Tunnel 정상과 FX503·공개 파일0바이트는 사용자 관측이다. 여기서 직접 재관측한 결과가 아니다. [배포 정본](PRODUCTION_DEPLOYMENT.md)과 [기존 수집 계약](COLLECTOR_SERVICE.md)을 함께 따른다.

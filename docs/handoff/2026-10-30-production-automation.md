@@ -1,0 +1,9 @@
+# Stablecoin Atlas 자동 CI/CD
+- 목표: 개발 PC 의존 없이 main Push→검사→ARM64 불변 릴리스→웹 검증/실패 롤백. 운영 bootstrap 검증 전 실제 서비스 변경 금지.
+- 끝난 것: ADR0120, hosted CI/결과 workflow, atlaspull 제한 polkit→고정 root broker, component 독립 pointer/정책/버전, 일괄 preflight, vault hash 복원, OS flock·fsync journal·crash 복구 구현. 배포 회귀44건 및 사설PG17 검증 완료. 마지막 Lead4fb8d788cb7c4f5e98c77ff31026fd6a proceed. 운영 SSH/서비스·실제DB/공급자/Cloudflare 변경0. 최초 운영 App/보안 자료/활성화는 미실행.
+- 변경 파일: .github/workflows/production.yml, .github/workflows/deployment-result.yml, tools/deploy/, tools/release-stage.mjs, tools/release-switch.mjs, deploy/atlas-deploy*, deploy/atlas-bootstrap, deploy/atlas-release, deploy/atlas-usage.service, tests/deploy-automation.test.mjs, tests/postgres/deployment-gate.test.mjs, docs/AUTOMATED_DEPLOYMENT.md, docs/adr/0120-pull-based-production-automation.md
+- 검증: npm run check rc0/725+74=799pass/0fail. node --test tests/deploy-automation.test.mjs rc0/44pass/0fail. node --test --test-concurrency=1 tests/postgres/deployment-gate.test.mjs tests/postgres/production.test.mjs tests/postgres/network-usage-v2.test.mjs rc0/4pass/0fail. python3 -m unittest discover -s tools/intelligent-router/evaluation -p 'test_*.py' rc0/56pass/0fail. bash -n 세 wrapper·두 workflow YAML safe_load·git diff --check rc0. GitHub CI 결과는 저장소 Actions의 Atlas CI release에서 해당 SHA로 확인한다. 운영 활성화 성공과 구분한다. GitHub variable 목록 읽기는403(현 CLI권한), 운영용 App과 별도.
+- 기다리는 것: 없음
+- 다음 행동: docs/AUTOMATED_DEPLOYMENT.md의 최초 bootstrap을 운영자가 수행·검증했는지 확인한다. 확인 전 실제 서버 접속·설치·서비스 활성화·새 수집을 시작하지 않는다. bootstrap 이후 평상시 배포는 main Push/Actions 결과 확인만 사용한다. 기존 비대상 미추적 docs/handoff/2026-10-22-router-lead-review.md는 보존했다.
+- 사용자 확인 필요: 예 — 최초 운영 보안 점검/필수 파일 적재와 bootstrap 검증 완료 여부. 미완료 시 정본 절차를 제공하고 실제 운영 작업은 시작하지 않는다.
+- 읽을 파일: docs/AUTOMATED_DEPLOYMENT.md, docs/adr/0120-pull-based-production-automation.md, docs/research/2026-10-30-production-automation.md

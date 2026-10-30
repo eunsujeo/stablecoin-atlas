@@ -1,0 +1,7 @@
+#!/usr/bin/bash
+set -euo pipefail
+umask 077
+export PATH=/usr/bin:/bin
+unset NODE_OPTIONS NODE_PATH NODE_TLS_REJECT_UNAUTHORIZED
+if [[ ${EUID} -ne 0 || $# -ne 3 ]]; then echo 'Root bootstrap admin: command --config|--manifest|--output path' >&2; exit 1; fi
+exec /usr/bin/flock -n /run/lock/atlas-deploy.lock /usr/bin/node --use-env-proxy /usr/local/lib/atlas-deploy/tools/deploy/bootstrap.mjs "$@"

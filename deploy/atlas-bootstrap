@@ -1,0 +1,9 @@
+#!/usr/bin/bash
+# One-time entry point from the operator-reviewed, root-owned bootstrap checkout.
+set -euo pipefail
+umask 077
+export PATH=/usr/bin:/bin
+unset NODE_OPTIONS NODE_PATH NODE_TLS_REJECT_UNAUTHORIZED
+if [[ ${EUID} -ne 0 || $# -ne 3 ]]; then echo 'Root bootstrap: command --config|--manifest|--output path' >&2; exit 1; fi
+atlas_bootstrap_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)
+exec /usr/bin/flock -n /run/lock/atlas-deploy.lock /usr/bin/node --use-env-proxy "$atlas_bootstrap_root/tools/deploy/bootstrap.mjs" "$@"

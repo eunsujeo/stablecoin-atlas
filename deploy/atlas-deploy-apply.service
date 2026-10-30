@@ -1,0 +1,35 @@
+[Unit]
+Description=Fixed root-owned Atlas release broker
+After=network-online.target
+Wants=network-online.target
+[Service]
+Type=oneshot
+User=root
+Group=root
+WorkingDirectory=/usr/local/lib/atlas-deploy
+EnvironmentFile=-/etc/atlas-deploy/proxy.env
+Environment=NODE_OPTIONS= NODE_PATH= NODE_TLS_REJECT_UNAUTHORIZED=1
+ExecStart=/usr/bin/flock -n /run/lock/atlas-deploy.lock /usr/bin/node --use-env-proxy --max-old-space-size=256 tools/deploy/apply.mjs
+RuntimeDirectory=atlas-deploy
+RuntimeDirectoryMode=0700
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/opt/stablecoin-atlas /var/lib/atlas-deploy /var/log/atlas-deploy /run/atlas-deploy /run/atlas-deploy-probes /run/lock
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+CapabilityBoundingSet=CAP_CHOWN CAP_DAC_OVERRIDE CAP_FOWNER CAP_SETUID CAP_SETGID
+UMask=0077
+MemoryHigh=512M
+MemoryMax=768M
+CPUQuota=100%
+TasksMax=64
+TimeoutStartSec=1800
+KillMode=control-group
+StandardOutput=journal
+StandardError=journal

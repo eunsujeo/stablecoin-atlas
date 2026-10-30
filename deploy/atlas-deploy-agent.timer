@@ -1,0 +1,10 @@
+[Unit]
+Description=Poll completed CI releases without a development PC
+[Timer]
+OnBootSec=90s
+OnUnitInactiveSec=60s
+RandomizedDelaySec=10s
+Persistent=false
+Unit=atlas-deploy-agent.service
+[Install]
+WantedBy=timers.target

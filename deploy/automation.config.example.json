@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "repository": "eunsujeo/stablecoin-atlas",
+  "repositoryId": 0,
+  "workflowId": 0,
+  "workflowBlob": "REPLACE_WITH_REVIEWED_GIT_BLOB_SHA",
+  "enabled": false,
+  "components": {
+    "web": { "enabled": true },
+    "collector": { "enabled": false },
+    "usage": { "enabled": false }
+  },
+  "files": {
+    "reader": { "sha256": "REPLACE_WITH_LOCAL_FILE_SHA256", "owner": "root", "mode": 384 },
+    "web": { "sha256": "REPLACE_WITH_LOCAL_FILE_SHA256", "owner": "root", "mode": 420 },
+    "github": { "sha256": "REPLACE_WITH_LOCAL_FILE_SHA256", "owner": "root", "mode": 384 },
+    "ca": { "sha256": "REPLACE_WITH_LOCAL_FILE_SHA256", "owner": "root", "mode": 420 }
+  }
+}

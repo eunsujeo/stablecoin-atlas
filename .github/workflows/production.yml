@@ -1,55 +1,87 @@
-name: Production preparation and optional manual deployment
+name: Atlas CI release
+run-name: ${{ inputs.component || 'web' }} / ${{ github.sha }}
 on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
     inputs:
-      deploy:
-        description: Deploy tested SHA through the preconfigured Tailscale runner
-        required: true
-        type: boolean
-        default: false
+      component:
+        description: Explicit independent deployment (collector/usage require server policy approval)
+        type: choice
+        options: [web, collector, usage]
+        default: web
 permissions:
   contents: read
 concurrency:
-  group: atlas-production
+  group: atlas-ci-${{ github.ref }}
   cancel-in-progress: false
 jobs:
-  test:
-    # Isolated CI runner, never the production service identity.
-    runs-on: [self-hosted, Linux, ARM64, atlas-ci]
-    outputs:
-      sha: ${{ steps.revision.outputs.sha }}
+  verify-build:
+    # Hosted, disposable ARM64 CI. Never install a runner on the production Mac mini.
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 30
+    env:
+      NODE_OPTIONS: --max-old-space-size=1024
+      COMPONENT: ${{ inputs.component || 'web' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
-      - name: Record exact revision
-        id: revision
-        run: |
-          revision=$(git rev-parse HEAD)
-          echo "sha=$revision" >> "$GITHUB_OUTPUT"
-          echo "Test revision: $revision"
-      - name: Stage previously approved compiler cache (no download)
-        run: |
-          install -d -m 0700 .state/tron-compiler
-          install -m 0600 /var/cache/atlas-ci/tron-0.8.26.cjs .state/tron-compiler/tron-0.8.26.cjs
-      - run: node tools/workspace-doctor.mjs full
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+          cache: npm
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: foundry-rs/foundry-toolchain@dba66c27052e63476d886f22216e119ba7e615bf # v1
+        with:
+          version: v1.7.1
+          cache: false
       - run: npm ci --ignore-scripts --no-audit --no-fund
-      - run: npm run check
-  deploy:
-    if: inputs.deploy && github.ref == 'refs/heads/main'
-    needs: test
-    environment: production
-    # SSH agent + pinned known_hosts + Tailscale are provisioned outside this repo.
-    runs-on: [self-hosted, Linux, ARM64, atlas-deploy]
-    env:
-      DEPLOY_HOST: ${{ vars.ATLAS_DEPLOY_HOST }}
-      REVISION: ${{ needs.test.outputs.sha }}
-    steps:
-      - name: Stage tested commit, activate, verify and roll back on failure
-        shell: bash
+      - name: Prepare the existing hash-pinned local compiler for isolated fixtures
+        run: npm run compiler:prepare
+      - run: npm run doctor:full
+      - name: Full regression (bounded concurrency; fixtures only)
+        run: npm run check > ci-check.log 2>&1
+      - name: Owned PostgreSQL deployment and reader fixtures (no production credentials)
         run: |
-          set -euo pipefail
-          [[ "$REVISION" =~ ^[a-f0-9]{40}$ ]]
-          [[ "$DEPLOY_HOST" =~ ^[a-zA-Z0-9][a-zA-Z0-9.-]+$ ]]
-          ssh -o BatchMode=yes -o StrictHostKeyChecking=yes "atlasdeploy@$DEPLOY_HOST" "sudo /usr/local/sbin/atlas-release stage $REVISION"
-          ssh -o BatchMode=yes -o StrictHostKeyChecking=yes "atlasdeploy@$DEPLOY_HOST" "sudo /usr/local/sbin/atlas-release activate $REVISION"
+          docker pull postgres:17-alpine
+          node --test --test-concurrency=1 tests/postgres/deployment-gate.test.mjs tests/postgres/production.test.mjs tests/postgres/network-usage-v2.test.mjs
+      - name: Router regression (no model, credentials or Herdr required)
+        run: python3 -m unittest discover -s tools/intelligent-router/evaluation -p 'test_*.py'
+      - name: Verify deployment unit syntax without starting services
+        run: systemd-analyze verify deploy/atlas-deploy-apply.service deploy/atlas-deploy-agent.service deploy/atlas-deploy-agent.timer deploy/atlas-usage.service deploy/atlas-usage.timer
+      - name: Summarize regression
+        if: always()
+        run: |
+          if [ -f ci-check.log ]; then
+            tail -30 ci-check.log >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Build immutable Linux ARM64 runtime bundle
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        env:
+          REVISION: ${{ github.sha }}
+          CI_RUN: ${{ github.run_id }}
+          CI_ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          npm prune --omit=dev --no-save --ignore-scripts --no-audit --no-fund
+          node tools/deploy/build.mjs .state/ci-release "$COMPONENT" "$REVISION" "$CI_RUN" "$CI_ATTEMPT"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        with:
+          name: atlas-${{ env.COMPONENT }}-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .state/ci-release/release.json
+            .state/ci-release/release.tar
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 6
+      - name: Deployment is pulled by the independently bootstrapped server
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        run: |
+          echo 'CI artifact is ready. The production broker verifies this completed run, exact main SHA and artifact digest; no SSH or production credentials are used by this job.' >> "$GITHUB_STEP_SUMMARY"
