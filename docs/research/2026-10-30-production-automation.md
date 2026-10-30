@@ -48,3 +48,5 @@ Hosted CI는 검사와 production 의존성 준비를 맡고 서버에서는 npm
 ARM64 run40982668332에서 Node25.2.1 전체799건·사설PG4건·Router56건은 통과했다. 다음 systemd-analyze가 `/usr/bin/node is not executable: No such file or directory`로 실패했다. Hosted setup-node는 toolcache PATH만 준비하고 고정 production 실행 경로는 없었다. CI의 Node24 전환 뒤 disposable runner에만 고정 경로 링크를 준비하고 unit 검증을 수행하도록 수정했다. 실제 운영 경로/Node 설치는 변경하지 않았다. 운영 Node24 별도 회귀와 릴리스 생성은 이 run에서 미실행이었다.
 
 최종 후보/ACK 보완 뒤 로컬 npm run check rc0:727+74=801pass/0fail. 같은 run 상위 attempt/처리한 attempt 제외와 실제 Bash+jq의 다른 component·이전 run·동일 run 새 attempt·외부 target URL 경계를 추가 확인했으며 배포47/47pass다. 이 마지막 시험을 포함한 전체 재검사와 해당 SHA의 ARM64 CI를 확인한다.
+
+Run40983615968에서 Node25.2.1 전체802·PG4·Router56과 systemd unit 검증은 통과했다. 추가 Node24 회귀는175pass/2filefail: evidence/workspace 시험의 TypeScript .js 해석에 필요한 기존 tsx loader를 별도 명령에 누락했다. 기존 test-suite와 같은 --import tsx를 적용했다. 제품 런타임/테스트 기준은 바꾸지 않았으며 실제 릴리스 업로드 전 차단됐다. 최종 로컬 npm run check rc0:728+74=802pass/0fail도 확인했다.
