@@ -79,7 +79,7 @@ function fakeGitHub(options={}){
  const cfg={repositoryId:8,workflowId:7,workflowBlob:A},run={head_sha:B,head_branch:'main',status:'completed',conclusion:'success',workflow_id:7,repository:{id:8},head_repository:{id:8},event:'push',id:10,run_attempt:1,display_title:'web / '+B,...options.run};
  const fetcher=async(url,init={})=>{requests.push({url:String(url),init});if(String(url).includes('blob.core.windows.net'))return options.download?options.download(bytes,init):new Response(options.badPayload?Buffer.from('bad'):bytes);
   let value;const path=new URL(url).pathname;if(path.endsWith('/branches/main'))value={commit:{sha:B}};else if(path.endsWith('/stablecoin-atlas'))value={id:8,full_name:'eunsujeo/stablecoin-atlas'};else if(path.endsWith('/runs'))value={workflow_runs:options.runs??[run]};else if(path.endsWith('/production.yml'))value={sha:options.badWorkflow?B:A};else if(path.endsWith('/artifacts')){const selected=(options.runs??[run]).find(r=>path.includes('/runs/'+r.id+'/'))??run,component=selected.display_title.split(' / ')[0];value={artifacts:[{name:`atlas-${component}-${B}-${selected.id}-${selected.run_attempt}`,id:6,size_in_bytes:bytes.length,digest:'sha256:'+hash(bytes),workflow_run:{id:selected.id,head_sha:B},expired:false,...options.artifact}]};}else if(path.endsWith('/zip'))return new Response(null,{status:302,headers:{Location:options.location??'https://artifacts.blob.core.windows.net/a?sig=private'}});else if(path.includes('/statuses/'))value={id:1};else throw Error('UNEXPECTED_PATH');return new Response(JSON.stringify(value),{headers:{'content-type':'application/json'}});};
- return {client:githubClient({repository:'eunsujeo/stablecoin-atlas',token:'private-test-token',fetcher,onDiagnostic:options.onDiagnostic??(()=>{})}),cfg,requests,run};
+ return {client:githubClient({repository:'eunsujeo/stablecoin-atlas',token:'private-test-token',fetcher,onDiagnostic:options.onDiagnostic??(()=>{}),cache:options.cache??null}),cfg,requests,run};
 }
 test('root GitHub adapter independently binds repository, protected main, workflow blob, run attempt, artifact and digest',async()=>{
  const f=fakeGitHub(),c=await f.client.candidate(f.cfg);assert.equal(c.sha,B);assert.equal((await f.client.bundle(c)).manifest.commit,B);const last=f.requests.at(-1);assert.equal(last.init.headers,undefined);assert(!JSON.stringify(c).includes('private-test-token'));
@@ -98,18 +98,19 @@ test('artifact headers are distinct from completed body timing and the 180 secon
  const valid=fakeGitHub(),candidate=await valid.client.candidate(valid.cfg);Object.assign(c,candidate);
  const downloading=f.client.bundle(c);await receivedHeaders;await new Promise(r=>setTimeout(r,25));
  assert.deepEqual(events.map(e=>e.phase),['started','headers']);finish();assert.equal((await downloading).manifest.commit,B);
- assert(durations.includes(180000));assert(durations.includes(20000));assert(durations.every(ms=>[20000,180000].includes(ms)));assert.deepEqual(events.map(e=>e.phase),['started','headers','body_complete']);
- const done=events.at(-1);assert.equal(done.receivedBytes,expectedBytes);assert.equal(done.status,200);assert(done.elapsedMs>=events[1].elapsedMs+20);assert.equal(done.timeoutMs,180000);assert.equal(done.limitBytes,96*1024*1024);
+ assert(durations.includes(180000));assert(durations.includes(20000));assert(durations.every(ms=>[20000,180000].includes(ms)));assert.deepEqual(events.map(e=>e.phase),['started','headers','body_complete','verified','complete']);
+ const done=events.at(-1);assert.equal(done.receivedBytes,expectedBytes);assert.equal(done.status,200);assert(done.elapsedMs>=events[1].elapsedMs+20);assert.equal(done.timeoutMs,180000);assert.equal(done.limitBytes,96*1024*1024);assert(done.totalElapsedMs>=done.elapsedMs);assert.equal(done.artifactBytes,expectedBytes);assert.equal(done.source,'NETWORK');
  assert.equal(f.requests.length,2);assert.equal(f.requests[1].init.redirect,'error');assert.equal(f.requests[1].init.headers,undefined);
- for(const e of events)assert.deepEqual(Object.keys(e).sort(),['elapsedMs','event','limitBytes','phase','receivedBytes','status','timeoutMs'].sort());
+ for(const e of events)assert.deepEqual(Object.keys(e).sort(),['elapsedMs','totalElapsedMs','event','limitBytes','phase','receivedBytes','artifactBytes','bytesPerSecond','status','timeoutMs','stage','source'].sort());
  assert(!/private|sig=|https:|Authorization/.test(JSON.stringify(events)));
 });
 test('artifact timeout interrupts a stalled HTTP200 read even when underlying cancellation never settles',async t=>{
  const timeout=AbortSignal.timeout.bind(AbortSignal),controller=new AbortController(),events=[];let cancelled=0,response,timer;
  const reason=new DOMException('signed-url-and-token-must-stay-private','TimeoutError');
  t.after(()=>clearTimeout(timer));t.mock.method(AbortSignal,'timeout',ms=>ms===180000?controller.signal:timeout(ms));
- const f=fakeGitHub({onDiagnostic:e=>events.push(e),download:()=>{response=new Response(new ReadableStream({start(c){c.enqueue(Buffer.alloc(3));},cancel(){cancelled++;return new Promise(()=>{});}}));timer=setTimeout(()=>controller.abort(reason),20);return response;}});
- await assert.rejects(f.client.bundle({artifactId:6}),e=>e===reason);assert.equal(cancelled,1);assert.equal(response.body.locked,false);assert.equal(f.requests.length,2);
+ const source=fakeGitHub(),candidate=await source.client.candidate(source.cfg);
+ const f=fakeGitHub({cache:{get:async()=>null,put:async()=>assert.fail('timeout must not cache partial bytes')},onDiagnostic:e=>events.push(e),download:()=>{response=new Response(new ReadableStream({start(c){c.enqueue(Buffer.alloc(3));},cancel(){cancelled++;return new Promise(()=>{});}}));timer=setTimeout(()=>controller.abort(reason),20);return response;}});
+ await assert.rejects(f.client.bundle(candidate),e=>e===reason);assert.equal(cancelled,1);assert.equal(response.body.locked,false);assert.equal(f.requests.length,2);
  assert.deepEqual(events.map(e=>e.phase),['started','headers','failed']);assert.equal(events.at(-1).reason,'TIMEOUT');assert.equal(events.at(-1).receivedBytes,3);assert.equal(events.at(-1).status,200);assert(!JSON.stringify(events).includes(reason.message));
 });
 test('mid-body abort preserves its reason, cancels once and never validates or retries partial bytes',async t=>{
@@ -127,11 +128,50 @@ test('streamed 96MiB body is accepted exactly while one extra byte cancels witho
  let cancelled=0,pulls=0;const events=[];
  const f=fakeGitHub({onDiagnostic:e=>events.push(e),download:()=>new Response(new ReadableStream({pull(c){if(pulls++<96)c.enqueue(chunk);else c.enqueue(Buffer.alloc(1));},cancel(){cancelled++;}}),{headers:{'Content-Length':'1'}})});
  await assert.rejects(f.client.bundle({artifactId:6}),/HTTP_LIMIT/);assert.equal(cancelled,1);assert.equal(f.requests.length,2);assert.equal(events.at(-1).receivedBytes,limit+1);assert.equal(events.at(-1).reason,'HTTP_LIMIT');assert(!events.some(e=>e.phase==='body_complete'));
+ const progressEvents=events.filter(e=>e.phase==='progress');assert(progressEvents.length>=12);assert(progressEvents.every((e,i)=>e.receivedBytes>(progressEvents[i-1]?.receivedBytes??0)&&e.bytesPerSecond>=0&&e.totalElapsedMs>=e.elapsedMs));
 });
 test('diagnostic failures cannot bypass SHA256 validation and download errors never expose raw messages',async()=>{
  const invalid=fakeGitHub({badPayload:true,onDiagnostic:()=>{throw Error('logger');}});const c=await invalid.client.candidate(invalid.cfg);await assert.rejects(invalid.client.bundle(c),/ARTIFACT_HASH_MISMATCH/);
  const events=[],reason=Error('https://signed.invalid/?sig=SECRET');const f=fakeGitHub({onDiagnostic:e=>events.push(e),download:()=>{throw reason;}});
  await assert.rejects(f.client.bundle({artifactId:6}),e=>e===reason);assert.equal(f.requests.length,2);assert.equal(events.at(-1).reason,'DOWNLOAD_FAILED');assert.equal(events.at(-1).status,null);assert(!/SECRET|signed.invalid/.test(JSON.stringify(events)));
+});
+test('verified cache avoids a second signed download but current GitHub candidate checks still run',async()=>{
+ const values=new Map(),cache={get:async key=>values.get(key)??null,put:async(key,bytes)=>{values.set(key,Buffer.from(bytes));return true;}},events=[];
+ const first=fakeGitHub({cache}),c=await first.client.candidate(first.cfg);await first.client.bundle(c);assert.equal(values.size,1);assert(values.has(c.digest));
+ const next=fakeGitHub({cache,onDiagnostic:e=>events.push(e),download:()=>assert.fail('must not reuse or refresh a signed URL on a full verified hit')});
+ const current=await next.client.candidate(next.cfg);assert.equal(current.sha,c.sha);const before=next.requests.length;assert.equal(before,5);assert.equal((await next.client.bundle(current)).manifest.commit,B);assert.equal(next.requests.length,before);
+ const completed=events.find(e=>e.phase==='complete');assert.equal(completed.source,'CACHE');assert.equal(completed.receivedBytes,0);assert.equal(completed.status,null);assert(completed.artifactBytes>0);assert(events.some(e=>e.phase==='verified'));assert(!/sig=|private-test-token/.test(JSON.stringify(events)));
+ const expired=fakeGitHub({cache,artifact:{expired:true}});await assert.rejects(expired.client.candidate(expired.cfg),/EXPIRED/);assert(!expired.requests.some(r=>r.url.endsWith('/zip')));
+});
+test('cached corruption and wrong attempt/manifest fail without a network retry or cache overwrite',async()=>{
+ const valid=fakeGitHub(),c=await valid.client.candidate(valid.cfg),values=new Map(),cache={get:async key=>values.get(key),put:async()=>assert.fail('must not overwrite on failure')};
+ const generated=bundle(c),zipBytes=zip({'release.json':Buffer.from(JSON.stringify(generated.manifest)),'release.tar':generated.payload});assert.equal(hash(zipBytes),c.digest);values.set(c.digest,zipBytes);
+ const wrong=fakeGitHub({cache});await assert.rejects(wrong.client.bundle({...c,attempt:2}),/MANIFEST_INVALID/);assert.equal(wrong.requests.length,0);
+ const changed=Buffer.from(zipBytes);changed[0]^=1;values.set(c.digest,changed);const damaged=fakeGitHub({cache});await assert.rejects(damaged.client.bundle(c),/HASH_MISMATCH/);assert.equal(damaged.requests.length,0);
+});
+test('partial EOF, malformed ZIP and invalid manifest never publish a cache entry',async()=>{
+ const valid=fakeGitHub(),candidate=await valid.client.candidate(valid.cfg);let puts=0;const cache={get:async()=>null,put:async()=>{puts++;return true;}};
+ const partial=fakeGitHub({cache,download:bytes=>new Response(bytes.subarray(0,10))});await assert.rejects(partial.client.bundle(candidate),/HASH_MISMATCH/);assert.equal(partial.requests.length,2);
+ const invalid=Buffer.from('not a zip'),badZIP=fakeGitHub({cache,download:()=>new Response(invalid)});await assert.rejects(badZIP.client.bundle({...candidate,digest:hash(invalid)}),/ZIP_INVALID/);
+ const b=bundle(candidate),bytes=zip({'release.json':Buffer.from(JSON.stringify({...b.manifest,commit:A})),'release.tar':b.payload}),badManifest=fakeGitHub({cache,download:()=>new Response(bytes)});await assert.rejects(badManifest.client.bundle({...candidate,digest:hash(bytes)}),/MANIFEST_INVALID/);assert.equal(puts,0);
+});
+test('caller cancellation of a partial transfer publishes nothing and a pre-aborted caller makes zero requests',async t=>{
+ let puts=0,timer,cancelled=0;const cache={get:async()=>null,put:async()=>{puts++;}},controller=new AbortController(),reason=Error('secret-cancellation-reason'),events=[];t.after(()=>clearTimeout(timer));
+ const source=fakeGitHub(),candidate=await source.client.candidate(source.cfg);
+ const f=fakeGitHub({cache,onDiagnostic:e=>events.push(e),download:bytes=>new Response(new ReadableStream({start(c){c.enqueue(bytes.subarray(0,10));timer=setTimeout(()=>controller.abort(reason),10);},cancel(){cancelled++;}}))});
+ await assert.rejects(f.client.bundle(candidate,{signal:controller.signal}),e=>e===reason);assert.equal(puts,0);assert.equal(cancelled,1);assert.equal(f.requests.length,2);assert.equal(events.at(-1).reason,'ABORTED');assert.equal(events.at(-1).receivedBytes,10);assert(!JSON.stringify(events).includes(reason.message));
+ const before=fakeGitHub({cache});await assert.rejects(before.client.bundle(candidate,{signal:controller.signal}),e=>e===reason);assert.equal(before.requests.length,0);
+});
+test('cache read tampering blocks dispatch while an unavailable cache write cannot change a verified release',async()=>{
+ const valid=fakeGitHub(),c=await valid.client.candidate(valid.cfg),events=[];
+ const blocked=fakeGitHub({cache:{get:async()=>{throw Error('ARTIFACT_CACHE_UNSAFE');}},onDiagnostic:e=>events.push(e)});await assert.rejects(blocked.client.bundle(c),/CACHE_UNSAFE/);assert.equal(blocked.requests.length,0);assert.equal(events.at(-1).reason,'CACHE_UNSAFE');
+ const unavailable=fakeGitHub({cache:{get:async()=>null,put:async()=>{throw Error('secret disk path');}},onDiagnostic:e=>events.push(e)});assert.equal((await unavailable.client.bundle(c)).manifest.commit,B);assert(events.some(e=>e.phase==='cache_unavailable'&&e.reason==='CACHE_WRITE_FAILED'));assert.equal(unavailable.requests.length,2);assert(!JSON.stringify(events).includes('secret disk path'));
+});
+test('body duration freezes at EOF while total timing includes cache publication and late cancellation prevents staging',async()=>{
+ const source=fakeGitHub(),c=await source.client.candidate(source.cfg),events=[];
+ const cached=fakeGitHub({cache:{get:async()=>null,put:async()=>{await new Promise(r=>setTimeout(r,20));return true;}},onDiagnostic:e=>events.push(e)});await cached.client.bundle(c);
+ const body=events.find(e=>e.phase==='body_complete'),complete=events.at(-1);assert.equal(complete.elapsedMs,body.elapsedMs);assert(complete.totalElapsedMs>=body.totalElapsedMs+15);
+ const controller=new AbortController(),reason=Error('late cancellation'),late=fakeGitHub({cache:{get:async()=>null,put:async()=>{controller.abort(reason);return true;}}});await assert.rejects(late.client.bundle(c,{signal:controller.signal}),e=>e===reason);assert.equal(late.requests.length,2);
 });
 test('rate limit is a single observation, oversized/invalid UTF8 API responses fail without retries',async()=>{
  let calls=0;const client=githubClient({repository:'eunsujeo/stablecoin-atlas',token:'test',fetcher:async()=>{calls++;return new Response(null,{status:429,headers:{'Retry-After':'3600'}});}});await assert.rejects(client.candidate({}),/RATE_LIMITED/);assert.equal(calls,1);
@@ -208,9 +248,11 @@ test('release readiness waits for the correct SHA/database before validating ass
 });
 test('CI builder uses only clean tracked source and regular production dependencies, never local credentials or report archives',async t=>{
  const {buildRelease}=await import('../tools/deploy/build.mjs'),root=await temp(t),git=(...args)=>{const r=spawnSync('git',['-C',root,'-c','core.hooksPath=/dev/null','-c','commit.gpgsign=false',...args],{encoding:'utf8'});assert.equal(r.status,0,r.stderr);return r.stdout.trim();};git('init','-q');
- const files={'.gitignore':'node_modules/\n.env.local\nreports/\noutput/\n','package.json':'{}','package-lock.json':'{}','tools/production-web.mjs':'// fixture',...Object.fromEntries(Object.values(policyFiles).flat().map(n=>[n,'// policy']))};for(const[n,v]of Object.entries(files)){await mkdir(join(root,n,'..'),{recursive:true});await writeFile(join(root,n),v);}git('add','.');git('-c','user.name=Fixture','-c','user.email=fixture@example.invalid','commit','-qm','fixture');const commit=git('rev-parse','HEAD');
- await mkdir(join(root,'node_modules/pg'),{recursive:true});await writeFile(join(root,'node_modules/pg/package.json'),'{}');await writeFile(join(root,'.env.local'),'SECRET_SENTINEL');await mkdir(join(root,'reports'));await writeFile(join(root,'reports/raw.json'),'PRIVATE_RAW_SENTINEL');
- const output=join(root,'output'),options={root,output,commit,component:'web',runId:1,attempt:1,platform:'linux',arch:'arm64',nodeVersion:'24.5.0'};const result=await buildRelease(options);assert.equal(result.commit,commit);const entries=tarEntries(await readFile(join(output,'release.tar')));assert(!entries.some(e=>e.name.includes('.env.local')||e.name.startsWith('reports/')));assert(entries.some(e=>e.name==='node_modules/pg/package.json'));
+ const files={'.gitignore':'node_modules/\n.env.local\nreports/\noutput/\n','package.json':'{}','package-lock.json':JSON.stringify({lockfileVersion:3,packages:{'node_modules/pg':{version:'1.0.0'}}}),'tools/production-web.mjs':'// fixture','tests/unneeded.test.mjs':'// excluded','docs/unneeded.md':'excluded','web/unneeded.test.mjs':'// excluded',...Object.fromEntries(Object.values(policyFiles).flat().map(n=>[n,'// policy']))};for(const[n,v]of Object.entries(files)){await mkdir(join(root,n,'..'),{recursive:true});await writeFile(join(root,n),v);}git('add','.');git('-c','user.name=Fixture','-c','user.email=fixture@example.invalid','commit','-qm','fixture');const commit=git('rev-parse','HEAD');
+ await mkdir(join(root,'node_modules/pg'),{recursive:true});await writeFile(join(root,'node_modules/pg/package.json'),JSON.stringify({name:'pg',version:'1.0.0'}));await writeFile(join(root,'.env.local'),'SECRET_SENTINEL');await mkdir(join(root,'reports'));await writeFile(join(root,'reports/raw.json'),'PRIVATE_RAW_SENTINEL');
+ await mkdir(join(root,'node_modules/pg/build/Release'),{recursive:true});await writeFile(join(root,'node_modules/pg/build/Release/binding.node'),'ARM64_NATIVE_FIXTURE');await writeFile(join(root,'node_modules/pg/LICENSE'),'KEEP_LICENSE');await mkdir(join(root,'node_modules/solc'));await writeFile(join(root,'node_modules/solc/soljson.js'),'UNUSED_COMPILER');
+ const output=join(root,'output'),options={root,output,commit,component:'web',runId:1,attempt:1,platform:'linux',arch:'arm64',nodeVersion:'24.5.0'};const result=await buildRelease(options);assert.equal(result.commit,commit);const entries=tarEntries(await readFile(join(output,'release.tar')));assert(!entries.some(e=>e.name.includes('.env.local')||e.name.startsWith('reports/')||e.name.startsWith('tests/')||e.name==='docs/unneeded.md'||e.name==='web/unneeded.test.mjs'));assert(entries.some(e=>e.name==='node_modules/pg/package.json'));
+ assert(entries.some(e=>e.name.endsWith('/binding.node')&&e.bytes.toString()==='ARM64_NATIVE_FIXTURE'));assert(entries.some(e=>e.name==='node_modules/pg/LICENSE'));assert(!entries.some(e=>e.name.startsWith('node_modules/solc/')));assert.equal(JSON.parse(await readFile(join(output,'release.json'),'utf8')).nodeABI,process.versions.modules);
  await assert.rejects(buildRelease({...options,output:join(root,'bad'),arch:'x64'}),/PLATFORM/);await writeFile(join(root,'package.json'),'{"tampered":true}');await assert.rejects(buildRelease({...options,output:join(root,'bad')}));
 });
 test('GitHub App JWTs mint repository-limited short-lived tokens without executing helpers or copying keys into CI',async()=>{

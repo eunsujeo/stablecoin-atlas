@@ -77,7 +77,7 @@ jobs:
           if [ ! -e /usr/bin/node ]; then sudo ln -s "$(command -v node)" /usr/bin/node; fi
           systemd-analyze verify deploy/atlas-deploy-apply.service deploy/atlas-deploy-agent.service deploy/atlas-deploy-agent.timer deploy/atlas-usage.service deploy/atlas-usage.timer
       - name: Production Node24 web and deployment regression
-        run: node --use-env-proxy --import tsx --test --test-concurrency=2 tests/deploy-automation.test.mjs tests/production*.test.mjs web/*.test.mjs
+        run: node --use-env-proxy --import tsx --test --test-concurrency=2 tests/deploy*.test.mjs tests/production*.test.mjs web/*.test.mjs
       - name: Build immutable Linux ARM64 runtime bundle
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         env:
@@ -85,8 +85,11 @@ jobs:
           CI_RUN: ${{ github.run_id }}
           CI_ATTEMPT: ${{ github.run_attempt }}
         run: |
+          set -euo pipefail
           npm ci --omit=dev --ignore-scripts --no-audit --no-fund
-          node tools/deploy/build.mjs .state/ci-release "$COMPONENT" "$REVISION" "$CI_RUN" "$CI_ATTEMPT"
+          node tools/deploy/build.mjs .state/ci-release "$COMPONENT" "$REVISION" "$CI_RUN" "$CI_ATTEMPT" | tee .state/ci-release-metrics.json
+          node tools/deploy/runtime-smoke.mjs .state/ci-release
+          cat .state/ci-release-metrics.json >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         with:
@@ -97,7 +100,7 @@ jobs:
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 14
-          compression-level: 6
+          compression-level: 9
       - name: Deployment is pulled by the independently bootstrapped server
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         run: |

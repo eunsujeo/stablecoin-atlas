@@ -1,5 +1,7 @@
 # Stablecoin Atlas 자동 CI/CD
 
+2026-10-31 런타임 번들·완성 ZIP 캐시는 [ADR0123](adr/0123-runtime-artifact-and-verified-cache.md)를 따른다. CI는 운영 자산과 pg의 lock 고정 의존성만 묶고 선택 패키지의 native 파일을 보존하며 압축9/추출본 진입점 import 검사를 수행한다. 개발용 CLI/연구·문서·시험 파일은 이 운영 bundle의 실행 범위가 아니다. 빌드 JSON의 source/dependency/payload byte와 압축 추정을 CI summary에서 확인할 수 있다. 로컬 측정과 실제 ARM64 CI/다운로드 관측은 [검증 기록](research/2026-10-31-runtime-artifact-optimization.md)에서 구분한다.
+
 2026-10-30 후속 [ADR0122](adr/0122-frankfurter-daily-fx.md): 새 코드의 FX preflight는 명시 Frankfurter DB reader를 사용한다. [추가 승인 조회·실제 DB/로컬 웹 반영](research/2026-10-30-frankfurter-live-completion.md)을 완료했다. 최초 운영 bootstrap/고정 제어면 설치·운영 배포·자동수집 활성화 완료를 뜻하지 않는다. 향후 만료/부재503을 무시하거나 ECB/file fallback으로 통과시키지 않는다.
 
 정본 결정은 [ADR0120](adr/0120-pull-based-production-automation.md)이다. 이 구현은 최초 운영 bootstrap을 수행하기 전까지 서비스를 변경하지 않는다. Bootstrap 완료 후 일반 main Push는 개발 PC나 SSH 없이 테스트→ARM64 릴리스→운영 pull→웹 검증→실패 롤백으로 이어진다. 운영 서버에는 GitHub Actions runner를 설치하지 않는다.
@@ -118,6 +120,10 @@ cipher/plaintext SHA-256·credential 이름·소유/권한·고정 목적지를 
 영속 수집 root/claim/receipt/raw archive·FX store는 기존 운영 볼륨 백업을 보존한다. 이 도구는 해당 데이터를 삭제·초기화·이동하지 않는다. 손실된 소비 원문은 정확한 기존 백업에서 복구하고 project 검증을 통과해야 하며 새 root나 fake COMPLETE로 재송신하지 않는다.
 
 ## 장애·롤백·관측
+
+완성 ZIP 캐시는 기존 보호된 state 부모가 있을 때만 `/var/lib/atlas-deploy/artifacts`에 root0700/파일0600으로 생성한다. fresh GitHub 후보 검증 후 같은 digest의 완성본만 읽고 SHA/manifest/크기/ABI/policy 검증을 다시 수행한다. 정상 hit는 ZIP 요청0·수신0bytes지만 후보 API 검증은 생략하지 않는다. 손상/unsafe cache는 자동 재다운로드로 숨기지 않고 차단한다. timeout/취소/부분 본문은 게시하지 않으며 Range 재개와 서명 URL 저장/자동 갱신은 없다. 완성본2개 보관, crash 임시 `.partial`은 사용하지 않는다. 캐시 쓰기 불가만 발생하면 이미 검증한 네트워크 릴리스는 유지한다.
+
+`ARTIFACT_DOWNLOAD`에는 `stage`, `source`, `totalElapsedMs`, `artifactBytes`, `bytesPerSecond`와 `progress/verified/complete/cache_hit/cache_stored/cache_unavailable` 단계가 추가됐다. `elapsedMs`는 네트워크 본문 EOF에서 고정하고 total은 cache 게시까지 포함한다. `DEPLOY_OPERATION`은 bootstrap/apply CLI 전체 시간, `ARTIFACT_DISCOVERY`는 후보 조회 시간·metadata byte를 구분한다. 실패는 timeout/취소, HTTP/host, hash/ZIP/manifest/ABI/policy, cache 읽기/쓰기의 고정 코드로 나누며 비밀/원래 오류문을 출력하지 않는다. 기존 아래180초/96MiB 경계는 유지한다.
 
 Actions 아티팩트 ZIP 다운로드는 요청 시작부터 헤더 수신과 본문 EOF까지 같은180초 제한을 사용한다. GitHub API 요청은 기존20초, 압축 ZIP은96MiB, 재시도는0회다. `ARTIFACT_DOWNLOAD` JSON 진단은 stderr에 `started`, `headers`, `body_complete` 또는 `failed` 단계와 단조 시계의 `elapsedMs`, `receivedBytes`, HTTP `status`, `timeoutMs`, `limitBytes`를 남긴다. HTTP200의 `headers`는 본문 완료가 아니며, `body_complete`도 뒤따르는 SHA-256/불변 릴리스 검증 성공을 뜻하지 않는다. 실패 원인은 고정 코드 `TIMEOUT`, `ABORTED`, `HTTP_LIMIT`, `DOWNLOAD_FAILED`로 제한하며 URL·서명 쿼리·인증·응답 본문·원래 오류 메시지는 출력하지 않는다. 본문 읽기 중 취소는 즉시 읽기를 종료하고 stream을 취소한다. 진단 출력 실패가 검증을 우회하거나 재시도를 시작하지 않는다.
 
