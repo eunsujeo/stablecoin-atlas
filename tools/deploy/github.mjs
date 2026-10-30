@@ -1,10 +1,16 @@
 import {hash,requireThat,sha,hex} from './files.mjs';
 import {artifactFiles,validateBundle} from './archive.mjs';
-export async function boundedResponse(response,{limit=2097152,signal}={}){
+export async function boundedResponse(response,{limit=2097152,signal,onProgress=()=>{}}={}){
  const parts=[];let length=0;const reader=response.body?.getReader();requireThat(reader,'HTTP_BODY_REQUIRED');
- try{for(;;){signal?.throwIfAborted();const r=await reader.read();if(r.done)break;length+=r.value.length;requireThat(length<=limit,'HTTP_LIMIT');parts.push(Buffer.from(r.value));}}catch(e){await reader.cancel().catch(()=>{});throw e;}finally{reader.releaseLock();}return Buffer.concat(parts);
+ let cancelled=false,rejectAbort;const aborted=new Promise((_,reject)=>{rejectAbort=reject;});
+ const cancel=()=>{if(!cancelled){cancelled=true;reader.cancel().catch(()=>{});}};
+ const abort=()=>{rejectAbort(signal.reason);cancel();};
+ try{
+  signal?.throwIfAborted();signal?.addEventListener('abort',abort,{once:true});
+  for(;;){signal?.throwIfAborted();const r=await Promise.race([reader.read(),aborted]);signal?.throwIfAborted();if(r.done)break;length+=r.value.length;onProgress(length);requireThat(length<=limit,'HTTP_LIMIT');parts.push(Buffer.from(r.value));}
+ }catch(e){cancel();throw e;}finally{signal?.removeEventListener('abort',abort);reader.releaseLock();}return Buffer.concat(parts);
 }
-export function githubClient({repository,token,fetcher=fetch,notBefore=0,now=Date.now,onCooldown=async()=>{}}){
+export function githubClient({repository,token,fetcher=fetch,notBefore=0,now=Date.now,onCooldown=async()=>{},onDiagnostic=event=>console.error(JSON.stringify(event))}){
  requireThat(repository==='eunsujeo/stablecoin-atlas'&&typeof token==='string'&&token.length>0,'GITHUB_CONFIGURATION');
  const prefix='/repos/'+repository;
  async function call(path,{method='GET',body,raw=false}={}){
@@ -31,7 +37,16 @@ export function githubClient({repository,token,fetcher=fetch,notBefore=0,now=Dat
  async function bundle(c){
   const response=await call(prefix+'/actions/artifacts/'+c.artifactId+'/zip',{raw:true});requireThat(response.status===302,'ARTIFACT_REDIRECT_REQUIRED');const location=new URL(response.headers.get('location'));await response.body?.cancel();
   requireThat(location.protocol==='https:'&&!location.username&&!location.password&&(/^[a-z0-9-]+\.blob\.core\.windows\.net$/.test(location.hostname)||/^[a-z0-9.-]+\.actions\.githubusercontent\.com$/.test(location.hostname)),'ARTIFACT_ORIGIN_INVALID');
-  const signal=AbortSignal.timeout(60000),download=await fetcher(location,{redirect:'error',signal});requireThat(download.status===200,'ARTIFACT_DOWNLOAD_FAILED');const bytes=await boundedResponse(download,{limit:96*1024*1024,signal});requireThat(hash(bytes)===c.digest,'ARTIFACT_HASH_MISMATCH');const files=artifactFiles(bytes),manifest=validateBundle(files,c);return {manifest,payload:files['release.tar']};
+  const timeoutMs=180000,limitBytes=96*1024*1024,started=performance.now(),signal=AbortSignal.timeout(timeoutMs);let receivedBytes=0,status=null,bytes;
+  // Only fixed phases, counters and HTTP status reach stderr; never log URLs, headers or errors.
+  const diagnostic=(phase,reason)=>{try{onDiagnostic(Object.freeze({event:'ARTIFACT_DOWNLOAD',phase,elapsedMs:Math.max(0,Math.round(performance.now()-started)),receivedBytes,status,timeoutMs,limitBytes,...(reason?{reason}:{})}));}catch{}};
+  diagnostic('started');
+  try{
+   const download=await fetcher(location,{redirect:'error',signal});status=download.status;diagnostic('headers');
+   if(status!==200){download.body?.cancel().catch(()=>{});throw Error('ARTIFACT_DOWNLOAD_FAILED');}
+   bytes=await boundedResponse(download,{limit:limitBytes,signal,onProgress:length=>{receivedBytes=length;}});diagnostic('body_complete');
+  }catch(e){diagnostic('failed',signal.aborted?(signal.reason?.name==='TimeoutError'?'TIMEOUT':'ABORTED'):e?.message==='HTTP_LIMIT'?'HTTP_LIMIT':'DOWNLOAD_FAILED');throw e;}
+  requireThat(hash(bytes)===c.digest,'ARTIFACT_HASH_MISMATCH');const files=artifactFiles(bytes),manifest=validateBundle(files,c);return {manifest,payload:files['release.tar']};
  }
  async function status(c,result){
   const other=result.versions??{};const description=[result.state,'reason='+(result.reason??'OK'),'current='+(result.current??'none').slice(0,12),'last='+(result.lastSuccess??'none').slice(0,12),'service='+(result.service??'unknown'),...['collector','usage'].map(k=>k[0]+'='+(other[k]?.current??'none').slice(0,7)+'/'+(other[k]?.service??'unknown'))].join(' ').slice(0,140);

@@ -77,9 +77,9 @@ test('out-of-order successful runs cannot move a component backwards',async t=>{
 function fakeGitHub(options={}){
  const c={sha:B,component:'web',id:10,attempt:1},b=bundle(c),bytes=zip({'release.json':Buffer.from(JSON.stringify(b.manifest)),'release.tar':b.payload}),requests=[];
  const cfg={repositoryId:8,workflowId:7,workflowBlob:A},run={head_sha:B,head_branch:'main',status:'completed',conclusion:'success',workflow_id:7,repository:{id:8},head_repository:{id:8},event:'push',id:10,run_attempt:1,display_title:'web / '+B,...options.run};
- const fetcher=async(url,init={})=>{requests.push({url:String(url),init});if(String(url).includes('blob.core.windows.net'))return new Response(options.badPayload?Buffer.from('bad'):bytes);
+ const fetcher=async(url,init={})=>{requests.push({url:String(url),init});if(String(url).includes('blob.core.windows.net'))return options.download?options.download(bytes,init):new Response(options.badPayload?Buffer.from('bad'):bytes);
   let value;const path=new URL(url).pathname;if(path.endsWith('/branches/main'))value={commit:{sha:B}};else if(path.endsWith('/stablecoin-atlas'))value={id:8,full_name:'eunsujeo/stablecoin-atlas'};else if(path.endsWith('/runs'))value={workflow_runs:options.runs??[run]};else if(path.endsWith('/production.yml'))value={sha:options.badWorkflow?B:A};else if(path.endsWith('/artifacts')){const selected=(options.runs??[run]).find(r=>path.includes('/runs/'+r.id+'/'))??run,component=selected.display_title.split(' / ')[0];value={artifacts:[{name:`atlas-${component}-${B}-${selected.id}-${selected.run_attempt}`,id:6,size_in_bytes:bytes.length,digest:'sha256:'+hash(bytes),workflow_run:{id:selected.id,head_sha:B},expired:false,...options.artifact}]};}else if(path.endsWith('/zip'))return new Response(null,{status:302,headers:{Location:options.location??'https://artifacts.blob.core.windows.net/a?sig=private'}});else if(path.includes('/statuses/'))value={id:1};else throw Error('UNEXPECTED_PATH');return new Response(JSON.stringify(value),{headers:{'content-type':'application/json'}});};
- return {client:githubClient({repository:'eunsujeo/stablecoin-atlas',token:'private-test-token',fetcher}),cfg,requests,run};
+ return {client:githubClient({repository:'eunsujeo/stablecoin-atlas',token:'private-test-token',fetcher,onDiagnostic:options.onDiagnostic??(()=>{})}),cfg,requests,run};
 }
 test('root GitHub adapter independently binds repository, protected main, workflow blob, run attempt, artifact and digest',async()=>{
  const f=fakeGitHub(),c=await f.client.candidate(f.cfg);assert.equal(c.sha,B);assert.equal((await f.client.bundle(c)).manifest.commit,B);const last=f.requests.at(-1);assert.equal(last.init.headers,undefined);assert(!JSON.stringify(c).includes('private-test-token'));
@@ -88,6 +88,50 @@ test('root GitHub adapter independently binds repository, protected main, workfl
 });
 test('artifact redirects never forward credentials, arbitrary hosts and changed bytes fail closed',async()=>{
  for(const options of [{badPayload:true},{location:'http://artifacts.blob.core.windows.net/a'},{location:'https://attacker.invalid/a'}]){const f=fakeGitHub(options),c=await f.client.candidate(f.cfg);await assert.rejects(f.client.bundle(c));}
+});
+test('artifact headers are distinct from completed body timing and the 180 second signal covers EOF',async t=>{
+ const timeout=AbortSignal.timeout.bind(AbortSignal),durations=[],events=[];let finish,headers,expectedBytes;
+ const receivedHeaders=new Promise(r=>{headers=r;});
+ t.mock.method(AbortSignal,'timeout',ms=>{durations.push(ms);return timeout(ms);});
+ const f=fakeGitHub({onDiagnostic:e=>{events.push(e);if(e.phase==='headers')headers();},download:bytes=>{expectedBytes=bytes.length;return new Response(new ReadableStream({start(controller){controller.enqueue(bytes);finish=()=>controller.close();}}));}});
+ const c={sha:B,component:'web',id:10,attempt:1,artifactId:6};
+ const valid=fakeGitHub(),candidate=await valid.client.candidate(valid.cfg);Object.assign(c,candidate);
+ const downloading=f.client.bundle(c);await receivedHeaders;await new Promise(r=>setTimeout(r,25));
+ assert.deepEqual(events.map(e=>e.phase),['started','headers']);finish();assert.equal((await downloading).manifest.commit,B);
+ assert(durations.includes(180000));assert(durations.includes(20000));assert(durations.every(ms=>[20000,180000].includes(ms)));assert.deepEqual(events.map(e=>e.phase),['started','headers','body_complete']);
+ const done=events.at(-1);assert.equal(done.receivedBytes,expectedBytes);assert.equal(done.status,200);assert(done.elapsedMs>=events[1].elapsedMs+20);assert.equal(done.timeoutMs,180000);assert.equal(done.limitBytes,96*1024*1024);
+ assert.equal(f.requests.length,2);assert.equal(f.requests[1].init.redirect,'error');assert.equal(f.requests[1].init.headers,undefined);
+ for(const e of events)assert.deepEqual(Object.keys(e).sort(),['elapsedMs','event','limitBytes','phase','receivedBytes','status','timeoutMs'].sort());
+ assert(!/private|sig=|https:|Authorization/.test(JSON.stringify(events)));
+});
+test('artifact timeout interrupts a stalled HTTP200 read even when underlying cancellation never settles',async t=>{
+ const timeout=AbortSignal.timeout.bind(AbortSignal),controller=new AbortController(),events=[];let cancelled=0,response,timer;
+ const reason=new DOMException('signed-url-and-token-must-stay-private','TimeoutError');
+ t.after(()=>clearTimeout(timer));t.mock.method(AbortSignal,'timeout',ms=>ms===180000?controller.signal:timeout(ms));
+ const f=fakeGitHub({onDiagnostic:e=>events.push(e),download:()=>{response=new Response(new ReadableStream({start(c){c.enqueue(Buffer.alloc(3));},cancel(){cancelled++;return new Promise(()=>{});}}));timer=setTimeout(()=>controller.abort(reason),20);return response;}});
+ await assert.rejects(f.client.bundle({artifactId:6}),e=>e===reason);assert.equal(cancelled,1);assert.equal(response.body.locked,false);assert.equal(f.requests.length,2);
+ assert.deepEqual(events.map(e=>e.phase),['started','headers','failed']);assert.equal(events.at(-1).reason,'TIMEOUT');assert.equal(events.at(-1).receivedBytes,3);assert.equal(events.at(-1).status,200);assert(!JSON.stringify(events).includes(reason.message));
+});
+test('mid-body abort preserves its reason, cancels once and never validates or retries partial bytes',async t=>{
+ const timeout=AbortSignal.timeout.bind(AbortSignal),controller=new AbortController(),events=[];let cancelled=0,timer;
+ const reason=Error('https://private.invalid/?sig=SECRET');t.after(()=>clearTimeout(timer));t.mock.method(AbortSignal,'timeout',ms=>ms===180000?controller.signal:timeout(ms));
+ const f=fakeGitHub({onDiagnostic:e=>events.push(e),download:bytes=>new Response(new ReadableStream({start(c){c.enqueue(bytes.subarray(0,10));timer=setTimeout(()=>controller.abort(reason),10);},cancel(){cancelled++;}}))});
+ await assert.rejects(f.client.bundle({artifactId:6}),e=>e===reason);assert.equal(cancelled,1);assert.equal(f.requests.length,2);assert.equal(events.at(-1).reason,'ABORTED');assert.equal(events.at(-1).receivedBytes,10);assert(!events.some(e=>e.phase==='body_complete'));assert(!/SECRET|private.invalid/.test(JSON.stringify(events)));
+ const before=new AbortController();before.abort(reason);await assert.rejects(boundedResponse(new Response('partial'),{signal:before.signal}),e=>e===reason);
+ const atEOF=new AbortController();await assert.rejects(boundedResponse(new Response(new ReadableStream({pull(c){atEOF.abort(reason);c.close();}})),{signal:atEOF.signal}),e=>e===reason);
+});
+test('streamed 96MiB body is accepted exactly while one extra byte cancels without trusting Content-Length',async()=>{
+ const limit=96*1024*1024,chunk=Buffer.alloc(1024*1024,7);let progress=0;
+ const body=new Response(new ReadableStream({pull(c){if(progress++<96)c.enqueue(chunk);else c.close();}}));
+ const bytes=await boundedResponse(body,{limit});assert.equal(bytes.length,limit);assert.equal(bytes[0],7);assert.equal(bytes.at(-1),7);
+ let cancelled=0,pulls=0;const events=[];
+ const f=fakeGitHub({onDiagnostic:e=>events.push(e),download:()=>new Response(new ReadableStream({pull(c){if(pulls++<96)c.enqueue(chunk);else c.enqueue(Buffer.alloc(1));},cancel(){cancelled++;}}),{headers:{'Content-Length':'1'}})});
+ await assert.rejects(f.client.bundle({artifactId:6}),/HTTP_LIMIT/);assert.equal(cancelled,1);assert.equal(f.requests.length,2);assert.equal(events.at(-1).receivedBytes,limit+1);assert.equal(events.at(-1).reason,'HTTP_LIMIT');assert(!events.some(e=>e.phase==='body_complete'));
+});
+test('diagnostic failures cannot bypass SHA256 validation and download errors never expose raw messages',async()=>{
+ const invalid=fakeGitHub({badPayload:true,onDiagnostic:()=>{throw Error('logger');}});const c=await invalid.client.candidate(invalid.cfg);await assert.rejects(invalid.client.bundle(c),/ARTIFACT_HASH_MISMATCH/);
+ const events=[],reason=Error('https://signed.invalid/?sig=SECRET');const f=fakeGitHub({onDiagnostic:e=>events.push(e),download:()=>{throw reason;}});
+ await assert.rejects(f.client.bundle({artifactId:6}),e=>e===reason);assert.equal(f.requests.length,2);assert.equal(events.at(-1).reason,'DOWNLOAD_FAILED');assert.equal(events.at(-1).status,null);assert(!/SECRET|signed.invalid/.test(JSON.stringify(events)));
 });
 test('rate limit is a single observation, oversized/invalid UTF8 API responses fail without retries',async()=>{
  let calls=0;const client=githubClient({repository:'eunsujeo/stablecoin-atlas',token:'test',fetcher:async()=>{calls++;return new Response(null,{status:429,headers:{'Retry-After':'3600'}});}});await assert.rejects(client.candidate({}),/RATE_LIMITED/);assert.equal(calls,1);

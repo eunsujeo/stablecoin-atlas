@@ -117,6 +117,8 @@ cipher/plaintext SHA-256·credential 이름·소유/권한·고정 목적지를 
 
 ## 장애·롤백·관측
 
+Actions 아티팩트 ZIP 다운로드는 요청 시작부터 헤더 수신과 본문 EOF까지 같은180초 제한을 사용한다. GitHub API 요청은 기존20초, 압축 ZIP은96MiB, 재시도는0회다. `ARTIFACT_DOWNLOAD` JSON 진단은 stderr에 `started`, `headers`, `body_complete` 또는 `failed` 단계와 단조 시계의 `elapsedMs`, `receivedBytes`, HTTP `status`, `timeoutMs`, `limitBytes`를 남긴다. HTTP200의 `headers`는 본문 완료가 아니며, `body_complete`도 뒤따르는 SHA-256/불변 릴리스 검증 성공을 뜻하지 않는다. 실패 원인은 고정 코드 `TIMEOUT`, `ABORTED`, `HTTP_LIMIT`, `DOWNLOAD_FAILED`로 제한하며 URL·서명 쿼리·인증·응답 본문·원래 오류 메시지는 출력하지 않는다. 본문 읽기 중 취소는 즉시 읽기를 종료하고 stream을 취소한다. 진단 출력 실패가 검증을 우회하거나 재시도를 시작하지 않는다.
+
 자동/수동 모두 공통 flock과 durable journal을 쓴다. 수동 web 경로는 다른 component 후보와 미완료 복구를 거절하고, 기존 COMMITTED 결과의 cache/report를 복구한 뒤 새 저널을 작성한다. 수동 실패도 이전 포인터와 실제 웹 health가 모두 확인돼야 종료 처리한다. journal의 COMMITTED가 권위 있는 결과이고 versions/reports는 재구성 가능한 조회본이다. 배포 성공 후 GitHub ACK나 report 저장이 실패해도 코드를 다시 배포하지 않고 보고만 복구한다. 프로세스 crash/전원 복구에서는 미완료 전이를 검사하고 이전 코드로 복구한다. 원래 writer 상태·DB gate·timer 경계를 다시 확인한다. 자동 복구가3회 실패하면 재개하지 않고 명시 재검토를 요구한다.
 
 ```sh
