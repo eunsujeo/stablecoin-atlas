@@ -11,6 +11,6 @@ export async function githubToken(env,{readKey=async()=>{await trusted(destinati
   if(r.status===429||r.status===403&&r.headers.get('x-ratelimit-remaining')==='0'){const seconds=Number(r.headers.get('retry-after'));await onCooldown(now()+Math.min(86400000,Math.max(60000,Number.isFinite(seconds)?seconds*1000:60000)));await r.body?.cancel();throw Error('GITHUB_RATE_LIMITED');}
   requireThat(r.ok,'GITHUB_APP_FAILED');return JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(await boundedResponse(r,{signal})));};
  const installation=await api('/repos/eunsujeo/stablecoin-atlas/installation');requireThat(String(installation.id)===env.GITHUB_INSTALLATION_ID&&String(installation.app_id)===env.GITHUB_APP_ID,'GITHUB_INSTALLATION_MISMATCH');
- const result=await api('/app/installations/'+env.GITHUB_INSTALLATION_ID+'/access_tokens',{method:'POST',body:JSON.stringify({repositories:['stablecoin-atlas'],permissions:{actions:'read',contents:'read',statuses:'write',variables:'read'}})});
+ const result=await api('/app/installations/'+env.GITHUB_INSTALLATION_ID+'/access_tokens',{method:'POST',body:JSON.stringify({repositories:['stablecoin-atlas'],permissions:{actions:'read',contents:'read',statuses:'write',actions_variables:'read'}})});
  requireThat(typeof result.token==='string'&&Date.parse(result.expires_at)>now()+60000,'GITHUB_TOKEN_INVALID');return result.token;
 }
