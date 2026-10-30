@@ -60,8 +60,6 @@ jobs:
           node --test --test-concurrency=1 tests/postgres/deployment-gate.test.mjs tests/postgres/production.test.mjs tests/postgres/network-usage-v2.test.mjs
       - name: Router regression (no model, credentials or Herdr required)
         run: python3 -m unittest discover -s tools/intelligent-router/evaluation -p 'test_*.py'
-      - name: Verify deployment unit syntax without starting services
-        run: systemd-analyze verify deploy/atlas-deploy-apply.service deploy/atlas-deploy-agent.service deploy/atlas-deploy-agent.timer deploy/atlas-usage.service deploy/atlas-usage.timer
       - name: Summarize regression
         if: always()
         run: |
@@ -73,6 +71,11 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '24'
+      - name: Verify deployment unit syntax without starting services
+        run: |
+          # Hosted ARM64 toolcache has Node on PATH but no /usr/bin/node. Provision only this disposable CI host.
+          if [ ! -e /usr/bin/node ]; then sudo ln -s "$(command -v node)" /usr/bin/node; fi
+          systemd-analyze verify deploy/atlas-deploy-apply.service deploy/atlas-deploy-agent.service deploy/atlas-deploy-agent.timer deploy/atlas-usage.service deploy/atlas-usage.timer
       - name: Production Node24 web and deployment regression
         run: node --use-env-proxy --test --test-concurrency=2 tests/deploy-automation.test.mjs tests/production*.test.mjs web/*.test.mjs
       - name: Build immutable Linux ARM64 runtime bundle

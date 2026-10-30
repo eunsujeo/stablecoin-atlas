@@ -10,7 +10,7 @@ git push origin main
 
 GitHub의 `Atlas CI release`는 GitHub-hosted `ubuntu-24.04-arm`에서 Node25.2.1·Java21·고정 Foundry/기존 hash-pinned compiler로 전체 검사한다. 보존 Allium 시험의 네트워크 권한 차단을 유지하기 위한 시험 runtime이며 실제 수집을 허용하지 않는다. 이후 Node24로 웹/배포 회귀를 별도 실행하고 production 의존성을 새로 준비·빌드한다. 운영 Node 버전은 바꾸지 않는다. 검증된 Git 추적 소스와 production node_modules를 regular-file 전용 `release.tar`로 만들고 `release.json`과 함께14일 보관한다. 환경파일·로컬 원문·모델·`.state`·reports는 포함하지 않는다. 서버는 npm/git 빌드를 하지 않는다.
 
-운영 timer는60초 간격으로 고정 root broker의 시작만 요청한다. Broker는 고정 저장소ID·검토된 workflow ID/blob·현재 main SHA·event·CI 성공·run attempt·아티팩트 digest·manifest/payload/platform/정책을 독립 검증한다. 더 최신 main이 있으면 이전 CI는 배포하지 않고 결과 workflow에 SUPERSEDED로 표시한다. 과거 run으로의 역행과 동일 attempt 재배포를 막는다.
+운영 timer는60초 간격으로 고정 root broker의 시작만 요청한다. Broker는 고정 저장소ID·검토된 workflow ID/blob·현재 main SHA·event·CI 성공·run attempt·아티팩트 digest·manifest/payload/platform/정책을 독립 검증한다. 더 최신 main이 있으면 이전 CI는 배포하지 않고 결과 workflow에 SUPERSEDED로 표시한다. 과거 run으로의 역행과 동일 attempt 재배포를 막는다. 같은 SHA에 여러 component가 완료되면 component별 처리 이력에 따라 미처리 후보를 차례로 선택한다. 이전 확정 결과의 ACK 복구가 남았으면 새 저널로 교체하지 않는다. 같은 component의 더 최신 run/attempt가 처리되면 이전 결과 workflow는 SUPERSEDED로 표시한다.
 
 GitHub `Atlas deployment result`와 commit status `atlas/web`에서 결과를 확인한다. 요청 SHA·현재/마지막 성공 버전·서비스 상태·실패/롤백 사유가 표시된다. run attempt별 URL로 결합하므로 이전 재실행의 성공을 새 재실행의 성공으로 오인하지 않는다. 서버 통신/자격증명 장애로 ACK를 받을 수 없으면 결과 workflow가 유한 시간 후 실패한다. 배포 시점 snapshot이며 지속 모니터링을 대신하지 않는다.
 

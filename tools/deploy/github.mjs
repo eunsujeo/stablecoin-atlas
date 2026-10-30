@@ -14,13 +14,13 @@ export function githubClient({repository,token,fetcher=fetch,notBefore=0,now=Dat
   if(raw)return response;
   if(response.status<200||response.status>=300){await response.body?.cancel();throw Error('GITHUB_HTTP_FAILED');}const bytes=await boundedResponse(response,{signal});return JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes));
  }
- async function candidate(config){let identity;try{
+ async function candidate(config,versions=null){let identity;try{
   const branch=await call(prefix+'/branches/main');requireThat(sha(branch.commit?.sha),'MAIN_INVALID');
   const repo=await call(prefix);requireThat(repo.id===config.repositoryId&&repo.full_name===repository,'REPOSITORY_MISMATCH');
   const runs=await call(prefix+'/actions/workflows/'+config.workflowId+'/runs?branch=main&status=success&per_page=20');requireThat(Array.isArray(runs.workflow_runs),'RUNS_INVALID');
   const candidates=runs.workflow_runs.filter(r=>r.head_sha===branch.commit.sha&&r.head_branch==='main'&&r.status==='completed'&&r.conclusion==='success'&&r.workflow_id===config.workflowId&&r.repository?.id===config.repositoryId&&r.head_repository?.id===config.repositoryId&&['push','workflow_dispatch'].includes(r.event)&&Number.isSafeInteger(r.id)&&Number.isSafeInteger(r.run_attempt)).sort((a,b)=>b.id-a.id||b.run_attempt-a.run_attempt);
-  if(!candidates.length)return null;
-  const r=candidates[0],component=/^(web|collector|usage) \/ /.exec(r.display_title??'')?.[1];requireThat(component&&(!['collector','usage'].includes(component)||r.event==='workflow_dispatch'),'COMPONENT_EVENT_INVALID');
+  const r=candidates.find(r=>{const component=/^(web|collector|usage) \/ /.exec(r.display_title??'')?.[1],v=versions?.[component];return !v||r.id>(v.lastAttempt??0)||r.id===(v.lastAttempt??0)&&r.run_attempt>(v.lastAttemptNumber??0);});if(!r)return null;
+  const component=/^(web|collector|usage) \/ /.exec(r.display_title??'')?.[1];requireThat(component&&(!['collector','usage'].includes(component)||r.event==='workflow_dispatch'),'COMPONENT_EVENT_INVALID');
   identity={id:r.id,attempt:r.run_attempt,sha:r.head_sha,component,event:r.event,url:`https://github.com/${repository}/actions/runs/${r.id}/attempts/${r.run_attempt}`};
   const definition=await call(prefix+'/contents/.github/workflows/production.yml?ref='+r.head_sha);requireThat(definition.sha===config.workflowBlob,'WORKFLOW_CHANGED');
   const artifacts=await call(prefix+'/actions/runs/'+r.id+'/artifacts?per_page=100');const name=`atlas-${component}-${r.head_sha}-${r.id}-${r.run_attempt}`;

@@ -42,6 +42,11 @@ jobs:
               exit 0
             fi
             states=$(gh api "repos/$REPOSITORY/commits/$REVISION/statuses?per_page=100")
+            newest=$(jq -r --arg context "atlas/$component" --arg prefix "https://github.com/$REPOSITORY/actions/runs/" '[.[] | select(.context==$context and (.target_url // "" | startswith($prefix)))][0].target_url // ""' <<< "$states")
+            if [[ "$newest" =~ /actions/runs/([0-9]+)/attempts/([0-9]+)$ ]] && (( BASH_REMATCH[1] > SOURCE_RUN || BASH_REMATCH[1] == SOURCE_RUN && BASH_REMATCH[2] > SOURCE_ATTEMPT )); then
+              echo "SUPERSEDED: a newer verified $component run/attempt replaces this request on the same SHA." >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
             state=$(jq -r --arg context "atlas/$component" --arg target "https://github.com/$REPOSITORY/actions/runs/$SOURCE_RUN/attempts/$SOURCE_ATTEMPT" '[.[] | select(.context==$context and .target_url==$target)][0].state // "waiting"' <<< "$states")
             if [[ "$state" == success || "$state" == failure || "$state" == error ]]; then
               jq -r --arg context "atlas/$component" --arg target "https://github.com/$REPOSITORY/actions/runs/$SOURCE_RUN/attempts/$SOURCE_ATTEMPT" '[.[] | select(.context==$context and .target_url==$target)][0] | "Component: \(.context)\nCommit: '"$REVISION"'\nResult: \(.state)\n\(.description)"' <<< "$states" >> "$GITHUB_STEP_SUMMARY"

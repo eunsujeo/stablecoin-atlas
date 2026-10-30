@@ -51,9 +51,9 @@ export async function reconcile({root,state,config,github,ops,clock=()=>new Date
   }
  }
  // Repair a crash after durable COMMITTED but before versions/report publication, without a restart.
- if(tx?.phase==='COMMITTED'&&tx.result){requireThat(await ops.current(tx.candidate.component)===tx.result.current,'COMMITTED_POINTER_CHANGED');await update(tx.candidate,tx.result);const repaired=await report(tx.candidate,tx.result);if(repairOnly)return repaired;}
+ if(tx?.phase==='COMMITTED'&&tx.result){requireThat(await ops.current(tx.candidate.component)===tx.result.current,'COMMITTED_POINTER_CHANGED');await update(tx.candidate,tx.result);const repaired=await report(tx.candidate,tx.result);if(repairOnly||repaired.notification)return repaired;}
  if(repairOnly)return {state:'NO_PENDING_RECOVERY'};
- requireThat(config.enabled,'AUTOMATION_DISABLED');let c;try{c=await github.candidate(config);}catch(e){if(!e.candidate)throw e;const known=e.candidate;return report(known,{state:e.message==='ARTIFACT_NOT_READY'?'PENDING':'BLOCKED',current:await ops.current(known.component),lastSuccess:versions[known.component].lastSuccess??null,service:await ops.service(known.component),reason:/^[A-Z_]{1,64}$/.test(e.message)?e.message:'GITHUB_VERIFICATION_FAILED'});}if(!c)return {state:'NO_CANDIDATE'};
+ requireThat(config.enabled,'AUTOMATION_DISABLED');let c;try{c=await github.candidate(config,versions);}catch(e){if(!e.candidate)throw e;const known=e.candidate;return report(known,{state:e.message==='ARTIFACT_NOT_READY'?'PENDING':'BLOCKED',current:await ops.current(known.component),lastSuccess:versions[known.component].lastSuccess??null,service:await ops.service(known.component),reason:/^[A-Z_]{1,64}$/.test(e.message)?e.message:'GITHUB_VERIFICATION_FAILED'});}if(!c)return {state:'NO_CANDIDATE'};
  const v=versions[c.component];
  if(c.id<(v.lastAttempt??0)||c.id===v.lastAttempt&&c.attempt<=(v.lastAttemptNumber??0)){
   const prior=await json(join(state,'reports',`${c.id}-${c.attempt}-${c.component}.json`),null);return prior?await report(c,prior):{state:'SUPERSEDED'};

@@ -42,3 +42,9 @@ Hosted CI는 검사와 production 의존성 준비를 맡고 서버에서는 npm
 실제 Fedora systemd/SELinux/polkit, GitHub App 권한·운영 보안 저장소·private 자료 복구, 운영 웹 배포/롤백의 종단 성공은 최초 bootstrap에서 검증해야 한다. 로컬 준비를 실제 활성화 완료라고 표시하지 않는다. 운영자는 정본의 inspect→plan→install→verify→enable을 최초 한 번 수행한다. verify 전 enable/서비스 전환을 수행하지 않는다. 그 뒤 평상시에는 main Push와 Actions 결과 확인만 필요하다.
 
 후속 CI run40982016222에서 Node24.22.1의 보존 Allium 네트워크 권한 시험이 ERR_ACCESS_DENIED 대신 ECONNREFUSED를 반환한 것을 확인했다. 개발 Node25.2.1과의 차이다. 또한 ARM64 runner에 rg가 없으므로 진단을 기본 grep으로 수정했다. 전체 시험 runtime을 검증된25.2.1로 고정하고 운영24의 웹/배포 회귀를 별도 실행하며 production npm ci를24에서 새로 수행하도록 분리했다. 은퇴 로직·원문·운영 Node·Collector는 변경하지 않았다.
+
+독립 component의 같은 SHA 배포가 겹칠 때 최신 collector 후보만 반복 선택해 미처리 web을 가리는 경로를 보완했다. component별 처리한 run/attempt를 제외하고 다음 미처리 후보를 선택하며, 이전 COMMITTED 보고 실패는 ACK 복구 전 다음 저널로 덮어쓰지 않는다. 같은 SHA의 더 최신 component run/attempt가 확인되면 이전 결과 workflow는 SUPERSEDED로 표시한다. 두 회귀를 추가했다.
+
+ARM64 run40982668332에서 Node25.2.1 전체799건·사설PG4건·Router56건은 통과했다. 다음 systemd-analyze가 `/usr/bin/node is not executable: No such file or directory`로 실패했다. Hosted setup-node는 toolcache PATH만 준비하고 고정 production 실행 경로는 없었다. CI의 Node24 전환 뒤 disposable runner에만 고정 경로 링크를 준비하고 unit 검증을 수행하도록 수정했다. 실제 운영 경로/Node 설치는 변경하지 않았다. 운영 Node24 별도 회귀와 릴리스 생성은 이 run에서 미실행이었다.
+
+최종 후보/ACK 보완 뒤 로컬 npm run check rc0:727+74=801pass/0fail. 같은 run 상위 attempt/처리한 attempt 제외와 실제 Bash+jq의 다른 component·이전 run·동일 run 새 attempt·외부 target URL 경계를 추가 확인했으며 배포47/47pass다. 이 마지막 시험을 포함한 전체 재검사와 해당 SHA의 ARM64 CI를 확인한다.
