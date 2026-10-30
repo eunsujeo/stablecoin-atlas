@@ -8,7 +8,7 @@
 git push origin main
 ```
 
-GitHub의 `Atlas CI release`는 GitHub-hosted `ubuntu-24.04-arm`에서 Node24·Java21·고정 Foundry/기존 hash-pinned compiler로 검사한다. production 의존성은 CI에서만 준비한다. 검증된 Git 추적 소스와 production node_modules를 regular-file 전용 `release.tar`로 만들고 `release.json`과 함께14일 보관한다. 환경파일·로컬 원문·모델·`.state`·reports는 포함하지 않는다. 서버는 npm/git 빌드를 하지 않는다.
+GitHub의 `Atlas CI release`는 GitHub-hosted `ubuntu-24.04-arm`에서 Node25.2.1·Java21·고정 Foundry/기존 hash-pinned compiler로 전체 검사한다. 보존 Allium 시험의 네트워크 권한 차단을 유지하기 위한 시험 runtime이며 실제 수집을 허용하지 않는다. 이후 Node24로 웹/배포 회귀를 별도 실행하고 production 의존성을 새로 준비·빌드한다. 운영 Node 버전은 바꾸지 않는다. 검증된 Git 추적 소스와 production node_modules를 regular-file 전용 `release.tar`로 만들고 `release.json`과 함께14일 보관한다. 환경파일·로컬 원문·모델·`.state`·reports는 포함하지 않는다. 서버는 npm/git 빌드를 하지 않는다.
 
 운영 timer는60초 간격으로 고정 root broker의 시작만 요청한다. Broker는 고정 저장소ID·검토된 workflow ID/blob·현재 main SHA·event·CI 성공·run attempt·아티팩트 digest·manifest/payload/platform/정책을 독립 검증한다. 더 최신 main이 있으면 이전 CI는 배포하지 않고 결과 workflow에 SUPERSEDED로 표시한다. 과거 run으로의 역행과 동일 attempt 재배포를 막는다.
 

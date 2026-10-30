@@ -31,7 +31,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: '24'
+          node-version: '25.2.1'
           cache: npm
       - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
         with:
@@ -50,7 +50,7 @@ jobs:
           if npm run check > ci-check.log 2>&1; then
             tail -12 ci-check.log
           else
-            rg -n -C 14 'not ok|^✖|AssertionError|error:|failureType:' ci-check.log | tail -260 || true
+            grep -n -E -C 14 'not ok|^✖|AssertionError|error:|failureType:' ci-check.log | tail -260 || true
             tail -40 ci-check.log
             exit 1
           fi
@@ -68,6 +68,13 @@ jobs:
           if [ -f ci-check.log ]; then
             tail -30 ci-check.log >> "$GITHUB_STEP_SUMMARY"
           fi
+      # The archived Allium sandbox needs the tested Node25 network permission boundary.
+      # Production remains Node24; verify its web/deployment paths independently before building.
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+      - name: Production Node24 web and deployment regression
+        run: node --use-env-proxy --test --test-concurrency=2 tests/deploy-automation.test.mjs tests/production*.test.mjs web/*.test.mjs
       - name: Build immutable Linux ARM64 runtime bundle
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         env:
@@ -75,7 +82,7 @@ jobs:
           CI_RUN: ${{ github.run_id }}
           CI_ATTEMPT: ${{ github.run_attempt }}
         run: |
-          npm prune --omit=dev --no-save --ignore-scripts --no-audit --no-fund
+          npm ci --omit=dev --ignore-scripts --no-audit --no-fund
           node tools/deploy/build.mjs .state/ci-release "$COMPONENT" "$REVISION" "$CI_RUN" "$CI_ATTEMPT"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'

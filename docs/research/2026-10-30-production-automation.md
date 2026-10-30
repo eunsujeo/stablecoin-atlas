@@ -40,3 +40,5 @@ Hosted CI는 검사와 production 의존성 준비를 맡고 서버에서는 npm
 현재 개발 CLI의 GitHub variable 목록 조회는 HTTP403(Variables read 권한 부족)으로 끝났으며 재시도/권한 변경을 하지 않았다. 이는 운영용 App 검증과 별개다.
 
 실제 Fedora systemd/SELinux/polkit, GitHub App 권한·운영 보안 저장소·private 자료 복구, 운영 웹 배포/롤백의 종단 성공은 최초 bootstrap에서 검증해야 한다. 로컬 준비를 실제 활성화 완료라고 표시하지 않는다. 운영자는 정본의 inspect→plan→install→verify→enable을 최초 한 번 수행한다. verify 전 enable/서비스 전환을 수행하지 않는다. 그 뒤 평상시에는 main Push와 Actions 결과 확인만 필요하다.
+
+후속 CI run40982016222에서 Node24.22.1의 보존 Allium 네트워크 권한 시험이 ERR_ACCESS_DENIED 대신 ECONNREFUSED를 반환한 것을 확인했다. 개발 Node25.2.1과의 차이다. 또한 ARM64 runner에 rg가 없으므로 진단을 기본 grep으로 수정했다. 전체 시험 runtime을 검증된25.2.1로 고정하고 운영24의 웹/배포 회귀를 별도 실행하며 production npm ci를24에서 새로 수행하도록 분리했다. 은퇴 로직·원문·운영 Node·Collector는 변경하지 않았다.

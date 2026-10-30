@@ -1,6 +1,6 @@
 # 현재 개발 상태
 
-2026-10-30: [자동 CI/CD](AUTOMATED_DEPLOYMENT.md)와 [ADR0120](adr/0120-pull-based-production-automation.md)을 추가했다. Hosted ARM64 CI bundle·최소 권한 pull trigger/고정 root broker·독립 pointer·사전 검사·실패/중단 복구·운영 vault provisioning을 구현했다. 운영 bootstrap/활성화/서비스 변경은 아직 수행하지 않았다.
+2026-10-30: [자동 CI/CD](AUTOMATED_DEPLOYMENT.md)와 [ADR0120](adr/0120-pull-based-production-automation.md)을 추가했다. Hosted ARM64 CI bundle·최소 권한 pull trigger/고정 root broker·독립 pointer·사전 검사·실패/중단 복구·운영 vault provisioning을 구현했다. 운영 bootstrap/활성화/서비스 변경은 아직 수행하지 않았다. 전체 보존 시험은 네트워크 권한 경계를 검증한 Node25.2.1을 쓰고, 운영 Node24는 별도 웹/배포 검사와 ARM64 빌드로 검증한다.
 
 2026-10-29: 전체 현황을 전송→공급량 순서/전송 건수 기본 표시로 변경하고 비교표를 제거했다. 후속 카드 겹침은 전송 행의 고정 높이를 해제하고 범례 높이를 제한해 수정했다. 다른 PC의 핵심 개발 환경은 [Herdr 재현 절차](ai/HERDR_NEW_PC_SETUP.md)와 `adapters/setup.py`로 준비한다. 전역 설정/인증/살아 있는 pane ID는 이동하지 않는다. 공급량 API의 최신 수집일10월23일이며 운영 등록 수집기의 중단/실패 원인은 아직 조사하지 않았다.
 

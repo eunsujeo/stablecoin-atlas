@@ -27,3 +27,7 @@ bootstrap은 root 고정 도구·계정·제한 polkit·unit/timer를 설치/ver
 웹 health는 정확 SHA, 필수 public asset, market/registration/asset-review/usage/FX 검증을 포함한다. 실패 시 이전 릴리스에서 같은 검증으로 복원 성공 여부까지 확인한다. 외부 공급자0·schema 변경0. GitHub commit status와 별도 Actions 결과 workflow가 현재/마지막 성공 SHA·상태·실패/롤백 코드를 표시하며 서버에는 제한된 JSON journal과 로그를 보관한다.
 
 가상 GitHub/실제 temp FS/HTTP/systemd adapter로 성공·실패·동시성·tamper·단계별 crash·rollback failure·중복송신0을 검증하고 npm run check를 실행한다. 실제 Fedora/systemd/GitHub App 권한/새 workflow·운영 종단 검증은 최초 bootstrap 단계이며 이번 작업에서 SSH/설치/서비스 변경을 실행하지 않는다.
+
+## Hosted CI runtime 보완
+
+실제 ARM64 CI의 Node24.22.1에서 보존 Allium wrapped-fetch 네트워크 차단 시험이 ECONNREFUSED로 실패했다. 로컬에서 차단을 검증한 Node25.2.1을 전체 시험에 고정하며 기존 은퇴/보존 로직을 완화하지 않는다. 생산 Node24는 별도 웹·배포 회귀와 production-only npm ci/ARM64 빌드에 사용한다. 운영 서버의 Node/Collector/FX/Allium 정책은 바꾸지 않는다. 진단에는 해당 runner에 없는 rg 대신 확인된 기본 grep을 사용한다.
