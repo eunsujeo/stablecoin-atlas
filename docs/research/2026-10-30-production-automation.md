@@ -24,15 +24,15 @@ Hosted CI는 검사와 production 의존성 준비를 맡고 서버에서는 npm
 
 ## 검증
 
-최종 검증 결과는 아래에 갱신한다. 로그는 Git 미추적 .state/agent-logs/deploy-*에만 보관한다. 사설 PG17은 프로그램 소유 Docker Fixture만 사용했고 종료 시 정리했다. 가상 GitHub/systemd, 실제 temp FS/child process/loopback HTTP와 운영 검증을 구분한다.
+최종 검증 결과와 이전 실패/수정 이력을 아래에 남긴다. 로그는 Git 미추적 .state/agent-logs/deploy-*에만 보관한다. 사설 PG17은 프로그램 소유 Docker Fixture만 사용했고 종료 시 정리했다. 가상 GitHub/systemd, 실제 temp FS/child process/loopback HTTP와 운영 검증을 구분한다.
 
-- 배포 회귀: node --test tests/deploy-automation.test.mjs — rc0,44pass/0fail.
+- 배포 회귀: node --test tests/deploy-automation.test.mjs — rc0,47pass/0fail.
 - 보안 검토: 마지막 Lead 응답 proceed. 실제 운영 승인이 아니라 최종 전체 검사 후 commit/push 조건이다.
 - 사설 PG17: node --test --test-concurrency=1 tests/postgres/deployment-gate.test.mjs tests/postgres/production.test.mjs tests/postgres/network-usage-v2.test.mjs — rc0,4pass/0fail.
 - Router: python3 -m unittest discover -s tools/intelligent-router/evaluation -p 'test_*.py' — rc0,56pass/0fail.
 - bash -n deploy/atlas-bootstrap deploy/atlas-deploy-admin deploy/atlas-release — rc0.
 - Ruby YAML safe_load 두 workflow 및 git diff --check — rc0.
-- 최종 npm run check: rc0, 기본725+보존74=799pass/0fail.
+- 최종 npm run check: rc0, 기본728+보존74=802pass/0fail.
 - 최초 ARM64 CI run40981513924는 환경 진단 성공 후 npm run check에서 rc1로 종료했다. 로그를 파일로만 보내고 summary에만 요약한 탓에 원격 진단 로그에 실패 본문이 남지 않았다. 실패 문맥과 tail을 유한 길이로 Actions 로그에도 출력하도록 보완하고 후속 CI로 원인을 확인한다. 릴리스 업로드/운영 배포는 실행되지 않았다. 운영 ACK 비활성 상태는 NOT_ENABLED로 구분한다.
 
 ## 미확인과 재현
@@ -50,3 +50,11 @@ ARM64 run40982668332에서 Node25.2.1 전체799건·사설PG4건·Router56건은
 최종 후보/ACK 보완 뒤 로컬 npm run check rc0:727+74=801pass/0fail. 같은 run 상위 attempt/처리한 attempt 제외와 실제 Bash+jq의 다른 component·이전 run·동일 run 새 attempt·외부 target URL 경계를 추가 확인했으며 배포47/47pass다. 이 마지막 시험을 포함한 전체 재검사와 해당 SHA의 ARM64 CI를 확인한다.
 
 Run40983615968에서 Node25.2.1 전체802·PG4·Router56과 systemd unit 검증은 통과했다. 추가 Node24 회귀는175pass/2filefail: evidence/workspace 시험의 TypeScript .js 해석에 필요한 기존 tsx loader를 별도 명령에 누락했다. 기존 test-suite와 같은 --import tsx를 적용했다. 제품 런타임/테스트 기준은 바꾸지 않았으며 실제 릴리스 업로드 전 차단됐다. 최종 로컬 npm run check rc0:728+74=802pass/0fail도 확인했다.
+
+## 최종 hosted CI와 실제 artifact 검증
+
+[ARM64 CI run40984127509](https://github.com/eunsujeo/stablecoin-atlas/actions/runs/40984127509), SHA8281091afa003b8fc0b115bc42efb56ef2a7ef1c: completed/success. Node25.2.1 전체 검사, 사설PG17 4pass/0fail, Router56pass/0fail, systemd-analyze verify(agent/apply/Usage unit·timer), Node24.22.1의 --import tsx 웹/배포186pass/0fail, clean production-only npm ci, ARM64 release build/upload가 통과했다. 로컬 최종 npm run check도 rc0:728+74=802pass/0fail이다. 원문 로그는 GitHub Actions와 사설 .state/agent-logs에 보존했다.
+
+실제 GitHub API를 고정 배포 adapter로 읽어 repo/workflow/blob/main/run/attempt/digest를 재검증하고 Azure의 CI artifact를 내려받아 parser/manifest/policy 검증을 수행했다(rc0). token은 기존 gh 인증에서 메모리로만 전달했고 출력/파일에 보존하지 않았다. ZIP37927040bytes, payload146503680bytes/18518파일, nodeMajor24/nodeABInull, payload SHA-256 b24894ba9e33052ee6a0aa3b054d5a187761d54cc9bab92cd7462132b06c31b6이다. 새 공급자 API/운영 DB/서비스 호출은 없다.
+
+GitHub deployment-result run40984567172도 success이며 REPORTING_ENABLED 미설정에 따른 NOT_ENABLED다. 이는 운영 배포 ACK나 운영 서비스 변경이 아니다. bootstrap security/activation은 여전히 미실행이다. 별도 깨끗한 temp checkout(node_modules 없음)에 Git 추적 파일만 복사해 bootstrap 모듈 import를 실행한 결과 DEPENDENCY_FREE_BOOTSTRAP_IMPORT_OK/rc0도 확인했다. 초기 bootstrap에 개발 PC 의존성 또는 서버 npm 설치가 필요하지 않다.
