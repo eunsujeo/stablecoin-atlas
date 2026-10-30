@@ -1,5 +1,7 @@
 # Mac mini 수집기 준비와 FX 복구
 
+2026-10-30 변경: 새 웹 코드의 FX는 [ADR0121](adr/0121-shared-fx-database.md)의 공통 Supabase reader를 사용한다. 아래 공개 파일 게시 절차는 이전 파일 기반 버전의 복구 기록이다. 새 코드에서는 파일 게시만으로 웹 환율이 갱신되지 않으며 검토한 writer로 `fx:db import`가 필요하다. 기존 원문/claim 복구와 실제 운영 적용은 분리한다.
+
 2026-10-30: 신규 설치와 배포 자동화의 정본은 [자동 CI/CD와 최초 bootstrap](AUTOMATED_DEPLOYMENT.md)이다. 아래 수동 설치·부분 helper 복사·Git/npm stage 명령은 이전 운영 기록이다. 새 bootstrap 이후에는 고정 제어면과 CI artifact 기반 `atlas-release`를 사용하며, 기존 부분 helper 설치 명령을 재실행하지 않는다. 기존 수집 계약·보존 데이터·설정은 유지한다.
 
 Arkham의 현재 기본 주기는1h/24예약이다. 새 schedule.env·별도 정책 설치·미래 UTC일 전환·Arkham만의 포인터/설정/호환 코드 롤백은 [스케줄 운영 정본](ARKHAM_SCHEDULER.md)을 먼저 따른다. 아래 기존 복구 절차의 FX/등록 unit 재설치·전체 서비스 정지는 이번 Arkham 설정 전환에 적용하지 않는다. Web/FX/등록 서비스는 유지한다.

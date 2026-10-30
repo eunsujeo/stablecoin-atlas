@@ -68,7 +68,6 @@ export function operatingSystem(config){
   // Probe all enabled components during bootstrap; an ordinary web rollout never stops writers.
   const targets=component==='all'?['web','collector','usage'].filter(c=>config.components[c].enabled):[component];
   for(const c of targets)await check('database:'+c,()=>runProbe(c));
-  await check('vault-fx',async()=>{const s=await lstat('/var/lib/atlas-public/fx.json');requireThat(s.isFile()&&!s.isSymbolicLink(),'FX_MISSING');});
   if(component==='all')await check('rollback-baseline',async()=>{const current=await pointer(ROOT,'current');requireThat(current,'CURRENT_RELEASE_REQUIRED');await health('web',current);});
   return {state:bad?'FAILED':'READY',checks,providerRequests:0};
  }

@@ -63,7 +63,7 @@ sudo git clone <저장소-SSH-주소> /opt/stablecoin-atlas/repository
 
 ## 환경 파일과 reader 분리
 
-`deploy/web.config.example.json`을 `/etc/atlas-web/web.json`에 배치하고 hosts를 실제 도메인으로 바꾼다. wildcard·URL·포트·대문자 Host는 거부한다. 표준 HTTPS Host 이름만 최대8개 허용한다. port는4173, fxFile은 `/var/lib/atlas-public/fx.json`을 사용한다. 설정 파일은 root:root0644이며 부모 `/etc/atlas-web`도0755로 설정한다. reader 파일 자체는0600을 유지한다.
+`deploy/web.config.example.json`을 `/etc/atlas-web/web.json`에 배치하고 hosts를 실제 도메인으로 바꾼다. wildcard·URL·포트·대문자 Host는 거부한다. 표준 HTTPS Host 이름만 최대8개 허용한다. port는4173이다. 환율도 동일 Supabase reader로 읽는다([ADR0121](adr/0121-shared-fx-database.md)). 이전 설정의 fxFile은 호환 목적으로 허용하지만 읽지 않는다. 설정 파일은 root:root0644이며 부모 `/etc/atlas-web`도0755로 설정한다. reader 파일 자체는0600을 유지한다.
 
 ```sh
 sudo install -m 0644 /opt/stablecoin-atlas/repository/deploy/web.config.example.json /etc/atlas-web/web.json
@@ -118,7 +118,7 @@ sudo systemctl daemon-reload
 sudo systemctl enable --now atlas-collector.service atlas-registered-collector@<selection-id>.service atlas-fx.timer
 ```
 
-FX drop-in은 기존 수집 성공 후 **이미 검증된 projection만** `/var/lib/atlas-public/fx.json`에 원자적으로 게시한다. 새 ECB 요청을 추가하지 않는다. archive·receipt는 collector 전용 경로에 남는다. 최초 수집 전에도 기존 FX 저장본을 같은 도구로 수동 게시할 수 있다. 공개 projection이 없거나 만료되면 원화 참고값은 미확보이며0으로 대체하지 않는다.
+기존 파일 게시용 FX drop-in은 수집 성공 후 **이미 검증된 projection만** `/var/lib/atlas-public/fx.json`에 원자적으로 게시한다. 새 ECB 요청을 추가하지 않는다. archive·receipt는 collector 전용 경로에 남는다. 최초 수집 전에도 기존 FX 저장본을 같은 도구로 수동 게시할 수 있다. ADR0121 이후 웹은 이 공개 파일 대신 DB를 읽는다. 위 기존 drop-in만으로는 DB가 갱신되지 않는다. 운영 적용 전에는 검토한 기존 writer/definer 설정으로 `fx:db import`를 연결해야 하며 이 작업은 service/timer를 변경하거나 활성화하지 않았다. DB 환율이 없거나 만료되면 원화 참고값은 미확보이며0으로 대체하지 않는다.
 
 M1 8GB의 시작 자원 한도는 web768MiB(메모리 high512MiB, Node heap384MiB), 두 collector 각1GiB, FX256MiB, tunnel256MiB다. 이는 부하 검증 결과가 아니며 실제 `systemctl show -p MemoryCurrent,MemoryPeak`와 journal로 조정한다. 디스크·원문 보관의 자동 삭제 정책은 추가하지 않는다.
 

@@ -1,5 +1,4 @@
 {
   "hosts": ["atlas.example.com"],
-  "port": 4173,
-  "fxFile": "/var/lib/atlas-public/fx.json"
+  "port": 4173
 }

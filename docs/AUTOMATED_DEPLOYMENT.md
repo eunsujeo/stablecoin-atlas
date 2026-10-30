@@ -44,6 +44,8 @@ GitHub repository variable `ATLAS_DEPLOY_REPORTING_ENABLED=true`를 한 번 설�
 
 Node24.5 이상/지원 proxy flag, Linux ARM64, systemd/polkit/flock/systemd-creds와 기존 atlasweb/atlascollector 계정이 필요하다. Node·OS 업데이트나 SELinux/TLS/proxy 변경을 자동 수행하지 않는다. Node ABI 불일치/권한/파일 누락은 preflight에서 해결한다. 관리형 proxy 설정은 유지한다.
 
+환율 웹 읽기는 [ADR0121](adr/0121-shared-fx-database.md)에 따라 공통 DB reader를 사용한다. FX preflight도 DB 자료의 무결성과 유효기간을 검사하며 로컬 공개 환율 파일을 요구하지 않는다. 만료 자료는 원래 시각을 유지하므로 배포 준비 완료로 통과시키지 않는다. 이 고정 제어면 변경은 운영 적용 전에 검토한 새 제어면 설치가 필요하며 기존 설치본은 자동으로 바뀌지 않는다.
+
 ## 최초 1회: bootstrap 실행
 
 운영자가 **검토한 CI 성공 SHA의 root 소유 checkout**에서 실행한다. 기존 서버의 readonly repository를 사용하거나 운영 인증으로 GitHub에서 취득한다. 다른 PC 경로·개인 인증을 복사하지 않는다. 초기 진입점 `deploy/atlas-bootstrap`은 위험한 Node 주입 변수를 제거하고 기존 proxy 환경을 유지하며 공통 flock을 잡는다. 아래 명령은 운영자 절차이며 이번 개발 작업에서 실행하지 않았다.

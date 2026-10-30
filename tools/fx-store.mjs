@@ -35,6 +35,18 @@ async function verifiedSnapshot(root,day){
  const mapped=parseFX(raw,{at:p.fetchedAt??p.importedAt,imported:p.importedAt!==null});
  if(JSON.stringify(mapped)!==JSON.stringify(p))fail();return p;
 }
+// Offline migration includes expired snapshots without changing their source time.
+export async function storedFXInputs(directory=defaultFXDirectory){
+ const root=directory instanceof URL?fileURLToPath(directory):resolve(directory);
+ await privateDirectory(root);await privateDirectory(join(root,'snapshots'));await privateDirectory(join(root,'archive'));
+ const names=(await readdir(join(root,'snapshots'))).sort();
+ if(!names.length||names.some(n=>!/^\d{4}-\d\d-\d\d\.json$/.test(n)))fail();
+ const inputs=[];for(const name of names){
+  const payload=await verifiedSnapshot(root,name.slice(0,10));
+  inputs.push({payload,raw:await boundedRead(join(root,'archive',payload.sourceHash+'.xml'),size)});
+ }
+ return inputs;
+}
 export async function readFX(directory=defaultFXDirectory,{now=Date.now()}={}){
  const root=directory instanceof URL?fileURLToPath(directory):resolve(directory);await privateDirectory(root);await privateDirectory(join(root,'snapshots'));await privateDirectory(join(root,'archive'));
  for(let i=0;i<=7;i++){

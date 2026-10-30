@@ -12,13 +12,13 @@ import {databaseRegistrationReader} from './market-db/registration-preview.mjs';
 import {databaseActivityReader} from './market-db/activity-preview.mjs';
 import {databaseReviewedSupplyReader} from './market-db/allium-supply-preview.mjs';
 import {databaseSurveyReader} from './market-db/survey-preview.mjs';
-import {readPublicFX} from './publish-production-fx.mjs';
+import {databaseFXReader} from './market-db/fx-preview.mjs';
 import {readProductionReader} from './production-reader-file.mjs';
 
 export async function productionSettings({configFile,readerFile,revisionFile}){
   if(!deploymentRuntimeSupported()||process.env.NODE_TLS_REJECT_UNAUTHORIZED==='0')throw Error('RUNTIME_UNSUPPORTED');
   const config=JSON.parse((await boundedRead(configFile,16384)).toString('utf8'));
-  if(Object.keys(config).some(k=>!['hosts','port','fxFile'].includes(k))||!Number.isInteger(config.port)||config.port<1||config.port>65535||typeof config.fxFile!=='string'||!config.fxFile.startsWith('/'))throw Error('PUBLIC_CONFIG_INVALID');
+  if(Object.keys(config).some(k=>!['hosts','port','fxFile'].includes(k))||!Number.isInteger(config.port)||config.port<1||config.port>65535||(config.fxFile!==undefined&&(typeof config.fxFile!=='string'||!config.fxFile.startsWith('/'))))throw Error('PUBLIC_CONFIG_INVALID');
   validatePublicHosts(config.hosts);
   const env=parseEnv(await readProductionReader(readerFile));
   if(!env.DATABASE_URL||Object.keys(env).some(k=>!['DATABASE_URL','DATABASE_CA_FILE'].includes(k)))throw Error('READER_CONFIG_INVALID');
@@ -26,7 +26,7 @@ export async function productionSettings({configFile,readerFile,revisionFile}){
   if(!/^[a-f0-9]{40}$/.test(commit))throw Error('COMMIT_INVALID');
   return {config,env,commit};
 }
-export async function startProduction({config,env,commit},{connector=productionConnector(env),onTiming=value=>console.log(JSON.stringify(value))}={}){
+export async function startProduction({config,env,commit},{connector=productionConnector(env),onTiming=value=>console.log(JSON.stringify(value)),fxReader=databaseFXReader({env,connect:connector.connect})}={}){
   if(!/^[a-f0-9]{40}$/.test(commit))throw Error('COMMIT_INVALID');
   // Fail before listening if a writer/owner or missing reader is configured.
   let server;
@@ -38,7 +38,7 @@ export async function startProduction({config,env,commit},{connector=productionC
       onTiming,networkUsageReader:databaseNetworkUsageReader({env,connect}),assetReviewReader:databaseAssetReviewReader({env,connect}),
       marketReader:databaseMarketReader({env,connect,includeLocalStatus:false}),registrationReader:databaseRegistrationReader({env,connect}),
       activityReader:databaseActivityReader({env,connect}),reviewedSupplyReader:databaseReviewedSupplyReader({env,connect}),surveyReader:databaseSurveyReader({env,connect}),
-      fxReader:()=>readPublicFX(config.fxFile),
+      fxReader,
     });
   }catch(error){await connector.close().catch(()=>{});throw error;}
   let stopping;

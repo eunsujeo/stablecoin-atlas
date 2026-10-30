@@ -15,7 +15,7 @@ import {assertSchedulerPolicy} from '../market-db/scheduler.mjs';
 import {resolveArkhamSchedule,collectorScheduleEnvironment} from '../arkham-schedule.mjs';
 import {usageOperation} from '../usage-operating-cli.mjs';
 import {verifyNetworkUsageSchema} from '../market-db/network-usage.mjs';
-import {readPublicFX} from '../publish-production-fx.mjs';
+import {databaseFXReader} from '../market-db/fx-preview.mjs';
 import {productionSettings} from '../production-web.mjs';
 import {checkDeployment} from '../collector-deploy.mjs';
 import {projectOperatingUsage} from '../usage-operating-project.mjs';
@@ -38,7 +38,7 @@ export async function probe({component,envFile,selection,hold=false}){
    const {env}=await productionSettings({configFile:'/etc/atlas-web/web.json',readerFile:envFile,revisionFile:'/opt/stablecoin-atlas/current/REVISION'});const connect=async()=>{const c=await connectDatabase(env);try{await verifyProductionReader(c);return c;}catch(e){await c.end().catch(()=>{});throw e;}};
    const market=await databaseMarketReader({env,connect,includeLocalStatus:false})();requireThat(market.readState?.source==='POSTGRESQL','DB_MARKET_REQUIRED');
    await databaseRegistrationReader({env,connect})('/registration-index.json');await databaseAssetReviewReader({env,connect})();await databaseNetworkUsageReader({env,connect})();
-   const config=JSON.parse(await readFile('/etc/atlas-web/web.json'));await readPublicFX(config.fxFile);return {state:'READY',providerRequests:0};
+   await databaseFXReader({env,connect})();return {state:'READY',providerRequests:0};
   }
   if(component==='collector'){
    await checkDeployment({'--kind':'arkham','--env-file':'/etc/atlas-collector/writer.env','--state-root':'/var/lib/atlas-collector','--schedule-file':'/etc/atlas-collector/schedule.env'},{});await checkDeployment({'--kind':'registered','--env-file':'/etc/atlas-collector/registered-writer.env','--state-root':'/var/lib/atlas-collector','--selection':selection},{});

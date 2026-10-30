@@ -109,4 +109,4 @@ npm run check:db는 Docker28+·캐시된 postgres:17-alpine으로 새 소유 loo
 npm run ui -- --database --database-env .state/market-db-secrets/reader.env
 ```
 
-`http://127.0.0.1:4173/#overview`를 연다. 포트 충돌 시 기존 프로세스를 종료하지 말고 `--port 4174`를 추가한다. DB 모드 웹 시작/조회는 공급자 수집이나 DB migration/write를 실행하지 않는다. 공급량은 별도 일별 등록 수집기, 전송 활동은 별도 Arkham 수집기가 저장한 시각을 표시한다. 오래된 DB 자료를 새 PC 설치만으로 최신화하지 않는다. FX/비공개 로컬 근거와 compiler cache는 이 reader 파일로 옮겨지지 않는다. 개발 PC에서 운영 수집기/timer를 켜지 않으며 기존 단발 소비·30일 공통 예산을 복제하지 않는다.
+`http://127.0.0.1:4173/#overview`를 연다. 포트 충돌 시 기존 프로세스를 종료하지 말고 `--port 4174`를 추가한다. DB 모드 웹 시작/조회는 공급자 수집이나 DB migration/write를 실행하지 않는다. 공급량은 별도 일별 등록 수집기, 전송 활동은 별도 Arkham 수집기가 저장한 시각을 표시한다. 오래된 DB 자료를 새 PC 설치만으로 최신화하지 않는다. 환율도 같은 reader로 Supabase에서 읽으므로 DB 모드에는 `.state/fx-store` 복사가 필요하지 않다. 환율 기준일·원래 관측 시각과 7일 유효기간은 그대로이며, DB 자료가 없거나 만료되면 원화 참고값은 미확보다. 비공개 로컬 근거와 compiler cache는 이 reader 파일로 옮겨지지 않는다. 개발 PC에서 운영 수집기/timer를 켜지 않으며 기존 단발 소비·30일 공통 예산을 복제하지 않는다.

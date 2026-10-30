@@ -13,6 +13,7 @@ import {stageRelease} from '../tools/release-stage.mjs';
 import {activateRelease,checkWebHealth} from '../tools/release-switch.mjs';
 import {loopbackRequest} from '../tools/loopback-http.mjs';
 import {publishPublicFX,readPublicFX} from '../tools/publish-production-fx.mjs';
+import {databaseFXReader} from '../tools/market-db/fx-preview.mjs';
 import {storeFX} from '../tools/fx-store.mjs';
 import {productionSettings,startProduction} from '../tools/production-web.mjs';
 const sha='a'.repeat(40),host='atlas.example.com';
@@ -111,17 +112,18 @@ test('FX publication exposes only verified projection, preserves pre-rename fail
  }finally{process.umask(oldMask);await rm(root,{recursive:true,force:true});}
 });
 
-test('production FX endpoint rejects empty, invalid and expired files with fixed errors, then recovers without restart',async()=>{
- const root=await mkdtemp(join(tmpdir(),'atlas-production-fx-')),target=join(root,'fx.json');let app;
+test('production FX endpoint uses DB, rejects invalid/expired/missing data, ignores local file and recovers without restart',async()=>{
+ const root=await mkdtemp(join(tmpdir(),'atlas-production-fx-')),target=join(root,'fx.json');let app,current;
  try{
-  app=await startProduction({config:{port:0,hosts:[host],fxFile:target},env:{},commit:sha},{connector:{connect:async()=>({end:async()=>{}}),close:async()=>{}}});
+  const connector={connect:async()=>({end:async()=>{}}),close:async()=>{}};
+  app=await startProduction({config:{port:0,hosts:[host],fxFile:target},env:{},commit:sha},{connector,fxReader:databaseFXReader({connect:connector.connect,read:async()=>{if(!current)throw Error('SECRET_CANARY');return JSON.parse(current);}})});
   const port=app.server.address().port,now=new Date().toISOString();
   const good={schemaVersion:1,kind:'ECB_REFERENCE_FX',base:'EUR',date:now.slice(0,10),usdPerEUR:'2',krwPerEUR:'2000',sourceHash:'a'.repeat(64),fetchedAt:now,importedAt:null};
   for(const contents of [null,'','{"SECRET_CANARY":',JSON.stringify({...good,date:'2020-01-01'})]){
-   if(contents!==null)await writeFile(target,contents);
+   current=contents;await writeFile(target,JSON.stringify(good));
    const r=await read(port,'/fx-data.json');assert.equal(r.status,503);assert(!r.body.includes('SECRET_CANARY'));assert(!r.body.includes(root));assert.match(r.body,/FX_UNAVAILABLE/);
   }
-  await writeFile(target,JSON.stringify({...good,privateExtra:'SECRET_CANARY'}));
+  current=JSON.stringify({...good,privateExtra:'SECRET_CANARY'});
   const r=await read(port,'/fx-data.json');assert.equal(r.status,200);assert.deepEqual(JSON.parse(r.body),good);assert.equal((await read(port,'/fx-data.json',{},'HEAD')).body,'');
   assert.deepEqual(await readPublicFX(target),good);
  }finally{await app?.stop();await rm(root,{recursive:true,force:true});}
