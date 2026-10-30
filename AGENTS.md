@@ -2,6 +2,8 @@
 
 이 저장소는 독립적인 Multi-Chain Asset Compatibility Lab이다. 기존 Integration Test Kit 코드를 복사하거나 의존하지 않는다. Codex 단독으로 개발하며 하위 에이전트에 위임하지 않는다.
 
+- 사용자 ECB 환율 단발 승인(2026-10-30): 기존 FX root/당일claim을 유지한 최대1GET/64KiB/20초/재시도0/비용UNKNOWN·수집→DB반영→웹확인을 승인했고 실제1송신시도/HTTP응답0·본문수신0/UND_ERR_CONNECT_TIMEOUT으로 실패 종료했다. 해당단발소비와UTC2026-10-30미확정claim을 보존하며 재시도/claim삭제/새root우회/브라우저·endpoint·proxy전환0이다. 새snapshot/receipt·DB쓰기0·기존만료환율/API503을 유지한다. 구체네트워크원인UNKNOWN이며 proxy정책차단으로단정하지 않는다. docs/research/2026-10-30-ecb-fx-refresh-once.md를 따른다.
+
 - 사용자 환율 공통 DB 승인(2026-10-30): PC별 FX 파일 의존 제거 제안에 사용자가 진행을 승인했다. ADR0121의 별도 private atlas_fx/기존 writer INSERT·reader SELECT와 개발 DB·production 공통 reader를 사설 PG17 검증 후 실제 기존 Supabase에 적용했다. 원문 XML/hash·십진 문자열·기준일/원래 시각을 보존해 기존 환율1건/재입력0·기존11schema/74table 구조·자료 지문 보존을 확인했다. 저장 환율은2026-10-22 기준/만료이며 날짜 갱신 없이503을 유지한다. 새 ECB 수집·운영배포·service/timer 변경0이고 기존 파일 게시 hook은 DB 자동갱신 미연결이다. 후속 운영 적용 전 DB import 연결 검증이 필요하다. docs/research/2026-10-30-shared-fx-database.md를 따른다.
 
 - 사용자Allium 화면표시 종료(2026-10-28): 정정한이미지의Arkham/Allium출처선택영역을제거하고전체현황은Arkham활동자료만표시한다. Allium4종저장자료자동요청/패널/fallback을복원하지않는다. 전송금액/전송건수탭과키보드focus표시는유지한다. 기존원문/DB/보존파서/별도읽기API는삭제하지않았으므로API공개종료라고표현하지않는다. Canton은CC공개관측/USDCx별도자산의research-only기록이며새등록/수집이나기존18대상·30일예산확대0이다. docs/research/2026-10-28-arkham-only-overview.md를따른다.

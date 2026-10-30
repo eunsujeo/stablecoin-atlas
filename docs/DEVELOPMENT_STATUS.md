@@ -1,5 +1,7 @@
 # 현재 개발 상태
 
+2026-10-30 후속: [승인된 ECB 환율 단발](research/2026-10-30-ecb-fx-refresh-once.md)은 1송신시도/정상HTTP응답0·본문수신0/UND_ERR_CONNECT_TIMEOUT으로 실패 종료했다. 당일claim·실패를 보존하고 재시도0·새DB쓰기0이며 기존 만료 환율/API503을 유지한다.
+
 2026-10-30: [환율 공통 DB 연결](research/2026-10-30-shared-fx-database.md)을 완료했다. 개발 DB 모드와 production 웹 코드는 동일 Supabase reader를 사용하며 다른 개발 PC에 FX 파일 복사가 필요 없다. 실제 환율1건 이관/재입력0·기존11schema/74table 보존을 확인했다. 저장 환율은 만료 상태로 유지하며 새 ECB 수집·운영배포·service/timer 변경은 하지 않았다.
 
 2026-10-30: [자동 CI/CD](AUTOMATED_DEPLOYMENT.md)와 [ADR0120](adr/0120-pull-based-production-automation.md)을 추가했다. Hosted ARM64 CI bundle·최소 권한 pull trigger/고정 root broker·독립 pointer·사전 검사·실패/중단 복구·운영 vault provisioning을 구현했다. 운영 bootstrap/활성화/서비스 변경은 아직 수행하지 않았다. 전체 보존 시험은 네트워크 권한 경계를 검증한 Node25.2.1을 쓰고, 운영 Node24는 별도 웹/배포 검사와 ARM64 빌드로 검증한다.
