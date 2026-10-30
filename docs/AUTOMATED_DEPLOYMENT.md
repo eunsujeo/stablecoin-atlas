@@ -1,5 +1,7 @@
 # Stablecoin Atlas 자동 CI/CD
 
+2026-10-30 후속 [ADR0122](adr/0122-frankfurter-daily-fx.md): 새 코드의 FX preflight는 명시 Frankfurter DB reader를 사용한다. 최초 실제 조회 실패로 새 스키마/유효 자료는 아직 실제 DB에 적용하지 않았다. 현재 코드는 연결 준비이며 운영 배포 준비 완료가 아니다. preflight503을 무시하거나 ECB/file fallback으로 통과시키지 않는다.
+
 정본 결정은 [ADR0120](adr/0120-pull-based-production-automation.md)이다. 이 구현은 최초 운영 bootstrap을 수행하기 전까지 서비스를 변경하지 않는다. Bootstrap 완료 후 일반 main Push는 개발 PC나 SSH 없이 테스트→ARM64 릴리스→운영 pull→웹 검증→실패 롤백으로 이어진다. 운영 서버에는 GitHub Actions runner를 설치하지 않는다.
 
 ## 평상시 작업

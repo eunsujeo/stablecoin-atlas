@@ -11,7 +11,7 @@ const columnsUpdate={collection_run:['state','finished_at'],series_latest:['obse
 const identifier=name=>{if(typeof name!=='string'||!/[a-z]/.test(name)||!/^[a-z][a-z0-9_]{0,62}$/.test(name))fail('INVALID_IDENTIFIER');return '"'+name+'"';};
 export async function lock(client){await client.query('SELECT pg_advisory_xact_lock(18471234,401)');}
 export async function structureHash(client,namespace=schema){
-  if(![schema,'atlas_scheduler','atlas_catalog','atlas_history','atlas_registration','atlas_activity','atlas_supply','atlas_survey','atlas_contract_review','atlas_asset_review','atlas_network_usage','atlas_fx'].includes(namespace))fail('INVALID_IDENTIFIER');
+  if(![schema,'atlas_scheduler','atlas_catalog','atlas_history','atlas_registration','atlas_activity','atlas_supply','atlas_survey','atlas_contract_review','atlas_asset_review','atlas_network_usage','atlas_fx','atlas_fx_frankfurter'].includes(namespace))fail('INVALID_IDENTIFIER');
   await client.query('SET LOCAL search_path=pg_catalog');
   const {rows}=await client.query(`WITH core AS (SELECT c.oid,c.relname,c.relrowsecurity,c.relforcerowsecurity FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
     WHERE n.nspname=$1 AND c.relkind IN ('r','p','v','m','f') AND c.relname !~ '^(observation|network_observation)_[0-9]{4}_[0-9]{2}$')

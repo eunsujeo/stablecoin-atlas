@@ -1,5 +1,7 @@
 # Stablecoin Atlas 운영 배포
 
+2026-10-30 Frankfurter 전환 준비와 실제 미적용 경계는 [ADR0122](adr/0122-frankfurter-daily-fx.md)를 따른다. 유효 표본/실제 DB 준비 전 새 웹 코드를 운영 배포하지 않는다.
+
 2026-10-30: 신규 설치와 배포 자동화의 정본은 [자동 CI/CD와 최초 bootstrap](AUTOMATED_DEPLOYMENT.md)이다. 아래 수동 설치·부분 helper 복사·Git/npm stage 명령은 이전 운영 기록이다. 새 bootstrap 이후에는 고정 제어면과 CI artifact 기반 `atlas-release`를 사용하며, 기존 부분 helper 설치 명령을 재실행하지 않는다. 기존 수집 계약·보존 데이터·설정은 유지한다.
 
 사용자는 `094a225cd95d6cbd74053e7eda065a3e339b0df6`의 Mac mini 웹/Reader/Tunnel 정상, FX503·공개 파일0바이트와 collector/timer 미설치를 보고했다. 이는 사용자 제공 운영 상태이며 이 작업의 직접 서버 관측은 아니다. 후속 최소 수정과 운영자가 적용할 정확한 수집기/FX 복구 순서는 [운영 복구 절차](COLLECTOR_PRODUCTION_RECOVERY.md)를 따른다. 아래 최초 준비 기록과 실제 서버 검증을 구분한다.

@@ -101,6 +101,8 @@ npm run check:db는 Docker28+·캐시된 postgres:17-alpine으로 새 소유 loo
 
 ## 같은 Supabase를 읽는 로컬 웹
 
+2026-10-30 [Frankfurter 전환 준비](research/2026-10-30-frankfurter-fx.md): 새 코드의 DB 환율 reader는 키 없는 Frankfurter USD/KRW를 선택한다. 승인된 최초 실조회가 연결 시간 초과로 실패해 새 스키마/자료의 실제 Supabase 적용은 아직 하지 않았다. 환율503을 정상 데이터 확보로 간주하지 않으며 기존 ECB로 자동 fallback하지 않는다. 다른 PC에서 provider key나 로컬 환율 파일을 추가해 해결하는 구조가 아니다. 실제 DB 준비 전 운영 배포를 시작하지 않는다.
+
 현재 개발 화면은 기존 원격 Supabase의 전용 reader를 사용하는 DB 모드다. 기본 `npm run ui`의 저장 JSON 모드와 구분한다. 같은 코드만 받으면 인증이 자동 이전되지는 않는다.
 
 새 PC에 `.state/market-db-secrets` 디렉터리를 만들고, 해당 PC에 제공된 기존 reader 전용 `DATABASE_URL`과 TLS CA 경로만 `reader.env`에0600으로 설정한다. 형식은 `deploy/reader.env.example`을 참고하되 `/etc/atlas-ca` 예시 경로를 해당 PC의 실제 CA 파일 위치로 바꾼다. 원문을 Git/터미널 로그/이슈에 올리지 않는다. writer/admin·공급자/RPC 키는 이 파일에 넣지 않는다. 비공개 연결정보/CA는 별도 안전한 전달 경로로 준비하며 새 키를 자동 발급하지 않는다.

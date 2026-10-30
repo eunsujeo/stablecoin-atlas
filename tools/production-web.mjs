@@ -12,7 +12,7 @@ import {databaseRegistrationReader} from './market-db/registration-preview.mjs';
 import {databaseActivityReader} from './market-db/activity-preview.mjs';
 import {databaseReviewedSupplyReader} from './market-db/allium-supply-preview.mjs';
 import {databaseSurveyReader} from './market-db/survey-preview.mjs';
-import {databaseFXReader} from './market-db/fx-preview.mjs';
+import {databaseFrankfurterFXReader} from './market-db/frankfurter-fx-preview.mjs';
 import {readProductionReader} from './production-reader-file.mjs';
 
 export async function productionSettings({configFile,readerFile,revisionFile}){
@@ -26,7 +26,7 @@ export async function productionSettings({configFile,readerFile,revisionFile}){
   if(!/^[a-f0-9]{40}$/.test(commit))throw Error('COMMIT_INVALID');
   return {config,env,commit};
 }
-export async function startProduction({config,env,commit},{connector=productionConnector(env),onTiming=value=>console.log(JSON.stringify(value)),fxReader=databaseFXReader({env,connect:connector.connect})}={}){
+export async function startProduction({config,env,commit},{connector=productionConnector(env),onTiming=value=>console.log(JSON.stringify(value)),fxReader=databaseFrankfurterFXReader({env,connect:connector.connect})}={}){
   if(!/^[a-f0-9]{40}$/.test(commit))throw Error('COMMIT_INVALID');
   // Fail before listening if a writer/owner or missing reader is configured.
   let server;

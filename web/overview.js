@@ -2,7 +2,7 @@ import {validateNetworkUsage} from './network-usage-model.js';
 import {cachedJSON,browserData} from './browser-data.js';
 import {bindCacheStatus} from './browser-cache-ui.js';
 import {initializeSupplyOverview} from './supply-overview.js';
-import {validateFX,usableFX,priceLabel,readCurrency,saveCurrency} from './fx-model.js';
+import {validateFX,usableFX,fxSourceLabel,priceLabel,readCurrency,saveCurrency} from './fx-model.js';
 import {overviewMarketRows} from './overview-market-model.js';
 import {readChartPreferences,saveChartPreferences,readChartURL,syncChartURL} from './overview-preferences.js';
 import {validateRegistrationIndex,validateRegisteredHistory,registrationChartData,sameRegisteredSource} from './registration-model.js';
@@ -175,7 +175,7 @@ function renderMarket(){
 function renderMarketTable(){
  const host=$('#overview-market-rows');host.replaceChildren();
  $('#overview-price-currency').value=state.currency;saveCurrency(state.currency);$('#overview-market-price-label').textContent='가격 ('+state.currency+')';
- const fxNote=$('#overview-fx-note');fxNote.hidden=state.currency!=='KRW';fxNote.textContent=usableFX(state.fx)?'환율 기준 '+state.fx.date+' · 참고 환산':'원화 환산용 환율 자료 미확보';
+ const fxNote=$('#overview-fx-note');fxNote.hidden=state.currency!=='KRW';fxNote.textContent=usableFX(state.fx)?fxSourceLabel(state.fx)+' · 기준일 '+state.fx.date+' · 참고 환산':'원화 환산용 환율 자료 미확보';
  const rows=overviewMarketRows(state.market,state.registration);
  const metricCell=(value,price=false)=>{
   const cell=node('td');if(!value){cell.append(node('span','—','muted'));cell.title='자료 미확보';return cell;}

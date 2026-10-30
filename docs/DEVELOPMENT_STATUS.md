@@ -1,5 +1,7 @@
 # 현재 개발 상태
 
+2026-10-30 Frankfurter 후속: [키 없는 USD/KRW 전환 준비](research/2026-10-30-frankfurter-fx.md)와 사설 PG17 검증을 진행했다. 승인된1회 조회는 UND_ERR_CONNECT_TIMEOUT/정상HTTP0으로 실패·소비했다. 실제 DB 새 스키마/자료와 운영 반영은 미실행이다. 현재 코드의 명시 Frankfurter reader는 새 스키마/유효 자료가 없으면503이며 ECB로 자동전환하지 않는다. 기존 ECB 자료/실패/현재 웹 프로세스는 보존한다.
+
 2026-10-30 후속: [승인된 ECB 환율 단발](research/2026-10-30-ecb-fx-refresh-once.md)은 1송신시도/정상HTTP응답0·본문수신0/UND_ERR_CONNECT_TIMEOUT으로 실패 종료했다. 당일claim·실패를 보존하고 재시도0·새DB쓰기0이며 기존 만료 환율/API503을 유지한다.
 
 2026-10-30: [환율 공통 DB 연결](research/2026-10-30-shared-fx-database.md)을 완료했다. 개발 DB 모드와 production 웹 코드는 동일 Supabase reader를 사용하며 다른 개발 PC에 FX 파일 복사가 필요 없다. 실제 환율1건 이관/재입력0·기존11schema/74table 보존을 확인했다. 저장 환율은 만료 상태로 유지하며 새 ECB 수집·운영배포·service/timer 변경은 하지 않았다.

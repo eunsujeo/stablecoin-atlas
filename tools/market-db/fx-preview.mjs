@@ -10,7 +10,8 @@ export function databaseFXReader({env,connect=connectDatabase,read=readFXSnapsho
   pending=(async()=>{let c;try{
    c=await connect(env);const at=now(),p=validateFX(await read(c,{now:at}));
    if(!usableFX(p,at)||Date.parse(p.fetchedAt??p.importedAt)>at)throw Error('FX_UNAVAILABLE');
-   return Object.fromEntries(['schemaVersion','kind','base','date','usdPerEUR','krwPerEUR','sourceHash','fetchedAt','importedAt'].map(k=>[k,p[k]]));
+   const keys=p.schemaVersion===2?['schemaVersion','kind','provider','rateType','base','quote','date','krwPerUSD','sourceHash','fetchedAt','importedAt']:['schemaVersion','kind','base','date','usdPerEUR','krwPerEUR','sourceHash','fetchedAt','importedAt'];
+   return Object.fromEntries(keys.map(k=>[k,p[k]]));
   }catch{throw Error('FX_UNAVAILABLE');}finally{await c?.end().catch(()=>{});}})();
   pending.finally(()=>{pending=null;}).catch(()=>{});return pending;
  };

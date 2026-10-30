@@ -3,8 +3,12 @@ const scale=10n**36n;
 const group=s=>s.replace(/\B(?=(\d{3})+(?!\d))/g,',');
 const iso=s=>typeof s==='string'&&/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/.test(s)&&Number.isFinite(Date.parse(s))&&new Date(s).toISOString()===s;
 export function validateFX(p){
+ if(p?.schemaVersion===2){
+  if(p.kind!=='FRANKFURTER_REFERENCE_FX'||p.provider!=='FRANKFURTER'||p.rateType!=='BLENDED_REFERENCE'||p.base!=='USD'||p.quote!=='KRW'||typeof p.date!=='string'||!/^\d{4}-\d\d-\d\d$/.test(p.date)||!iso(p.date+'T00:00:00.000Z')||!decimal(p.krwPerUSD)||units(p.krwPerUSD)===0n||!/^[a-f0-9]{64}$/.test(p.sourceHash)||!iso(p.fetchedAt)||p.importedAt!==null||p.date>p.fetchedAt.slice(0,10))throw Error('INVALID_FX');return p;
+ }
  if(!p||p.schemaVersion!==1||p.kind!=='ECB_REFERENCE_FX'||p.base!=='EUR'||typeof p.date!=='string'||!/^\d{4}-\d\d-\d\d$/.test(p.date)||!iso(p.date+'T00:00:00.000Z')||!decimal(p.usdPerEUR)||!decimal(p.krwPerEUR)||units(p.usdPerEUR)===0n||units(p.krwPerEUR)===0n||!/^[a-f0-9]{64}$/.test(p.sourceHash)||!((iso(p.fetchedAt)&&p.importedAt===null)||(iso(p.importedAt)&&p.fetchedAt===null))||p.date>(p.fetchedAt??p.importedAt).slice(0,10))throw Error('INVALID_FX');return p;
 }
+export function fxSourceLabel(p){return p?.schemaVersion===2?'Frankfurter 일별 참고환율':'ECB 일별 참고환율';}
 export function usableFX(p,now=Date.now()){try{validateFX(p);const age=Date.parse(new Date(now).toISOString().slice(0,10))-Date.parse(p.date);return age>=0&&age<=7*86400000;}catch{return false;}}
 export function priceLabel(amount,currency='USD',fx=null,now=Date.now()){
  const n=units(amount);
@@ -13,7 +17,9 @@ export function priceLabel(amount,currency='USD',fx=null,now=Date.now()){
   const tail=String(rounded%100000000n).padStart(8,'0').replace(/0+$/,'');return '$'+group(String(rounded/100000000n))+(tail?'.'+tail:'');
  }
  if(currency!=='KRW'||!usableFX(fx,now))return '—';
- const denominator=units(fx.usdPerEUR)*scale,cents=(n*units(fx.krwPerEUR)*100n+denominator/2n)/denominator;
+ const denominator=fx.schemaVersion===2?scale*scale:units(fx.usdPerEUR)*scale;
+ const rate=fx.schemaVersion===2?units(fx.krwPerUSD):units(fx.krwPerEUR);
+ const cents=(n*rate*100n+denominator/2n)/denominator;
  if(n>0n&&cents===0n)return '<₩0.01';return '₩'+group(String(cents/100n))+'.'+String(cents%100n).padStart(2,'0');
 }
 const key='atlas-market-currency-v1';

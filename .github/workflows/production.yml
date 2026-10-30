@@ -57,7 +57,7 @@ jobs:
       - name: Owned PostgreSQL deployment and reader fixtures (no production credentials)
         run: |
           docker pull postgres:17-alpine
-          node --test --test-concurrency=1 tests/postgres/deployment-gate.test.mjs tests/postgres/production.test.mjs tests/postgres/network-usage-v2.test.mjs tests/postgres/fx.test.mjs
+          node --test --test-concurrency=1 tests/postgres/deployment-gate.test.mjs tests/postgres/production.test.mjs tests/postgres/network-usage-v2.test.mjs tests/postgres/fx.test.mjs tests/postgres/frankfurter-fx.test.mjs
       - name: Router regression (no model, credentials or Herdr required)
         run: python3 -m unittest discover -s tools/intelligent-router/evaluation -p 'test_*.py'
       - name: Summarize regression

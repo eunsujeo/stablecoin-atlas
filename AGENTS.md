@@ -2,6 +2,8 @@
 
 이 저장소는 독립적인 Multi-Chain Asset Compatibility Lab이다. 기존 Integration Test Kit 코드를 복사하거나 의존하지 않는다. Codex 단독으로 개발하며 하위 에이전트에 위임하지 않는다.
 
+- 사용자 Frankfurter 환율 변경 승인(2026-10-30): 고정 USD/KRW endpoint 최대1GET/64KiB/20초/재시도0 표본 후 DB·웹반영을 승인했고 실제1송신시도/HTTP응답0·본문수신0/UND_ERR_CONNECT_TIMEOUT으로 종료·소비했다. ADR0122의 별도provider root/십진문자열 schemaVersion2/새 private DDL·기존역할·명시reader·출처표시 코드를 사설PG17에서 준비했지만 유효표본이 없어 실제Supabase init/grant/import·웹재시작·운영배포/자동수집활성화0이다. 기존ECB 원문/판정/당일실패claim과 새당일claim을보존하고 재시도/endpoint·도구·proxy전환0이다. Lead8ff2246a7a484b8d946cee4676229874는 모델capacity오류로 미응답·명시cancelled이며 승인으로간주하지않는다. docs/research/2026-10-30-frankfurter-fx.md를따른다.
+
 - 사용자 ECB 환율 단발 승인(2026-10-30): 기존 FX root/당일claim을 유지한 최대1GET/64KiB/20초/재시도0/비용UNKNOWN·수집→DB반영→웹확인을 승인했고 실제1송신시도/HTTP응답0·본문수신0/UND_ERR_CONNECT_TIMEOUT으로 실패 종료했다. 해당단발소비와UTC2026-10-30미확정claim을 보존하며 재시도/claim삭제/새root우회/브라우저·endpoint·proxy전환0이다. 새snapshot/receipt·DB쓰기0·기존만료환율/API503을 유지한다. 구체네트워크원인UNKNOWN이며 proxy정책차단으로단정하지 않는다. docs/research/2026-10-30-ecb-fx-refresh-once.md를 따른다.
 
 - 사용자 환율 공통 DB 승인(2026-10-30): PC별 FX 파일 의존 제거 제안에 사용자가 진행을 승인했다. ADR0121의 별도 private atlas_fx/기존 writer INSERT·reader SELECT와 개발 DB·production 공통 reader를 사설 PG17 검증 후 실제 기존 Supabase에 적용했다. 원문 XML/hash·십진 문자열·기준일/원래 시각을 보존해 기존 환율1건/재입력0·기존11schema/74table 구조·자료 지문 보존을 확인했다. 저장 환율은2026-10-22 기준/만료이며 날짜 갱신 없이503을 유지한다. 새 ECB 수집·운영배포·service/timer 변경0이고 기존 파일 게시 hook은 DB 자동갱신 미연결이다. 후속 운영 적용 전 DB import 연결 검증이 필요하다. docs/research/2026-10-30-shared-fx-database.md를 따른다.
