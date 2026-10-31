@@ -47,3 +47,11 @@ fixture 수정 후 최종 전체check800개중792pass/0fail/8skip+보관74pass/0
 전체검사와 별도로 이전 실패 job에서 pack-only 오프라인 진단을1322ms/rc0으로 확인했다. 진단 결과는 builder 소유 raw output일 뿐 localBuild root attestation/완성rootcache/stage/current를 게시하지 않았다. 실패claim을 다시 소비하거나 정상 시험으로 승격하지 않았고 새 SHA의 실제 pipeline은 모든 gate를 다시 실행한다.
 
 clean-checkout fixture 수정 최종 npm run check는801개중793pass/0fail/8skip+보관74pass/0fail=867pass/0fail/8skip·종료0이다.
+
+## 첫 LOCAL 설치 성공과 SQL 검증 자산 보완
+
+4b2593168a3fa3ff28164dad1c65fe8b7e49238c는 실제 prepare5587ms/test10242ms/production5561ms/pack1287ms, 총25360ms/rc0으로 INSTALLED_DISABLED가 됐다. verify는 control-plane/파일/unit/pointer/rollback-baseline READY이나 database:web의 DEPLOY_PROBE_FAILED였다. 동일 atlasweb UID의 새 private 임시 reader copy로 read-only 진단해 ENOENT/OPEN과 schema.mjs→preview.mjs frame만 출력했고 secret/SQL/원래 error는 출력하지 않았다. temp copy는 finally로 제거했다.
+
+원인은 runtimeSource가 db/market/001-initial.sql 등 schema hash 검증용 원본을 빠뜨린 것이다. root DB 연결과 reader 역할 검사 이후 이 파일을 읽다가 실패했다. db 하위 SQL만 runtime에 포함하고21개 기존 schema 원본의 비어 있지 않은 존재를 offline smoke에서 검증한다. 각1개를 빼는21거부 사례를 추가했다. DDL을 실행하거나 DB schema/role·secret·원 시각/자료를 바꾸지 않는다. SQL code는 검증용 read asset이며 migration CLI를 호출하지 않는다. targeted18pass/0fail/0skip 후 전체check·새SHA 설치/verify로 이어간다. 기존CI/cache/실패claim/previous CP를 보존한다.
+
+SQL 자산 보완 최종 npm run check도867pass/0fail/8skip·종료0이다.

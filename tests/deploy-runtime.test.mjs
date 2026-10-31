@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {mkdtemp,mkdir,writeFile,readFile,rm,symlink} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {runtimeSource,runtimePackageDirectories} from '../tools/deploy/runtime-files.mjs';
+import {runtimeSource,runtimePackageDirectories,runtimeSchemaFiles} from '../tools/deploy/runtime-files.mjs';
 import {packEntries,tarEntries,releaseManifest} from '../tools/deploy/archive.mjs';
 import {policyFiles,payloadPolicies} from '../tools/deploy/policy.mjs';
 import {operationalEntrypoints,smokeRuntime} from '../tools/deploy/runtime-smoke.mjs';
@@ -14,7 +14,8 @@ async function packageAt(root,path,name,extra={}){await mkdir(join(root,path),{r
 async function lock(root,entries){await writeFile(join(root,'package-lock.json'),JSON.stringify({lockfileVersion:3,packages:Object.fromEntries(entries.map(path=>[path,{version}]))}));}
 
 test('runtime source policy preserves every operational/policy asset but excludes development and private paths',()=>{
- for(const name of [...Object.values(policyFiles).flat(),...operationalEntrypoints.map(p=>'tools/'+p+'.mjs'),'.github/workflows/production.yml','deploy/atlas-release','tools/market-db/schema.sql','data/asset-registry.json','web/index.html','web/styles.css','docs/ui/mock-dashboard-data.json','package-lock.json'])assert(runtimeSource(name),name);
+ for(const name of [...runtimeSchemaFiles,...Object.values(policyFiles).flat(),...operationalEntrypoints.map(p=>'tools/'+p+'.mjs'),'.github/workflows/production.yml','deploy/atlas-release','tools/market-db/schema.sql','data/asset-registry.json','web/index.html','web/styles.css','docs/ui/mock-dashboard-data.json','package-lock.json'])assert(runtimeSource(name),name);
+ assert.equal(runtimeSchemaFiles.length,21);assert(!runtimeSource('db/private.env'));assert(!runtimeSource('db/run.mjs'));
  for(const name of ['tests/production.test.mjs','fixtures/Token.sol','src/cli.ts','docs/research/report.md','docs/ui/mock.png','AGENTS.md','tools/research/probe.mjs','tools/intelligent-router/policy.json','tools/production-browser-check.mjs','web/model.test.mjs','.env.local','reports/index.json','.state/private.json'])assert(!runtimeSource(name),name);
 });
 
@@ -46,9 +47,10 @@ test('native runtime files bind the Node ABI and package trimming never changes 
 });
 
 test('offline runtime smoke rejects missing entrypoints and subprocesses cannot make external requests',async t=>{
- const root=await fixture(t),commit='a'.repeat(40),entries=[{name:'REVISION',bytes:Buffer.from(commit+'\n')},...['package-lock.json','node_modules/pg/package.json',...new Set(Object.values(policyFiles).flat())].map(name=>({name,bytes:Buffer.from('fixture')})),{name:'package.json',bytes:Buffer.from('{"type":"module"}')},...operationalEntrypoints.map(name=>({name:'tools/'+name+'.mjs',bytes:Buffer.from('// import-only fixture')}))];
+ const root=await fixture(t),commit='a'.repeat(40),entries=[{name:'REVISION',bytes:Buffer.from(commit+'\n')},...[...runtimeSchemaFiles,'package-lock.json','node_modules/pg/package.json',...new Set(Object.values(policyFiles).flat())].map(name=>({name,bytes:Buffer.from('fixture')})),{name:'package.json',bytes:Buffer.from('{"type":"module"}')},...operationalEntrypoints.map(name=>({name:'tools/'+name+'.mjs',bytes:Buffer.from('// import-only fixture')}))];
  async function output(content){const selected=[...new Map(content.map(e=>[e.name,e])).values()],payload=packEntries(selected),manifest=releaseManifest(payload,{commit,component:'web',runId:1,attempt:1,policies:payloadPolicies(selected)});await writeFile(join(root,'release.tar'),payload);await writeFile(join(root,'release.json'),JSON.stringify(manifest));}
  await output(entries);assert.equal((await smokeRuntime(root)).state,'RUNTIME_IMPORTS_READY');
+ for(const name of runtimeSchemaFiles){await output(entries.filter(e=>e.name!==name));await assert.rejects(smokeRuntime(root),/RUNTIME_SCHEMA_ASSET_MISSING/);}
  await output(entries.filter(e=>e.name!=='tools/collector-worker.mjs'));await assert.rejects(smokeRuntime(root));
  await output(entries.map(e=>e.name==='tools/collector-worker.mjs'?{...e,bytes:Buffer.from("await fetch('https://example.invalid/');")}:e));await assert.rejects(smokeRuntime(root));
 });

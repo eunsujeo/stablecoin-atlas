@@ -4,9 +4,15 @@ import {requireThat} from './files.mjs';
 
 // Operational entrypoints use pg only. Keep entire installed dependency packages, including natives.
 export const runtimeRoots=Object.freeze(['pg']);
+// Reader verification hashes these local SQL originals; none are executed by packaging/smoke.
+export const runtimeSchemaFiles=Object.freeze([
+ ...['activity','allium-daily-lab','allium-supply','asset-review','catalog','contract-review','frankfurter-fx','fx','history','market','network-usage','registration','survey'].map(n=>'db/'+n+'/001-initial.sql'),
+ 'db/history/002-supply-metric.sql','db/history/003-periodic-normalized.sql','db/history/004-continuous-collection.sql','db/network-usage/002-expanded.sql','db/registration/002-daily-collection.sql','db/registration/003-coin-market.sql','db/scheduler/001-configurable-schedule.sql','db/survey/002-windowed-snapshots.sql',
+]);
 export function runtimeSource(name){
  if(['package.json','package-lock.json','LICENSE','.github/workflows/production.yml','docs/ui/mock-dashboard-data.json'].includes(name))return true;
  if(name.startsWith('deploy/')||name.startsWith('data/'))return true;
+ if(name.startsWith('db/'))return name.endsWith('.sql');
  if(name.startsWith('web/'))return !/\.test\./.test(name);
  return name.startsWith('tools/')&&!/^tools\/(research|intelligent-router)\//.test(name)&&!/(?:browser-check|\.test\.)/.test(name)&&/\.(mjs|js|json|sql)$/.test(name);
 }

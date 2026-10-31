@@ -4,12 +4,14 @@ import {tmpdir} from 'node:os';
 import {execFile} from 'node:child_process';
 import {promisify} from 'node:util';
 import {pathToFileURL} from 'node:url';
-import {extractRelease,validateBundle} from './archive.mjs';
+import {extractRelease,validateBundle,tarEntries} from './archive.mjs';
+import {runtimeSchemaFiles} from './runtime-files.mjs';
 import {requireThat} from './files.mjs';
 export const operationalEntrypoints=Object.freeze(['production-web','collector-worker','registered-collector','fx-store','usage-operating-cli','deploy/bootstrap','deploy/apply','deploy/runtime-probe']);
 export async function smokeRuntime(output,{kind='ATLAS_CI_RELEASE'}={}){
  const manifest=JSON.parse(await readFile(join(output,'release.json'),'utf8')),payload=await readFile(join(output,'release.tar'));
  validateBundle({'release.json':Buffer.from(JSON.stringify(manifest)),'release.tar':payload},{sha:manifest.commit,id:manifest.runId,attempt:manifest.attempt,component:manifest.component},{kind});
+ const assets=new Map(tarEntries(payload).map(e=>[e.name,e]));requireThat(runtimeSchemaFiles.every(name=>assets.get(name)?.bytes.length>0),'RUNTIME_SCHEMA_ASSET_MISSING');
  const root=await realpath(await mkdtemp(join(tmpdir(),'atlas-runtime-smoke-')));
  try{
   await extractRelease(payload,root);

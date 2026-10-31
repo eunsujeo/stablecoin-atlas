@@ -2,7 +2,7 @@
 
 2026-10-31 사용자 선택: **GitHub은 형상관리만 사용하고 Mac mini에서 테스트·빌드·자동 배포한다.** 현재 방식은 [ADR0125](adr/0125-mac-mini-local-git-build-deployment.md)의 `source: LOCAL_GIT`이다. [구현·운영 검증 기록](research/2026-10-31-local-git-deployment.md)을 따른다. 아래 GitHub Actions 방식은 이전 이력이며 자동 workflow trigger는 제거했다. App/token/Actions/reporting variable을 LOCAL_GIT의 배포 조건으로 요구하지 않는다. 기존 비밀 파일과 CI 릴리스/backup은 보존한다.
 
-Mac mini는 고정 원본의 main SHA를 확인하고 atlasbuild로 소스·잠금 의존성을 취득한다. TypeScript build·Node24 웹/배포 회귀·운영 import smoke를 통과한 LOCAL manifest 산출물을 root private cache에 저장한 뒤 기존 health/rollback controller로 배포한다. 테스트/pack은 외부 네트워크 차단, npm lifecycle 금지, CPU200%·Memory2GiB·단계별 시간 제한을 유지한다. root는 저장소 빌드 코드를 직접 실행하지 않는다. LOCAL_GIT은 web만 허용하고 Collector/Usage 자동 전환은 거부한다.
+Mac mini는 고정 원본의 main SHA를 확인하고 atlasbuild로 소스·잠금 의존성을 취득한다. TypeScript build·Node24 웹/배포 회귀·운영 import smoke를 통과한 LOCAL manifest 산출물을 root private cache에 저장한 뒤 기존 health/rollback controller로 배포한다. DB schema hash 검증에 필요한 `db/**/*.sql` 원본도 runtime에 포함하고21개 필수 자산을 오프라인으로 확인한다. 파일을 읽는 것이며 DDL/migration을 실행하지 않는다. 테스트/pack은 외부 네트워크 차단, npm lifecycle 금지, CPU200%·Memory2GiB·단계별 시간 제한을 유지한다. root는 저장소 빌드 코드를 직접 실행하지 않는다. LOCAL_GIT은 web만 허용하고 Collector/Usage 자동 전환은 거부한다.
 
 최초 전환은 검토한 정확 SHA의 root 소유 `/opt/stablecoin-atlas/bootstrap-<sha>` checkout에서 한다. 기존 disabled 설정을 새 root0600 파일로 보존 복사해 `source: LOCAL_GIT`과 `bootstrapSha`만 바꾸고 plan→install→verify한다. 기존 reader·CA·writer·policy/secret hash는 그대로 유지한다. enable 직전 사용자 승인을 받고, 승인 후에만 timer 시작 및 웹 전환/실제 push 종단 검증을 진행한다. 실패·부분 cache·미확인 상태는 자동 claim 삭제/반복/강제 채택으로 우회하지 않는다.
 
