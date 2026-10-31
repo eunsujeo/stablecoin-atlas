@@ -15,6 +15,7 @@ import {artifactCache} from './artifact-cache.mjs';
 import {timedDeployment} from './operation-timing.mjs';
 import {bootstrapLayout,preflightInstallPaths,prospectiveTrusted,recoverBootstrapInstall,publishBootstrapInstall} from './bootstrap-install.mjs';
 import {bootstrapLease} from './bootstrap-lease.mjs';
+import {ensureProbeDirectory} from './probe-directory.mjs';
 import {provision} from './vault.mjs';
 import {extractRelease} from './archive.mjs';
 import {uidFor,unitState,timerDefinition,operatingSystem,ROOT,STATE,INSTALL,services,verifyInstallation} from './system.mjs';
@@ -94,7 +95,7 @@ export async function bootstrap(args){
    const {stdout:account}=await exec('/usr/bin/getent',['passwd','atlaspull']);const identity=account.trim().split(':');requireThat(identity[5]==='/nonexistent'&&['/usr/sbin/nologin','/sbin/nologin'].includes(identity[6]),'DEPLOY_ACCOUNT_PRIVILEGED');
    const {stdout:groups}=await exec('/usr/bin/id',['-Gn','atlaspull']);requireThat(groups.trim().split(/\s+/).every(g=>g==='atlaspull'),'DEPLOY_ACCOUNT_PRIVILEGED');
    for(const dir of [join(STATE,'reports'),dirname(layout.config),layout.log]){await prospectiveTrusted(dir,{directory:true});await mkdir(dir,{recursive:true,mode:0o700});await trusted(dir,{directory:true});}
-   await mkdir(layout.probes,{recursive:true,mode:0o711});await trusted(layout.probes,{directory:true});
+   await ensureProbeDirectory();
    const units={};for(const r of plan)units[r.path]=hash(r.bytes);for(const target of effective){if(Object.hasOwn(units,target))continue;await trusted(target,{limit:65536});units[target]=hash(await readFile(target));}
    const helpers=await Promise.all(['atlas-deploy-admin','atlas-release'].map(async name=>({path:join(layout.bin,name),bytes:await readFile(join(next,'deploy',name)),mode:0o755})));for(const f of helpers)units[f.path]=hash(f.bytes);
    const receipt={schemaVersion:1,commit:candidate.sha,files:await inventory(next),units};

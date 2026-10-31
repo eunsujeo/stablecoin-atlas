@@ -1,5 +1,7 @@
 # Stablecoin Atlas 자동 CI/CD
 
+2026-10-31 런타임 접근 권한: Bootstrap과 broker의 `umask 077`을 유지하면서 새 staging tree의 모든 디렉터리를 명시0755, regular file을 manifest 정규화0644/0755로 전개한다. 최상위 경로만0755로 바꾸면 `atlasweb`의 모듈 import가 실패하므로 하위 `tools`·`node_modules`도 포함한다. 기존 설치본·release·backup에 재귀 chmod하지 않는다. 배포 전용 `/run/atlas-deploy-probes`는 root 소유 no-follow FD로 검사하고 이전 umask의 정확0700만0711로 보정한다. 다른 mode/owner/link는 거부하며 자식probe0700·reader0600은 유지한다. 새 CI SHA의 Bootstrap install로 제어면을 교체하고 verify한다. [운영 검증 기록](research/2026-10-31-bootstrap-runtime-permissions.md)을 따른다.
+
 2026-10-31 Fedora 설치·재실행은 [ADR0124](adr/0124-fedora-bootstrap-install-recovery.md)를 따른다. root 소유의 정확한 `/usr/local/sbin -> bin`만 허용하고 실제 `/usr/local/bin` 파일·조상과 logical 조상의 root/non-writable을 모두 확인한다. 다른 symlink를 일반화하거나 시스템 링크/소유권/권한을 고치지 않는다. `plan`의 기존 `checks` 외 `installPaths`와 unit plan/실제 unit 경로 검사도 확인한다.
 
 `install`은 경로/계정/기존 state를 먼저 검증하고 private `bootstrap-install.json`과 `bootstrap-backups/UUID`로 원래 파일·제어면을 보존한다. 파일 UID/GID/mode는 유지하고 새 임시 파일의 atomic rename으로 내용만 갱신하며 마지막에 receipt를 게시한다. 실패/프로세스 종료 후 명시 install 재실행은 commit marker를 확인해 복구하거나 이미 끝난 commit으로 닫는다. 외부 편집·손상·불명확 상태는 `BOOTSTRAP_RECOVERY_BLOCKED`로 남기며 강제 덮어쓰지 않는다. 저널이 pending이면 verify/apply/enable은 차단된다. 기존 CI release/ATLAS_RELEASE/cache/previous tree를 삭제하거나 임의로 receipt를 작성하지 않는다. 서비스 start/stop/restart와 포인터 변경은 install에 없고, missing usage-current 초기 생성도 명시 enable에서만 수행한다. Collector state directory는 이미 올바른 owner/private 조건으로 준비돼 있어야 하며 install에서 생성/chown하지 않는다. [로컬 검증·운영 재실행 경계](research/2026-10-31-fedora-bootstrap-install-recovery.md).

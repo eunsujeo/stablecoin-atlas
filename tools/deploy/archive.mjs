@@ -29,8 +29,18 @@ export function tarEntries(bytes){
  requireThat(ended&&entries.length>0,'TAR_INVALID');return entries;
 }
 export async function extractRelease(bytes,target){
- const entries=tarEntries(bytes),directories=new Set([target]);for(const entry of entries){const path=join(target,entry.name);await mkdir(dirname(path),{recursive:true,mode:0o755});let dir=dirname(path);while(dir.startsWith(target)){directories.add(dir);if(dir===target)break;dir=dirname(dir);}const f=await open(path,'wx',entry.mode);try{await f.writeFile(entry.bytes);await f.chmod(entry.mode);await f.sync();}finally{await f.close();}}
- for(const dir of [...directories].sort((a,b)=>b.length-a.length))await syncDirectory(dir);await chmod(target,0o755);await syncDirectory(target);
+ const entries=tarEntries(bytes),directories=new Set();
+ // mkdir's mode is filtered by the root wrapper's umask 077. Normalize only this
+ // staging tree; service users must traverse every runtime/module directory.
+ async function directory(path){
+  if(directories.has(path))return;if(path!==target)await directory(dirname(path));
+  try{await mkdir(path,{mode:0o755});}catch(e){if(e.code!=='EEXIST')throw e;}
+  const s=await lstat(path);requireThat(s.isDirectory()&&!s.isSymbolicLink()&&s.uid===process.getuid()&&!(s.mode&0o022),'EXTRACT_DIRECTORY_UNSAFE');
+  await chmod(path,0o755);directories.add(path);
+ }
+ await directory(target);
+ for(const entry of entries){const path=join(target,entry.name);await directory(dirname(path));const f=await open(path,'wx',entry.mode);try{await f.writeFile(entry.bytes);await f.chmod(entry.mode);await f.sync();}finally{await f.close();}}
+ for(const dir of [...directories].sort((a,b)=>b.length-a.length))await syncDirectory(dir);
 }
 export function releaseManifest(files,{commit,component,policies,runId,attempt}){
  requireThat(sha(commit)&&['web','collector','usage'].includes(component)&&Number.isSafeInteger(runId)&&runId>0&&Number.isSafeInteger(attempt)&&attempt>0,'MANIFEST_INVALID');
