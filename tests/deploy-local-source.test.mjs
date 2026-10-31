@@ -7,7 +7,7 @@ import {randomUUID} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import {buildRelease} from '../tools/deploy/build.mjs';
 import {localConfiguration} from '../tools/deploy/local-config.mjs';
-import {localSourceClient,localBuildCommand,validateLocalBundle,readLocalOutput,localBuildPolicy} from '../tools/deploy/local-source.mjs';
+import {localSourceClient,localBuildCommand,validateLocalBundle,readLocalOutput,localBuildPolicy,localMainCommand} from '../tools/deploy/local-source.mjs';
 import {validateLocalLock,localRepository} from '../tools/deploy/local-build-worker.mjs';
 import {packEntries,releaseManifest,validateBundle,tarEntries} from '../tools/deploy/archive.mjs';
 import {policyFiles,payloadPolicies} from '../tools/deploy/policy.mjs';
@@ -18,6 +18,9 @@ import {hash,json} from '../tools/deploy/files.mjs';
 const A='a'.repeat(40),B='b'.repeat(40),H='c'.repeat(64),config={source:'LOCAL_GIT',repository:'eunsujeo/stablecoin-atlas',enabled:true,components:{web:{enabled:true},collector:{enabled:false},usage:{enabled:false}}};
 async function fixture(t){const p=await mkdtemp(join(tmpdir(),'atlas-local-'));t.after(()=>rm(p,{recursive:true,force:true}));return p;}
 const trust=async p=>{const s=await lstat(p);assert.ok(s.isDirectory()&&!s.isSymbolicLink()&&s.uid===process.getuid()&&!(s.mode&0o022));};
+test('main discovery uses builder-accessible cwd and preserves only proxy/CA environment',()=>{
+ const {command,args,options}=localMainCommand({HTTPS_PROXY:'https://proxy.example.invalid',SSL_CERT_FILE:'/etc/pki/ca-bundle.crt',SSH_AUTH_SOCK:'/private/agent',GITHUB_TOKEN:'PRIVATE_SENTINEL',GIT_SSL_NO_VERIFY:'1',NODE_TLS_REJECT_UNAUTHORIZED:'0'});assert.equal(command,'/usr/sbin/runuser');assert.equal(options.cwd,'/var/cache/atlas-build');assert.deepEqual(args.slice(0,3),['-u','atlasbuild','--']);assert.deepEqual(args.slice(-2),[localRepository,'refs/heads/main']);assert.equal(options.env.HTTPS_PROXY,'https://proxy.example.invalid');assert.equal(options.env.SSL_CERT_FILE,'/etc/pki/ca-bundle.crt');for(const name of ['SSH_AUTH_SOCK','GITHUB_TOKEN','GIT_SSL_NO_VERIFY','NODE_TLS_REJECT_UNAUTHORIZED'])assert.equal(options.env[name],undefined);
+});
 function bundle(c){const names=['REVISION','package.json','package-lock.json','tools/production-web.mjs','node_modules/pg/package.json',...new Set(Object.values(policyFiles).flat())];const entries=names.map(name=>({name,bytes:Buffer.from(name==='REVISION'?c.sha+'\n':'fixture')})),payload=packEntries(entries);const manifest=releaseManifest(payload,{commit:c.sha,component:'web',runId:c.id,attempt:1,kind:'ATLAS_LOCAL_RELEASE',policies:payloadPolicies(entries)});manifest.localBuild={policyHash:H,tested:true,repository:localRepository};return {payload,manifest};}
 test('local config needs no Actions IDs, token or variable; collector/usage expansion is refused',()=>{
  const files=Object.fromEntries(['reader','web','ca'].map(id=>[id,{sha256:H,owner:'root',mode:id==='reader'?0o600:0o644}]));const c={...config,schemaVersion:1,files};assert.equal(validateConfig(c),c);assert.deepEqual(requiredFiles(c,'web'),['ca','reader','web']);assert.deepEqual(requiredFiles({...c,files:{...files,github:{sha256:H,owner:'root',mode:0o600}}},'all'),['reader','web','ca']);

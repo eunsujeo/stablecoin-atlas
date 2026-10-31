@@ -43,9 +43,12 @@ async function buildLocal(c,{state,codeRoot,policyHash}){
  const payload=await readLocalOutput(join(output,'release.tar'),{uid,limit:192*1024*1024}),raw=await readLocalOutput(join(output,'release.json'),{uid,limit:65536});
  const manifest=JSON.parse(raw);validateBundle({'release.tar':payload,'release.json':raw},c,{kind:'ATLAS_LOCAL_RELEASE'});manifest.localBuild={policyHash,tested:true,repository:localRepository};return validateLocalBundle({'release.tar':payload,'release.json':Buffer.from(JSON.stringify(manifest))},c,policyHash);
 }
+export function localMainCommand(environment=process.env){
+ const env={PATH:'/usr/bin:/bin',GIT_CONFIG_GLOBAL:'/dev/null',GIT_TERMINAL_PROMPT:'0'};for(const k of ['HTTPS_PROXY','HTTP_PROXY','ALL_PROXY','NO_PROXY','https_proxy','http_proxy','all_proxy','no_proxy','GIT_SSL_CAINFO','GIT_SSL_CAPATH','SSL_CERT_FILE','SSL_CERT_DIR'])if(environment[k])env[k]=environment[k];
+ return {command:'/usr/sbin/runuser',args:['-u','atlasbuild','--','/usr/bin/git','-c','http.followRedirects=false','ls-remote','--exit-code',localRepository,'refs/heads/main'],options:{cwd:cache,env,timeout:30000,maxBuffer:4096}};
+}
 async function discoverMain(){
- const env={PATH:'/usr/bin:/bin',GIT_CONFIG_GLOBAL:'/dev/null',GIT_TERMINAL_PROMPT:'0'};for(const k of ['HTTPS_PROXY','HTTP_PROXY','ALL_PROXY','NO_PROXY','https_proxy','http_proxy','all_proxy','no_proxy','GIT_SSL_CAINFO','GIT_SSL_CAPATH','SSL_CERT_FILE','SSL_CERT_DIR'])if(process.env[k])env[k]=process.env[k];
- try{const {stdout}=await exec('/usr/sbin/runuser',['-u','atlasbuild','--','/usr/bin/git','-c','http.followRedirects=false','ls-remote','--exit-code',localRepository,'refs/heads/main'],{env,timeout:30000,maxBuffer:4096});const parts=stdout.trim().split(/\s+/);requireThat(parts.length===2&&sha(parts[0])&&parts[1]==='refs/heads/main','LOCAL_MAIN_INVALID');return parts[0];}catch(e){throw Error(e.message==='LOCAL_MAIN_INVALID'?e.message:'LOCAL_SOURCE_UNAVAILABLE');}
+ const {command,args,options}=localMainCommand();try{const {stdout}=await exec(command,args,options);const parts=stdout.trim().split(/\s+/);requireThat(parts.length===2&&sha(parts[0])&&parts[1]==='refs/heads/main','LOCAL_MAIN_INVALID');return parts[0];}catch(e){throw Error(e.message==='LOCAL_MAIN_INVALID'?e.message:'LOCAL_SOURCE_UNAVAILABLE');}
 }
 export function localSourceClient({state,codeRoot=fileURLToPath(new URL('../../',import.meta.url)),discover=discoverMain,policy=()=>localPolicyHash(codeRoot),build=buildLocal,clock=Date.now,trust=trusted}){
  async function candidate(config,versions={}){

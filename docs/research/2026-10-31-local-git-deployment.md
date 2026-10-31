@@ -21,3 +21,9 @@ local source 전용9개는 config의 CI/token 불필요·web-only·고정sandbox
 ## 운영 경계
 
 이 문서의 구현은 enable 완료를 뜻하지 않는다. 자동 deploy enable과 실제 push 기반 웹 전환은 사용자 승인 직전에 중단한다. 기존 web/Collector PID·FX timer·release pointers·secret hash/mode/owner는 private baseline과 비교한다. 기존 CI release/marker/cache·control plane backup은 삭제하지 않는다. GitHub은 소스 형상관리만 사용한다. 실제 서버 결과와 남은 승인 단계는 후속 기록으로 구분한다.
+
+## 첫 서버 계획과 Git 조회 수정
+
+1d7357d6bcb2dda1fda765e1718de56a76864a79를 push한 뒤 root 보호 checkout/새LOCAL 계획을 생성했다. plan의 reader/web/CA·unit/effective path·설치 경로는 모두READY였다. install은 LOCAL_SOURCE_UNAVAILABLE로265ms에 중단됐다. 빌드 claim/worker·제어면 교체·서비스 전환은 시작되지 않았다.
+
+원인은 sudo 관리자 셸 cwd=/root를 비특권 Git이 상속한 접근 거부(exit128)였다. 고정 /var/cache/atlas-build cwd를 지정하니 같은 서버에서 BUILDER_MAIN_LOOKUP_READY를 확인했다. localMainCommand를 분리하고 builder cwd·고정 원본/ref·proxy/CA만 전달·SSH agent/token/TLS-disable 환경 미전달의 회귀 시험을 추가했다. 진단 helper의 regex escape 오류는 plain string 분류로 고쳤고 비밀 stderr를 출력하지 않았다. 최종 local전용10pass/0fail 및 npm run check799개중791pass/0fail/8skip+보관74pass/0fail=865pass/0fail/8skip, 종료0을 확인한 뒤 수정 commit으로 이어간다. 첫 checkout/config/실패 출력과 기존 설치본은 보존한다.
