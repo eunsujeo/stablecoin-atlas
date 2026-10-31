@@ -6,13 +6,14 @@ export const destinations={reader:'/etc/atlas-web/reader.env',web:'/etc/atlas-we
 export const collectorFiles=['writer','registered','schedule'];
 export const usageFiles=['usageConfig','usageAuthorization','definers','usageWriter'];
 export function validateConfig(c){
- requireThat(c?.schemaVersion===1&&c.repository==='eunsujeo/stablecoin-atlas'&&Number.isSafeInteger(c.repositoryId)&&c.repositoryId>0&&Number.isSafeInteger(c.workflowId)&&c.workflowId>0&&sha(c.workflowBlob)&&typeof c.enabled==='boolean','CONFIG_INVALID');
+ const local=c?.source==='LOCAL_GIT';requireThat(c?.schemaVersion===1&&c.repository==='eunsujeo/stablecoin-atlas'&&[undefined,'GITHUB_ACTIONS','LOCAL_GIT'].includes(c.source)&&(local||Number.isSafeInteger(c.repositoryId)&&c.repositoryId>0&&Number.isSafeInteger(c.workflowId)&&c.workflowId>0&&sha(c.workflowBlob))&&typeof c.enabled==='boolean','CONFIG_INVALID');
  if(c.bootstrapSha!==undefined)requireThat(sha(c.bootstrapSha),'BOOTSTRAP_SHA_INVALID');
  requireThat(Object.keys(c.components??{}).sort().join(',')==='collector,usage,web'&&Object.values(c.components).every(v=>typeof v.enabled==='boolean'),'CONFIG_INVALID');
+ if(local)requireThat(c.components.web.enabled&&!c.components.collector.enabled&&!c.components.usage.enabled,'LOCAL_WEB_ONLY');
  for(const id of ['collector','usage'])if(c.components[id].enabled)requireThat(hex(c.components[id].policyHash),'POLICY_REQUIRED');
  if(c.components.collector.enabled)requireThat(hex(c.components.collector.selection),'SELECTION_REQUIRED');
  requireThat(c.files&&typeof c.files==='object'&&Object.entries(c.files).every(([id,v])=>Object.hasOwn(destinations,id)&&hex(v.sha256)&&['root','atlascollector'].includes(v.owner)&&(!['reader','web','github','githubKey','ca'].includes(id)||v.owner==='root')&&[0o600,0o644].includes(v.mode)&&(!['reader','github','githubKey','writer','registered','usageWriter','definers','usageAuthorization'].includes(id)||v.mode===0o600)),'FILES_INVALID');
- for(const id of ['reader','web','github','ca',...(c.components.collector.enabled?collectorFiles:[]),...(c.components.usage.enabled?usageFiles:[])])requireThat(c.files[id],'REQUIRED_FILE_MISSING');return c;
+ for(const id of ['reader','web','ca',...(!local?['github']:[]),...(c.components.collector.enabled?collectorFiles:[]),...(c.components.usage.enabled?usageFiles:[])])requireThat(c.files[id],'REQUIRED_FILE_MISSING');return c;
 }
 export async function loadConfig(file='/etc/atlas-deploy/config.json'){await trusted(file,{privateFile:true});return validateConfig(JSON.parse(await readFile(file,'utf8')));}
 export async function verifyConfiguredFile(id,spec,{uidFor,stat=lstat,read=readFile,openFile=open}={}){

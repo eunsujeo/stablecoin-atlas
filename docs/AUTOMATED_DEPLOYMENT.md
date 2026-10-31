@@ -1,4 +1,12 @@
-# Stablecoin Atlas 자동 CI/CD
+# Stablecoin Atlas 서버 빌드 자동 배포
+
+2026-10-31 사용자 선택: **GitHub은 형상관리만 사용하고 Mac mini에서 테스트·빌드·자동 배포한다.** 현재 방식은 [ADR0125](adr/0125-mac-mini-local-git-build-deployment.md)의 `source: LOCAL_GIT`이다. [구현·운영 검증 기록](research/2026-10-31-local-git-deployment.md)을 따른다. 아래 GitHub Actions 방식은 이전 이력이며 자동 workflow trigger는 제거했다. App/token/Actions/reporting variable을 LOCAL_GIT의 배포 조건으로 요구하지 않는다. 기존 비밀 파일과 CI 릴리스/backup은 보존한다.
+
+Mac mini는 고정 원본의 main SHA를 확인하고 atlasbuild로 소스·잠금 의존성을 취득한다. TypeScript build·Node24 웹/배포 회귀·운영 import smoke를 통과한 LOCAL manifest 산출물을 root private cache에 저장한 뒤 기존 health/rollback controller로 배포한다. 테스트/pack은 외부 네트워크 차단, npm lifecycle 금지, CPU200%·Memory2GiB·단계별 시간 제한을 유지한다. root는 저장소 빌드 코드를 직접 실행하지 않는다. LOCAL_GIT은 web만 허용하고 Collector/Usage 자동 전환은 거부한다.
+
+최초 전환은 검토한 정확 SHA의 root 소유 `/opt/stablecoin-atlas/bootstrap-<sha>` checkout에서 한다. 기존 disabled 설정을 새 root0600 파일로 보존 복사해 `source: LOCAL_GIT`과 `bootstrapSha`만 바꾸고 plan→install→verify한다. 기존 reader·CA·writer·policy/secret hash는 그대로 유지한다. enable 직전 사용자 승인을 받고, 승인 후에만 timer 시작 및 웹 전환/실제 push 종단 검증을 진행한다. 실패·부분 cache·미확인 상태는 자동 claim 삭제/반복/강제 채택으로 우회하지 않는다.
+
+## 이전 GitHub Actions 방식과 권한 수정 기록
 
 2026-10-31 런타임 접근 권한: Bootstrap과 broker의 `umask 077`을 유지하면서 새 staging tree의 모든 디렉터리를 명시0755, regular file을 manifest 정규화0644/0755로 전개한다. 최상위 경로만0755로 바꾸면 `atlasweb`의 모듈 import가 실패하므로 하위 `tools`·`node_modules`도 포함한다. 기존 설치본·release·backup에 재귀 chmod하지 않는다. 배포 전용 `/run/atlas-deploy-probes`는 root 소유 no-follow FD로 검사하고 이전 umask의 정확0700만0711로 보정한다. 다른 mode/owner/link는 거부하며 자식probe0700·reader0600은 유지한다. 새 CI SHA의 Bootstrap install로 제어면을 교체하고 verify한다. [운영 검증 기록](research/2026-10-31-bootstrap-runtime-permissions.md)을 따른다.
 

@@ -41,7 +41,7 @@ export async function validateResumeWindow(component,before,{now=Date.now(),conf
  }
  if(component==='usage'&&usageAuthorization){const day=new Date(now).toISOString().slice(0,10);requireThat(day>=usageAuthorization.fromDay&&day<usageAuthorization.untilExclusive,'USAGE_AUTHORIZATION_EXPIRED');}
 }
-export function requiredFiles(config,component){const common=['github','ca',...(config.files.githubKey?['githubKey']:[])];return component==='all'?Object.keys(config.files):[...common,...(component==='web'?['reader','web']:component==='collector'?collectorFiles:usageFiles)];}
+export function requiredFiles(config,component){const common=['ca',...(config.source==='LOCAL_GIT'?[]:['github',...(config.files.githubKey?['githubKey']:[])])];return component==='all'?(config.source==='LOCAL_GIT'?['reader','web','ca']:Object.keys(config.files)):[...common,...(component==='web'?['reader','web']:component==='collector'?collectorFiles:usageFiles)];}
 export function operatingSystem(config){
  const barrier=c=>join(STATE,'quiesce-'+c),link=c=>c==='web'?'current':c==='collector'?'collector-current':'usage-current';
  async function snapshot(c){const result={};for(const u of services(config,c))result[u]=await unitState(u);return result;}

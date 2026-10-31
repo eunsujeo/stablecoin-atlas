@@ -1,8 +1,7 @@
 name: Atlas deployment result
 on:
-  workflow_run:
-    workflows: [Atlas CI release]
-    types: [completed]
+  # Historical report recipe; LOCAL_GIT stores deployment results on the server.
+  workflow_dispatch:
 permissions:
   contents: read
   statuses: read

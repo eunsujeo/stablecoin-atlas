@@ -42,12 +42,12 @@ export async function extractRelease(bytes,target){
  for(const entry of entries){const path=join(target,entry.name);await directory(dirname(path));const f=await open(path,'wx',entry.mode);try{await f.writeFile(entry.bytes);await f.chmod(entry.mode);await f.sync();}finally{await f.close();}}
  for(const dir of [...directories].sort((a,b)=>b.length-a.length))await syncDirectory(dir);
 }
-export function releaseManifest(files,{commit,component,policies,runId,attempt}){
+export function releaseManifest(files,{commit,component,policies,runId,attempt,kind='ATLAS_CI_RELEASE'}){
  requireThat(sha(commit)&&['web','collector','usage'].includes(component)&&Number.isSafeInteger(runId)&&runId>0&&Number.isSafeInteger(attempt)&&attempt>0,'MANIFEST_INVALID');
- return {schemaVersion:1,kind:'ATLAS_CI_RELEASE',commit,component,runId,attempt,platform:'linux',arch:'arm64',nodeMajor:24,nodeABI:tarEntries(files).some(e=>e.name.endsWith('.node'))?process.versions.modules:null,payloadHash:hash(files),policies};
+ requireThat(['ATLAS_CI_RELEASE','ATLAS_LOCAL_RELEASE'].includes(kind),'MANIFEST_INVALID');return {schemaVersion:1,kind,commit,component,runId,attempt,platform:'linux',arch:'arm64',nodeMajor:24,nodeABI:tarEntries(files).some(e=>e.name.endsWith('.node'))?process.versions.modules:null,payloadHash:hash(files),policies};
 }
-export function validateBundle(files,expected){
- const m=JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(files['release.json']));requireThat(m.schemaVersion===1&&m.kind==='ATLAS_CI_RELEASE'&&m.commit===expected.sha&&m.runId===expected.id&&m.attempt===expected.attempt&&m.component===expected.component&&m.platform==='linux'&&m.arch==='arm64'&&m.nodeMajor===24&&hex(m.payloadHash)&&hash(files['release.tar'])===m.payloadHash,'MANIFEST_INVALID');
+export function validateBundle(files,expected,{kind='ATLAS_CI_RELEASE'}={}){
+ requireThat(['ATLAS_CI_RELEASE','ATLAS_LOCAL_RELEASE'].includes(kind),'MANIFEST_INVALID');const m=JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(files['release.json']));requireThat(m.schemaVersion===1&&m.kind===kind&&m.commit===expected.sha&&m.runId===expected.id&&m.attempt===expected.attempt&&m.component===expected.component&&m.platform==='linux'&&m.arch==='arm64'&&m.nodeMajor===24&&hex(m.payloadHash)&&hash(files['release.tar'])===m.payloadHash,'MANIFEST_INVALID');
  const entries=tarEntries(files['release.tar']);requireThat(entries.some(e=>e.name.endsWith('.node'))?m.nodeABI===process.versions.modules:m.nodeABI===null,'NODE_ABI_MISMATCH');requireThat(JSON.stringify(m.policies)===JSON.stringify(payloadPolicies(entries)),'POLICY_MANIFEST_MISMATCH');requireThat(entries.some(e=>e.name==='REVISION'&&e.bytes.toString().trim()===m.commit)&&['package.json','package-lock.json','tools/production-web.mjs','node_modules/pg/package.json'].every(name=>entries.some(e=>e.name===name)),'RELEASE_INCOMPLETE');return m;
 }
 // Deterministic regular-file ustar builder, also used by offline tests.

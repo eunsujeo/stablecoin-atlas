@@ -16,9 +16,10 @@ import {timedDeployment} from './operation-timing.mjs';
 import {bootstrapLayout,preflightInstallPaths,prospectiveTrusted,recoverBootstrapInstall,publishBootstrapInstall} from './bootstrap-install.mjs';
 import {bootstrapLease} from './bootstrap-lease.mjs';
 import {ensureProbeDirectory} from './probe-directory.mjs';
+import {deploymentSource} from './source.mjs';
 import {provision} from './vault.mjs';
 import {extractRelease} from './archive.mjs';
-import {uidFor,unitState,timerDefinition,operatingSystem,ROOT,STATE,INSTALL,services,verifyInstallation} from './system.mjs';
+import {uidFor,unitState,timerDefinition,operatingSystem,ROOT,STATE,INSTALL,services,verifyInstallation,requiredFiles} from './system.mjs';
 import {hash,requireThat,trusted,inventory,atomicJSON,json,syncDirectory} from './files.mjs';
 const exec=promisify(execFile),unitDir='/etc/systemd/system';
 export async function assertBootstrapIdle(readState=unitState){
@@ -68,7 +69,7 @@ export async function bootstrap(args){
   await atomicJSON(join(output,'manifest.json'),manifest);return {state:'SEALED_BACKUP_CREATED',bundle:output,productionServicesChanged:0,hostKeyBackupRequired:true};
  }
  if(command==='plan'){
-  const checks=[];for(const [id,spec]of Object.entries(input.files)){try{await verifyConfiguredFile(id,spec,{uidFor});checks.push({id,state:'READY'});}catch{checks.push({id,state:'MISSING_OR_UNSAFE'});}}
+  const checks=[];for(const id of requiredFiles(input,'all')){try{await verifyConfiguredFile(id,input.files[id],{uidFor});checks.push({id,state:'READY'});}catch{checks.push({id,state:'MISSING_OR_UNSAFE'});}}
   let plan=[],effective=[];try{plan=await unitPlan({source:fileURLToPath(new URL('../../',import.meta.url)),config:input});checks.push({id:'install-unit-plan',state:'READY'});}catch{checks.push({id:'install-unit-plan',state:'MISSING_OR_UNSAFE'});}
   try{effective=await effectiveUnitPaths(input);checks.push({id:'effective-unit-paths',state:'READY'});}catch{checks.push({id:'effective-unit-paths',state:'MISSING_OR_UNSAFE'});}
   try{await collectorStatePreflight(input);checks.push({id:'collector-state-directories',state:'READY'});}catch{checks.push({id:'collector-state-directories',state:'MISSING_OR_UNSAFE'});}
@@ -83,8 +84,8 @@ export async function bootstrap(args){
   try{
    await assertBootstrapIdle();await recoverBootstrapInstall({layout,reload});await trusted(path,{privateFile:true});const config=validateConfig(await json(path));requireThat(!config.enabled,'BOOTSTRAP_MUST_BE_DISABLED');
    let hasReceipt=false;try{await lstat(layout.receipt);hasReceipt=true;}catch(e){if(e.code!=='ENOENT')throw e;}if(hasReceipt)await verifyInstallation();
-   for(const [id,spec]of Object.entries(config.files))await verifyConfiguredFile(id,spec,{uidFor});await collectorStatePreflight(config);
-   const env=parseEnv(await readFile(destinations.github,'utf8')),github=githubClient({repository:config.repository,token:await githubToken(env),cache:artifactCache(join(STATE,'artifacts'))});const candidate=await github.candidate(config);requireThat(candidate&&candidate.sha===config.bootstrapSha,'BOOTSTRAP_SHA_CHANGED');const bundle=await github.bundle(candidate);
+   for(const id of requiredFiles(config,'all'))await verifyConfiguredFile(id,config.files[id],{uidFor});await collectorStatePreflight(config);
+   const github=await deploymentSource(config,{state:STATE,uidFor,codeRoot:fileURLToPath(new URL('../../',import.meta.url))});const candidate=await github.candidate(config);requireThat(candidate&&candidate.sha===config.bootstrapSha,'BOOTSTRAP_SHA_CHANGED');const bundle=await github.bundle(candidate);
    const next=INSTALL+'.next-'+randomUUID();await mkdir(next,{mode:0o700});await extractRelease(bundle.payload,next);const plan=await unitPlan({source:next,config}),effective=await effectiveUnitPaths(config);
    requireThat((await preflightInstallPaths({files:plan,effectiveUnits:effective})).state==='READY','INSTALL_PATH_PREFLIGHT');
    const verifyDir='/run/atlas-bootstrap-'+randomUUID();await mkdir(verifyDir,{mode:0o700});
@@ -104,7 +105,7 @@ export async function bootstrap(args){
  }
  const current=await loadConfig();requireThat(JSON.stringify({...current,enabled:false})===JSON.stringify({...input,enabled:false}),'CONFIG_MISMATCH');
  const result=await operatingSystem(current).preflightReport('all');await atomicJSON(join(STATE,'preflight.json'),result);if(result.state!=='READY')return {...result,state:'PREFLIGHT_FAILED'};
- const token=await githubToken(parseEnv(await readFile(destinations.github,'utf8'))),client=githubClient({repository:current.repository,token}),verified=await client.candidate(current);requireThat(verified,'SUCCESSFUL_CI_REQUIRED');await client.reportingReady();await client.status({...verified,component:'bootstrap'},{state:'SUCCESS',current:await pointer(ROOT,'current'),lastSuccess:await pointer(ROOT,'current'),service:'verified',reason:'PREFLIGHT_READY'});
+ const client=await deploymentSource(current,{state:STATE,uidFor}),verified=await client.candidate(current);requireThat(verified,current.source==='LOCAL_GIT'?'LOCAL_SOURCE_REQUIRED':'SUCCESSFUL_CI_REQUIRED');await client.reportingReady();await client.status({...verified,component:'bootstrap'},{state:'SUCCESS',current:await pointer(ROOT,'current'),lastSuccess:await pointer(ROOT,'current'),service:'verified',reason:'PREFLIGHT_READY'});
  if(command==='verify')return result;
  if(current.components.usage.enabled&&!await pointer(ROOT,'usage-current')){requireThat(await unitState('atlas-usage.service').then(s=>s.ActiveState==='inactive'),'USAGE_MUST_BE_INACTIVE');requireThat(current.bootstrapSha,'BOOTSTRAP_SHA_REQUIRED');await symlink(await release(ROOT,current.bootstrapSha),join(ROOT,'usage-current'));await syncDirectory(ROOT);}
  let versions=await json(join(STATE,'versions.json'),{schemaVersion:1,web:{},collector:{},usage:{}});for(const component of ['web','collector','usage'])if(!versions[component]?.current){const value=await operatingSystem(current).current(component).catch(()=>null);versions[component]={...versions[component],current:value,lastSuccess:component==='web'?value:null,state:value?'ADOPTED':'NOT_DEPLOYED'};}await atomicJSON(join(STATE,'versions.json'),versions);

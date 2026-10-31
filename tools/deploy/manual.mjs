@@ -1,16 +1,13 @@
 // Legacy operator interface under the same OS flock as the pull broker.
-import {readFile} from 'node:fs/promises';
 import {pathToFileURL} from 'node:url';
 import {join} from 'node:path';
-import {parseEnv} from 'node:util';
-import {loadConfig,destinations} from './config.mjs';
-import {githubToken} from './github-token.mjs';
-import {githubClient} from './github.mjs';
+import {loadConfig} from './config.mjs';
 import {activateRelease,pointer} from '../release-switch.mjs';
 import {stageVerified} from './stage.mjs';
 import {operatingSystem,ROOT,STATE,verifyInstallation} from './system.mjs';
 import {sha,requireThat,json,atomicJSON} from './files.mjs';
 import {reconcile} from './controller.mjs';
+import {deploymentSource} from './source.mjs';
 export async function performManual({command,candidate,root,state,ops,stage,repair,store=atomicJSON}){
  requireThat(candidate.component==='web','WEB_CANDIDATE_REQUIRED');
  const pending=await json(join(state,'transaction.json'),null);requireThat(!pending||pending.terminal,'RECOVERY_REQUIRED');
@@ -37,7 +34,7 @@ export async function performManual({command,candidate,root,state,ops,stage,repa
 }
 export async function manual(args){
  requireThat(process.platform==='linux'&&process.arch==='arm64'&&process.getuid()===0&&args.length===2,'RELEASE_ARGUMENTS_INVALID');const [command,value]=args;requireThat(['stage','activate','rollback'].includes(command)&&(command==='rollback'?value==='previous':sha(value)),'RELEASE_ARGUMENTS_INVALID');
- const config=await loadConfig();await verifyInstallation();const ops=operatingSystem(config),credentials=parseEnv(await readFile(destinations.github,'utf8')),github=githubClient({repository:config.repository,token:await githubToken(credentials)});
+ const config=await loadConfig();await verifyInstallation();const ops=operatingSystem(config),github=await deploymentSource(config,{state:STATE,uidFor:(await import('./system.mjs')).uidFor});
  const target=command==='rollback'?await pointer(ROOT,'previous'):value;requireThat(sha(target),'RELEASE_INVALID');
  const c=command==='stage'?await github.candidate(config):await json(join(ROOT,'releases',target,'ATLAS_RELEASE.json'),{runId:0,attempt:0});
  requireThat(c&&(command!=='stage'||c.sha===target),'SUCCESSFUL_CI_REQUIRED');const candidate=command==='stage'?c:{sha:target,id:c.runId,attempt:c.attempt,component:'web',url:`https://github.com/${config.repository}/actions/runs/${c.runId}/attempts/${c.attempt}`};
