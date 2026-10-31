@@ -1,11 +1,12 @@
 import test from 'node:test';
+import {createHash} from 'node:crypto';
 import assert from 'node:assert/strict';
 import {readFile,writeFile,mkdtemp,rm,readdir} from 'node:fs/promises';
 import {join} from 'node:path';
 import {tmpdir} from 'node:os';
 import {collectMarket,collectionEndpoints,readProvider} from '../tools/market-collect.mjs';
-import {buildMarket,publishedMarket,withMarketWriter,boundedJson} from '../tools/market-store.mjs';
-import {rank,latest,series} from './market-model.js';
+import {buildMarket,publishedMarket,withMarketWriter,boundedJson,normalizeSources} from '../tools/market-store.mjs';
+import {rank,latest,series,validateMarket} from './market-model.js';
 const registryPath=new URL('../data/asset-registry.json',import.meta.url);
 const secret='test-credential-never-persist';
 const makeResponse=endpoint=>new Response(endpoint.includes('/market/')?'{"circulatingSupply":999999999999999999.123456789,"price":1.00001,"account":"omit"}':endpoint.includes('/holders/')?'{"totalSupply":{"ethereum":999999999999999999.123456789,"solana":0},"addressTopHolders":[{"secret":"omit"}]}':'{"ethereum":{"active":true,"tip":12345678,"asOf":{"tip":"2026-10-22T00:00:00.000Z"},"price":999}}');
@@ -56,4 +57,31 @@ test('new collection replaces latest rankings across original selector paths wit
   const old=join(directory,'old.json');await writeFile(old,JSON.stringify({additionalRequests:[{endpoint:'/token/market/usd-coin',state:'SUCCESS',httpStatus:200,observedAt:at,data:{circulatingSupply:'42',price:'1'}}]}));
   await buildMarket({directory,registryPath,sourcePaths:[old]});await collectMarket({directory,registryPath,key:secret,fetcher:async url=>makeResponse(new URL(url).pathname),wait:async()=>{},now:()=>later});
   const data=await publishedMarket(directory);assert.equal(rank(data).length,3);assert.equal(series(data,rank(data).find(o=>o.coinId==='usdc')).length,1);assert.equal(latest(data,{coinId:'usdc',metric:'CIRCULATING'}).length,1);assert.equal(rank(data).find(o=>o.coinId==='usdc').amount,'999999999999999999.123456789');
+}));
+
+test('DB mirror stays bounded after the old accumulated snapshot reaches 2MiB; all immutable history remains',async()=>temporary(async directory=>{
+ const options={directory,registryPath,key:secret,fetcher:async url=>makeResponse(new URL(url).pathname),wait:async()=>{},now:()=>at};
+ assert.equal((await collectMarket(options)).state,'SUCCESS');
+ const oldIndex=JSON.parse(await readFile(join(directory,'index.json'))),original=JSON.parse(await readFile(join(directory,oldIndex.hash+'.json'))),sample=original.observations[0];
+ const make=i=>({...sample,id:i.toString(16).padStart(64,'0')});
+ const empty={...original,observations:[]},rowBytes=Buffer.byteLength(JSON.stringify(make(0)))+1;
+ const count=Math.floor((2*1024*1024-Buffer.byteLength(JSON.stringify(empty))-100)/rowBytes);
+ assert.ok(count<5000);const full=validateMarket({...original,observations:Array.from({length:count},(_,i)=>make(i))});
+ const bytes=Buffer.from(JSON.stringify(full)+'\n'),hash=createHash('sha256').update(bytes).digest('hex');assert.ok(bytes.length<=2*1024*1024);
+ await writeFile(join(directory,hash+'.json'),bytes);await writeFile(join(directory,'index.json'),JSON.stringify({schemaVersion:1,hash}));
+ const failed=await collectMarket({...options,now:()=>later});assert.equal(failed.state,'FAILED');assert.equal(failed.requests,7);assert.equal((await publishedMarket(directory)).observations.length,count);
+ const fixed=await collectMarket({...options,retainHistory:false,now:()=>later});assert.equal(fixed.state,'SUCCESS');assert.equal(fixed.requests,7);assert.equal((await publishedMarket(directory)).collectionState.published,true);
+ const latest=await publishedMarket(directory);assert.equal(latest.observations.length,original.observations.length);assert.ok(latest.observations.every(o=>o.observedAt===later));
+ assert.deepEqual(await readFile(join(directory,hash+'.json')),bytes);assert.equal((await readdir(join(directory,'collected'))).length,3);
+}));
+test('DB mirror mode still refuses a corrupt old index and never resets it',async()=>temporary(async directory=>{
+ await writeFile(join(directory,'index.json'),'{}');const result=await collectMarket({directory,registryPath,key:secret,retainHistory:false,fetcher:async url=>makeResponse(new URL(url).pathname),wait:async()=>{},now:()=>at});
+ assert.equal(result.state,'FAILED');assert.equal(await readFile(join(directory,'index.json'),'utf8'),'{}');assert.ok(result.sourceHash);
+}));
+
+test('latest-batch DB mirror preserves the registry identity guard',async()=>temporary(async directory=>{
+ await collectMarket({directory,registryPath,key:secret,fetcher:async url=>makeResponse(new URL(url).pathname),wait:async()=>{},now:()=>at});
+ const previous=await publishedMarket(directory),changed=structuredClone(previous.registry);changed.coins[0].pricingId='different';
+ assert.throws(()=>normalizeSources(changed,[],previous,{retainHistory:false}),/COIN_ID_REASSIGNED/);
+ assert.throws(()=>normalizeSources(previous.registry,[],previous,{retainHistory:'false'}),/INVALID_ARGUMENTS/);
 }));

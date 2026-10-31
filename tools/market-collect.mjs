@@ -61,12 +61,13 @@ export async function readProvider(endpoint,key,fetcher=fetch) {
   // Reviver source preserves numeric lexemes before JS can round monetary values.
   return parseProvider(Buffer.concat(parts));
 }
-export async function collectMarket({key,registryPath=new URL('../data/asset-registry.json',import.meta.url),directory=defaultMarketDirectory,fetcher=fetch,wait=pause,now=()=>new Date().toISOString()}={}) {
+export async function collectMarket({key,registryPath=new URL('../data/asset-registry.json',import.meta.url),directory=defaultMarketDirectory,fetcher=fetch,wait=pause,retainHistory=true,now=()=>new Date().toISOString()}={}) {
   return withMarketWriter(directory,async(publish,root)=>{
     const status={state:'RUNNING',attemptedAt:now(),requests:0,completedRequests:0,published:false,httpStatus:null,retryAfterSeconds:null};
     await atomic(join(root,'last-collection.json'),status);
     const deadline=Date.now()+120000;let savedSource;
     try {
+      if(typeof retainHistory!=='boolean')throw Error('INVALID_ARGUMENTS');
       if(typeof key!=='string'||!key.trim())throw new Error('KEY_MISSING');
       const registry=validateRegistry((await boundedJson(registryPath,128*1024)).value);
       if(registry.coins.length!==3||!['usd-coin','tether','ripple-usd'].every(id=>registry.coins.some(c=>c.pricingId===id)))throw new Error('COLLECTION_SCOPE');
@@ -86,7 +87,7 @@ export async function collectMarket({key,registryPath=new URL('../data/asset-reg
       const handle=await open(path,'wx',0o600);
       try {await handle.writeFile(bytes);}finally{await handle.close();}
       savedSource={sourceName,sourceHash};
-      const data=await publish({registryPath,sourcePaths:[path]});
+      const data=await publish({registryPath,sourcePaths:[path],retainHistory});
       status.published=true;status.state='SUCCESS';await atomic(join(root,'last-collection.json'),status);
       return {state:status.state,requests:status.requests,observations:data.observations.length,sourceName,sourceHash};
     } catch(error) {

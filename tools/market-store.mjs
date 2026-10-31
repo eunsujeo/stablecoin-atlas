@@ -44,7 +44,8 @@ export async function publishedMarketStatus(directory = defaultMarketDirectory) 
   let periodicState;try{periodicState=validatePeriodicState((await boundedJson(join(root,'periodic-state.json'),2048)).value);}catch{}
   return {lastBuildState,...(periodicState?{periodicState}:{}),...(databaseState?{databaseState}:{}),...(collectionState?{collectionState}:{}),...(schedulerState?{schedulerState}:{})};
 }
-export function normalizeSources(registry, sources, previous = null) {
+export function normalizeSources(registry, sources, previous = null, {retainHistory=true} = {}) {
+  if(typeof retainHistory!=='boolean')throw Error('INVALID_ARGUMENTS');
   validateRegistry(registry); const observations = [];
   if(previous) {
     for(const old of previous.registry.coins) { const current=registry.coins.find(c=>c.id===old.id); if(!current||current.pricingId!==old.pricingId) throw new Error('COIN_ID_REASSIGNED'); }
@@ -95,8 +96,8 @@ export function normalizeSources(registry, sources, previous = null) {
       }
     }
   }
-  const merged = new Map((previous?.observations??[]).map(o=>[o.id,o])); for (const o of observations) merged.set(o.id,o);
-  const networkMap = new Map(); for (const row of [...(previous?.networks??[]),...networks]) if (!networkMap.has(row.networkId) || row.observedAt >= networkMap.get(row.networkId).observedAt) networkMap.set(row.networkId,row);
+  const merged = new Map((retainHistory?previous?.observations??[]:[]).map(o=>[o.id,o])); for (const o of observations) merged.set(o.id,o);
+  const networkMap = new Map(); for (const row of [...(retainHistory?previous?.networks??[]:[]),...networks]) if (!networkMap.has(row.networkId) || row.observedAt >= networkMap.get(row.networkId).observedAt) networkMap.set(row.networkId,row);
   return validateMarket({schemaVersion:1,kind:'STORED_PROVIDER_OBSERVATIONS_NOT_ASSESSMENT',publishedAt:new Date().toISOString(),registry,observations:[...merged.values()].sort((a,b)=>a.id.localeCompare(b.id)),networks:[...networkMap.values()],omittedSupplyEntries});
 }
 // One owner spans collection and publication. Never steal a possibly active lock.
@@ -120,7 +121,7 @@ export async function withMarketWriter(directory = defaultMarketDirectory, opera
 export async function buildMarket(options) {
   return withMarketWriter(options.directory, publish=>publish(options));
 }
-async function publishMarket({registryPath, sourcePaths, directory = defaultMarketDirectory}) {
+async function publishMarket({registryPath, sourcePaths, directory = defaultMarketDirectory, retainHistory=true}) {
   const root = directory instanceof URL ? fileURLToPath(directory) : String(directory);
   await mkdir(root,{recursive:true,mode:0o700});
   try {
@@ -131,7 +132,7 @@ async function publishMarket({registryPath, sourcePaths, directory = defaultMark
     if (!Array.isArray(sourcePaths) || sourcePaths.length > 12) throw new Error('SOURCE_LIMIT');
     const {value:registry} = await boundedJson(registryPath,128*1024);
     const sources = []; for (const path of sourcePaths) sources.push(await boundedJson(path,2*1024*1024));
-    const data = normalizeSources(registry,sources,previous);
+    const data = normalizeSources(registry,sources,previous,{retainHistory});
     const bytes = Buffer.from(JSON.stringify(data)+'\n'); if (bytes.length>2*1024*1024) throw new Error('SNAPSHOT_LIMIT');
     const hash = digest(bytes), path = join(root,`${hash}.json`);
     try { const f = await open(path,'wx',0o600); try { await f.writeFile(bytes); } finally { await f.close(); } }

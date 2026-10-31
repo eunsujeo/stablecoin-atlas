@@ -19,7 +19,6 @@ import {databaseFrankfurterFXReader} from '../market-db/frankfurter-fx-preview.m
 import {productionSettings} from '../production-web.mjs';
 import {checkDeployment} from '../collector-deploy.mjs';
 import {projectOperatingUsage} from '../usage-operating-project.mjs';
-import {verifySupplyApiBoundary} from '../market-db/supply-api-boundary.mjs';
 import {requireThat} from './files.mjs';
 async function variables(file){const stat=await lstat(file);requireThat(stat.isFile()&&!stat.isSymbolicLink()&&stat.uid===process.getuid()&&!(stat.mode&0o077)&&stat.size<=65536,'PROBE_ENV_INVALID');return parseEnv(await readFile(file,'utf8'));}
 export async function collectorGate({client,registered,selection,schedule,hold=false}){
@@ -48,7 +47,7 @@ export async function probe({component,envFile,selection,hold=false}){
   }
   requireThat(component==='usage','PROBE_COMPONENT');
   await usageOperation(['check','--config','/etc/atlas-usage/config.json']);
-  const c=JSON.parse(await readFile('/etc/atlas-usage/config.json'));requireThat(c.stateRoot==='/var/lib/atlas-usage','USAGE_STATE_ROOT');const rootStat=await lstat(c.stateRoot);requireThat(rootStat.isDirectory()&&!rootStat.isSymbolicLink()&&rootStat.uid===process.getuid()&&!(rootStat.mode&0o077),'USAGE_STATE_ROOT');const env=await variables(c.envFile),client=await connectDatabase(env);clients=[client];await verifyNetworkUsageSchema(client);const review=JSON.parse(await readFile(c.reviewedDefinersFile));await verifySupplyApiBoundary(client,{schema:'atlas_network_usage',reviewedDefiners:review.definers});
+  const c=JSON.parse(await readFile('/etc/atlas-usage/config.json'));requireThat(c.stateRoot==='/var/lib/atlas-usage','USAGE_STATE_ROOT');const rootStat=await lstat(c.stateRoot);requireThat(rootStat.isDirectory()&&!rootStat.isSymbolicLink()&&rootStat.uid===process.getuid()&&!(rootStat.mode&0o077),'USAGE_STATE_ROOT');const env=await variables(c.envFile),client=await connectDatabase(env);clients=[client];await verifyNetworkUsageSchema(client);
   requireThat((await client.query('SELECT access_mode FROM atlas_network_usage.access_grant WHERE role_name=current_user')).rows[0]?.access_mode==='writer','USAGE_WRITER_REQUIRED');
   for(const claim of (await client.query("SELECT to_char(day,'YYYY-MM-DD') AS day FROM atlas_network_usage.collection_day ORDER BY day DESC LIMIT 32")).rows){const receipt=JSON.parse(await readFile(c.stateRoot+'/arkham-usage-daily-'+claim.day+'/receipt.json'));requireThat(receipt.state==='COMPLETE','USAGE_UNCERTAIN_CONSUMPTION');await projectOperatingUsage(c.stateRoot,claim.day);}
   try{await lstat(c.stateRoot+'/reservation-lock');throw Error('USAGE_SEND_LOCKED');}catch(e){if(e.code!=='ENOENT')throw e;}

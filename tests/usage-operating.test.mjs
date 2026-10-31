@@ -27,3 +27,15 @@ test('operating CLI executes through a release symlink without provider or datab
 test('UTC day crossing during durable intent write sends no HTTP request',async t=>{
  const{o}=await setup(t);let reads=0,calls=0;const r=await collectOperatingUsage({...o,now:()=>++reads<5?'2026-10-29T23:59:59.000Z':'2026-10-30T00:00:00.000Z',fetcher:async()=>{calls++;throw Error('must not dispatch');}});assert.equal(calls,0);assert.equal(r.stopReason,'DAY_NOT_CURRENT');assert.equal(r.attempts[0].httpStatus,null);
 });
+
+test('runtime check needs authorization and least-privilege writer validation, without a legacy definer file',async t=>{
+ const{usageOperation}=await import('../tools/usage-operating-cli.mjs'),{writeFile}=await import('node:fs/promises');const{a,o}=await setup(t);
+ const authorizationFile=join(o.root,'authorization.json'),envFile=join(o.root,'writer.env'),config=join(o.root,'config.json');
+ await writeFile(authorizationFile,JSON.stringify(a),{mode:0o600});await writeFile(envFile,'DATABASE_URL=postgresql://fixture.invalid/db\nARKM_API_KEY=fixture\n',{mode:0o600});
+ const base={stateRoot:o.root,envFile,authorizationFile,authorizationHash:digest(Buffer.from(JSON.stringify(a)))};let checks=0,collections=0,closed=0;
+ const deps={now:()=> '2026-10-29T01:00:00.000Z',connect:async()=>({end:async()=>{closed++;}}),checkWriter:async()=>{checks++;},collect:async()=>{collections++;throw Error('must not collect');}};
+ for(const c of [base,{...base,reviewedDefinersFile:join(o.root,'missing.json'),reviewedDefinersHash:'f'.repeat(64)}]){await writeFile(config,JSON.stringify(c),{mode:0o600});assert.equal((await usageOperation(['check','--config',config],deps)).state,'READY');}
+ assert.equal(checks,2);assert.equal(closed,2);assert.equal(collections,0);
+ await assert.rejects(usageOperation(['run','--config',config],{...deps,checkWriter:async()=>{throw Error('NETWORK_USAGE_DATABASE_INVALID');}}),/NETWORK_USAGE_DATABASE_INVALID/);assert.equal(collections,0);assert.equal(closed,3);
+ await writeFile(config,JSON.stringify({...base,authorizationHash:'0'.repeat(64)}));await assert.rejects(usageOperation(['run','--config',config],deps));assert.equal(collections,0);assert.equal(checks,2);
+});

@@ -26,7 +26,7 @@ export function databaseCollector({ env, archiveDirectory = defaultArchive,
       // Cover a run crossing UTC month end before spending provider requests.
       await checkDatabase(client, { at: now(), through: now() + 120000 });
       await save({ state: 'COLLECTING' });
-      const result = await collect({ directory: root, key, registryPath });
+      const result = await collect({ directory: root, key, registryPath, retainHistory:false });
       if (result.state !== 'SUCCESS') { Object.assign(state,{localPublished:Boolean(result.published),sourceName:result.sourceName??null,sourceHash:result.sourceHash??null}); await save({ state: 'FAILED' }); return result; }
       state.localPublished = true;
       if (!/^[a-f0-9-]{36}\.json$/.test(result.sourceName ?? '') || !/^[a-f0-9]{64}$/.test(result.sourceHash ?? '')) throw Error('INVALID_SOURCE_NAME');

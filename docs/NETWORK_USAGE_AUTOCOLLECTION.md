@@ -1,3 +1,5 @@
+2026-10-31 변경: [ADR0126](adr/0126-collection-runtime-boundaries.md)에 따라 reviewed-definers 검토본은 설치/권한 변경 및 별도 boundary 점검에 사용한다. 일별 check/run/claim/import에는 이 파일이 필요 없다. 기존6필드 config를 그대로 읽을 수 있으며 review 두 필드는 런타임에서 사용하지 않는다. writer 최소권한·스키마/RLS·직접 공개 접근·API-role membership·승인기간/예산/일별 claim은 유지한다. 아래 review 파일 필수 안내와 비활성 기록은 변경 전 이력이며 운영 적용 결과는 [복구 기록](research/2026-10-31-collection-runtime-recovery.md)을 따른다.
+
 # 네트워크 활동 자동 수집 운영
 
 초기30일 예산은 사용자 추가 승인으로 확정했다. 2026-10-29~11-27 UTC·하루18GET/총540GET·총1080MiB·비용UNKNOWN 수용이며 [승인 기록](research/2026-10-28-usage-period-authorization.md)을 따른다. 실제 운영서버 설치/활성화는 아직 미실행이다.

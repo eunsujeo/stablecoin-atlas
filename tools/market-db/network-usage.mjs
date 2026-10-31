@@ -44,6 +44,13 @@ export async function verifyNetworkUsageSchema(c){
  UNION ALL SELECT 1 FROM pg_attribute col JOIN pg_class c ON c.oid=col.attrelid CROSS JOIN LATERAL aclexplode(col.attacl) a WHERE c.relnamespace='atlas_network_usage'::regnamespace AND a.grantee=0
  UNION ALL SELECT 1 FROM pg_proc p CROSS JOIN LATERAL aclexplode(coalesce(p.proacl,acldefault('f',p.proowner))) a WHERE p.pronamespace='atlas_network_usage'::regnamespace AND a.grantee=0`)).rowCount;if(publicAcl)fail();
  const exposed=(await c.query(`SELECT 1 FROM pg_roles r WHERE r.rolname IN ('anon','authenticated','authenticator','service_role') AND (has_schema_privilege(r.oid,'atlas_network_usage','USAGE,CREATE') OR EXISTS(SELECT 1 FROM pg_class c WHERE c.relnamespace='atlas_network_usage'::regnamespace AND has_table_privilege(r.oid,c.oid,'SELECT,INSERT,UPDATE,DELETE,TRUNCATE')) OR EXISTS(SELECT 1 FROM pg_class c JOIN pg_attribute a ON a.attrelid=c.oid WHERE c.relnamespace='atlas_network_usage'::regnamespace AND a.attnum>0 AND NOT a.attisdropped AND has_column_privilege(r.oid,c.oid,a.attnum,'SELECT,INSERT,UPDATE,REFERENCES')) OR EXISTS(SELECT 1 FROM pg_proc p WHERE p.pronamespace='atlas_network_usage'::regnamespace AND has_function_privilege(r.oid,p.oid,'EXECUTE')))`)).rowCount;if(exposed)fail();
+ // Runtime still rejects API roles reaching the owner/private roles, even via SET ROLE-only membership.
+ const inherited=(await c.query(`WITH RECURSIVE reach(member) AS (
+ SELECT oid FROM pg_roles WHERE rolname IN ('anon','authenticated','authenticator','service_role')
+ UNION SELECT m.roleid FROM reach r JOIN pg_auth_members m ON m.member=r.member)
+ SELECT 1 FROM reach JOIN pg_roles p ON p.oid=reach.member
+ WHERE p.rolsuper OR p.rolcreaterole OR p.oid=(SELECT nspowner FROM pg_namespace WHERE nspname='atlas_network_usage')
+ OR p.rolname IN(SELECT role_name FROM atlas_network_usage.access_grant) LIMIT 1`)).rowCount;if(inherited)fail();
  const schemas=(await c.query("SELECT current_setting('pgrst.db_schemas',true) AS schemas")).rows[0].schemas;if(schemas?.split(',').some(s=>s.trim()==='atlas_network_usage'))fail();
  for(const g of grants)await privileges(c,g.role_name,g.access_mode);
  return version;
@@ -53,6 +60,7 @@ async function access(c,write=false){
  const g=(await c.query('SELECT access_mode FROM atlas_network_usage.access_grant WHERE role_name=current_user')).rows[0];
  if(!g||write&&g.access_mode!=='writer'||!write&&g.access_mode!=='reader')fail();return version;
 }
+export async function checkNetworkUsageWriter(c){return transaction(c,async()=>{if(await access(c,true)!==2)fail();return {state:'READY',providerRequests:0};},{readonly:true});}
 export async function initializeNetworkUsage(c,{reviewedDefiners=[]}={}){return transaction(c,async()=>{
  await lock(c);await owner(c);
  if((await c.query("SELECT to_regnamespace('atlas_network_usage') IS NOT NULL AS present")).rows[0].present){
@@ -69,14 +77,14 @@ export function reviewedNetworkUsageImport(bytes,expectedHash){
  if(!Buffer.isBuffer(bytes)||bytes.length>networkUsageByteLimit||!(/^[a-f0-9]{64}$/.test(expectedHash))||digest(bytes)!==expectedHash)throw Error('NETWORK_USAGE_INPUT_HASH_MISMATCH');
  parsePriceBytes(bytes);return validateNetworkUsage(JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes)));
 }
-export async function importNetworkUsage(c,bytes,expectedHash,{reviewedDefiners=[]}={}){
+export async function importNetworkUsage(c,bytes,expectedHash){
  const snapshot=reviewedNetworkUsageImport(bytes,expectedHash),hash=digest(canonical(snapshot));
  return transaction(c,async()=>{
-  await lock(c);const version=await access(c,true);if(snapshot.schemaVersion===2&&version!==2)fail();const table=snapshot.schemaVersion===2?'snapshot_v2':'snapshot';await verifySupplyApiBoundary(c,{schema:'atlas_network_usage',reviewedDefiners});
+  await lock(c);const version=await access(c,true);if(snapshot.schemaVersion===2&&version!==2)fail();const table=snapshot.schemaVersion===2?'snapshot_v2':'snapshot';
   const old=(await c.query(`SELECT encode(payload_hash,'hex') AS hash,payload FROM atlas_network_usage.${table} WHERE snapshot_id=$1`,[snapshot.id])).rows[0];
   if(old){if(old.hash!==hash||canonical(old.payload)!==canonical(snapshot))throw Error('NETWORK_USAGE_ID_CONFLICT');return {state:'UNCHANGED',inserted:0,rows:snapshot.rows.length,inputHash:expectedHash};}
   await c.query(`INSERT INTO atlas_network_usage.${table}(snapshot_id,window_end,queried_at,row_count,payload_hash,payload) VALUES($1,$2,$3,$4,$5,$6)`,[snapshot.id,snapshot.window.untilExclusive,snapshot.rows.map(r=>r.queriedAt).sort().at(-1),snapshot.rows.length,hashBytes(hash),JSON.stringify(snapshot)]);
-  await verifySupplyApiBoundary(c,{schema:'atlas_network_usage',reviewedDefiners});
+
   return {state:'IMPORTED',inserted:1,rows:snapshot.rows.length,inputHash:expectedHash};
  });
 }
@@ -109,9 +117,9 @@ export async function upgradeNetworkUsage(c,{reviewedDefiners=[]}={}){return tra
  await verifyNetworkUsageSchema(c);await verifySupplyApiBoundary(c,{schema:'atlas_network_usage',reviewedDefiners});return {state:'UPGRADED',version:2};
 });}
 
-export async function claimNetworkUsageDay(c,{day,planHash,ownerId},{reviewedDefiners=[]}={}){
+export async function claimNetworkUsageDay(c,{day,planHash,ownerId}){
  if(!/^\d{4}-\d\d-\d\d$/.test(day)||new Date(day).toISOString().slice(0,10)!==day||!/^[a-f0-9]{64}$/.test(planHash)||!/^[a-f0-9-]{36}$/.test(ownerId))fail();
- return transaction(c,async()=>{await lock(c);if(await access(c,true)!==2)fail();await verifySupplyApiBoundary(c,{schema:'atlas_network_usage',reviewedDefiners});
+ return transaction(c,async()=>{await lock(c);if(await access(c,true)!==2)fail();
  const actual=(await c.query("SELECT to_char(clock_timestamp() AT TIME ZONE 'UTC','YYYY-MM-DD') AS day")).rows[0].day;if(day!==actual)throw Error('NETWORK_USAGE_DAY_NOT_CURRENT');
  const r=await c.query("INSERT INTO atlas_network_usage.collection_day(day,plan_hash,owner_id) SELECT $1::date,$2,$3::uuid WHERE $1::date=(clock_timestamp() AT TIME ZONE 'UTC')::date ON CONFLICT(day) DO NOTHING RETURNING owner_id",[day,hashBytes(planHash),ownerId]);return {state:r.rowCount?'CLAIMED':'ALREADY_CLAIMED',day};
  });

@@ -4,7 +4,7 @@ import {dirname} from 'node:path';
 import {hash,hex,sha,requireThat,trusted} from './files.mjs';
 export const destinations={reader:'/etc/atlas-web/reader.env',web:'/etc/atlas-web/web.json',github:'/etc/atlas-deploy/github.env',githubKey:'/etc/atlas-deploy/github-app.pem',ca:'/etc/atlas-ca/supabase.crt',writer:'/etc/atlas-collector/writer.env',registered:'/etc/atlas-collector/registered-writer.env',schedule:'/etc/atlas-collector/schedule.env',usageConfig:'/etc/atlas-usage/config.json',usageAuthorization:'/etc/atlas-usage/authorization.json',definers:'/etc/atlas-usage/reviewed-definers.json',usageWriter:'/etc/atlas-usage/writer.env'};
 export const collectorFiles=['writer','registered','schedule'];
-export const usageFiles=['usageConfig','usageAuthorization','definers','usageWriter'];
+export const usageFiles=['usageConfig','usageAuthorization','usageWriter'];
 export function validateConfig(c){
  const local=c?.source==='LOCAL_GIT';requireThat(c?.schemaVersion===1&&c.repository==='eunsujeo/stablecoin-atlas'&&[undefined,'GITHUB_ACTIONS','LOCAL_GIT'].includes(c.source)&&(local||Number.isSafeInteger(c.repositoryId)&&c.repositoryId>0&&Number.isSafeInteger(c.workflowId)&&c.workflowId>0&&sha(c.workflowBlob))&&typeof c.enabled==='boolean','CONFIG_INVALID');
  if(c.bootstrapSha!==undefined)requireThat(sha(c.bootstrapSha),'BOOTSTRAP_SHA_INVALID');
