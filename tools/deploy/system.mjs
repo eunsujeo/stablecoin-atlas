@@ -2,6 +2,7 @@ import {execFile,spawn} from 'node:child_process';
 import {promisify} from 'node:util';
 import {mkdir,writeFile,unlink,readFile,lstat,chown,chmod,rm,statfs,realpath} from 'node:fs/promises';
 import {ensureProbeDirectory} from './probe-directory.mjs';
+import {checkTriggerRule,triggerRulePath} from './trigger-rule.mjs';
 import {join} from 'node:path';
 import {randomUUID} from 'node:crypto';
 import {pointer,point} from '../release-switch.mjs';
@@ -64,6 +65,7 @@ export function operatingSystem(config){
   const checks=[];let bad=false;const check=async(id,fn)=>{try{await fn();checks.push({id,state:'READY'});}catch(e){bad=true;checks.push({id,state:'FAILED',reason:/^[A-Z_]{1,64}$/.test(e.message)?e.message:'CHECK_FAILED'});}};
   await check('runtime',async()=>requireThat(process.platform==='linux'&&process.arch==='arm64'&&deploymentRuntimeSupported(),'RUNTIME_UNSUPPORTED'));
   await check('control-plane',verifyInstallation);for(const name of ['.stage-lock','.deployment-lock'])await check('legacy-lock:'+name,async()=>{try{await lstat(join(ROOT,name));throw Error('LEGACY_DEPLOY_LOCK');}catch(e){if(e.code!=='ENOENT')throw e;}});await check('disk',async()=>{const s=await statfs(ROOT,{bigint:true});requireThat(s.bavail*s.bsize>=1073741824n,'DISK_SPACE_LOW');});
+  if(component==='all')await check('trigger-policy',async()=>checkTriggerRule({expectedHash:(await json('/etc/atlas-deploy/control-plane.json')).units?.[triggerRulePath]}));
   for(const id of requiredFiles(config,component))await check('file:'+id,()=>verifyConfiguredFile(id,config.files[id],{uidFor}));
   for(const c of component==='all'?['web','collector','usage']:[component])if(config.components[c].enabled){for(const unit of services(config,c))await check('unit:'+unit,async()=>{const s=await unitState(unit);if(unit.endsWith('.timer')){validateTimer(unit,s,config);return;}requireThat(s.User===(c==='web'?'atlasweb':'atlascollector')&&s.WorkingDirectory===join(ROOT,link(c))&&!['failed','activating','deactivating'].includes(s.ActiveState),'UNIT_CONFIGURATION');if(s.MainPID!=='0'){const current=await pointer(ROOT,link(c));requireThat(await realpath('/proc/'+s.MainPID+'/cwd')===join(ROOT,'releases',current),'RUNNING_VERSION_MISMATCH');}});}
   await check('pointer:web',()=>pointer(ROOT,'current'));if(!['web','all'].includes(component))await check('pointer:'+component,()=>pointer(ROOT,link(component)));

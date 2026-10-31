@@ -17,6 +17,7 @@ import {bootstrapLayout,preflightInstallPaths,prospectiveTrusted,recoverBootstra
 import {bootstrapLease} from './bootstrap-lease.mjs';
 import {ensureProbeDirectory} from './probe-directory.mjs';
 import {deploymentSource} from './source.mjs';
+import {checkTriggerRule,triggerRulePath} from './trigger-rule.mjs';
 import {provision} from './vault.mjs';
 import {extractRelease} from './archive.mjs';
 import {uidFor,unitState,timerDefinition,operatingSystem,ROOT,STATE,INSTALL,services,verifyInstallation,requiredFiles} from './system.mjs';
@@ -100,7 +101,8 @@ export async function bootstrap(args){
    const units={};for(const r of plan)units[r.path]=hash(r.bytes);for(const target of effective){if(Object.hasOwn(units,target))continue;await trusted(target,{limit:65536});units[target]=hash(await readFile(target));}
    const helpers=await Promise.all(['atlas-deploy-admin','atlas-release'].map(async name=>({path:join(layout.bin,name),bytes:await readFile(join(next,'deploy',name)),mode:0o755})));for(const f of helpers)units[f.path]=hash(f.bytes);
    const receipt={schemaVersion:1,commit:candidate.sha,files:await inventory(next),units};
-   return await publishBootstrapInstall({layout,next,commit:candidate.sha,files:[...plan.map(f=>({...f,mode:0o644})),...helpers,{path:layout.config,bytes:Buffer.from(JSON.stringify(config,null,2)+'\n'),mode:0o600}],receipt,reload,beforeReceipt:async()=>{for(const target of await effectiveUnitPaths(config)){await trusted(target,{limit:65536});requireThat(units[target]===hash(await readFile(target)),'INSTALL_UNIT_PATH_CHANGED');}}});
+   const installed=await publishBootstrapInstall({layout,next,commit:candidate.sha,files:[...plan.map(f=>({...f,mode:0o644})),...helpers,{path:layout.config,bytes:Buffer.from(JSON.stringify(config,null,2)+'\n'),mode:0o600}],receipt,reload,beforeReceipt:async()=>{for(const target of await effectiveUnitPaths(config)){await trusted(target,{limit:65536});requireThat(units[target]===hash(await readFile(target)),'INSTALL_UNIT_PATH_CHANGED');}}});
+   await checkTriggerRule({repair:true,expectedHash:units[triggerRulePath]});return installed;
   }finally{await lease.release();}
  }
  const current=await loadConfig();requireThat(JSON.stringify({...current,enabled:false})===JSON.stringify({...input,enabled:false}),'CONFIG_MISMATCH');
