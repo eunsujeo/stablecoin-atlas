@@ -203,7 +203,8 @@ try {
  await send('Page.navigate',{url:'about:blank'});await send('Page.navigate',{url:base+'/#overview'});
  await until("document.querySelectorAll('#overview-source-rows article').length===5&&!document.querySelector('#overview-reload').disabled");
  assert.equal(await evaluate("document.querySelector('#overview-read-history').open"),false);
- assert.deepEqual(await evaluate("Array.from(document.querySelectorAll('#overview-source-metrics strong')).slice(0,3).map(e=>e.textContent)"),['8 / 26','5개',`${new Set(profiles.map(p=>p.chainId??p.networkKey)).size}개`]);
+ assert.deepEqual(await evaluate("Array.from(document.querySelectorAll('#overview-source-metrics strong')).slice(0,2).map(e=>e.textContent)"),['5개',`${new Set(profiles.map(p=>p.chainId??p.networkKey)).size}개`]);
+ assert(!(await evaluate("document.querySelector('#overview-source-metrics').textContent")).includes('기존 소스 확인'));
  for(const coinId of new Set(profiles.map(p=>p.coinId))){
   const selected=profiles.filter(p=>p.coinId===coinId);
   const row=await evaluate(`document.querySelector('#overview-source-rows [data-source-coin="${coinId}"]').textContent`);
@@ -272,5 +273,5 @@ try {
  assert.deepEqual(requests.filter(url=>/\/(?:source-review-data|source-review-top10-data)\.js$/.test(url)),[]);
  assert.deepEqual(errors,[]);assert.deepEqual(requests.filter(u=>!u.startsWith(base+'/')&&!u.startsWith('data:')),[]);
  if(safariStreams)console.log('PASS Safari API-condition emulation: ReadableStream asyncIterator/AbortSignal.any absent (Chrome, not an actual iPhone).');
- console.log('PASS legacy-only navigation (removed validation/compare fallback), report data preserved; shared snapshot/single fetch/loading/error cleanup; source profiles: 5 assets/26 profiles, exact search selection by keyboard and scope labels, original 8 preserved, added 18 scoped features and states, 8/26 summary, network keys/search/tabs/filters, evidence links, read grade/verdict counts preserved, both routes/dark/light/390px, JS errors=0/external requests=0');
+ console.log('PASS legacy-only navigation (removed validation/compare fallback), report data preserved; shared snapshot/single fetch/loading/error cleanup; source profiles: 5 assets/26 profiles, exact search selection by keyboard and scope labels, original 8 preserved, added 18 scoped features and states, asset/network summary without legacy confirmation count, network keys/search/tabs/filters, evidence links, read grade/verdict counts preserved, both routes/dark/light/390px, JS errors=0/external requests=0');
 }finally{try{await send('Fetch.disable');await send('Browser.close',{},false);}catch{}chrome.kill();await new Promise(resolve=>{if(chrome.exitCode!==null)resolve();else chrome.once('exit',resolve);});await rm(profile,{recursive:true,force:true});}

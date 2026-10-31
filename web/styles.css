@@ -149,6 +149,8 @@ select option{background:var(--panel);color:var(--ink);font-weight:400}
 .overview-technical>summary{cursor:pointer;color:var(--muted);font-size:14px}
 .overview-technical>summary>span{font-weight:650;color:var(--ink)}
 .overview-technical>summary>small{display:inline;margin-left:14px;font-size:11px}
+#overview-source-metrics{grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr))}
+#overview-source-metrics>.metric-card:last-child{grid-column:auto;display:block}
 .overview-source-assets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:18px 0}
 .overview-source-asset{min-width:0;border:1px solid var(--line);border-radius:12px;padding:18px;background:var(--panel)}
 .overview-source-asset-heading,.overview-source-asset-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}

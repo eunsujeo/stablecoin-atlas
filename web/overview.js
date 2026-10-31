@@ -36,10 +36,8 @@ async function json(path,{signal,optional=false,revalidate=false,validate,contex
 }
 function renderSourceReview(sourceReviewProfiles){
   const assets=new Set(sourceReviewProfiles.map(p=>p.coinId)),networks=new Set(sourceReviewProfiles.map(p=>p.chainId??p.networkKey));
-  const confirmed=sourceReviewProfiles.filter(p=>p.sourceReviewStatus==='SOURCE_REVIEWED');
   const metrics=$('#overview-source-metrics');metrics.replaceChildren();
   for(const [label,value,note] of [
-    ['기존 소스 확인',`${confirmed.length} / ${sourceReviewProfiles.length}`,'기존 확인 프로필 / 전체 검토 프로필'],
     ['검토 자산',`${assets.size}개`,[...assets].map(id=>id.toUpperCase()).join(' · ')],
     ['검토 네트워크',`${networks.size}개`,[...new Set(sourceReviewProfiles.map(p=>p.network))].join(' · ')],
   ]){const card=node('article',undefined,'metric-card'),valueRow=node('div',undefined,'metric-value');valueRow.append(node('strong',value));card.append(node('p',label),valueRow,node('p',note));metrics.append(card);}
