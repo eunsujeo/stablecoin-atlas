@@ -19,3 +19,20 @@ Usage는 승인 파일 hash/기간/호출 예산을 그대로 검증한다. read
 초기 Arkham 경계 회귀의 기대값은 성공 반환에 없는 published 필드를 요구해 한 번 실패했다. 실제 last-collection의 publishedtrue를 확인하도록 정정했고 11개 전용 검사를 통과했다. 현재 개발 Docker daemon은27.3.1이며 사설 PostgreSQL fixture는28이상만 허용하므로 그 요건을 낮추거나 이미지를 다운로드하지 않았다. 최종 전체검사와 서버의 기존 writer read-only 검증 후에만 runtime을 전환한다. 웹 자동 배포와 독립적으로 collector-current/usage-current의 검토 SHA를 기록하며, Arkham만 정상 재시작하고 기존 FX/등록 자산 프로세스를 재시작하지 않는다. 고정 root 제어면·비밀/소유권/권한·DB schema와 기존 실패 claim은 유지한다. 실패한 완결 projection은 원 시각/hash 그대로 import-only 복구하며 API를 다시 부르지 않는다. Usage는 기존 승인기간 내 UTC당일 claim과 18GET/무재시도 한도를 적용한다.
 
 최종 npm run check rc0: 879pass/0fail/8skip(주805+보존74). 관련 runtime/collector 회귀74pass/0fail. 기존compiler캐시미보유 생략8은그대로이며새다운로드0이다.
+
+
+## 8c4b7f5 운영 반영과 import-only 복구
+
+8c4b7f56ffa71b1c49307792978ed4527e4bbbf8의웹자동배포는SUCCESS/COMMITTED(wall40.631초)였다. 해당root소유불변release와고정제어면의sealed cache/manifest/hash를stageVerified로재대조했다. atlascollector계정의readonly검사는Arkham정책MATCH/다음06:00UTC,등록자산CHECKED,기존FX READY,Usage READY/기존policyHash일치/providerRequests0이었다.
+
+기존local index의원시각이후7응답모두SUCCESS/HTTP200인저장projection23건(10-30T06:00:02.878Z~10-31T05:00:04.665Z)을검증하고기존writer로2batch/414관측/import23/unchanged0으로DB복구했다. 새providerRequests0이며실패/소비원장을STORED로고치지않았다. 저장되지않은시간을새호출이나가상값으로채우지않는다.
+
+고정root제어면의설치/보호파일검증및기존sealed artifact재검증뒤OS flock안에서before pointer·peerPID/상태를root전용journal로기록했다. Arkham만stop→collector-current전환→start/동일UIDcwd검증했고PID69372로정상실행했다. usage-current도같은검토SHA로설정했다. 실패시원pointer/Arkham시작상태복구분기를두었고실제journal은COMMITTED였다. 웹/FX/등록peerPID·상태변경0,unit/비밀/소유권/권한/DBschema변경0이다. audit는/var/lib/atlas-deploy/data-runtime-repair-8c4b7f56ffa71b1c49307792978ed4527e4bbbf8.json에보존했다.
+
+## 최초 Usage 실행에서 확인한 기존 URL 결함
+
+기존기간승인으로timer를enable하고UTC10-31당일run을1회실행했다. DBwriter/일별claim검증후STOPPED_UNKNOWN/TRANSPORT_FAILURE/ERR_INVALID_URL/HTTP응답0/본문0으로중단했다. 원인은운영계획에없는plan.origin을URL에연결한기존코드였다. 모의fetch가실제URL을파싱하지않아기존테스트에서빠졌다. 실제첫실행전에이를잡지못한한계를기록한다.
+
+https://api.arkm.com의고정승인host와정확/transfers/histogram을사용해URL18개를claim전구성/검증하도록수정한다. plan/policyHash·대상/기간/한도는바꾸지않는다. 18개모의요청모두실제URL파싱/host/path/chain/token/redirect=error를검사하는회귀를추가했다. 오늘claim/receipt와실패이력은보존하며같은날재호출·새root우회·백데이트하지않는다. 수정본은다음정규UTC00:20실행에사용한다. 오늘새Usage snapshot을게시했다고표현하지않는다.
+
+복구 재실행도source23/insert0/unchanged23/providerRequests0으로동일성을확인했다. URL보완최종npm run check rc0:879pass/0fail/8skip,URL전용7pass/0fail이다.

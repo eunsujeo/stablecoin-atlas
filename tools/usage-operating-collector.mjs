@@ -7,6 +7,8 @@ import {operatingUsagePlan,validateUsageAuthorization} from './usage-operating-p
 const hash=digest,stop=code=>{throw Error(code);};
 export async function collectOperatingUsage({root,planBytes,expectedPlanHash,key,approvalBytes,expectedApprovalHash,claim,fetcher=fetch,clock=()=>performance.now(),now=()=>new Date().toISOString(),sleep=ms=>new Promise(r=>setTimeout(r,ms))}){
  const plan=JSON.parse(planBytes);if(canonical(plan)!==canonical(await operatingUsagePlan(plan.day))||digest(planBytes)!==expectedPlanHash||!key||!Buffer.isBuffer(approvalBytes)||digest(approvalBytes)!==expectedApprovalHash)stop('INPUT_REJECTED');
+ // Validate the fixed destination before consuming a DB day claim.
+ const urls=plan.jobs.map(j=>{if(j.method!=='GET'||j.path!=='/transfers/histogram')stop('INPUT_REJECTED');const u=new URL(j.path,'https://api.arkm.com');u.search=new URLSearchParams(j.query).toString();return u.href;});
  if(typeof claim!=='function')stop('CLAIM_REQUIRED');validateUsageAuthorization(JSON.parse(approvalBytes),plan);if(plan.day!==now().slice(0,10))stop('DAY_NOT_CURRENT');const {slot,planHash}=plan;
  return withAlliumSendLock(root,async()=>{
   const dayClaim=await claim({day:plan.day,planHash:plan.planHash});if(dayClaim.state==='ALREADY_CLAIMED')return {state:'ALREADY_CLAIMED'};if(dayClaim.state!=='CLAIMED')stop('CLAIM_REQUIRED');
@@ -32,7 +34,7 @@ export async function collectOperatingUsage({root,planBytes,expectedPlanHash,key
     await save();
     const afterIntent=420000-(clock()-start);if(now().slice(0,10)!==plan.day)stop('DAY_NOT_CURRENT');if(afterIntent<=0)stop('LEASE_EXPIRED');
     lastSend=clock();
-    let response;try{response=await fetcher(plan.origin+j.path+'?'+new URLSearchParams(j.query),{method:'GET',headers:{'API-Key':key,Accept:'application/json'},redirect:'error',signal:AbortSignal.timeout(Math.max(1,Math.floor(Math.min(20000,afterIntent))))});}catch(error){
+    let response;try{response=await fetcher(urls[i],{method:'GET',headers:{'API-Key':key,Accept:'application/json'},redirect:'error',signal:AbortSignal.timeout(Math.max(1,Math.floor(Math.min(20000,afterIntent))))});}catch(error){
      a.transportClass=['TimeoutError','AbortError'].includes(error.name)?error.name:'TRANSPORT_UNKNOWN';
      const code=error.cause?.code??error.code;if(typeof code==='string'&&/^[A-Z0-9_-]{1,80}$/.test(code))a.transportCode=code;
      await save();stop('TRANSPORT_FAILURE');
