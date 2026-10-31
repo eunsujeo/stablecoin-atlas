@@ -109,3 +109,13 @@ ce0fb5b install25520ms/rc0/INSTALLED_DISABLED를 확인했다. enable 전 broker
 실제 apply14583ms/rc0,웹이ad2312756d4bbb913543130c42295e064960a82c에서72b0a9c1336234debca32beea6d68555c4d0425c로전환됐고전체웹health·DB응답검증후SUCCESS/COMMITTED/terminaltrue/reportedtrue가영속확정됐다. 웹PID64063·CollectorPID33973이며보호11파일hash/UID/GID/mode변경0,collector-current/usage-current변경0,기존Collector/FX/usage 상태·시작시각변경0이다. 변경된unit상태는승인된웹과이번배포timer뿐이다. 이전웹release는previous로보존했다.
 
 이기록의별도main Push를실제활성timer가감지해새SHA의test/build/pack·전환/health를수행하는종단시험으로이어간다. GitHub은공개Git형상관리만사용하고Actions/API status/아티팩트다운로드는없다. root제어면은72b0a9c로고정해유입웹release가root코드를자동변경하지않는다.
+
+## 실제 main Push 종단 검증 완료
+
+자동화를활성상태로유지한채별도문서commit81fbaa251503a8ca44f19ca70a3cd6907c6eeae8를main에push했다. timer만으로감지했으며agent/broker/manual stage/activate를직접시작하지않았다. 실제Git source준비5418ms·Node24관련회귀261pass/0fail/0skip(test10624ms)·production4941ms·pack1256ms·웹전환과전체health까지broker wall37.708초로완료했다. GitHubActions/API·artifactZIP전송은사용하지않았다.
+
+2026-10-31T04:14:09.848Z latest.stateSUCCESS/current=81fbaa2·transaction.phaseCOMMITTED/terminaltrue/resultSUCCESS·versions.web.current/lastSuccess=81fbaa2·reportedtrue를확인했다. 이전release72b0a9c는previous로보존했고고정root제어면도72b0a9c를유지한다. 웹PID65165/CollectorPID33973,보호11파일hash/UID/GID/mode변경0,collector-current/usage-current변경0,기존Collector/FX/usage상태·시작시각변경0이다. DBschema/role/secret·관리proxy/TLS·Cloudflare변경0·하위Agent0이다. 실패job/claim/기존CI release/backup을삭제하지않았다.
+
+재현경로: GitHub main에정상commit을push하고60초+최대10초jitter의agent timer주기와build/health완료를기다린다. root에서journalctl -u atlas-deploy-apply.service와/var/lib/atlas-deploy/latest.json·transaction.json·versions.json을읽어요청SHA/현재SHA/SUCCESS/COMMITTED를대조한다. 실패SHA는동일policy로자동재빌드하지않으며이전웹과소비claim을보존한다. 새root제어면변경은명시disable→검토SHA install→verify→enable절차로만수행한다. collector/usage자동배포는비활성으로유지한다. 비밀번호/환경파일원문·개인CA·URL/키를Git이나CLI에게시하지않는다.
+
+최종코드검증npm run check rc0/875pass/0fail/8skip,실제Mac mini gate261pass/0fail/0skip이다. 이완료기록의문서push도같은활성pipeline대상이므로마지막main과운영current가일치하고SUCCESS인지마지막으로확인한다.
