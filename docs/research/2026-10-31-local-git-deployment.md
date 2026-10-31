@@ -101,3 +101,11 @@ ce0fb5b install25520ms/rc0/INSTALLED_DISABLED를 확인했다. enable 전 broker
 고정 running-cwd helper를 같은 서비스 UID로 실행해 PID 형식·허용 release SHA path·/proc/PID 소유 UID/비symlink directory·실제 cwd 일치·검사 전후 inode/dev/UID 불변을 확인한다. web과 기존 collector health의 같은 root cross-UID 참조를 대체한다. 대상 PID와 예상 release는 root systemctl/pointer에서 얻고 helper CLI는 임의 proc/release root 인자를 받지 않는다. owner/cwd 불일치·path/PID 이탈·symlink/PID directory 교체 거부 회귀를 추가했다. 최초 Mac fixture는 /var→/private 별명 때문에 예상 경로가 canonical이 아니어서 fixture root만 realpath로 정정했다. 제품의 정확한 일치 조건은 유지했다.
 
 실행cwd 보완 최종 npm run check rc0: 875pass/0fail/8skip(주801+보존74),전용4pass/0fail이다.
+
+## 최초 자동 웹 전환 성공
+
+72b0a9c install25301ms/rc0/INSTALLED_DISABLED 후 같은 전체 broker sandbox에서source READY·13check모두READY/providerRequests0을확인했다(9.323초/38.4MiB peak). 설치된 admin verify도READY,enable6177ms/rc0/AUTOMATION_ENABLED였다. 수동stage/activate나rootapply직접호출없이timer→atlaspull→fixedbroker가동작했다.
+
+실제 apply14583ms/rc0,웹이ad2312756d4bbb913543130c42295e064960a82c에서72b0a9c1336234debca32beea6d68555c4d0425c로전환됐고전체웹health·DB응답검증후SUCCESS/COMMITTED/terminaltrue/reportedtrue가영속확정됐다. 웹PID64063·CollectorPID33973이며보호11파일hash/UID/GID/mode변경0,collector-current/usage-current변경0,기존Collector/FX/usage 상태·시작시각변경0이다. 변경된unit상태는승인된웹과이번배포timer뿐이다. 이전웹release는previous로보존했다.
+
+이기록의별도main Push를실제활성timer가감지해새SHA의test/build/pack·전환/health를수행하는종단시험으로이어간다. GitHub은공개Git형상관리만사용하고Actions/API status/아티팩트다운로드는없다. root제어면은72b0a9c로고정해유입웹release가root코드를자동변경하지않는다.
