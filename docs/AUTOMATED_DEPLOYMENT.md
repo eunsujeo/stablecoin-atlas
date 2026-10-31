@@ -163,3 +163,5 @@ Actions 아티팩트 ZIP 다운로드는 요청 시작부터 헤더 수신과 �
 
 
 LOCAL_GIT broker는 PAM `runuser`나 자체 UID 전환 대신 PID 1이 고정 비특권 User/Group으로 실행하는 transient service를 사용한다. 소스 조회와 DB 읽기 검사도 capability 없는 별도 서비스이며 shell/임의 사용자·경로를 허용하지 않는다. 기존 capability 및 systemd sandbox는 유지한다. 공개 polkit 규칙은 receipt/source 해시·root 소유·비링크를 검증하고 정확한 legacy 0600만 0644로 복구하며, verify/enable은 읽을 수 없는 규칙을 거부한다. `disable`은 배포 timer를 중지하고 deployment config의 enabled도 false로 저장한다. 운영 웹·Collector·FX는 중지하지 않는다.
+
+실행 중인 버전은 서비스와 같은 UID의 제한된 helper로 `/proc/PID/cwd`와 예상 release SHA를 대조한다. root broker에 CAP_SYS_PTRACE를 추가하지 않으며 PID 소유자·실제 경로·검사 전후 프로세스 디렉터리의 동일성을 확인한다.

@@ -1,6 +1,6 @@
 import {execFile,spawn} from 'node:child_process';
 import {promisify} from 'node:util';
-import {mkdir,writeFile,unlink,readFile,lstat,chown,chmod,rm,statfs,realpath} from 'node:fs/promises';
+import {mkdir,writeFile,unlink,readFile,lstat,chown,chmod,rm,statfs} from 'node:fs/promises';
 import {ensureProbeDirectory} from './probe-directory.mjs';
 import {serviceChildCommand} from './service-child.mjs';
 import {checkTriggerRule,triggerRulePath} from './trigger-rule.mjs';
@@ -44,6 +44,10 @@ export async function validateResumeWindow(component,before,{now=Date.now(),conf
  if(component==='usage'&&usageAuthorization){const day=new Date(now).toISOString().slice(0,10);requireThat(day>=usageAuthorization.fromDay&&day<usageAuthorization.untilExclusive,'USAGE_AUTHORIZATION_EXPIRED');}
 }
 export function requiredFiles(config,component){const common=['ca',...(config.source==='LOCAL_GIT'?[]:['github',...(config.files.githubKey?['githubKey']:[])])];return component==='all'?(config.source==='LOCAL_GIT'?['reader','web','ca']:Object.keys(config.files)):[...common,...(component==='web'?['reader','web']:component==='collector'?collectorFiles:usageFiles)];}
+async function verifyServiceCwd(s,revision){
+ const child=serviceChildCommand({user:s.User,command:'/usr/bin/node',args:[join(INSTALL,'tools/deploy/running-cwd.mjs'),s.MainPID,join(ROOT,'releases',revision)],cwd:INSTALL});
+ try{const {stdout}=await exec(child.command,child.args,child.options);requireThat(JSON.parse(stdout).state==='READY','RUNNING_VERSION_MISMATCH');}catch{throw Error('RUNNING_VERSION_MISMATCH');}
+}
 export function operatingSystem(config){
  const barrier=c=>join(STATE,'quiesce-'+c),link=c=>c==='web'?'current':c==='collector'?'collector-current':'usage-current';
  async function snapshot(c){const result={};for(const u of services(config,c))result[u]=await unitState(u);return result;}
@@ -69,7 +73,7 @@ export function operatingSystem(config){
   await check('control-plane',verifyInstallation);for(const name of ['.stage-lock','.deployment-lock'])await check('legacy-lock:'+name,async()=>{try{await lstat(join(ROOT,name));throw Error('LEGACY_DEPLOY_LOCK');}catch(e){if(e.code!=='ENOENT')throw e;}});await check('disk',async()=>{const s=await statfs(ROOT,{bigint:true});requireThat(s.bavail*s.bsize>=1073741824n,'DISK_SPACE_LOW');});
   if(component==='all')await check('trigger-policy',async()=>checkTriggerRule({expectedHash:(await json('/etc/atlas-deploy/control-plane.json')).units?.[triggerRulePath]}));
   for(const id of requiredFiles(config,component))await check('file:'+id,()=>verifyConfiguredFile(id,config.files[id],{uidFor}));
-  for(const c of component==='all'?['web','collector','usage']:[component])if(config.components[c].enabled){for(const unit of services(config,c))await check('unit:'+unit,async()=>{const s=await unitState(unit);if(unit.endsWith('.timer')){validateTimer(unit,s,config);return;}requireThat(s.User===(c==='web'?'atlasweb':'atlascollector')&&s.WorkingDirectory===join(ROOT,link(c))&&!['failed','activating','deactivating'].includes(s.ActiveState),'UNIT_CONFIGURATION');if(s.MainPID!=='0'){const current=await pointer(ROOT,link(c));requireThat(await realpath('/proc/'+s.MainPID+'/cwd')===join(ROOT,'releases',current),'RUNNING_VERSION_MISMATCH');}});}
+  for(const c of component==='all'?['web','collector','usage']:[component])if(config.components[c].enabled){for(const unit of services(config,c))await check('unit:'+unit,async()=>{const s=await unitState(unit);if(unit.endsWith('.timer')){validateTimer(unit,s,config);return;}requireThat(s.User===(c==='web'?'atlasweb':'atlascollector')&&s.WorkingDirectory===join(ROOT,link(c))&&!['failed','activating','deactivating'].includes(s.ActiveState),'UNIT_CONFIGURATION');if(s.MainPID!=='0'){const current=await pointer(ROOT,link(c));await verifyServiceCwd(s,current);}});}
   await check('pointer:web',()=>pointer(ROOT,'current'));if(!['web','all'].includes(component))await check('pointer:'+component,()=>pointer(ROOT,link(component)));
   // Probe all enabled components during bootstrap; an ordinary web rollout never stops writers.
   const targets=component==='all'?['web','collector','usage'].filter(c=>config.components[c].enabled):[component];
@@ -79,7 +83,7 @@ export function operatingSystem(config){
  }
  async function health(c,revision){
   if(c==='web'){const web=JSON.parse(await readFile(destinations.web));await waitForWebRelease({sha:revision,release:join(ROOT,'releases',revision),config:web});}
-  else{await new Promise(r=>setTimeout(r,5000));for(const u of services(config,c)){const s=await unitState(u);requireThat(!['failed','activating','deactivating'].includes(s.ActiveState)&&s.Result==='success','SERVICE_UNHEALTHY');if(s.MainPID!=='0')requireThat(await realpath('/proc/'+s.MainPID+'/cwd')===join(ROOT,'releases',revision),'RUNNING_VERSION_MISMATCH');}requireThat(await pointer(ROOT,link(c))===revision,'POINTER_MISMATCH');}
+  else{await new Promise(r=>setTimeout(r,5000));for(const u of services(config,c)){const s=await unitState(u);requireThat(!['failed','activating','deactivating'].includes(s.ActiveState)&&s.Result==='success','SERVICE_UNHEALTHY');if(s.MainPID!=='0')await verifyServiceCwd(s,revision);}requireThat(await pointer(ROOT,link(c))===revision,'POINTER_MISMATCH');}
  }
  return {snapshot,quiesce,hold:async c=>{for(const id of requiredFiles(config,c))await verifyConfiguredFile(id,config.files[id],{uidFor});return runProbe(c,{hold:true});},preflight:async c=>{const r=await preflight(c);await atomicJSON(join(STATE,'preflight-'+c+'.json'),r);const failed=r.checks.find(s=>s.state==='FAILED');if(failed){const id=failed.id.replace(/@[a-f0-9]+/g,'_INSTANCE').replace(/[^a-zA-Z_]/g,'_').toUpperCase();throw Error(('PREFLIGHT_'+id+'_'+failed.reason).slice(0,64));}},preflightReport:preflight,
   current:c=>pointer(ROOT,link(c)),setPointer:(c,s)=>point(ROOT,link(c),s),restore:async(c,s)=>{await point(ROOT,link(c),s);if(c==='web'){await systemctl('reset-failed','atlas-web.service');await systemctl('restart','atlas-web.service');}},

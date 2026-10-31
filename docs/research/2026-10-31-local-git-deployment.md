@@ -93,3 +93,11 @@ UID/GID 보완 최종 npm run check rc0: 873pass/0fail/8skip(주suite799pass+보
 이에기존buildphase와같이소스조회·DBprobe도PID1이고정User/Group으로시작하는transient service로위임한다. source는atlasbuild/Git/cache 고정,probe는atlasweb또는atlascollector/Node/설치경로고정이다. shell/root/다른user·directory/probe proxy는거부한다. 각service는capabilityempty/NoNewPrivileges/ProtectSystem·Home/PrivateTmp·Devices/쓰기허용path없음/시간·메모리·CPU·task한도를가진다. wrapper는cleanPATH뿐이며별도source service만기존root관리proxy.env를읽는다. proxy/CA값을argv·로그로전달하지않는다. holdprobe는pipe세션을유지하고deadline/닫힘에따라종료한다. 기존Native UID helper는제거하고고정manager명령·sandbox·거부회귀로대체했다. 기존웹PID45865·Collector33973·릴리스/백업/비밀/DB정책은계속보존중이다.
 
 PID1 위임 최종 npm run check rc0: 873pass/0fail/8skip(주799+보존74),전용13pass/0fail이다.
+
+## 전체 sandbox 사전 점검의 실행 디렉터리 검사 보완
+
+ce0fb5b install25520ms/rc0/INSTALLED_DISABLED를 확인했다. enable 전 broker와 같은 full sandbox 검사에서는 source READY·database:web READY, unit:atlas-web.service만 CHECK_FAILED였다. root broker에 CAP_SYS_PTRACE가 없어 다른 UID의 /proc/PID/cwd를 읽지 못하는 조건이다. atlasweb User/Group의 capabilityempty transient service로 같은 PID를 readlink하면 기존 release path가 정상 반환됐다. root에 ptrace 권한을 추가하거나 검증을 생략하지 않는다.
+
+고정 running-cwd helper를 같은 서비스 UID로 실행해 PID 형식·허용 release SHA path·/proc/PID 소유 UID/비symlink directory·실제 cwd 일치·검사 전후 inode/dev/UID 불변을 확인한다. web과 기존 collector health의 같은 root cross-UID 참조를 대체한다. 대상 PID와 예상 release는 root systemctl/pointer에서 얻고 helper CLI는 임의 proc/release root 인자를 받지 않는다. owner/cwd 불일치·path/PID 이탈·symlink/PID directory 교체 거부 회귀를 추가했다. 최초 Mac fixture는 /var→/private 별명 때문에 예상 경로가 canonical이 아니어서 fixture root만 realpath로 정정했다. 제품의 정확한 일치 조건은 유지했다.
+
+실행cwd 보완 최종 npm run check rc0: 875pass/0fail/8skip(주801+보존74),전용4pass/0fail이다.
