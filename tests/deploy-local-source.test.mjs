@@ -52,7 +52,7 @@ test('local attestation cannot masquerade as CI or accept a different policy, SH
  const damaged=Buffer.from(b.payload);damaged[0]^=1;assert.throws(()=>validateLocalBundle({...files,'release.tar':damaged},c,H));assert.throws(()=>validateLocalBundle(files,c,'d'.repeat(64)),/LOCAL_BUILD_ATTESTATION/);
 });
 test('tested local artifacts are root-snapshotted and reused; corruption/partial cache never triggers a rebuild',async t=>{
- const state=await fixture(t);let builds=0;const client=localSourceClient({state,discover:async()=>A,policy:async()=>H,build:async c=>{builds++;return bundle(c);},clock:()=>10,trust}),c=await client.candidate(config);
+ const state=await fixture(t);let builds=0;const client=localSourceClient({state,codeRoot:'/usr/local/lib/atlas-deploy/',discover:async()=>A,policy:async()=>H,build:async(c,options)=>{assert.equal(options.codeRoot,'/usr/local/lib/atlas-deploy');localBuildCommand({phase:'prepare',job:'/opt/stablecoin-atlas/builds/'+randomUUID(),commit:c.sha,id:c.id,codeRoot:options.codeRoot});builds++;return bundle(c);},clock:()=>10,trust}),c=await client.candidate(config);
  const first=await client.bundle(c);assert.equal(first.manifest.commit,A);assert.equal(hash((await client.bundle(c)).payload),hash(first.payload));assert.equal(builds,1);
  const path=join(state,'local-artifacts',A+'-10','release.tar');await writeFile(path,'damaged');await assert.rejects(client.bundle(c));assert.equal(builds,1);
  await rm(join(state,'local-artifacts',A+'-10','release.json'));await assert.rejects(client.bundle(c),/LOCAL_ARTIFACT_INCOMPLETE/);assert.equal(builds,1);

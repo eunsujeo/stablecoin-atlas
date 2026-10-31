@@ -51,6 +51,7 @@ async function discoverMain(){
  const {command,args,options}=localMainCommand();try{const {stdout}=await exec(command,args,options);const parts=stdout.trim().split(/\s+/);requireThat(parts.length===2&&sha(parts[0])&&parts[1]==='refs/heads/main','LOCAL_MAIN_INVALID');return parts[0];}catch(e){throw Error(e.message==='LOCAL_MAIN_INVALID'?e.message:'LOCAL_SOURCE_UNAVAILABLE');}
 }
 export function localSourceClient({state,codeRoot=fileURLToPath(new URL('../../',import.meta.url)),discover=discoverMain,policy=()=>localPolicyHash(codeRoot),build=buildLocal,clock=Date.now,trust=trusted}){
+ codeRoot=resolve(codeRoot);
  async function candidate(config,versions={}){
   requireThat(config.source==='LOCAL_GIT'&&config.repository==='eunsujeo/stablecoin-atlas'&&!config.components.collector.enabled&&!config.components.usage.enabled,'LOCAL_SOURCE_CONFIG');
   const commit=await discover();requireThat(sha(commit),'LOCAL_MAIN_INVALID');const policyHash=await policy(),path=join(state,'local-source.json');requireThat(hex(policyHash),'LOCAL_BUILD_POLICY');let c=await json(path,null);

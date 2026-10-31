@@ -27,3 +27,7 @@ local source 전용9개는 config의 CI/token 불필요·web-only·고정sandbox
 1d7357d6bcb2dda1fda765e1718de56a76864a79를 push한 뒤 root 보호 checkout/새LOCAL 계획을 생성했다. plan의 reader/web/CA·unit/effective path·설치 경로는 모두READY였다. install은 LOCAL_SOURCE_UNAVAILABLE로265ms에 중단됐다. 빌드 claim/worker·제어면 교체·서비스 전환은 시작되지 않았다.
 
 원인은 sudo 관리자 셸 cwd=/root를 비특권 Git이 상속한 접근 거부(exit128)였다. 고정 /var/cache/atlas-build cwd를 지정하니 같은 서버에서 BUILDER_MAIN_LOOKUP_READY를 확인했다. localMainCommand를 분리하고 builder cwd·고정 원본/ref·proxy/CA만 전달·SSH agent/token/TLS-disable 환경 미전달의 회귀 시험을 추가했다. 진단 helper의 regex escape 오류는 plain string 분류로 고쳤고 비밀 stderr를 출력하지 않았다. 최종 local전용10pass/0fail 및 npm run check799개중791pass/0fail/8skip+보관74pass/0fail=865pass/0fail/8skip, 종료0을 확인한 뒤 수정 commit으로 이어간다. 첫 checkout/config/실패 출력과 기존 설치본은 보존한다.
+
+9b1c6222df5cc7a9345e27086d1171379d218952의 plan도READY였고 main 조회는 통과했다. install은 빌드 명령 생성 전 LOCAL_BUILD_COMMAND로718ms에 종료됐다. fileURLToPath의 directory URL 끝 slash가 canonical path guard와 충돌한 원인을 확인하고 source client에서 resolve로 정규화했다. 실제 bootstrap의 trailing-slash 입력으로 sandbox command까지 만드는 회귀를 추가해10pass/0fail을 확인했다. 이 시도는 claim과 빈 job/npm cache 디렉터리를 만든 뒤 중단됐고 worker unit/다운로드·제어면 교체·운영 서비스 변경0이다. 소비 claim/job/checkout/config는 보존하며 재사용/삭제하지 않는다.
+
+경로 정규화 수정 후 전체check도865pass/0fail/8skip·종료0이다. 실제 서버에서 동일한 User/PrivateNetwork/ProtectSystem/NoNewPrivileges/자원 제한의 별도 sandbox self-check를 실행해 uid978/Node24.18/rc0을 확인했다. source worker나 운영 서비스를 실행한 것으로 계산하지 않는다.
