@@ -36,3 +36,21 @@ Usage는 승인 파일 hash/기간/호출 예산을 그대로 검증한다. read
 https://api.arkm.com의고정승인host와정확/transfers/histogram을사용해URL18개를claim전구성/검증하도록수정한다. plan/policyHash·대상/기간/한도는바꾸지않는다. 18개모의요청모두실제URL파싱/host/path/chain/token/redirect=error를검사하는회귀를추가했다. 오늘claim/receipt와실패이력은보존하며같은날재호출·새root우회·백데이트하지않는다. 수정본은다음정규UTC00:20실행에사용한다. 오늘새Usage snapshot을게시했다고표현하지않는다.
 
 복구 재실행도source23/insert0/unchanged23/providerRequests0으로동일성을확인했다. URL보완최종npm run check rc0:879pass/0fail/8skip,URL전용7pass/0fail이다.
+
+
+## URL 수정 runtime과 실제 API·보존 확인
+
+07169547db9dcd2cd5a3a8acd0e3ffeaa83eec03의자동웹배포는SUCCESS/COMMITTED(wall45.381초)였다. 기존fixed root제어면이검증한sealed artifact를재검증하고usage.service가비실행/MainPID0임을확인한뒤usage-current만전환했다. 실제writer readonlycheck READY/기존3f53…policyHash일치/새요청0,수집service는재실행하지않고reset-failed만수행했다. 실패DBclaim/receipt/journal은유지했다. usage timer는11-01 00:20UTC/한국09:20다음실행이다. audit는/var/lib/atlas-deploy/usage-url-runtime-07169547db9dcd2cd5a3a8acd0e3ffeaa83eec03.json에보존했다.
+
+같은Arkham키/같은기존writer라는비교결과만확인했으며값을출력하지않았다. 누적localmirror를기존최신저장projection으로추가요청0의최신배치게시를해13KiB미만(12,975bytes)/18관측으로검증했다. 원2MiB파일은그대로보존했고DB상태는실제import완료에따라STORED로기록했다. 과거last-collection의실패기록은SUCCESS로위장하지않았다.
+
+운영loopback API는healthz/market-data/network-usage-data/fx-data모두HTTP200이다. market2162응답관측/최신05:00:20.408000Z로원복구시각을확인했고network-usage는기존126행/windowEnd10-28을유지한다. 오늘새network snapshot은없으며01일정규실행을기다린다. 별도readonly검사로11월시장DBpartition도READY/providerRequests0을확인했다.
+
+보호11파일hash/UID/GID/mode변경0,FX/등록서비스PID·상태/시작시각변경0,DB DDL/GRANT/비밀/관리proxy/TLS/Cloudflare변경0이다. collector-current는8c4b7f5,usage-current는0716954,root제어면은72b0a9c로고정한다. 기존version cache의수집runtime current는실제pointer에맞추되데이터수집SUCCESS로오인하지않도록ADOPTED로기록했다. 기존release/backup/소비claim을삭제하지않았다.
+
+
+## Arkham 수정 후 첫 실제 정규 실행 성공
+
+추가수동수집/예약재사용없이기존1h/24스케줄의UTC06:00(한국15:00)을기다렸다. 06:00:02.421Z의실제run에서requests7/completedRequests7/publishedtrue,06:00:19.439Z에DB STORED,mirror12,975bytes를확인했다. readonly watcher는REGULAR_COLLECTION_VERIFIED/rc0으로종료했다. 이전원본/실패기록을삭제하지않고새정규슬롯의수신→게시→DB입력을실제로검증했다. 다음Arkham실행은UTC07:00이다.
+
+Usage는설치검사와고정URL회귀/실제writer check/정규timer준비까지검증했고,수정후실제18GET/PUBLISHED는아직관측하지않았다. 10-31의ERR_INVALID_URL실패claim을보존해같은날재실행하지않으며11-01 UTC00:20첫실행결과는추후readonly확인대상이다. 모든수집을실제로성공확인했다고표현하지않는다.

@@ -1,3 +1,5 @@
+2026-10-31 변경: [ADR0126](adr/0126-collection-runtime-boundaries.md)과 [복구 기록](research/2026-10-31-collection-runtime-recovery.md)을 따른다. DB 모드의 로컬 JSON mirror는 최신 수집 배치만 게시하며 이력은 DB·원 projection·기존 snapshot 파일에 보존한다. 일반 파일 모드의 누적 동작은 유지한다. Usage의 별도 reviewed-definers 파일은 일일 수집 필수 파일이 아니며 설치·권한 변경 boundary 점검에서만 사용한다.
+
 # 주기 수집 운영
 
 Mac mini production의 별도 `collector-current`·서비스 계정/권한·기존 FX 저장본 이전/check/publish·활성화 승인·롤백은 [운영 복구 절차](COLLECTOR_PRODUCTION_RECOVERY.md)를 따른다. 아래 `/opt/multi-chain-asset-compatibility`는 base unit 경로이며 production drop-in은 이를 대체한다. 이번 변경은 기존 DB 준비 명령의 재실행을 요구하지 않는다.
