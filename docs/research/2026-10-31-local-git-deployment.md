@@ -41,3 +41,9 @@ a93b471490b9320201f4d2875a8c5c918a5cfd9c는 prepare6382ms를 완료하고 test97
 추가 진단의 TTY/FD 전달 경로에서 transient start 오류/지연을 만났고 이번 진단 Node caller만 Ctrl-C로 종료했다. root manager query와 명시 system bus 조회는 rc0/대기job0을 확인했으며 어떤 OS service도 restart/reload하지 않았다. build unit 메모리peak476.9MiB·kernel OOM기록0, 웹PID45865/CollectorPID33973·FX active를 재확인했다. 기존 claims/jobs/checkout/로그는 보존했다. 실제 시험 실패는 위 로컬재현과 다음 새 SHA의 gate로 확인하며 이전 claim을 재시도하지 않는다.
 
 fixture 수정 후 최종 전체check800개중792pass/0fail/8skip+보관74pass/0fail=866pass/0fail/8skip·종료0이다. restrictive umask gate252pass/0fail/0skip도 함께 확인했다.
+
+314157867016d88571964172dbcabb8e337472d6의 prepare5659ms·test10143ms 후 실패를 새 private log에서 확인했다. 깨끗한 source checkout에 .state가 없어 artifact-cache 시험4개의 mkdtemp가 ENOENT였다. 시험 fixture 자체에서 private 부모를 준비하고 fresh checkout·기존 sentinel 보존 회귀를 추가했다. 중첩 Node test subprocess는 NODE_TEST_CONTEXT를 제거하고 pass1을 확인해 실제 실행 없는 false positive도 차단했다. 실제 캐시 모듈의 missing-parent 처리/소유·mode·digest 검사는 변경하지 않았다. restrictive umask077 gate253pass/0fail/0skip 후 전체check를 실행한다. 이전 실패 claim·소스·로그·운영 상태는 보존한다.
+
+전체검사와 별도로 이전 실패 job에서 pack-only 오프라인 진단을1322ms/rc0으로 확인했다. 진단 결과는 builder 소유 raw output일 뿐 localBuild root attestation/완성rootcache/stage/current를 게시하지 않았다. 실패claim을 다시 소비하거나 정상 시험으로 승격하지 않았고 새 SHA의 실제 pipeline은 모든 gate를 다시 실행한다.
+
+clean-checkout fixture 수정 최종 npm run check는801개중793pass/0fail/8skip+보관74pass/0fail=867pass/0fail/8skip·종료0이다.

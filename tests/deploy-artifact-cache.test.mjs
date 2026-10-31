@@ -1,11 +1,19 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtemp,writeFile,readdir,chmod,symlink,rm,lstat,truncate,link,unlink} from 'node:fs/promises';
+import {mkdtemp,writeFile,readFile,readdir,chmod,symlink,rm,lstat,truncate,link,unlink,mkdir} from 'node:fs/promises';
 import {join} from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {spawnSync} from 'node:child_process';
 import {artifactCache,artifactLimit} from '../tools/deploy/artifact-cache.mjs';
 import {hash} from '../tools/deploy/files.mjs';
 
-async function fixture(t){const root=await mkdtemp(join(process.cwd(),'.state/cache-fixture-'));t.after(()=>rm(root,{recursive:true,force:true}));return {root,directory:join(root,'artifacts'),cache:artifactCache(join(root,'artifacts'))};}
+async function fixture(t){await mkdir(join(process.cwd(),'.state'),{recursive:true,mode:0o700});const root=await mkdtemp(join(process.cwd(),'.state/cache-fixture-'));t.after(()=>rm(root,{recursive:true,force:true}));return {root,directory:join(root,'artifacts'),cache:artifactCache(join(root,'artifacts'))};}
+test('cache fixtures work in a fresh protected checkout without pre-created development state',async t=>{
+ const f=await fixture(t),cwd=join(f.root,'fresh-checkout');await mkdir(cwd,{mode:0o700});
+ const env={...process.env};delete env.NODE_TEST_CONTEXT;
+ const run=()=>{const result=spawnSync(process.execPath,['--test','--test-name-pattern=^complete hash-bound',fileURLToPath(import.meta.url)],{cwd,env,encoding:'utf8'});assert.equal(result.status,0,result.stdout+result.stderr);assert.match(result.stdout,/pass 1/);};
+ run();assert.equal((await lstat(join(cwd,'.state'))).mode&0o777,0o700);const sentinel=join(cwd,'.state','preserved');await writeFile(sentinel,'PRESERVED',{mode:0o600});run();assert.equal(await readFile(sentinel,'utf8'),'PRESERVED');
+});
 test('complete hash-bound cache survives new clients, contains no URL and ignores interrupted publication files',async t=>{
  const f=await fixture(t),bytes=Buffer.from('VERIFIED_ZIP_FIXTURE'),digest=hash(bytes);assert.equal(await f.cache.get(digest),null);assert.equal(await f.cache.put(digest,bytes),true);
  assert.deepEqual(await artifactCache(f.directory).get(digest),bytes);assert.equal((await lstat(f.directory)).mode&0o777,0o700);assert.equal((await lstat(join(f.directory,digest+'.zip'))).mode&0o777,0o600);
