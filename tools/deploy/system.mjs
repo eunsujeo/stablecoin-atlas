@@ -13,6 +13,7 @@ export const ROOT='/opt/stablecoin-atlas',STATE='/var/lib/atlas-deploy',INSTALL=
 const systemctl=(...args)=>exec('/usr/bin/systemctl',args,{timeout:90000,maxBuffer:65536});
 export async function uidFor(name){requireThat(['root','atlascollector','atlasweb','atlaspull'].includes(name),'USER_INVALID');const{stdout}=await exec('/usr/bin/id',['-u',name]);const uid=Number(stdout.trim());requireThat(Number.isSafeInteger(uid)&&uid>=0&&(name==='root'||uid>0),'USER_INVALID');return uid;}
 export async function verifyInstallation(){
+ const bootstrapJournal=join(STATE,'bootstrap-install.json');try{await trusted(bootstrapJournal,{privateFile:true});requireThat(['COMMITTED','ROLLED_BACK'].includes((await json(bootstrapJournal)).phase),'BOOTSTRAP_INSTALL_PENDING');}catch(e){if(e.code!=='ENOENT')throw e;}
  const receipt=await trusted('/etc/atlas-deploy/control-plane.json',{privateFile:true,limit:16*1024*1024});const expected=await json(receipt);await trusted(INSTALL,{directory:true});const actual=await inventory(INSTALL);requireThat(JSON.stringify(actual)===JSON.stringify(expected.files),'CONTROL_PLANE_CHANGED');
  for(const name of Object.keys(actual))await trusted(join(INSTALL,name),{limit:32*1024*1024});
  for(const [path,digest]of Object.entries(expected.units)){await trusted(path,{limit:65536});requireThat(hash(await readFile(path))===digest,'UNIT_CHANGED');}return expected;
@@ -26,7 +27,7 @@ export function parseUnitState(stdout,unit){
  if(unit.endsWith('.timer')){fields.MainPID='0';fields.Type='timer';fields.Result??='success';}
  requireThat(fields.LoadState==='loaded'&&['active','inactive','failed','activating','deactivating'].includes(fields.ActiveState)&&/^\d+$/.test(fields.MainPID),'UNIT_STATE_INVALID');return fields;
 }
-export async function unitState(unit){const {stdout}=await systemctl('show',unit,'--property=LoadState,ActiveState,SubState,MainPID,Result,User,WorkingDirectory,FragmentPath,DropInPaths,Type,Unit,TimersCalendar,Persistent,NextElapseUSecRealtime,LastTriggerUSec');return parseUnitState(stdout,unit);}
+export async function unitState(unit,{allowMissing=false}={}){let stdout;try{({stdout}=await systemctl('show',unit,'--property=LoadState,ActiveState,SubState,MainPID,Result,User,WorkingDirectory,FragmentPath,DropInPaths,Type,Unit,TimersCalendar,Persistent,NextElapseUSecRealtime,LastTriggerUSec'));}catch(e){if(allowMissing&&/^LoadState=not-found$/m.test(e.stdout??''))return null;throw e;}if(allowMissing&&/^LoadState=not-found$/m.test(stdout))return null;return parseUnitState(stdout,unit);}
 export function timerDefinition(s){return {unit:s.Unit,persistent:s.Persistent,calendar:[...(s.TimersCalendar??'').matchAll(/OnCalendar=([^;}]+)/g)].map(m=>m[1].trim().replace(/\s+/g,' ')).join('|')};}
 export function validateTimer(unit,s,config){
  requireThat(s.Unit===unit.replace('.timer','.service')&&s.Type==='timer'&&!['failed','activating','deactivating'].includes(s.ActiveState),'TIMER_CONFIGURATION');

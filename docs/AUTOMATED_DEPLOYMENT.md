@@ -1,5 +1,9 @@
 # Stablecoin Atlas 자동 CI/CD
 
+2026-10-31 Fedora 설치·재실행은 [ADR0124](adr/0124-fedora-bootstrap-install-recovery.md)를 따른다. root 소유의 정확한 `/usr/local/sbin -> bin`만 허용하고 실제 `/usr/local/bin` 파일·조상과 logical 조상의 root/non-writable을 모두 확인한다. 다른 symlink를 일반화하거나 시스템 링크/소유권/권한을 고치지 않는다. `plan`의 기존 `checks` 외 `installPaths`와 unit plan/실제 unit 경로 검사도 확인한다.
+
+`install`은 경로/계정/기존 state를 먼저 검증하고 private `bootstrap-install.json`과 `bootstrap-backups/UUID`로 원래 파일·제어면을 보존한다. 파일 UID/GID/mode는 유지하고 새 임시 파일의 atomic rename으로 내용만 갱신하며 마지막에 receipt를 게시한다. 실패/프로세스 종료 후 명시 install 재실행은 commit marker를 확인해 복구하거나 이미 끝난 commit으로 닫는다. 외부 편집·손상·불명확 상태는 `BOOTSTRAP_RECOVERY_BLOCKED`로 남기며 강제 덮어쓰지 않는다. 저널이 pending이면 verify/apply/enable은 차단된다. 기존 CI release/ATLAS_RELEASE/cache/previous tree를 삭제하거나 임의로 receipt를 작성하지 않는다. 서비스 start/stop/restart와 포인터 변경은 install에 없고, missing usage-current 초기 생성도 명시 enable에서만 수행한다. Collector state directory는 이미 올바른 owner/private 조건으로 준비돼 있어야 하며 install에서 생성/chown하지 않는다. [로컬 검증·운영 재실행 경계](research/2026-10-31-fedora-bootstrap-install-recovery.md).
+
 2026-10-31 런타임 번들·완성 ZIP 캐시는 [ADR0123](adr/0123-runtime-artifact-and-verified-cache.md)를 따른다. CI는 운영 자산과 pg의 lock 고정 의존성만 묶고 선택 패키지의 native 파일을 보존하며 압축9/추출본 진입점 import 검사를 수행한다. 개발용 CLI/연구·문서·시험 파일은 이 운영 bundle의 실행 범위가 아니다. 빌드 JSON의 source/dependency/payload byte와 압축 추정을 CI summary에서 확인할 수 있다. 로컬 측정과 실제 ARM64 CI/다운로드 관측은 [검증 기록](research/2026-10-31-runtime-artifact-optimization.md)에서 구분한다.
 
 2026-10-30 후속 [ADR0122](adr/0122-frankfurter-daily-fx.md): 새 코드의 FX preflight는 명시 Frankfurter DB reader를 사용한다. [추가 승인 조회·실제 DB/로컬 웹 반영](research/2026-10-30-frankfurter-live-completion.md)을 완료했다. 최초 운영 bootstrap/고정 제어면 설치·운영 배포·자동수집 활성화 완료를 뜻하지 않는다. 향후 만료/부재503을 무시하거나 ECB/file fallback으로 통과시키지 않는다.

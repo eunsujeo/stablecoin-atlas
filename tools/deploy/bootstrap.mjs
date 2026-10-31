@@ -1,23 +1,35 @@
 // Explicit one-time root bootstrap. No command starts/stops an existing web/collector service.
-import {readFile,lstat,mkdir,rename,writeFile,chmod,chown,unlink} from 'node:fs/promises';
+import {readFile,lstat,mkdir,writeFile,chmod,symlink,rm} from 'node:fs/promises';
 import {execFile} from 'node:child_process';
 import {promisify} from 'node:util';
 import {join,dirname} from 'node:path';
 import {parseEnv} from 'node:util';
-import {pathToFileURL} from 'node:url';
+import {pathToFileURL,fileURLToPath} from 'node:url';
 import {randomUUID,createHash} from 'node:crypto';
 import {stageVerified} from './stage.mjs';
-import {pointer,point} from '../release-switch.mjs';
+import {pointer,release} from '../release-switch.mjs';
 import {loadConfig,validateConfig,destinations,verifyConfiguredFile} from './config.mjs';
 import {githubToken} from './github-token.mjs';
 import {githubClient} from './github.mjs';
 import {artifactCache} from './artifact-cache.mjs';
 import {timedDeployment} from './operation-timing.mjs';
+import {bootstrapLayout,preflightInstallPaths,prospectiveTrusted,recoverBootstrapInstall,publishBootstrapInstall} from './bootstrap-install.mjs';
+import {bootstrapLease} from './bootstrap-lease.mjs';
 import {provision} from './vault.mjs';
 import {extractRelease} from './archive.mjs';
-import {uidFor,unitState,timerDefinition,operatingSystem,ROOT,STATE,INSTALL,services} from './system.mjs';
-import {hash,requireThat,trusted,inventory,atomicJSON,json} from './files.mjs';
+import {uidFor,unitState,timerDefinition,operatingSystem,ROOT,STATE,INSTALL,services,verifyInstallation} from './system.mjs';
+import {hash,requireThat,trusted,inventory,atomicJSON,json,syncDirectory} from './files.mjs';
 const exec=promisify(execFile),unitDir='/etc/systemd/system';
+export async function assertBootstrapIdle(readState=unitState){
+ for(const unit of ['atlas-deploy-agent.timer','atlas-deploy-apply.service']){const s=await readState(unit,{allowMissing:true});if(s)requireThat(s.ActiveState==='inactive'&&s.MainPID==='0',unit.endsWith('.timer')?'STOP_AUTOMATION_BEFORE_UPGRADE':'BOOTSTRAP_APPLY_ACTIVE');}
+}
+export async function effectiveUnitPaths(config,readState=unitState){
+ const paths=new Set();for(const component of ['web','collector','usage'])if(config.components[component].enabled)for(const name of services(config,component)){const s=await readState(name,{allowMissing:true});if(s)for(const path of [s.FragmentPath,...(s.DropInPaths??'').split(/\s+/)].filter(Boolean))paths.add(path);}return [...paths];
+}
+async function collectorStatePreflight(config){
+ const paths=[...(config.components.collector.enabled?['/var/lib/atlas-collector','/var/lib/atlas-collector/receipts','/var/lib/atlas-collector/archive','/var/lib/atlas-collector/market-store']:[]),...(config.components.usage.enabled?['/var/lib/atlas-usage']:[])];
+ if(paths.length){const uid=await uidFor('atlascollector');for(const path of paths){const s=await lstat(path);requireThat(s.isDirectory()&&!s.isSymbolicLink()&&s.uid===uid&&!(s.mode&0o077),'STATE_DIRECTORY_UNSAFE');}}
+}
 export async function unitPlan({source,config,read=readFile,stat=lstat}){
  const result=[];for(const name of ['atlas-deploy-agent.service','atlas-deploy-agent.timer','atlas-deploy-apply.service'])result.push({path:join(unitDir,name),bytes:await read(join(source,'deploy',name))});
  for(const component of ['collector','usage']){
@@ -56,40 +68,44 @@ export async function bootstrap(args){
  }
  if(command==='plan'){
   const checks=[];for(const [id,spec]of Object.entries(input.files)){try{await verifyConfiguredFile(id,spec,{uidFor});checks.push({id,state:'READY'});}catch{checks.push({id,state:'MISSING_OR_UNSAFE'});}}
-  return {state:'PLAN_ONLY',checks,servicesChanged:0,defaults:{automation:false,usage:false},next:'install -> verify -> enable'};
+  let plan=[],effective=[];try{plan=await unitPlan({source:fileURLToPath(new URL('../../',import.meta.url)),config:input});checks.push({id:'install-unit-plan',state:'READY'});}catch{checks.push({id:'install-unit-plan',state:'MISSING_OR_UNSAFE'});}
+  try{effective=await effectiveUnitPaths(input);checks.push({id:'effective-unit-paths',state:'READY'});}catch{checks.push({id:'effective-unit-paths',state:'MISSING_OR_UNSAFE'});}
+  try{await collectorStatePreflight(input);checks.push({id:'collector-state-directories',state:'READY'});}catch{checks.push({id:'collector-state-directories',state:'MISSING_OR_UNSAFE'});}
+  const installPaths=await preflightInstallPaths({files:plan,effectiveUnits:effective});return {state:'PLAN_ONLY',checks,installPaths,servicesChanged:0,defaults:{automation:false,usage:false},next:'install -> verify -> enable'};
  }
  if(command==='disable'){await exec('/usr/bin/systemctl',['disable','--now','atlas-deploy-agent.timer']);return {state:'DISABLED',productionServicesChanged:0};}
  if(command==='install'){
   requireThat(!input.enabled,'BOOTSTRAP_MUST_BE_DISABLED');
-  try{const s=await unitState('atlas-deploy-agent.timer');requireThat(s.ActiveState==='inactive','STOP_AUTOMATION_BEFORE_UPGRADE');}catch(e){if(e.message==='STOP_AUTOMATION_BEFORE_UPGRADE')throw e;}
-  for(const [id,spec]of Object.entries(input.files))await verifyConfiguredFile(id,spec,{uidFor});
-  const env=parseEnv(await readFile(destinations.github,'utf8')),github=githubClient({repository:input.repository,token:await githubToken(env),cache:artifactCache(join(STATE,'artifacts'))});const candidate=await github.candidate(input);requireThat(candidate&&candidate.sha===input.bootstrapSha,'BOOTSTRAP_SHA_CHANGED');const bundle=await github.bundle(candidate);
-  // Extract the already-built ARM64 CI bundle into a root-only staging directory; no npm/git/build as root.
-  const next=INSTALL+'.next-'+randomUUID();await mkdir(next,{mode:0o700});await extractRelease(bundle.payload,next);
-  const plan=await unitPlan({source:next,config:input});
-  const verifyDir='/run/atlas-bootstrap-'+randomUUID();await mkdir(verifyDir,{mode:0o700});const unitFiles=[];for(const r of plan.filter(r=>r.path.startsWith(unitDir+'/')&&/\.(service|timer)$/.test(r.path))){const dest=join(verifyDir,r.path.split('/').at(-1));await writeFile(dest,r.bytes);unitFiles.push(dest);}await exec('/usr/bin/systemd-analyze',['verify',...unitFiles],{timeout:30000,maxBuffer:65536});
-  try{await uidFor('atlaspull');}catch{await exec('/usr/sbin/useradd',['--system','--user-group','--no-create-home','--home-dir','/nonexistent','--shell','/usr/sbin/nologin','atlaspull']);}
-  const {stdout:account}=await exec('/usr/bin/getent',['passwd','atlaspull']);const identity=account.trim().split(':');requireThat(identity[5]==='/nonexistent'&&['/usr/sbin/nologin','/sbin/nologin'].includes(identity[6]),'DEPLOY_ACCOUNT_PRIVILEGED');
-  const {stdout:groups}=await exec('/usr/bin/id',['-Gn','atlaspull']);requireThat(groups.trim().split(/\s+/).every(g=>g==='atlaspull'),'DEPLOY_ACCOUNT_PRIVILEGED');
-  for(const dir of [STATE,join(STATE,'reports'),'/etc/atlas-deploy','/var/log/atlas-deploy']){await mkdir(dir,{recursive:true,mode:0o700});await trusted(dir,{directory:true});}
-  await mkdir('/run/atlas-deploy-probes',{recursive:true,mode:0o711});await trusted('/run/atlas-deploy-probes',{directory:true});await trusted(ROOT,{directory:true});await trusted(join(ROOT,'releases'),{directory:true});for(const name of ['.stage-lock','.deployment-lock']){try{await lstat(join(ROOT,name));throw Error('LEGACY_DEPLOY_LOCK');}catch(e){if(e.code!=='ENOENT')throw e;}}
-  try{await lstat(INSTALL);await rename(INSTALL,INSTALL+'.previous-'+randomUUID());}catch(e){if(e.code!=='ENOENT')throw e;}await rename(next,INSTALL);
-  await stageVerified(ROOT,candidate.sha,bundle);
-  const units={};for(const r of plan){await mkdir(dirname(r.path),{recursive:true,mode:0o755});try{await lstat(r.path);}catch(e){if(e.code!=='ENOENT')throw e;await writeFile(r.path,r.bytes,{mode:0o644,flag:'wx'});}units[r.path]=hash(r.bytes);}
-  await exec('/usr/bin/systemctl',['daemon-reload']);
-  // Pin effective base units/drop-ins as well as managed files; never rewrite the existing units.
-  for(const component of ['web','collector','usage'])if(input.components[component].enabled){for(const name of services(input,component)){const s=await unitState(name);for(const path of [s.FragmentPath,...(s.DropInPaths??'').split(/\s+/).filter(Boolean)]){await trusted(path,{limit:65536});units[path]=hash(await readFile(path));}}}
-  const admin=await readFile(join(INSTALL,'deploy/atlas-deploy-admin'));await writeFile('/usr/local/sbin/atlas-deploy-admin',admin,{mode:0o755});await chmod('/usr/local/sbin/atlas-deploy-admin',0o755);units['/usr/local/sbin/atlas-deploy-admin']=hash(admin);
-  const statePaths=[...(input.components.collector.enabled?['/var/lib/atlas-collector','/var/lib/atlas-collector/receipts','/var/lib/atlas-collector/archive','/var/lib/atlas-collector/market-store']:[]),...(input.components.usage.enabled?['/var/lib/atlas-usage']:[])];for(const dir of statePaths){try{const s=await lstat(dir);requireThat(s.isDirectory()&&!s.isSymbolicLink()&&s.uid===await uidFor('atlascollector')&&!(s.mode&0o077),'STATE_DIRECTORY_UNSAFE');}catch(e){if(e.code!=='ENOENT')throw e;await mkdir(dir,{mode:0o700});await chown(dir,await uidFor('atlascollector'),-1);}}
-  const manual=await readFile(join(INSTALL,'deploy/atlas-release'));try{await trusted('/usr/local/sbin/atlas-release');const old=await readFile('/usr/local/sbin/atlas-release');const backup=join(STATE,'bootstrap-backups');await mkdir(backup,{mode:0o700});try{await writeFile(join(backup,'atlas-release-'+hash(old)),old,{mode:0o600,flag:'wx'});}catch(e){if(e.code!=='EEXIST')throw e;}}catch(e){if(e.code!=='ENOENT')throw e;}
-await writeFile('/usr/local/sbin/atlas-release',manual,{mode:0o755});await chmod('/usr/local/sbin/atlas-release',0o755);units['/usr/local/sbin/atlas-release']=hash(manual);
-  await atomicJSON('/etc/atlas-deploy/config.json',input);await atomicJSON('/etc/atlas-deploy/control-plane.json',{schemaVersion:1,commit:candidate.sha,files:await inventory(INSTALL),units});
-  if(input.components.usage.enabled&&!await pointer(ROOT,'usage-current')){requireThat(await unitState('atlas-usage.service').then(s=>s.ActiveState==='inactive'),'USAGE_MUST_BE_INACTIVE');await point(ROOT,'usage-current',candidate.sha);}return {state:'INSTALLED_DISABLED',commit:candidate.sha,productionServicesChanged:0,next:'verify'};
+  await assertBootstrapIdle();const layout=bootstrapLayout();requireThat(layout.root===ROOT&&layout.state===STATE&&layout.install===INSTALL,'INSTALL_LAYOUT');
+  requireThat((await preflightInstallPaths()).state==='READY','INSTALL_PATH_PREFLIGHT');await prospectiveTrusted(STATE,{directory:true});await mkdir(STATE,{recursive:true,mode:0o700});await trusted(STATE,{directory:true});await syncDirectory(dirname(STATE));await syncDirectory(STATE);
+  const lease=await bootstrapLease(STATE),reload=()=>exec('/usr/bin/systemctl',['daemon-reload']);
+  try{
+   await assertBootstrapIdle();await recoverBootstrapInstall({layout,reload});await trusted(path,{privateFile:true});const config=validateConfig(await json(path));requireThat(!config.enabled,'BOOTSTRAP_MUST_BE_DISABLED');
+   let hasReceipt=false;try{await lstat(layout.receipt);hasReceipt=true;}catch(e){if(e.code!=='ENOENT')throw e;}if(hasReceipt)await verifyInstallation();
+   for(const [id,spec]of Object.entries(config.files))await verifyConfiguredFile(id,spec,{uidFor});await collectorStatePreflight(config);
+   const env=parseEnv(await readFile(destinations.github,'utf8')),github=githubClient({repository:config.repository,token:await githubToken(env),cache:artifactCache(join(STATE,'artifacts'))});const candidate=await github.candidate(config);requireThat(candidate&&candidate.sha===config.bootstrapSha,'BOOTSTRAP_SHA_CHANGED');const bundle=await github.bundle(candidate);
+   const next=INSTALL+'.next-'+randomUUID();await mkdir(next,{mode:0o700});await extractRelease(bundle.payload,next);const plan=await unitPlan({source:next,config}),effective=await effectiveUnitPaths(config);
+   requireThat((await preflightInstallPaths({files:plan,effectiveUnits:effective})).state==='READY','INSTALL_PATH_PREFLIGHT');
+   const verifyDir='/run/atlas-bootstrap-'+randomUUID();await mkdir(verifyDir,{mode:0o700});
+   try{const unitFiles=[];for(const r of plan.filter(r=>r.path.startsWith(unitDir+'/')&&/\.(service|timer)$/.test(r.path))){const dest=join(verifyDir,r.path.split('/').at(-1));await writeFile(dest,r.bytes);unitFiles.push(dest);}await exec('/usr/bin/systemd-analyze',['verify',...unitFiles],{timeout:30000,maxBuffer:65536});}finally{await rm(verifyDir,{recursive:true,force:true});}
+   for(const name of ['.stage-lock','.deployment-lock']){try{await lstat(join(ROOT,name));throw Error('LEGACY_DEPLOY_LOCK');}catch(e){if(e.code!=='ENOENT')throw e;}}
+   await stageVerified(ROOT,candidate.sha,bundle);
+   try{await exec('/usr/bin/getent',['passwd','atlaspull']);}catch(e){if(e.code!==2)throw e;await exec('/usr/sbin/useradd',['--system','--user-group','--no-create-home','--home-dir','/nonexistent','--shell','/usr/sbin/nologin','atlaspull']);}
+   const {stdout:account}=await exec('/usr/bin/getent',['passwd','atlaspull']);const identity=account.trim().split(':');requireThat(identity[5]==='/nonexistent'&&['/usr/sbin/nologin','/sbin/nologin'].includes(identity[6]),'DEPLOY_ACCOUNT_PRIVILEGED');
+   const {stdout:groups}=await exec('/usr/bin/id',['-Gn','atlaspull']);requireThat(groups.trim().split(/\s+/).every(g=>g==='atlaspull'),'DEPLOY_ACCOUNT_PRIVILEGED');
+   for(const dir of [join(STATE,'reports'),dirname(layout.config),layout.log]){await prospectiveTrusted(dir,{directory:true});await mkdir(dir,{recursive:true,mode:0o700});await trusted(dir,{directory:true});}
+   await mkdir(layout.probes,{recursive:true,mode:0o711});await trusted(layout.probes,{directory:true});
+   const units={};for(const r of plan)units[r.path]=hash(r.bytes);for(const target of effective){if(Object.hasOwn(units,target))continue;await trusted(target,{limit:65536});units[target]=hash(await readFile(target));}
+   const helpers=await Promise.all(['atlas-deploy-admin','atlas-release'].map(async name=>({path:join(layout.bin,name),bytes:await readFile(join(next,'deploy',name)),mode:0o755})));for(const f of helpers)units[f.path]=hash(f.bytes);
+   const receipt={schemaVersion:1,commit:candidate.sha,files:await inventory(next),units};
+   return await publishBootstrapInstall({layout,next,commit:candidate.sha,files:[...plan.map(f=>({...f,mode:0o644})),...helpers,{path:layout.config,bytes:Buffer.from(JSON.stringify(config,null,2)+'\n'),mode:0o600}],receipt,reload,beforeReceipt:async()=>{for(const target of await effectiveUnitPaths(config)){await trusted(target,{limit:65536});requireThat(units[target]===hash(await readFile(target)),'INSTALL_UNIT_PATH_CHANGED');}}});
+  }finally{await lease.release();}
  }
  const current=await loadConfig();requireThat(JSON.stringify({...current,enabled:false})===JSON.stringify({...input,enabled:false}),'CONFIG_MISMATCH');
  const result=await operatingSystem(current).preflightReport('all');await atomicJSON(join(STATE,'preflight.json'),result);if(result.state!=='READY')return {...result,state:'PREFLIGHT_FAILED'};
  const token=await githubToken(parseEnv(await readFile(destinations.github,'utf8'))),client=githubClient({repository:current.repository,token}),verified=await client.candidate(current);requireThat(verified,'SUCCESSFUL_CI_REQUIRED');await client.reportingReady();await client.status({...verified,component:'bootstrap'},{state:'SUCCESS',current:await pointer(ROOT,'current'),lastSuccess:await pointer(ROOT,'current'),service:'verified',reason:'PREFLIGHT_READY'});
  if(command==='verify')return result;
+ if(current.components.usage.enabled&&!await pointer(ROOT,'usage-current')){requireThat(await unitState('atlas-usage.service').then(s=>s.ActiveState==='inactive'),'USAGE_MUST_BE_INACTIVE');requireThat(current.bootstrapSha,'BOOTSTRAP_SHA_REQUIRED');await symlink(await release(ROOT,current.bootstrapSha),join(ROOT,'usage-current'));await syncDirectory(ROOT);}
  let versions=await json(join(STATE,'versions.json'),{schemaVersion:1,web:{},collector:{},usage:{}});for(const component of ['web','collector','usage'])if(!versions[component]?.current){const value=await operatingSystem(current).current(component).catch(()=>null);versions[component]={...versions[component],current:value,lastSuccess:component==='web'?value:null,state:value?'ADOPTED':'NOT_DEPLOYED'};}await atomicJSON(join(STATE,'versions.json'),versions);
  const active={...current,enabled:true};await atomicJSON('/etc/atlas-deploy/config.json',active);await atomicJSON('/etc/atlas-deploy/enabled.json',{schemaVersion:1,configHash:hash(await readFile('/etc/atlas-deploy/config.json')),verifiedAt:new Date().toISOString()});await exec('/usr/bin/systemctl',['enable','--now','atlas-deploy-agent.timer']);if(current.components.usage.enabled&&current.components.usage.activateTimerOnBootstrap===true)await exec('/usr/bin/systemctl',['enable','--now','atlas-usage.timer']);return {state:'AUTOMATION_ENABLED',productionServicesChanged:0};
 }

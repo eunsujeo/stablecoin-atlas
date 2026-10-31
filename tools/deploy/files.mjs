@@ -1,4 +1,4 @@
-import {open,lstat,mkdir,rename,unlink,readFile,readdir} from 'node:fs/promises';
+import {open,lstat,mkdir,rename,unlink,readFile,readdir,readlink} from 'node:fs/promises';
 import {resolve,dirname,join,sep} from 'node:path';
 import {createHash,randomUUID} from 'node:crypto';
 export const sha=s=>typeof s==='string'&&/^[a-f0-9]{40}$/.test(s);
@@ -11,10 +11,22 @@ export async function atomicJSON(path,value){
  finally{await f?.close();await unlink(temp).catch(()=>{});}
 }
 export async function json(path,fallback){try{return JSON.parse(await readFile(path,'utf8'));}catch(e){if(e.code==='ENOENT'&&fallback!==undefined)return fallback;throw e;}}
-// Every ancestor is checked: a root-owned file under an agent-writable directory is not trusted.
-export async function trusted(path,{uid=0,privateFile=false,directory=false,limit=262144}={}){
- requireThat(resolve(path)===path,'PATH_INVALID');let current=path;
- for(;;){const s=await lstat(current);requireThat(!s.isSymbolicLink()&&s.uid===uid&&!(s.mode&0o022),'PATH_UNTRUSTED');if(current===path)requireThat(directory?s.isDirectory():s.isFile()&&s.size<=limit&&(!privateFile||!(s.mode&0o077)),'FILE_UNTRUSTED');else requireThat(s.isDirectory(),'PATH_UNTRUSTED');const parent=dirname(current);if(parent===current)break;current=parent;}
+// Every ancestor is checked. Only Fedora's exact root-owned sbin -> bin alias is permitted.
+export async function trusted(path,{uid=0,privateFile=false,directory=false,limit=262144,stat=lstat,link=readlink}={}){
+ requireThat(resolve(path)===path,'PATH_INVALID');
+ async function check(target,allowAlias){let current=target;for(;;){
+  const s=await stat(current);
+  if(s.isSymbolicLink()){
+   requireThat(allowAlias&&uid===0&&current==='/usr/local/sbin'&&s.uid===0&&await link(current)==='bin','PATH_UNTRUSTED');
+   // Recheck the complete real path and its ancestors without allowing a second alias.
+   await check('/usr/local/bin'+target.slice(current.length),false);
+  }else{
+   requireThat(s.uid===uid&&!(s.mode&0o022),'PATH_UNTRUSTED');
+   if(current===target)requireThat(directory?s.isDirectory():s.isFile()&&s.size<=limit&&(!privateFile||!(s.mode&0o077)),'FILE_UNTRUSTED');else requireThat(s.isDirectory(),'PATH_UNTRUSTED');
+  }
+  const parent=dirname(current);if(parent===current)break;current=parent;
+ }}
+ await check(path,true);
  return path;
 }
 export async function inventory(root){
