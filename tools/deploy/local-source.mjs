@@ -7,12 +7,12 @@ import {randomUUID} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {trusted,requireThat,sha,hex,hash,atomicJSON,json,syncDirectory} from './files.mjs';
 import {validateBundle} from './archive.mjs';
-import {childIdentity,checkedIdentity} from './child-identity.mjs';
+import {serviceChildCommand} from './service-child.mjs';
 import {localRepository} from './local-build-worker.mjs';
 const exec=promisify(execFile),cache='/var/cache/atlas-build';
 export const localBuildPolicy=Object.freeze({version:1,repository:localRepository,branch:'main',component:'web',nodeMajor:24,phases:['prepare','test','production','pack'],scripts:false,testNetwork:false,memoryBytes:2147483648,cpuPercent:200});
 const phaseSeconds={prepare:600,test:480,production:300,pack:120};
-const codeFiles=['child-identity.mjs','local-source.mjs','local-build-worker.mjs','build.mjs','archive.mjs','runtime-smoke.mjs','runtime-files.mjs','policy.mjs','files.mjs'];
+const codeFiles=['service-child.mjs','local-source.mjs','local-build-worker.mjs','build.mjs','archive.mjs','runtime-smoke.mjs','runtime-files.mjs','policy.mjs','files.mjs'];
 export async function localPolicyHash(codeRoot=fileURLToPath(new URL('../../',import.meta.url))){const files={};for(const name of codeFiles){const p=join(codeRoot,'tools/deploy',name);await trusted(p,{limit:1048576});files[name]=hash(await readFile(p));}return hash(JSON.stringify({policy:localBuildPolicy,files}));}
 export function localBuildCommand({phase,job,commit,id,codeRoot}){
  requireThat(localBuildPolicy.phases.includes(phase)&&resolve(job)===job&&/^\/opt\/stablecoin-atlas\/builds\/[a-f0-9-]{36}$/.test(job)&&sha(commit)&&Number.isSafeInteger(id)&&id>0&&resolve(codeRoot)===codeRoot,'LOCAL_BUILD_COMMAND');
@@ -44,12 +44,11 @@ async function buildLocal(c,{state,codeRoot,policyHash}){
  const payload=await readLocalOutput(join(output,'release.tar'),{uid,limit:192*1024*1024}),raw=await readLocalOutput(join(output,'release.json'),{uid,limit:65536});
  const manifest=JSON.parse(raw);validateBundle({'release.tar':payload,'release.json':raw},c,{kind:'ATLAS_LOCAL_RELEASE'});manifest.localBuild={policyHash,tested:true,repository:localRepository};return validateLocalBundle({'release.tar':payload,'release.json':Buffer.from(JSON.stringify(manifest))},c,policyHash);
 }
-export function localMainCommand(environment=process.env,identity){
- const env={PATH:'/usr/bin:/bin',GIT_CONFIG_GLOBAL:'/dev/null',GIT_TERMINAL_PROMPT:'0'};for(const k of ['HTTPS_PROXY','HTTP_PROXY','ALL_PROXY','NO_PROXY','https_proxy','http_proxy','all_proxy','no_proxy','GIT_SSL_CAINFO','GIT_SSL_CAPATH','SSL_CERT_FILE','SSL_CERT_DIR'])if(environment[k])env[k]=environment[k];
- return {command:'/usr/bin/git',args:['-c','http.followRedirects=false','ls-remote','--exit-code',localRepository,'refs/heads/main'],options:{...checkedIdentity(identity?.uid,identity?.gid),cwd:cache,env,timeout:30000,maxBuffer:4096}};
+export function localMainCommand(){
+ return serviceChildCommand({user:'atlasbuild',command:'/usr/bin/git',args:['-c','http.followRedirects=false','ls-remote','--exit-code',localRepository,'refs/heads/main'],cwd:cache,proxy:true});
 }
 async function discoverMain(){
- const {command,args,options}=localMainCommand(process.env,await childIdentity('atlasbuild'));try{const {stdout}=await exec(command,args,options);const parts=stdout.trim().split(/\s+/);requireThat(parts.length===2&&sha(parts[0])&&parts[1]==='refs/heads/main','LOCAL_MAIN_INVALID');return parts[0];}catch(e){throw Error(e.message==='LOCAL_MAIN_INVALID'?e.message:'LOCAL_SOURCE_UNAVAILABLE');}
+ const {command,args,options}=localMainCommand();try{const {stdout}=await exec(command,args,options);const parts=stdout.trim().split(/\s+/);requireThat(parts.length===2&&sha(parts[0])&&parts[1]==='refs/heads/main','LOCAL_MAIN_INVALID');return parts[0];}catch(e){throw Error(e.message==='LOCAL_MAIN_INVALID'?e.message:'LOCAL_SOURCE_UNAVAILABLE');}
 }
 export function localSourceClient({state,codeRoot=fileURLToPath(new URL('../../',import.meta.url)),discover=discoverMain,policy=()=>localPolicyHash(codeRoot),build=buildLocal,clock=Date.now,trust=trusted}){
  codeRoot=resolve(codeRoot);

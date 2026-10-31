@@ -24,3 +24,6 @@ SHA/policy별 불변 claim을 빌드 전에 소비한다. 실패·중단·부분
 최초 migration은 검토한 정확 SHA의 root 소유, builder가 읽을 수 있는 `/opt/stablecoin-atlas/bootstrap-<sha>` checkout에서 수행한다. 기존 disabled config를 새 private 파일로 복사해 source/ bootstrapSha만 바꾸고 plan→install→verify한다. 기존 root receipt가 있으면 먼저 검증하고 WAL/backup/receipt-last 교체를 유지한다. 모듈 디렉터리0755·probe parent0711 수정도 포함한다. 실제 enable/웹 자동 전환 및 push 종단 시험은 verify READY 후 사용자 승인으로만 진행한다. Collector/FX 서비스·DB schema/secret·proxy/TLS는 변경하지 않는다.
 
 한계: 소스/lock package 취득 단계만 외부 네트워크가 필요하다. 별도 root 고정 worker와 user sandbox를 사용해도 허용 main 소스의 테스트 자체가 완전성을 증명하는 것은 아니다. 저장소 main 권한과 운영 OS를 신뢰하며 악성 maintainer의 소스를 안전한 프로그램으로 인증하지 않는다. job/cache/claim은 자동 삭제하지 않으며 disk gate로 공간 부족 시 배포를 차단한다.
+
+
+Fedora broker의 실제 제한 환경에서는 모듈 로드 후 CAP_SETUID가 없는 상태가 관측되어 직접 UID 전환을 사용하지 않는다. PID 1이 고정 User/Group으로 시작하는 transient service를 소스 조회와 DB 읽기 probe에도 사용한다. broker의 capability/NoNewPrivileges 제한은 유지하며, 자식은 capability가 없고 시간·자원 및 파일 접근이 제한된다. 자세한 재현과 실패 이력은 2026-10-31 연구 기록을 따른다.

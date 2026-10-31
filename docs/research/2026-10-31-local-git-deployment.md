@@ -83,3 +83,13 @@ PAM을실행하는runuser대신Node/libuv child UID/GID를고정비특권계정�
 최초전체검사는798pass/1fail/8skip으로중단했다. 실패는Mac libuv가explicit child env에자동추가하는__CF_USER_TEXT_ENCODING까지금지한시험기대값이었다. darwin에서만그시스템key를제외하고나머지env가PATH뿐임을확인하도록정정했고전용2pass후전체검사를다시실행한다. 운영코드의env allowlist는변경하지않았다.
 
 UID/GID 보완 최종 npm run check rc0: 873pass/0fail/8skip(주suite799pass+보존suite74pass). staged privacy 검사도통과했다.
+
+## 전체 broker 조건에서 재현한 capability 상태와 PID 1 위임
+
+0141ee8 설치는25418ms/rc0,verify는trigger-policy와database:web포함13check READY,enable6333ms/rc0이었다. 다만실제broker는LOCAL_SOURCE_UNAVAILABLE로웹전환전거부했다. rootfullnamespace에서Node직접uidspawn도EPERM이었다. 이를성공으로표시하지않으며이전진단조건이불충분했음을정정한다.
+
+동일full sandbox에서단순id/nativeexec진단은CapEff00cb와성공을보였지만실제root모듈을import한진단은CapEff004b(CAP_SETUID없음)로실패했다. 권한이제거되는정확한라이브러리원인은미확정이며crypto단독초기화는이를재현하지않았다. NoNewPrivileges를해제하거나capability를다시부여하지않는다. 같은모듈을import한상태에서도systemd manager가User/Group=atlasbuild로실행한자식id는정상/해당UID·GID·supplement group만확인했다.
+
+이에기존buildphase와같이소스조회·DBprobe도PID1이고정User/Group으로시작하는transient service로위임한다. source는atlasbuild/Git/cache 고정,probe는atlasweb또는atlascollector/Node/설치경로고정이다. shell/root/다른user·directory/probe proxy는거부한다. 각service는capabilityempty/NoNewPrivileges/ProtectSystem·Home/PrivateTmp·Devices/쓰기허용path없음/시간·메모리·CPU·task한도를가진다. wrapper는cleanPATH뿐이며별도source service만기존root관리proxy.env를읽는다. proxy/CA값을argv·로그로전달하지않는다. holdprobe는pipe세션을유지하고deadline/닫힘에따라종료한다. 기존Native UID helper는제거하고고정manager명령·sandbox·거부회귀로대체했다. 기존웹PID45865·Collector33973·릴리스/백업/비밀/DB정책은계속보존중이다.
+
+PID1 위임 최종 npm run check rc0: 873pass/0fail/8skip(주799+보존74),전용13pass/0fail이다.
