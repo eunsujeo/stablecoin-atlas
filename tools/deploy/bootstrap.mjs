@@ -76,7 +76,7 @@ export async function bootstrap(args){
   try{await collectorStatePreflight(input);checks.push({id:'collector-state-directories',state:'READY'});}catch{checks.push({id:'collector-state-directories',state:'MISSING_OR_UNSAFE'});}
   const installPaths=await preflightInstallPaths({files:plan,effectiveUnits:effective});return {state:'PLAN_ONLY',checks,installPaths,servicesChanged:0,defaults:{automation:false,usage:false},next:'install -> verify -> enable'};
  }
- if(command==='disable'){await exec('/usr/bin/systemctl',['disable','--now','atlas-deploy-agent.timer']);return {state:'DISABLED',productionServicesChanged:0};}
+ if(command==='disable'){await exec('/usr/bin/systemctl',['disable','--now','atlas-deploy-agent.timer']);const disabled={...await loadConfig(),enabled:false};await atomicJSON('/etc/atlas-deploy/config.json',disabled);return {state:'DISABLED',productionServicesChanged:0};}
  if(command==='install'){
   requireThat(!input.enabled,'BOOTSTRAP_MUST_BE_DISABLED');
   await assertBootstrapIdle();const layout=bootstrapLayout();requireThat(layout.root===ROOT&&layout.state===STATE&&layout.install===INSTALL,'INSTALL_LAYOUT');

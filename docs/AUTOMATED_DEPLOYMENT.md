@@ -160,3 +160,6 @@ Actions 아티팩트 ZIP 다운로드는 요청 시작부터 헤더 수신과 �
 개발 환경의 실제 temp FS·child-process crash·loopback HTTP·사설 PG17과 가상 GitHub/systemd 경로로 검증한다. 실제 Fedora의 systemd/SELinux/polkit·GitHub App/hosted CI·운영 배포/롤백의 종단 성공은 최초 bootstrap에서 확인해야 한다. 준비를 운영 활성화 완료라고 보고하지 않는다.
 
 참고: [GitHub Actions artifacts API](https://docs.github.com/en/rest/actions/artifacts), [workflow runs](https://docs.github.com/en/rest/actions/workflow-runs), [commit statuses](https://docs.github.com/en/rest/commits/statuses), [systemd-creds](https://www.freedesktop.org/software/systemd/man/latest/systemd-creds.html).
+
+
+LOCAL_GIT broker는 PAM `runuser` 대신 Node의 고정 비특권 UID/GID child 실행을 사용한다. 기존 capability 및 systemd sandbox는 유지한다. 공개 polkit 규칙은 receipt/source 해시·root 소유·비링크를 검증하고 정확한 legacy 0600만 0644로 복구하며, verify/enable은 읽을 수 없는 규칙을 거부한다. `disable`은 배포 timer를 중지하고 deployment config의 enabled도 false로 저장한다. 운영 웹·Collector·FX는 중지하지 않는다.

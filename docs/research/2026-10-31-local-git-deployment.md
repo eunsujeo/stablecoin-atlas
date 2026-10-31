@@ -73,3 +73,13 @@ private baseline 대조: protected11파일 hash/UID/GID/mode 변화0·4pointer �
 bootstrap install후보정과verify/enable의trigger-policy검사를추가해앞으로권한이잘못된상태를READY로표시하지않는다. 현재고정제어면266faa9는그대로검증하고,검토한새checkout의root-only repair CLI로public rule만수정한뒤기존timer를재개한다. 수정CLI는임의경로/인자를받지않는다. 별도CLI와순수library로분리해module await cycle도예방했다. 4회귀시험은atomic mode repair·내용/소유권보존·idempotency·wrong hash/owner/mode/link거부·CLI인자거부를검증한다. code검사후push/실서버수정/자동종단시험으로이어간다.
 
 trigger 보완 전체 npm run check rc0: 870pass/0fail/8skip(주suite796pass+보존suite74pass). 이후 추가한CLI인자거부를포함한trigger전용4pass/0fail도확인했다.
+
+## broker sandbox 내부 UID 전환 보완
+
+de6f199의 fixed public rule repair는 실제rc0/READY/repairedtrue·root:root0644/내용동일/servicesChanged0이었다. atlaspull agent의start는rc0이되어polkit문제는해결됐으나root broker에서LOCAL_SOURCE_UNAVAILABLE이발생했다. 같은ProtectSystem/ProtectHome/NoNewPrivileges/기존capability조건의진단에서runuser의PAM keyinit경고후cannot set user id: Operation not permitted를확인했다. 외부소스응답실패로추정하지않는다. 동일capability sandbox에서Node child exec의uid/gid978지정은Git main SHA정상반환을확인했다.
+
+PAM을실행하는runuser대신Node/libuv child UID/GID를고정비특권계정으로지정한다. supplement group은root spawn시제거되며유효양수UID/GID만허용한다. atlasbuild소스조회와atlasweb/atlascollector의기존read-only DB probe만같은방식으로전환하고capability/sandbox는확대하지않는다. probe는기존cleanenv PATH만유지한다. 계정명allowlist·root/invalid ID거부·실제child UID/GID/cleanenv회귀를추가했다. policy hash에새identity helper를포함한다. disable은기존배포timer만stop/disable한뒤deployment config.enabled=false를영속화해재설치가가능하게한다. 기존서비스/secret에는접근변경하지않는다. 새제어면설치/verify/enable후자동종단검증으로이어간다.
+
+최초전체검사는798pass/1fail/8skip으로중단했다. 실패는Mac libuv가explicit child env에자동추가하는__CF_USER_TEXT_ENCODING까지금지한시험기대값이었다. darwin에서만그시스템key를제외하고나머지env가PATH뿐임을확인하도록정정했고전용2pass후전체검사를다시실행한다. 운영코드의env allowlist는변경하지않았다.
+
+UID/GID 보완 최종 npm run check rc0: 873pass/0fail/8skip(주suite799pass+보존suite74pass). staged privacy 검사도통과했다.

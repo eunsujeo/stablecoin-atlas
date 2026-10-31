@@ -2,6 +2,7 @@ import {execFile,spawn} from 'node:child_process';
 import {promisify} from 'node:util';
 import {mkdir,writeFile,unlink,readFile,lstat,chown,chmod,rm,statfs,realpath} from 'node:fs/promises';
 import {ensureProbeDirectory} from './probe-directory.mjs';
+import {childIdentity} from './child-identity.mjs';
 import {checkTriggerRule,triggerRulePath} from './trigger-rule.mjs';
 import {join} from 'node:path';
 import {randomUUID} from 'node:crypto';
@@ -55,9 +56,10 @@ export function operatingSystem(config){
  async function runProbe(c,{hold=false}={}){
   let temp,envFile='unused';const user=c==='web'?'atlasweb':'atlascollector';
   if(c==='web'){await ensureProbeDirectory();temp='/run/atlas-deploy-probes/probe-'+randomUUID();await mkdir(temp,{mode:0o700});await chown(temp,await uidFor(user),-1);envFile=join(temp,'reader.env');await writeFile(envFile,await readFile(destinations.reader),{mode:0o600,flag:'wx'});await chown(envFile,await uidFor(user),-1);}
-  const args=['-u',user,'--','/usr/bin/env','-i','PATH=/usr/bin:/bin','/usr/bin/node','--max-old-space-size=256',join(INSTALL,'tools/deploy/runtime-probe.mjs'),c,config.components.collector.selection??'unused',envFile,...(hold?['hold']:[])];
-  if(!hold){try{const {stdout}=await exec('/usr/sbin/runuser',args,{timeout:120000,maxBuffer:65536});requireThat(JSON.parse(stdout).state==='READY','PREFLIGHT_DATABASE');}catch(e){throw Error(/^[A-Z_]{1,64}$/.test((e.stderr??'').trim())?e.stderr.trim():'DATABASE_PROBE_FAILED');}finally{if(temp)await rm(temp,{recursive:true,force:true});}return;}
-  const p=spawn('/usr/sbin/runuser',args,{stdio:['pipe','pipe','pipe']}),exit=new Promise(resolve=>p.once('exit',resolve));let data='';
+  const identity=await childIdentity(user),options={...identity,env:{PATH:'/usr/bin:/bin'}};
+  const args=['--max-old-space-size=256',join(INSTALL,'tools/deploy/runtime-probe.mjs'),c,config.components.collector.selection??'unused',envFile,...(hold?['hold']:[])];
+  if(!hold){try{const {stdout}=await exec('/usr/bin/node',args,{...options,timeout:120000,maxBuffer:65536});requireThat(JSON.parse(stdout).state==='READY','PREFLIGHT_DATABASE');}catch(e){throw Error(/^[A-Z_]{1,64}$/.test((e.stderr??'').trim())?e.stderr.trim():'DATABASE_PROBE_FAILED');}finally{if(temp)await rm(temp,{recursive:true,force:true});}return;}
+  const p=spawn('/usr/bin/node',args,{...options,stdio:['pipe','pipe','pipe']}),exit=new Promise(resolve=>p.once('exit',resolve));let data='';
   await new Promise((resolve,reject)=>{const timer=setTimeout(()=>{p.kill('SIGTERM');reject(Error('PROBE_TIMEOUT'));},120000);p.once('error',()=>{clearTimeout(timer);reject(Error('PROBE_FAILED'));});p.once('exit',()=>{clearTimeout(timer);reject(Error('PROBE_FAILED'));});p.stdout.on('data',b=>{data+=b.toString();if(data.length>65536){p.kill('SIGTERM');clearTimeout(timer);reject(Error('PROBE_LIMIT'));}if(data.includes('\n')){clearTimeout(timer);try{requireThat(JSON.parse(data.split('\n')[0]).state==='READY','PROBE_FAILED');resolve();}catch{p.kill('SIGTERM');reject(Error('PROBE_FAILED'));}}});p.stderr.resume();});
   return {release:async()=>{p.stdin.end('\n');const timer=setTimeout(()=>p.kill('SIGTERM'),5000);try{requireThat(await exit===0,'PROBE_SESSION_LOST');}finally{clearTimeout(timer);}}};
  }
