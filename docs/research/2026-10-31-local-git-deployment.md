@@ -31,3 +31,13 @@ local source 전용9개는 config의 CI/token 불필요·web-only·고정sandbox
 9b1c6222df5cc7a9345e27086d1171379d218952의 plan도READY였고 main 조회는 통과했다. install은 빌드 명령 생성 전 LOCAL_BUILD_COMMAND로718ms에 종료됐다. fileURLToPath의 directory URL 끝 slash가 canonical path guard와 충돌한 원인을 확인하고 source client에서 resolve로 정규화했다. 실제 bootstrap의 trailing-slash 입력으로 sandbox command까지 만드는 회귀를 추가해10pass/0fail을 확인했다. 이 시도는 claim과 빈 job/npm cache 디렉터리를 만든 뒤 중단됐고 worker unit/다운로드·제어면 교체·운영 서비스 변경0이다. 소비 claim/job/checkout/config는 보존하며 재사용/삭제하지 않는다.
 
 경로 정규화 수정 후 전체check도865pass/0fail/8skip·종료0이다. 실제 서버에서 동일한 User/PrivateNetwork/ProtectSystem/NoNewPrivileges/자원 제한의 별도 sandbox self-check를 실행해 uid978/Node24.18/rc0을 확인했다. source worker나 운영 서비스를 실행한 것으로 계산하지 않는다.
+
+## a93b471 실제 서버 gate와 restrictive umask
+
+a93b471490b9320201f4d2875a8c5c918a5cfd9c는 prepare6382ms를 완료하고 test9795ms에 LOCAL_BUILD_TEST_FAILED로 중단됐다. root phase log는 성공한 tsc 출력 뒤 자식 시험 stdout이 유실돼 generic code만 남았다. worker는 실패 stdout/stderr/code를 root private phase log로만 전달하도록 보완했다. CLI/Git/web에는 원문을 게시하지 않는다.
+
+동일한 umask077 gate를 로컬에서 재현해 fixture의 명시0755/0640이700/600으로 걸러지는 문제를 확인했다. 기존 metadata 보존 시험과 drift 시험의 입력이 의도와 달랐다. fixture helper/unit 두 파일만 chmod로 정확한 의도 mode를 만들고 private prefix0700은 유지했다. 실제 배포 umask·권한 검사/회귀 assertion을 느슨하게 하지 않았다. 같은 builder gate(tsx 포함)252pass/0fail/0skip을 확인했고, child umask077 fixture metadata 회귀도 추가했다.
+
+추가 진단의 TTY/FD 전달 경로에서 transient start 오류/지연을 만났고 이번 진단 Node caller만 Ctrl-C로 종료했다. root manager query와 명시 system bus 조회는 rc0/대기job0을 확인했으며 어떤 OS service도 restart/reload하지 않았다. build unit 메모리peak476.9MiB·kernel OOM기록0, 웹PID45865/CollectorPID33973·FX active를 재확인했다. 기존 claims/jobs/checkout/로그는 보존했다. 실제 시험 실패는 위 로컬재현과 다음 새 SHA의 gate로 확인하며 이전 claim을 재시도하지 않는다.
+
+fixture 수정 후 최종 전체check800개중792pass/0fail/8skip+보관74pass/0fail=866pass/0fail/8skip·종료0이다. restrictive umask gate252pass/0fail/0skip도 함께 확인했다.

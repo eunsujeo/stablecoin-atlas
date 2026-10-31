@@ -16,7 +16,10 @@ export function validateLocalLock(lock){
   const u=new URL(p.resolved);requireThat(u.protocol==='https:'&&u.hostname==='registry.npmjs.org'&&!u.username&&!u.password&&!u.port&&!u.search&&!u.hash&&/^sha(?:256|512)-[A-Za-z0-9+/]+={0,2}$/.test(p.integrity??''),'LOCAL_DEPENDENCY_ORIGIN');
  }
 }
-async function run(command,args,cwd){const {stdout}=await exec(command,args,{cwd,timeout:900000,maxBuffer:4*1024*1024,env:{...process.env,PATH:'/usr/bin:/bin',GIT_CONFIG_GLOBAL:'/dev/null',GIT_TERMINAL_PROMPT:'0',NODE_OPTIONS:'',NODE_PATH:'',NODE_TLS_REJECT_UNAUTHORIZED:'1'}});process.stdout.write(stdout);}
+async function run(command,args,cwd){try{const {stdout}=await exec(command,args,{cwd,timeout:900000,maxBuffer:4*1024*1024,env:{...process.env,PATH:'/usr/bin:/bin',GIT_CONFIG_GLOBAL:'/dev/null',GIT_TERMINAL_PROMPT:'0',NODE_OPTIONS:'',NODE_PATH:'',NODE_TLS_REJECT_UNAUTHORIZED:'1'}});process.stdout.write(stdout);}catch(e){
+ // The root parent captures these only in its private phase log, never Git/web/CLI diagnostics.
+ process.stdout.write(e.stdout??'');process.stderr.write(e.stderr??'');console.error(JSON.stringify({event:'LOCAL_BUILD_CHILD_FAILED',code:typeof e.code==='number'?e.code:null,signal:e.signal??null}));throw e;
+}}
 export async function localBuildWorker([phase,job,commit,identity,...extra]){
  requireThat(!extra.length&&process.getuid()>0&&process.platform==='linux'&&process.arch==='arm64'&&process.versions.node.startsWith('24.')&&Number(process.versions.node.split('.')[1])>=5,'LOCAL_BUILD_CONTEXT');
  requireThat(['prepare','test','production','pack'].includes(phase)&&resolve(job)===job&&/^\/opt\/stablecoin-atlas\/builds\/[a-f0-9-]{36}$/.test(job)&&sha(commit)&&/^[1-9]\d{0,15}$/.test(identity),'LOCAL_BUILD_ARGUMENTS');

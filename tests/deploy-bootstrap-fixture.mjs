@@ -1,4 +1,4 @@
-import {mkdtemp,mkdir,writeFile,lstat,realpath} from 'node:fs/promises';
+import {mkdtemp,mkdir,writeFile,lstat,realpath,chmod} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join,dirname} from 'node:path';
 import {randomUUID} from 'node:crypto';
@@ -23,6 +23,8 @@ export async function bootstrapFixture({receipt=false,install=true}={}){
  if(install){await mkdir(layout.install,{mode:0o700});await writeFile(join(layout.install,'old-control.mjs'),'OLD_CONTROL',{mode:0o644});}
  await writeFile(layout.config,'ORIGINAL_CONFIG',{mode:0o600});if(receipt)await writeFile(layout.receipt,'ORIGINAL_RECEIPT',{mode:0o600});
  await writeFile(join(layout.bin,'atlas-release'),'OLD_HELPER',{mode:0o755});await writeFile(join(layout.unitDir,'atlas-deploy-agent.service'),'SAME_UNIT',{mode:0o640});
+ // Model exact pre-existing operator metadata, independent of the test runner's umask.
+ await chmod(join(layout.bin,'atlas-release'),0o755);await chmod(join(layout.unitDir,'atlas-deploy-agent.service'),0o640);
  await mkdir(join(layout.root,'releases',oldCommit),{mode:0o700});await writeFile(join(layout.root,'releases',oldCommit,'REVISION'),oldCommit+'\n');
  for(const name of ['current','collector-current','usage-current'])await point(layout.root,name,oldCommit);
  const bundle=testBundle();await stageVerified(layout.root,commit,bundle);
