@@ -261,3 +261,11 @@ select option{background:var(--panel);color:var(--ink);font-weight:400}
  .sidebar .brand-name strong{font-size:24px;letter-spacing:-.9px}
  .sidebar nav .nav-link>span:first-child{display:block;font-size:10px}
 }
+/* Background refresh occupies no document space; failures keep the full notice. */
+.browser-cache-anchor{position:relative}
+.browser-cache-indicators{position:absolute;top:calc(100% + 3px);right:0;z-index:1;display:flex;gap:10px;pointer-events:none}
+.browser-cache-compact{color:var(--muted);font-size:10px;line-height:1.4;white-space:nowrap;pointer-events:none}
+.browser-cache-compact[data-state=progress]::before{content:"";display:inline-block;width:5px;height:5px;margin-right:5px;border-radius:50%;background:var(--purple);vertical-align:middle}
+.browser-cache-compact[hidden]{display:none}
+
+.browser-cache-compact[data-state=progress]:not([hidden]) ~ .browser-cache-compact[data-state=progress]{display:none}

@@ -2,7 +2,7 @@ import test from 'node:test';import assert from 'node:assert/strict';
 import {createJSONClient,retryDeadline,cacheDigest} from './browser-cache.js';
 import {createResponseStore} from './browser-idb.js';
 import {apiRequestPolicy} from './browser-data.js';
-import {cacheStatusText} from './browser-cache-ui.js';
+import {cacheStatusText,cacheStatusPresentation} from './browser-cache-ui.js';
 const clone=x=>x===undefined?undefined:structuredClone(x);
 function storage(){const entries=new Map();let meta;return {entries,persistent:true,get:async k=>clone(entries.get(k)),put:async e=>{entries.set(e.key,clone(e));return true;},remove:async(k,d)=>{if(d===undefined||entries.get(k)?.digest===d)entries.delete(k);},clear:async()=>entries.clear(),meta:async()=>clone(meta),saveMeta:async e=>{if(!meta||meta.until<e.until)meta=clone(e);},removeMeta:async d=>{if(meta?.digest===d)meta=undefined;},close(){}};}
 const data=amount=>({amount,observedAt:'2026-10-20T00:00:00.000Z',source:'stored fixture'});
@@ -122,4 +122,24 @@ test('queue capacity is bounded and rejection does not leak slots or permanently
 });
 test('cache freshness notices age without rewriting the original observation or saved time',()=>{
  const row={label:'시장',state:'fresh',hasData:true,storedAt:1000,expiresAt:301000,persistent:true};assert.equal(cacheStatusText(row,300999),'');assert.match(cacheStatusText(row,301000),/오래된 캐시/);assert.equal(row.state,'fresh');assert.equal(row.storedAt,1000);
+});
+
+test('background refresh stays compact; failures and rate limits take priority across API states',()=>{
+ const row={label:'공급량',hasData:true,storedAt:1000,expiresAt:2000,persistent:true,state:'refreshing'};
+ assert.equal(cacheStatusText(row,3000),'');
+ assert.deepEqual(cacheStatusPresentation([row,{...row,label:'전송량'}],3000),{kind:'progress',text:'업데이트 중'});
+ const error={...row,label:'전송량',state:'error'};
+ assert.match(cacheStatusPresentation([row,error],3000).text,/전송량:.*갱신 실패.*마지막 정상 자료/);
+ assert.equal(cacheStatusPresentation([row,error],3000).kind,'warning');
+ assert.match(cacheStatusPresentation([row,{...row,state:'rate-limited',retryAt:9000}],3000).text,/요청 제한\(429\).*이후 다시 조회 가능/);
+ assert.equal(row.storedAt,1000);
+});
+test('compact status preserves stale and cancelled meaning and clears after successful refresh',()=>{
+ const row={label:'시장',hasData:true,storedAt:1000,expiresAt:2000,persistent:true,state:'fresh'};
+ assert.deepEqual(cacheStatusPresentation([row],1500),{kind:'idle',text:''});
+ assert.deepEqual(cacheStatusPresentation([row],3000),{kind:'stale',text:'저장 자료 표시 · 업데이트 필요'});
+ assert.equal(cacheStatusPresentation([{...row,state:'cancelled'}],3000).kind,'warning');
+ assert.equal(cacheStatusPresentation([{...row,hasData:false,state:'loading'}],3000).kind,'progress');
+ assert.equal(cacheStatusPresentation([{...row,persistent:false}],1500).kind,'warning');
+ assert.equal(row.state,'fresh');assert.equal(row.storedAt,1000);
 });
