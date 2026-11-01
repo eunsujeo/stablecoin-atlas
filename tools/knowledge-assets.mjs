@@ -1,0 +1,2 @@
+// Explicit public teaching assets only; no dynamic paths or evidence files.
+export const knowledgeFiles=Object.freeze(["xrpl.mjs","networks.mjs","network-renderer.mjs","consensus-renderer.mjs", "consensus.mjs", "controller.mjs", "engine.mjs", "epoch-renderer.mjs", "epochs.mjs", "fork-choice.mjs", "glossary.mjs", "index.html", "lesson-renderer.mjs", "lessons.mjs", "narrative.mjs", "pacing.mjs", "playback.mjs", "presentation.mjs", "protocol.mjs", "renderer.mjs", "slot-renderer.mjs", "style.css", "transaction-renderer.mjs", "transactions.mjs"]);

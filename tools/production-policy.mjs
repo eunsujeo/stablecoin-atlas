@@ -1,5 +1,7 @@
+import {knowledgeFiles} from './knowledge-assets.mjs';
 // Separate publication policy. A newly added preview route is private by default.
 export const publicAssets=new Set([
+ ...knowledgeFiles.map(name=>'/knowledge/'+name),
   '/browser-json.js','/browser-idb.js','/browser-cache.js','/browser-data.js','/browser-cache-ui.js',
   '/','/index.html','/legacy.html','/production.js','/styles.css','/pop-outline.css','/loading.css','/loading.js',
   '/asset-review-model.js','/asset-review-store.js','/network-usage-targets.js','/network-usage-model.js',

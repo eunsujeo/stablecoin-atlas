@@ -1,3 +1,4 @@
+import {knowledgeFiles} from './knowledge-assets.mjs';
 import {databaseFrankfurterFXReader} from './market-db/frankfurter-fx-preview.mjs';
 import {validateNetworkUsage} from '../web/network-usage-model.js';
 import {databaseNetworkUsageReader} from './market-db/network-usage-preview.mjs';
@@ -31,6 +32,7 @@ import { databaseMarketReader } from './market-db/preview.mjs';
 import {databaseRegistrationReader,registrationRequest} from './market-db/registration-preview.mjs';
 
 const assets = new Map([
+ ...knowledgeFiles.map(name=>['/knowledge/'+name,['../web/knowledge/'+name,name.endsWith('.html')?'text/html; charset=utf-8':name.endsWith('.css')?'text/css; charset=utf-8':'text/javascript; charset=utf-8']]),
   ['/pop-outline.css', ['../web/pop-outline.css', 'text/css; charset=utf-8']],
  ['/network-usage-targets.js',['../web/network-usage-targets.js','text/javascript; charset=utf-8']],['/network-usage-model.js', ['../web/network-usage-model.js','text/javascript; charset=utf-8']],
   ['/browser-idb.js', ['../web/browser-idb.js', 'text/javascript; charset=utf-8']],

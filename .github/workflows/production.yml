@@ -1,7 +1,9 @@
 name: Atlas CI release
 run-name: ${{ inputs.component || 'web' }} / ${{ github.sha }}
 on:
-  # Historical CI recipe, manual only. Production LOCAL_GIT builds on the Mac mini.
+  # Learning branches pass this gate before the same SHA reaches main/LOCAL_GIT.
+  push:
+    branches: ['learning/**']
   workflow_dispatch:
     inputs:
       component:
