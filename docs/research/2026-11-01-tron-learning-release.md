@@ -17,3 +17,7 @@ Full check exit0:870 main+74 archived tests pass,0fail,8pre-existing compiler sk
 ## Production result
 
 Candidate518f48c6b74e0b98747be42cf7bc44979efdf2c4 passed Actions41317714219 before main update. Existing LOCAL_GIT broker deployed successfully, health200/SHA match, prior28d3b2c retained. Real production TRON all3 full36-second plays,4 viewports,network switching,KPI/SR history/parent/solid synchronization,keyboard focus and reduced motion pass. Frame p95≤16.8ms in this headless sample. CollectorPID69372 unchanged. Evidence `docs/design/knowledge/production-tron/verification.json`. Ethereum production Epoch3,consensus3 andtransaction2 full-scenario checks also pass; no runtime fixes were needed for them.
+
+## Final cross-chain audit correction
+
+While reviewing the Solana candidate, found the TRON initial SR history used5000 for every producer, a convenient floor that could be mistaken for27 actual productions at one height. Replaced it with distinct prior heights4974..5000 and derived initial solid4982. The target5001 rule and final offline stall at5000 are unchanged. Added initial-history coherence, monotonic boundary and repeated-producer stall regression. Existing production model is educational only; no real observations or ledger data changed. This correction ships with the final cross-chain candidate after a fresh CI gate.
