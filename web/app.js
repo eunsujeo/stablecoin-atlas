@@ -172,6 +172,6 @@ $('#theme-toggle').addEventListener('click', () => applyTheme(document.documentE
 $('#reload').addEventListener('click', load); $('#close-dialog').addEventListener('click', () => $('#detail-dialog').close());
 $('#detail-dialog').addEventListener('close', () => { const trigger = dialogTrigger; dialogTrigger = null; if (trigger instanceof HTMLElement && trigger.isConnected) trigger.focus(); });
 $('#detail-dialog').addEventListener('click', event => { if (event.target === $('#detail-dialog')) { const box = event.target.getBoundingClientRect(); if (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) event.target.close(); } });
-let saved; try { saved = localStorage.getItem('atlas-theme'); } catch { /* Use the approved dark default. */ }
-applyTheme(saved === 'light' ? 'light' : 'dark');
+let saved; try { saved = localStorage.getItem('atlas-theme'); } catch { /* Use the document default when storage is unavailable. */ }
+applyTheme(['light','dark'].includes(saved) ? saved : document.documentElement.dataset.theme);
 load();

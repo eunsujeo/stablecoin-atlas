@@ -247,26 +247,6 @@ function activate(){if(!$('#overview-screen').hidden&&!state.loaded)load();}
 $('#overview-reload').addEventListener('click',load);$('#overview-scope')?.addEventListener('change',()=>{renderEvidence();renderEvidenceRankings();});$('#overview-rank-metric')?.addEventListener('change',renderEvidenceRankings);$('#overview-theme').addEventListener('click',()=>$('#theme-toggle').click());
 const theme=()=>{$('#overview-theme').textContent=document.documentElement.dataset.theme==='light'?'☾ 다크':'☀ 라이트';};
 new MutationObserver(theme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});theme();
-
-// Navigation is presentation state only; routes and data readers stay unchanged.
-const sidebarToggle=$('#sidebar-toggle'),mobileNavToggle=$('#mobile-nav-toggle');
-if(sidebarToggle&&mobileNavToggle){
- const desktop=matchMedia('(min-width: 901px)');let collapsed=false,mobileOpen=false;
- try{collapsed=localStorage.getItem('atlas-sidebar-collapsed')==='true';}catch{}
- const syncNavigation=()=>{
-  document.documentElement.classList.toggle('sidebar-collapsed',desktop.matches&&collapsed);
-  document.documentElement.classList.toggle('mobile-navigation-open',!desktop.matches&&mobileOpen);
-  sidebarToggle.setAttribute('aria-expanded',String(!collapsed));
-  sidebarToggle.setAttribute('aria-label',collapsed?'사이드바 펼치기':'사이드바 접기');
-  mobileNavToggle.setAttribute('aria-expanded',String(mobileOpen));
-  mobileNavToggle.setAttribute('aria-label',mobileOpen?'탐색 메뉴 닫기':'탐색 메뉴 열기');
- };
- sidebarToggle.addEventListener('click',()=>{collapsed=!collapsed;try{localStorage.setItem('atlas-sidebar-collapsed',String(collapsed));}catch{}syncNavigation();});
- mobileNavToggle.addEventListener('click',()=>{mobileOpen=!mobileOpen;syncNavigation();});
- $('#primary-navigation').addEventListener('click',event=>{if(event.target.closest('a')&&!desktop.matches){mobileOpen=false;syncNavigation();$('#main').focus({preventScroll:true});}});
- document.addEventListener('keydown',event=>{if(event.key==='Escape'&&mobileOpen){mobileOpen=false;syncNavigation();mobileNavToggle.focus();}});
- desktop.addEventListener('change',()=>{mobileOpen=false;syncNavigation();});syncNavigation();
-}
 document.addEventListener('atlas:navigate',activate);activate();
 setInterval(()=>{if(!$('#overview-screen').hidden&&!document.hidden)load();},60000);
 

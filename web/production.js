@@ -2,7 +2,7 @@
 const $=s=>document.querySelector(s);
 const theme=()=>{const mode=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=mode;try{localStorage.setItem('atlas-theme',mode);}catch{}};
 let saved;try{saved=localStorage.getItem('atlas-theme');}catch{}
-document.documentElement.dataset.theme=saved==='light'?'light':'dark';
+if(['light','dark'].includes(saved))document.documentElement.dataset.theme=saved;
 $('#theme-toggle').addEventListener('click',theme);
 $('#evidence-theme').addEventListener('click',theme);
 const themeLabel=()=>{$('#evidence-theme').textContent=document.documentElement.dataset.theme==='light'?'☾ 다크':'☀ 라이트';};

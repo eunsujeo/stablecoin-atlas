@@ -1,0 +1,123 @@
+/* Selected Pop Outline. Candidate-only controls and alternate concepts are not loaded. */
+/* Shared semantic coverage, candidate-only. Amounts, labels and data stay in the app. */
+html[data-visual=pop-outline][data-theme]{--ui:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;--display:var(--ui);--border-width:1px;--radius:12px;--small-radius:7px;--shadow:none;--notice:#fff0d6;--notice-ink:#755126;--danger:#9e3c4f}
+html[data-visual=pop-outline] body{font-family:var(--ui);font-weight:400;line-height:1.6;background:var(--bg);color:var(--ink)}
+html[data-visual=pop-outline] :is(button,input,select,textarea){font-family:inherit}
+html[data-visual=pop-outline] :is(.panel,.overview-card,.overview-card.supply-network-ranking,.source-review,.contract-report-button,.market-fold){border:var(--border-width) solid var(--line);border-radius:var(--radius);background:var(--panel);box-shadow:none}
+html[data-visual=pop-outline] :is(.sidebar .nav-link.active,.source-review-asset[aria-pressed=true],.source-review-match[aria-pressed=true]){background:var(--active);border-color:var(--selected-line);box-shadow:none;outline:none;color:var(--ink)}
+html[data-visual=pop-outline] .sidebar .nav-link.active>span:first-child{color:var(--ink)}
+html[data-visual=pop-outline] :is(.source-review,.contract-workspace){--profile-accent:var(--purple)}
+html[data-visual=pop-outline] :is(.source-review-directory,.contract-directory){background:var(--control);border-color:var(--line)}
+html[data-visual=pop-outline] :is(.source-review-tabs button[aria-selected=true],.source-review-result-status){color:var(--purple)}
+html[data-visual=pop-outline] :is(.chart-filters,.segmented,.contract-tabs){background:var(--control);border:var(--border-width) solid var(--line);border-radius:var(--small-radius);box-shadow:none}
+html[data-visual=pop-outline] :is(.chart-filters button,.segmented button,.contract-tabs button){border-radius:calc(var(--small-radius) - 2px);color:var(--muted);font-weight:500}
+html[data-visual=pop-outline] :is(.chart-filters button[aria-pressed=true],.segmented button[aria-pressed=true],.contract-tabs button[aria-selected=true]){background:var(--active);color:var(--ink);box-shadow:none}
+html[data-visual=pop-outline] :is(.quiet-button,.market-chart-link,.source-review-feature-filters button,.source-review-toolbar select,.source-review-search input,.contract-directory input,input,select){color:var(--ink);background:var(--panel);border:var(--border-width) solid var(--line);border-radius:var(--small-radius);box-shadow:none}
+html[data-visual=pop-outline] :is(.quiet-button,.source-review-feature-filters button,.source-review-asset,.contract-report-button):hover{background:var(--hover);filter:none}
+html[data-visual=pop-outline] :is(.source-review-feature-filters button[aria-pressed=true],.contract-report-button[aria-pressed=true]){background:var(--active);border-color:var(--selected-line);color:var(--ink)}
+html[data-visual=pop-outline] .overview-toolbar{background:var(--panel);border:var(--border-width) solid var(--line);border-radius:var(--radius)}
+html[data-visual=pop-outline] .overview-toolbar .supply-coin{border:var(--border-width) solid var(--line);border-radius:var(--small-radius);background:var(--panel);color:var(--muted);font-weight:550}
+html[data-visual=pop-outline] .overview-toolbar .supply-coin[aria-pressed=true]{background:var(--active);color:var(--ink);border-color:var(--selected-line)}
+html[data-visual=pop-outline] .overview-summary-card{border:var(--border-width) solid var(--line);border-radius:var(--radius);background:var(--kpi-supply);color:var(--ink);box-shadow:none;min-height:160px;padding:22px 24px}
+html[data-visual=pop-outline] .overview-summary-card.summary-volume{background:var(--kpi-volume)}
+html[data-visual=pop-outline] .overview-summary-card::before{display:none}
+html[data-visual=pop-outline] .summary-heading{font-size:12px;font-weight:550;opacity:1}
+html[data-visual=pop-outline] .summary-value{font-family:var(--display);font-size:42px;line-height:1.2;font-weight:650;letter-spacing:-1.3px;margin-top:12px;font-variant-numeric:tabular-nums}
+html[data-visual=pop-outline] .summary-value small{font:500 11px var(--ui);letter-spacing:0;opacity:1}
+html[data-visual=pop-outline] .summary-meta{font-size:11px;margin-top:14px;opacity:1}
+html[data-visual=pop-outline] :is(.metric-card.lead-purple,.metric-card.lead-teal,#live-screen .market-stat){background:var(--panel);color:var(--ink);border:var(--border-width) solid var(--line);border-radius:var(--radius);box-shadow:none}
+html[data-visual=pop-outline] :is(.lead-purple::after,.lead-teal::after){display:none}
+html[data-visual=pop-outline] :is(.lead-purple>p,.lead-teal>p,.market-stat p,.market-stat small){color:var(--muted)}
+html[data-visual=pop-outline] .page-header .eyebrow{font-family:var(--ui);font-size:10px;letter-spacing:.8px;color:var(--muted)}
+html[data-visual=pop-outline] .page-header h1{font-size:32px;font-weight:650;letter-spacing:-.9px}
+html[data-visual=pop-outline] .page-header h1+p{font-size:12px;line-height:1.8}
+html[data-visual=pop-outline] .overview-metric-row{height:auto;min-height:370px;gap:20px}
+html[data-visual=pop-outline] .overview-card{padding:20px 22px}
+html[data-visual=pop-outline] .overview-card .metric-title-row h2{font-size:14px;font-weight:600}
+html[data-visual=pop-outline] .grid-line{stroke:var(--line)}
+html[data-visual=pop-outline] :is(.trend-axis,.donut-label){fill:var(--muted)}
+html[data-visual=pop-outline] :is(.contract-table,.source-review-results table,table){font-size:12px;font-variant-numeric:tabular-nums}
+html[data-visual=pop-outline] :is(th,td,.contract-facts dt,.contract-facts dd,.source-review-heading,.source-review-toolbar){border-color:var(--line)}
+html[data-visual=pop-outline] thead{background:var(--control)}
+html[data-visual=pop-outline] tbody tr:hover{background:var(--hover)}
+html[data-visual=pop-outline] :is(.contract-tabs,.source-review-tabs){gap:8px}
+html[data-visual=pop-outline] .source-review-tabs button{padding-inline:12px}
+html[data-visual=pop-outline] :is(.mock-notice,.contract-status,.browser-cache-status,.summary-stale){background:var(--notice);color:var(--notice-ink);border:1px solid color-mix(in srgb,var(--notice-ink) 30%,var(--notice));border-radius:var(--small-radius);box-shadow:none}
+html[data-visual=pop-outline] .error-message{background:var(--error-bg);color:var(--danger);border:1px solid var(--danger);border-radius:var(--small-radius)}
+html[data-visual=pop-outline] :is(.empty-state,.source-review-empty){color:var(--muted);border:1px dashed var(--line);border-radius:var(--radius);padding:24px}
+html[data-visual=pop-outline] :is(dialog,.metric-help-tooltip){background:var(--panel);color:var(--ink);border:var(--border-width) solid var(--line);border-radius:var(--radius);box-shadow:none}
+html[data-visual=pop-outline] :is(button,a,input,select,[tabindex]):focus-visible{outline:3px solid var(--purple);outline-offset:3px}
+html[data-visual=pop-outline] .source-review-mark{background:var(--panel);border-color:var(--line);color:var(--purple);border-radius:var(--small-radius)}
+html[data-visual=pop-outline] .sidebar .brand-name strong{font-family:var(--display);font-size:38px}
+html[data-visual=pop-outline] .sidebar nav .nav-link{border:var(--border-width) solid transparent;border-radius:var(--small-radius);padding:12px 16px;margin-bottom:10px}
+html[data-visual=pop-outline] .sidebar nav .nav-link.active{border-color:var(--selected-line)}
+html[data-visual=pop-outline] .loading-skeleton{background:var(--control);border-color:var(--line)}
+/* Pop Outline: flat graphics, dark contours, condensed bold numbers; no offset shadows. */
+html[data-visual=pop-outline][data-theme]{--bg:#fff8da;--nav:#f4e7a6;--panel:#fffdf4;--ink:#342f3c;--muted:#655d6d;--line:#514759;--selected-line:#342f3c;--purple:#73428d;--teal:#237564;--blue:#3f62a4;--pink:#a63e72;--track:#e9deca;--tint:#edd8ee;--control:#f7edc7;--active:#eed4e8;--hover:#f6e9e7;--kpi-volume:#f3cede;--kpi-supply:#d9ead8;--error-bg:#ffe5e7;--radius:12px;--small-radius:7px;--border-width:2px;--ui:"Trebuchet MS","Apple SD Gothic Neo",sans-serif;--display:"Arial Rounded MT Bold","Arial Black","Apple SD Gothic Neo",sans-serif}
+html[data-visual=pop-outline] .page-header{padding-bottom:20px;border-bottom:2px solid var(--line)}
+html[data-visual=pop-outline] .page-header h1{font-weight:850;font-size:36px}
+html[data-visual=pop-outline] .summary-value{font-size:46px;font-weight:800;letter-spacing:-2px}
+html[data-visual=pop-outline] .summary-heading{font-weight:750}
+html[data-visual=pop-outline] .overview-summary-card{border-radius:18px 18px 4px 4px}
+html[data-visual=pop-outline] .summary-meta{font-weight:550}
+html[data-visual=pop-outline] .sidebar .brand-name strong{font-weight:800;letter-spacing:-2px}
+html[data-visual=pop-outline] :is(.source-review-tabs button[aria-selected=true],.contract-tabs button[aria-selected=true]){background:#e5d7f1;color:#342f3c}
+html[data-visual=pop-outline] .grid-line{stroke-dasharray:3 5;stroke-width:.7}
+/* Dark keeps the pastel focal cards; structural outlines recede into charcoal. */
+html[data-visual=pop-outline][data-theme=dark]{--bg:#191a1e;--nav:#202126;--panel:#24262c;--ink:#eeeef1;--muted:#b3b3bf;--line:#494b56;--selected-line:#b9a6d0;--purple:#cbb3ed;--teal:#83cbb9;--blue:#a4b7ef;--pink:#e5aac6;--tint:#35303f;--control:#1e2025;--active:#3b3348;--hover:#303139;--kpi-volume:#ba91a6;--kpi-supply:#91b39e;--track:#393b44;--error-bg:#382830;--danger:#f0b6c6;--notice:#353027;--notice-ink:#e4cf9b;--border-width:1px}
+html[data-visual=pop-outline][data-theme=dark] .overview-summary-card{color:#292630;border:2px solid #17181c}
+html[data-visual=pop-outline][data-theme=dark] .overview-summary-card :is(.summary-heading,.summary-value,.summary-value small,.summary-meta,.summary-meta time){color:inherit}
+html[data-visual=pop-outline][data-theme=dark] .sidebar .brand-name strong{color:#f0dfa7}
+html[data-visual=pop-outline][data-theme=dark] .sidebar nav .nav-link.active{background:#d3c2e5;border-color:#17181c;color:#292630}
+html[data-visual=pop-outline][data-theme=dark] .sidebar .nav-link.active :is(span,small){color:#292630}
+html[data-visual=pop-outline][data-theme=dark] .page-header{border-bottom-width:1px}
+html[data-visual=pop-outline][data-theme=dark] :is(.chart-filters button[aria-pressed=true],.segmented button[aria-pressed=true],.overview-toolbar .supply-coin[aria-pressed=true],.source-review-tabs button[aria-selected=true],.contract-tabs button[aria-selected=true]){background:#d3c2e5;color:#292630;border-color:#d3c2e5}
+html[data-visual=pop-outline][data-theme=dark] .grid-line{stroke:#777986;stroke-opacity:.5}
+@media(max-width:700px){
+ html[data-visual=pop-outline] main{padding:24px 16px}
+ html[data-visual=pop-outline] .sidebar .brand-name strong{font-size:24px}
+ html[data-visual=pop-outline] .sidebar nav .nav-link{padding:8px;margin:0}
+ html[data-visual=pop-outline] .page-header h1{font-size:27px}
+ html[data-visual=pop-outline] .overview-summary-grid{gap:12px}
+ html[data-visual=pop-outline] .overview-summary-card{padding:16px 12px;min-height:158px}
+ html[data-visual=pop-outline] .summary-heading{font-size:10px}
+ html[data-visual=pop-outline] .summary-value{font-size:29px;letter-spacing:-1px;display:grid;grid-template-rows:auto 14px;gap:3px;margin-top:12px}
+ html[data-visual=pop-outline] .summary-value small{display:block;font-size:10px}
+ html[data-visual=pop-outline] .summary-meta{display:block;font-size:10px;margin-top:10px}
+ html[data-visual=pop-outline] .summary-meta time{display:block;margin-top:3px}
+ html[data-visual=pop-outline] .overview-metric-row{grid-template-columns:minmax(0,1fr);gap:16px;min-height:0}
+ html[data-visual=pop-outline] .overview-card{padding:18px 14px}
+ html[data-visual=pop-outline] .overview-trend-card{min-height:300px}
+ html[data-visual=pop-outline] .overview-card.supply-network-ranking{padding:18px 14px}
+ html[data-visual=pop-outline] .source-review-tabs button{padding-inline:5px;font-size:12px}
+ html[data-visual=pop-outline] .source-review-tabs{gap:6px}
+ html[data-visual=pop-outline] .contract-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(prefers-reduced-motion:reduce){html[data-visual=pop-outline]{scroll-behavior:auto}html[data-visual=pop-outline] *{transition:none!important;animation:none!important}}
+@media(min-width:801px){html[data-visual=pop-outline] .overview-transfer-row .overview-donut-card{max-height:none}}
+/* Desktop overview: both time series share the first screen; network detail follows. */
+@media(min-width:1100px){
+ html[data-visual=pop-outline] #overview-screen>.page-header{padding-bottom:12px;margin-bottom:12px}
+ html[data-visual=pop-outline] #overview-screen>.page-header .eyebrow{margin-bottom:3px}
+ html[data-visual=pop-outline] #overview-screen>.page-header h1{font-size:30px}
+ html[data-visual=pop-outline] #overview-screen>.page-header h1+p{margin-top:3px}
+ html[data-visual=pop-outline] #overview-supply.balanced-overview{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+ html[data-visual=pop-outline] #overview-supply>:is(.overview-toolbar,.overview-summary-grid,.overview-load-status,.chart-note){grid-column:1/-1}
+ html[data-visual=pop-outline] .overview-toolbar{padding:8px 14px}
+ html[data-visual=pop-outline] .overview-summary-card{min-height:112px;padding:12px 20px}
+ html[data-visual=pop-outline] .summary-value{font-size:38px;margin-top:4px}
+ html[data-visual=pop-outline] .summary-meta{margin-top:6px}
+ html[data-visual=pop-outline] .overview-metric-row{display:flex;flex-direction:column;gap:14px;min-height:0;height:auto}
+ html[data-visual=pop-outline] .overview-trend-card{height:360px;min-height:360px;padding:16px}
+ html[data-visual=pop-outline] .overview-card-heading{margin-bottom:8px}
+ html[data-visual=pop-outline] .overview-card.supply-network-ranking{height:320px;min-height:320px}
+}
+/* Atlas lettering is drawn as paths, independent of installed fonts. */
+html[data-visual=pop-outline] .sidebar .brand-name .atlas-wordmark{display:block;width:130px;height:auto;color:var(--ink);overflow:visible}
+html[data-visual=pop-outline] .sidebar .brand-name>span{font-family:var(--ui);font-size:11px;letter-spacing:.8px;margin-bottom:4px}
+html[data-visual=pop-outline][data-theme=dark] .sidebar .brand-name .atlas-wordmark{color:#f0dfa7}
+@media(max-width:700px){
+ html[data-visual=pop-outline] .sidebar .brand-name{flex-direction:column;align-items:flex-start;gap:0}
+ html[data-visual=pop-outline] .sidebar .brand-name .atlas-wordmark{width:82px}
+ html[data-visual=pop-outline] .sidebar .brand-name>span{font-size:8px;letter-spacing:.4px;margin-bottom:1px}
+}

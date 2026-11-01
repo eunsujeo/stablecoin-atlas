@@ -45,7 +45,8 @@ export function initializeSourceReview(root,snapshot){
       const profiles=sourceReviewProfiles.filter(p=>p.coinId===id);
       if(query&&!found.some(p=>p.coinId===id))continue;
       const button=node('button',undefined,'source-review-asset');button.type='button';button.dataset.coinId=id;button.setAttribute('aria-pressed',String(id===coinId));
-      const text=node('span');text.append(node('strong',id.toUpperCase()),node('small',`검토 프로필 ${profiles.length}곳`));button.title=profiles.map(p=>p.network).join(' / ');button.append(text);
+      const mark=node('span',id.slice(0,1).toUpperCase(),'source-review-mark');mark.setAttribute('aria-hidden','true');
+      const text=node('span');text.append(node('strong',id.toUpperCase()),node('small',`검토 ${profiles.length}곳 · ${profiles.map(p=>p.network).join(' / ')}`));button.append(mark,text);
       button.addEventListener('click',()=>{
         rememberedChains.set(coinId,chainId);coinId=id;chainId=rememberedChains.get(id)??sourceProfileKey(profiles[0]);
         for(const entry of list.children)entry.setAttribute('aria-pressed',String(entry.dataset.coinId===id));
@@ -59,7 +60,7 @@ export function initializeSourceReview(root,snapshot){
     network.value=chainId;
   }
   function facts(entries){const dl=node('dl',undefined,'source-review-identity');for(const [label,value]of entries)dl.append(node('dt',label),node('dd',value));return dl;}
-  function items(title,values){const section=node('section',undefined,'source-review-section'),list=node('ul');for(const text of values)list.append(node('li',text));section.append(node('h3',title),list);return section;}
+  function items(title,values){const section=node('section',undefined,'source-review-section'),list=node('ul');for(const text of values)list.append(node('li',text));section.append(node('h4',title),list);return section;}
   function render(){
     const p=sourceReviewFor(coinId,chainId);detail.replaceChildren();root.dataset.reviewId=p.id;
     for(const entry of list.children)entry.setAttribute('aria-pressed',String(entry.dataset.coinId===coinId));
@@ -81,11 +82,11 @@ export function initializeSourceReview(root,snapshot){
       });tabs.set(key,tab);panels.set(key,panel);tablist.append(tab);
     }detail.append(tablist,...panels.values());
     const overview=panels.get('overview');
-    overview.append(node('h3','자산 정보'),facts([['네트워크',p.network],...(p.chainId?[['chainId',p.chainId]]:[]),[p.identityLabel??'컨트랙트',p.address],['검토 종류',sourceProfileStatus(p)],['소스 검토 기준일',p.reviewedAt]]));
-    const summary=node('div',undefined,'source-review-summary');summary.append(node('h3','소스 확인 범위'),node('p',p.scopeLabel?`${p.scopeLabel}. 체인별 항목의 확인 상태·조건·미확인은 검증 결과와 근거·한계 탭에서 확인할 수 있습니다.`:'전송·승인·발행과 발행사 제어·권한 조건. 항목별 확인 내용은 검증 결과 탭에서 확인할 수 있습니다.'));
+    overview.append(node('h4','자산 정보'),facts([['네트워크',p.network],...(p.chainId?[['chainId',p.chainId]]:[]),[p.identityLabel??'컨트랙트',p.address],['검토 종류',sourceProfileStatus(p)],['소스 검토 기준일',p.reviewedAt]]));
+    const summary=node('div',undefined,'source-review-summary');summary.append(node('h4','소스 확인 범위'),node('p',p.scopeLabel?`${p.scopeLabel}. 체인별 항목의 확인 상태·조건·미확인은 검증 결과와 근거·한계 탭에서 확인할 수 있습니다.`:'전송·승인·발행과 발행사 제어·권한 조건. 항목별 확인 내용은 검증 결과 탭에서 확인할 수 있습니다.'));
     overview.append(summary,node('p',p.scopeLabel?'저장 연구의 발췌입니다. 공통 기능과 자산 설정, 초기 구현 후보와 현재 구현을 구분합니다.':sourceReviewNotice,'source-review-notice'));
     const results=node('section',undefined,'source-review-results');
-    results.append(node('h3','기능별 검증 결과'),node('p','있음·없음은 검토한 소스 경로 기준입니다. 근거가 부족한 항목은 추가 검토로 표시합니다.','source-review-result-note'));
+    results.append(node('h4','기능별 검증 결과'),node('p','있음·없음은 검토한 소스 경로 기준입니다. 근거가 부족한 항목은 추가 검토로 표시합니다.','source-review-result-note'));
     const filters=node('div',undefined,'source-review-feature-filters');filters.setAttribute('aria-label','기능 확인 상태 필터');
     const table=node('table'),caption=node('caption',`${p.symbol} / ${p.network} · 소스 기능별 확인 결과`);caption.className='sr-only';
     const head=node('thead'),heading=node('tr');
@@ -110,7 +111,7 @@ export function initializeSourceReview(root,snapshot){
     table.append(caption,head,body);results.append(filters,table,empty);panels.get('behavior').append(results);
     // Source-only scope notes; historical observation/binding diagnostics remain in research records.
     const sourceLimits=p.scopeLabel||['jpyc','jpysc','rlusd'].includes(p.coinId)?p.limitations:[];
-    panels.get('evidence').append(node('h3','소스 검토 근거'),node('p',p.scopeLabel?sourceProfileStatus(p):sourceReviewNotice),items('검토 범위',[
+    panels.get('evidence').append(node('h4','소스 검토 근거'),node('p',p.scopeLabel?sourceProfileStatus(p):sourceReviewNotice),items('검토 범위',[
       '확인 대상은 선택한 저장 소스·문서의 명시된 경로와 조건입니다.',
       '실제 실행·현재 배포 설정·서비스 운영은 이 소스 검토의 확인 대상에 포함하지 않습니다.',
       ...sourceLimits,

@@ -48,7 +48,7 @@ export function initializeSupplyOverview(root,{read}){
  }
  function summaryCard(container,kind,coinId,stale){
   const card=node('article',undefined,'overview-summary-card summary-'+kind);card.dataset.summary=kind;
-  const heading=node('div',undefined,'summary-heading');heading.append(node('span',kind==='supply'?'최대 공급 네트워크':transferMetrics[transferField].label+' 최대 네트워크'));
+  const heading=node('div',undefined,'summary-heading');heading.append(node('span',kind==='supply'?'공급량 1위':transferMetrics[transferField].label+' 1위'));
   const value=node('strong',undefined,'summary-value'),meta=node('div',undefined,'summary-meta');card.append(heading,value,meta);if(stale)card.append(node('span','이전 정상 자료','summary-stale'));container.append(card);
   return (entry,missingDay=null)=>{const row=entry?.row??entry?.last;value.replaceChildren(node('span',row?supplyQuantityLabel(row.amount):missingDay?'관측 없음':'선택 필요'));if(row)value.append(node('small',kind==='supply'||transferField==='transfer_volume'?coinId.toUpperCase():transferMetrics[transferField].unit));meta.replaceChildren(node('span',entry?.network.name??'표시 네트워크'));if(row||missingDay){const day=(row?.observedAt.slice(0,10))??missingDay,time=node('time',day);time.dateTime=day;meta.append(time);}card.title=row?exactDecimal(row.amount)+' '+(entry.unit??'tokens')+' · '+entry.network.name+' · '+row.observedAt.slice(0,10):'선택일 또는 표시 네트워크를 확인하세요.';card.setAttribute('aria-label',kind==='supply'?'표시 네트워크 중 최신 관측 공급량 최대':'선택 집계일의 표시 네트워크 중 '+transferMetrics[transferField].label+' 최대');};
  }

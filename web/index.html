@@ -1,48 +1,41 @@
 <!doctype html>
-<html lang="ko" data-theme="dark">
+<html lang="ko" data-theme="light" data-visual="pop-outline">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="color-scheme" content="dark light">
   <title>Stablecoin Atlas · 호환성 대시보드</title>
   <meta name="description" content="스테이블코인 저장 시장 자료와 체인별 검증 근거 대시보드">
-  <link rel="icon" href="data:,">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2088%2088%22%3E%3Crect%20width%3D%2288%22%20height%3D%2288%22%20rx%3D%2220%22%20fill%3D%22%23d3c2e5%22%2F%3E%3Cg%20transform%3D%22translate%285%2010%29%22%20fill%3D%22none%22%20stroke%3D%22%23292630%22%20stroke-width%3D%228%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M8%2054%2023%2013Q26%205%2029%2013L44%2054M15%2037H37%22%2F%3E%3Cpath%20d%3D%22M62%2017V43Q62%2054%2073%2054M52%2029H74%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E">
   <link rel="stylesheet" href="/styles.css"><script type="module" src="/app.js"></script><script type="module" src="/evidence.js"></script><script type="module" src="/market-view.js"></script><script type="module" src="/overview.js"></script>
   <link rel="stylesheet" href="/loading.css">
   <link rel="stylesheet" href="/source-review.css"><script type="module" src="/source-review.js"></script>
   <!-- local-contract-assets:start -->
   <link rel="stylesheet" href="/contract-review.css"><script type="module" src="/contract-review.js"></script>
   <!-- local-contract-assets:end -->
+  <link rel="stylesheet" href="/pop-outline.css">
 </head>
 <body>
   <a class="skip-link" href="#main">본문으로 이동</a>
-  <div class="mobile-masthead">
-    <a class="mobile-brand" href="#overview">Stablecoin <strong>Atlas</strong></a>
-    <button id="mobile-nav-toggle" class="navigation-toggle" type="button" aria-label="탐색 메뉴 열기" aria-controls="atlas-sidebar" aria-expanded="false"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 6h14M3 10h14M3 14h14"/></svg></button>
-  </div>
-  <aside id="atlas-sidebar" class="sidebar" aria-label="주 탐색">
-    <div class="sidebar-brand-row">
-      <a class="brand" href="#overview" aria-label="Stablecoin Atlas 전체 현황"><span class="brand-name"><span>Stablecoin</span><strong>Atlas</strong></span></a>
-      <button id="sidebar-toggle" class="navigation-toggle" type="button" aria-label="사이드바 접기" aria-controls="primary-navigation" aria-expanded="true"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m12 5-5 5 5 5"/></svg></button>
-    </div>
-    <nav id="primary-navigation" aria-label="주 메뉴">
-      <a class="nav-link active" href="#overview" data-screen="overview" aria-label="전체 현황"><span class="nav-compact" aria-hidden="true">현황</span><span class="nav-copy">전체 현황<small>공급량과 전송 흐름</small></span></a>
-      <a class="nav-link" href="#assets" data-screen="assets" aria-label="자산 프로필"><span class="nav-compact" aria-hidden="true">자산</span><span class="nav-copy">자산 프로필<small>네트워크별 기술 검토</small></span></a>
+  <aside class="sidebar" aria-label="주 탐색">
+    <a class="brand" href="#overview" aria-label="Stablecoin Atlas 전체 현황"><span class="brand-name"><span>Stablecoin</span><svg class="atlas-wordmark" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 188 64" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 54 23 13Q26 5 29 13L44 54M15 37H37"/><path d="M62 17V43Q62 54 73 54M52 29H74"/><path d="M89 10V44Q89 54 99 54"/><path d="M137 32C124 21 110 29 110 42S128 61 137 47M137 29V54"/><path d="M178 31C168 24 154 28 154 36S178 41 178 48 164 59 153 52"/></svg></span></a>
+    <nav aria-label="주 메뉴">
+      <a class="nav-link active" href="#overview" data-screen="overview"><span>전체 현황<small>공급량 · 전송량</small></span></a>
+      <a class="nav-link" href="#assets" data-screen="assets"><span>자산 프로필<small>자산 · 네트워크</small></span></a>
       <!-- local-contract-nav:start -->
-      <a class="nav-link" href="#contracts" data-screen="contracts" aria-label="컨트랙트 분석"><span class="nav-compact" aria-hidden="true">분석</span><span class="nav-copy">컨트랙트 분석<small>함수와 사용 조건</small></span></a>
+      <a class="nav-link" href="#contracts" data-screen="contracts"><span>컨트랙트 분석<small>함수 · 위험 · 사용 조건</small></span></a>
       <!-- local-contract-nav:end -->
     </nav>
-    <div class="sidebar-context"><span class="context-dot" aria-hidden="true"></span><span>저장된 관측 자료<small>출처와 기준일을 함께 확인하세요.</small></span></div>
   </aside>
   <main id="main" tabindex="-1">
     <!-- local-contract-screen:start -->
     <section id="contracts-screen" hidden aria-label="저장된 컨트랙트 분석">
-      <header class="page-header"><div><h1>컨트랙트 분석</h1><p class="muted">저장된 분석의 함수·호출 흐름과 사용 조건을 살펴봅니다.</p></div><div class="header-actions"><button id="contract-theme" class="quiet-button">☀ 라이트</button></div></header>
+      <header class="page-header"><div><p class="eyebrow">WORKSPACE / CONTRACT REVIEW</p><h1>컨트랙트 분석</h1><p class="muted">저장된 분석의 함수·호출 흐름과 사용 조건을 살펴봅니다.</p></div><div class="header-actions"><button id="contract-theme" class="quiet-button">☀ 라이트</button></div></header>
       <p class="mock-notice">저장 소스의 조건 검토와 사설 시험 결과입니다. 실제 권한 행사·소스 진위·자산 안전성 인증은 검토 범위에 포함하지 않습니다.</p>
       <div id="contract-review-root"></div>
     </section>
     <!-- local-contract-screen:end -->
     <section id="overview-screen" hidden aria-label="스테이블코인 시장 흐름과 공급량 현황">
-      <header class="page-header"><div><h1>전체 현황</h1><p class="muted">스테이블코인의 공급량과 전송 흐름을 네트워크별로 살펴봅니다.</p></div><div class="header-actions"><button id="overview-reload" class="quiet-button">자료 새로고침</button><button id="overview-theme" class="quiet-button">☀ 라이트</button></div></header>
+      <header class="page-header"><div><p class="eyebrow">WORKSPACE / OVERVIEW</p><h1>전체 현황</h1><p class="muted">스테이블코인의 공급량과 전송 흐름을 네트워크별로 살펴봅니다.</p></div><div class="header-actions"><button id="overview-reload" class="quiet-button">전체 다시 읽기 ↻</button><button id="overview-theme" class="quiet-button">☀ 라이트</button></div></header>
       <p id="overview-error" class="error-message" role="alert" hidden></p>
       <section id="overview-supply" class="panel" aria-label="토큰과 네트워크별 공급량과 전송량" aria-busy="true">
         <p class="chart-note" role="status">공급량·전송량 저장 자료를 읽고 있습니다.</p>
@@ -56,7 +49,7 @@
       </section>
       <div id="overview-previous-data" hidden>
       <section class="panel overview-market-hero">
-        <div class="panel-heading"><div><h2 id="overview-trend-title">토큰·네트워크별 공급량 추이</h2><p id="overview-trend-scope">선택한 토큰과 네트워크의 총공급량 · tokens</p></div><div class="overview-trend-selectors"><label class="market-select"><span>자료</span><select id="overview-trend-source"><option value="history">일별 유통량</option></select></label><label class="market-select"><span>토큰</span><select id="overview-trend-coin"></select></label><label class="market-select"><span>네트워크</span><select id="overview-trend-network"></select></label></div></div>
+        <div class="panel-heading"><div><p class="eyebrow">STABLECOIN SUPPLY</p><h2 id="overview-trend-title">토큰·네트워크별 공급량 추이</h2><p id="overview-trend-scope">선택한 토큰과 네트워크의 총공급량 · tokens</p></div><div class="overview-trend-selectors"><label class="market-select"><span>자료</span><select id="overview-trend-source"><option value="history">일별 유통량</option></select></label><label class="market-select"><span>토큰</span><select id="overview-trend-coin"></select></label><label class="market-select"><span>네트워크</span><select id="overview-trend-network"></select></label></div></div>
         <div id="overview-trend-period" class="chart-filters" aria-label="유통량 조회 기간과 비교 방식"><button data-period="24h" aria-pressed="false">24H</button><button data-period="7d" aria-pressed="false">7D</button><button data-period="30d" aria-pressed="true">30D</button><button data-period="90d" aria-pressed="false">3M</button><button data-period="1y" aria-pressed="false">1Y</button><span class="comparison-divider" aria-hidden="true">·</span><button data-comparison="amount" aria-pressed="true">공급량 규모</button><button data-comparison="change" aria-pressed="false">증감률 (%)</button></div>
         <div class="overview-market-grid"><div><div id="overview-market-trend"></div><p id="overview-trend-note" class="chart-note"></p></div><aside class="overview-chain-panel"><h3>네트워크별 공급량</h3><p class="muted">같은 코인의 체인별 총공급량 비교</p><div id="overview-chain-breakdown"></div><a href="#live" class="text-link">네트워크 · 원본 상세 →</a></aside></div>
       </section>
@@ -88,7 +81,7 @@
       </section>
     </section>
     <section id="evidence-workspace" aria-label="실제 저장된 검증 근거">
-      <header class="page-header"><div><h1 id="workspace-title">자산 프로필</h1><p class="muted">자산의 네트워크별 기능과 권한 조건을 근거와 함께 살펴봅니다.</p></div><div class="header-actions"><button id="evidence-reload" class="quiet-button">근거 새로고침</button><button id="evidence-theme" class="quiet-button">☀ 라이트</button></div></header>
+      <header class="page-header"><div><p class="eyebrow">WORKSPACE / VALIDATION EVIDENCE</p><h1 id="workspace-title">자산 프로필</h1><p class="muted">로컬에서 검증하고, 문서로 보존하고, 항목별로 확인합니다.</p></div><div class="header-actions"><span class="evidence-badge">STORED EVIDENCE</span><button id="evidence-reload" class="quiet-button">근거 다시 읽기 ↻</button><button id="evidence-theme" class="quiet-button">☀ 라이트</button></div></header>
       <p class="evidence-notice">실제 자산의 저장된 조회 결과입니다. PASS는 해당 시나리오의 성공이며 자산 안전성·취급 승인이 아닙니다.</p>
       <p id="evidence-status" class="status" role="status">저장된 근거를 읽고 있습니다.</p><div id="evidence-error" class="error-message" role="alert" hidden></div>
       <div class="evidence-metrics" id="evidence-metrics"></div>
@@ -97,17 +90,17 @@
       <footer><span>원본 시각·판정 보존 · 해시는 내용 변경 탐지용이며 진위 인증이 아닙니다.</span><span>공개망 재조회·실제 권한 행사 없음</span></footer>
     </section>
     <section id="live-screen" hidden aria-label="저장된 실제 시장 자료">
-      <header class="page-header market-header"><div><h1>시장 현황</h1></div><div class="header-actions"><span class="market-snapshot">수집한 시장 데이터</span><button id="live-reload" class="quiet-button">자료 새로고침</button><button id="live-theme" class="quiet-button">☀ 라이트</button></div></header>
+      <header class="page-header market-header"><div><p class="eyebrow">MARKETS / STABLECOINS</p><h1>시장 현황<span class="market-edition">ATLAS RESEARCH</span></h1></div><div class="header-actions"><span class="market-snapshot">수집한 시장 데이터</span><button id="live-reload" class="quiet-button">새로 읽기 ↻</button><button id="live-theme" class="quiet-button">☀ 라이트</button></div></header>
       <div class="market-dateline"><p id="live-status" class="status" role="status"></p><span>60초마다 저장본 확인</span></div><p id="live-error" class="error-message" role="alert" hidden></p>
       <div class="market-coin-toolbar"><label class="market-select">조회할 코인 <select id="live-coin" aria-describedby="live-data-help"></select></label><p id="live-data-help" class="chart-note">요약·그래프·네트워크별 공급량은 선택한 코인 기준입니다. 아래 코인 전체 순위에서는 수집한 자산을 함께 볼 수 있습니다. 시장 데이터는 외부 서비스에서 받아 저장한 값이며, 수집 시각 기준으로 표시합니다.</p></div>
       <div id="live-metrics" class="market-summary" aria-label="선택 코인 요약"></div>
       <section class="panel market-trend-panel" aria-labelledby="live-trend-title">
-        <div class="panel-heading"><div><h2 id="live-trend-title">수집한 데이터 추이</h2><p id="live-trend-scope">코인 전체 · 수집한 시장 데이터</p></div><div class="trend-controls"><label class="market-select"><span class="sr-only">차트 지표</span><select id="live-trend-metric"><option value="PRICE">가격 · USD</option><option value="CIRCULATING">유통량 · tokens</option><option value="COIN_TOTAL">총공급량 · tokens</option></select></label><div id="live-trend-period" class="chart-filters" aria-label="마지막 저장 관측 기준 기간"><button data-period="24h" aria-pressed="false">24H</button><button data-period="7d" aria-pressed="false">7D</button><button data-period="30d" aria-pressed="false">30D</button><button data-period="all" aria-pressed="true">전체</button></div></div></div>
+        <div class="panel-heading"><div><p class="eyebrow">MARKET HISTORY</p><h2 id="live-trend-title">수집한 데이터 추이</h2><p id="live-trend-scope">코인 전체 · 수집한 시장 데이터</p></div><div class="trend-controls"><label class="market-select"><span class="sr-only">차트 지표</span><select id="live-trend-metric"><option value="PRICE">가격 · USD</option><option value="CIRCULATING">유통량 · tokens</option><option value="COIN_TOTAL">총공급량 · tokens</option></select></label><div id="live-trend-period" class="chart-filters" aria-label="마지막 저장 관측 기준 기간"><button data-period="24h" aria-pressed="false">24H</button><button data-period="7d" aria-pressed="false">7D</button><button data-period="30d" aria-pressed="false">30D</button><button data-period="all" aria-pressed="true">전체</button></div></div></div>
         <div id="live-trend"></div>
       </section>
       <div class="live-grid">
-        <section class="panel market-ranking-panel"><div class="panel-heading"><div><h2 id="live-ranking-title">유통량 순위</h2></div><label class="market-select"><span class="sr-only">순위 기준</span><select id="live-mode"><option value="coins">코인 전체</option><option value="chains">선택 코인의 네트워크</option></select></label></div><div class="market-rank-head" aria-hidden="true"><span>#</span><span id="live-rank-label">자산</span><span>수량</span><span id="live-rank-secondary">가격</span><span>저장 이력</span></div><div id="live-ranking" class="ranking"></div><p id="live-ranking-note" class="chart-note"></p></section>
-        <section class="panel market-distribution-panel"><div class="panel-heading"><div><h2>네트워크별 총공급량</h2></div></div><div id="live-bars"></div><p class="chart-note">등록된 네트워크 중 같은 지표가 확인된 값만 비교합니다.</p></section>
+        <section class="panel market-ranking-panel"><div class="panel-heading"><div><p class="eyebrow">01 / RANKING</p><h2 id="live-ranking-title">유통량 순위</h2></div><label class="market-select"><span class="sr-only">순위 기준</span><select id="live-mode"><option value="coins">코인 전체</option><option value="chains">선택 코인의 네트워크</option></select></label></div><div class="market-rank-head" aria-hidden="true"><span>#</span><span id="live-rank-label">자산</span><span>수량</span><span id="live-rank-secondary">가격</span><span>저장 이력</span></div><div id="live-ranking" class="ranking"></div><p id="live-ranking-note" class="chart-note"></p></section>
+        <section class="panel market-distribution-panel"><div class="panel-heading"><div><p class="eyebrow">02 / NETWORKS</p><h2>네트워크별 총공급량</h2></div></div><div id="live-bars"></div><p class="chart-note">등록된 네트워크 중 같은 지표가 확인된 값만 비교합니다.</p></section>
       </div>
       <section class="market-network-strip" aria-label="공급자 네트워크 상태"><div class="market-section-line"><h2>네트워크 관측</h2><span>Arkham 보고 기준</span></div><div id="live-networks"></div></section>
       <details class="market-fold live-history"><summary><span>공급량 이력</span><span id="live-history-note"></span></summary><div id="live-history"></div></details>
@@ -116,14 +109,14 @@
       <footer><span>ATLAS · STABLECOIN RESEARCH</span><span>수집 시각 기준 시장 데이터</span></footer>
     </section>
     <div id="market-screen" hidden>
-    <header class="page-header"><div><h1>스테이블코인, 한눈에.</h1><p class="muted">전체 규모와 체인별 분포, 기술 검토 근거를 연결합니다.</p></div><div class="header-actions"><span class="mock-badge">MOCK DATA</span><button id="reload" class="quiet-button">다시 읽기 ↻</button><button id="theme-toggle" class="quiet-button" aria-label="라이트 모드로 전환">☀ 라이트</button></div></header>
+    <header class="page-header"><div><p class="eyebrow">WORKSPACE / OVERVIEW</p><h1>스테이블코인, 한눈에.</h1><p class="muted">전체 규모와 체인별 분포, 기술 검토 근거를 연결합니다.</p></div><div class="header-actions"><span class="mock-badge">MOCK DATA</span><button id="reload" class="quiet-button">다시 읽기 ↻</button><button id="theme-toggle" class="quiet-button" aria-label="라이트 모드로 전환">☀ 라이트</button></div></header>
     <div class="mock-notice" role="note"><span>●</span> 모든 수량·순위·추이·점수·등급은 가상 예시입니다. 실제 시장 자료나 자산 평가가 아닙니다.</div>
     <div id="status" class="status" role="status" aria-live="polite">목데이터를 읽고 있습니다.</div>
     <div id="error" class="error-message" role="alert" hidden></div>
     <section class="view-toolbar" aria-label="조회 범위"><div class="segmented"><button data-mode="coins" aria-pressed="true">코인 전체</button><button data-mode="profiles" aria-pressed="false">체인별</button></div><span id="scope-label" class="muted">선택 3개 코인</span><span class="metric-label">지표: 유통량 · 토큰 수량</span></section>
     <div id="dashboard" aria-busy="true">
       <section class="metrics" aria-label="요약">
-        <article class="metric-card lead-purple"><p>전체 유통량</p><div class="metric-value"><strong id="supply">—</strong><span>tokens</span></div><p id="supply-note">목데이터 연결 중</p></article>
+        <article class="metric-card lead-purple"><p class="eyebrow">TOTAL CIRCULATION</p><div class="metric-value"><strong id="supply">—</strong><span>tokens</span></div><p id="supply-note">목데이터 연결 중</p></article>
         <article class="metric-card lead-teal"><p id="change-title">6개 시점의 유통량 변화</p><div class="metric-value"><strong id="change">—</strong><span id="change-pct" class="change-tag">—</span></div><p id="change-note">D-5 대비 D0 · 목데이터 구간</p></article>
         <article class="metric-card"><p>비교 대상</p><div class="metric-value"><strong id="count">—</strong><span id="count-unit">coins</span></div><p id="count-note">목데이터 연결 중</p></article>
         <article class="metric-card"><p id="evidence-label">USDT 근거 충족률 · 예시</p><div class="metric-value"><strong id="score">—</strong><span>/100</span><span id="grade" class="grade">—</span></div><p>수작업 점수·등급 · 산식 미확정</p></article>

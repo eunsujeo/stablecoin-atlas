@@ -22,7 +22,7 @@
 .source-review-tabs button{background:transparent;color:var(--muted);border:0;border-bottom:2px solid transparent;border-radius:0;min-height:46px;padding:10px 0;font:inherit;font-size:14px;cursor:pointer}
 .source-review-tabs button[aria-selected=true]{color:var(--profile-accent);border-bottom-color:var(--profile-accent);font-weight:600}
 .source-review-tabpanel{min-height:300px}.source-review-tabpanel[hidden]{display:none!important}
-.source-review-detail h3{font-size:14px;margin:0 0 16px}.source-review-detail p,.source-review-detail li{font-size:13px;line-height:1.9;overflow-wrap:anywhere}.source-review-detail li+li{margin-top:14px}.source-review-detail ul{padding-left:18px;margin:0}
+.source-review-detail h4{font-size:14px;margin:0 0 16px}.source-review-detail p,.source-review-detail li{font-size:13px;line-height:1.9;overflow-wrap:anywhere}.source-review-detail li+li{margin-top:14px}.source-review-detail ul{padding-left:18px;margin:0}
 .source-review-detail .source-review-identity{display:grid;grid-template-columns:126px minmax(0,1fr);gap:12px 20px;margin:0 0 24px;padding:0;flex-wrap:unset}
 .source-review-identity dt{font-size:12px;color:var(--muted)}.source-review-identity dd{margin:0;font-size:13px;overflow-wrap:anywhere;font-family:inherit}
 .source-review-summary{border-top:1px solid var(--line);padding-top:22px}.source-review-summary p{margin:0 0 16px}.source-review-summary .source-review-eyebrow{margin-top:22px}
@@ -54,54 +54,3 @@
 
 .source-review-result-status.feature-source_present{color:var(--profile-accent)}
 .source-review-result-status.feature-input_required,.source-review-result-status.feature-documented_only{color:var(--muted)}
-
-/* The asset directory shares Atlas navigation and table surfaces. */
-.source-review{--profile-accent:var(--purple);border-radius:var(--radius-md);margin-bottom:28px}
-.source-review-heading{padding:20px 24px;align-items:center;background:var(--panel)}
-.source-review-heading h2{font-size:15px;font-weight:600}.source-review-heading p{font-size:11px}
-.source-review-layout{grid-template-columns:210px minmax(0,1fr)}
-.source-review-directory{padding:22px 12px;background:var(--control)}
-.source-review-directory-heading{padding-inline:10px}.source-review-directory-heading strong{font-size:12px;font-weight:600}.source-review-directory-heading span{font-size:10px}
-.source-review-search{gap:7px;margin:20px 4px 16px;font-size:11px}
-.source-review-search input{min-height:38px;border-radius:var(--radius-sm);font-size:12px;background:var(--panel)}
-.source-review-asset-list{gap:3px}
-.source-review .source-review-asset{min-height:60px;padding:11px 10px;gap:10px;border-radius:var(--radius-sm)}
-.source-review-asset[aria-pressed=true]{border-color:var(--line);background:var(--surface-raised);box-shadow:none}
-.source-review-asset:hover{background:var(--hover)}.source-review-asset strong{font-size:13px;font-weight:600}.source-review-asset small{font-size:10px;margin-top:2px}
-.source-review-mark{width:29px;height:29px;font-size:12px;color:var(--ink);background:var(--track);border-color:var(--line);border-radius:7px}
-.source-review-asset[aria-pressed=true] .source-review-mark{color:var(--purple);background:var(--tint)}
-.source-review-directory-note{font-size:10px;line-height:1.8;margin:24px 10px 0}
-.source-review-toolbar{padding:18px 24px;gap:16px;background:transparent}.source-review-toolbar p strong{font-size:17px;font-weight:600}.source-review-toolbar p span{font-size:11px}
-.source-review-toolbar label{font-size:11px;gap:10px}.source-review-toolbar select{min-height:36px;padding:7px 10px;font-size:12px;border-radius:var(--radius-sm)}
-.source-review-detail{padding:0 24px 24px}.source-review-tabs{gap:24px;margin-bottom:22px}
-.source-review-tabs button{font-size:12px;min-height:48px;border-bottom-width:1px}.source-review-tabs button:hover{color:var(--ink)}
-.source-review-feature-filters{gap:6px;margin:20px 0}.source-review-feature-filters button{min-height:32px;font-size:11px;padding:5px 10px;border-radius:5px;background:transparent}
-.source-review-feature-filters button[aria-pressed=true]{border-color:var(--line);color:var(--ink);background:var(--surface-raised);box-shadow:0 1px 3px #0002}
-.source-review-feature-filters button:hover{background:var(--hover);color:var(--ink)}
-.source-review-results{font-size:12px}.source-review-results th,.source-review-results td{padding:17px 12px;vertical-align:top;border-color:var(--line)}
-.source-review-results th:first-child{width:140px}.source-review-results th strong{font-size:12px;font-weight:550}.source-review-results th small{font-size:10px}
-.source-review-results tbody th{color:var(--ink)}
-.source-review-results td p{font-size:12px;line-height:1.9}.source-review-feature-evidence{font-size:10px;line-height:1.8}
-.source-review-result-status{border-radius:4px;font-size:10px;font-weight:500}
-.source-review-detail .source-review-notice{font-size:11px;line-height:1.8;padding-top:16px;border-top:1px solid var(--line)}
-.source-review-detail .source-review-footer{font-size:11px;margin-top:24px;padding-top:18px}
-.source-review-match{border-radius:var(--radius-sm);background:transparent}.source-review-match[aria-pressed=true]{border-color:var(--purple);box-shadow:none;background:var(--tint)}
-.source-review-detail h3{font-size:13px;font-weight:600}.source-review-detail .source-review-identity{font-size:12px;padding-top:4px;gap:14px 20px}
-.source-review-identity dt{font-size:11px}.source-review-identity dd{font-size:12px;line-height:1.8;font-variant-numeric:tabular-nums}
-@media(max-width:1100px){.source-review-layout{grid-template-columns:180px minmax(0,1fr)}.source-review-toolbar{align-items:flex-start;flex-wrap:wrap}.source-review-toolbar label{flex-wrap:wrap}.source-review-toolbar select{max-width:100%}}
-@media(max-width:700px){
- .source-review-layout{grid-template-columns:1fr}
- .source-review-heading{padding:18px;align-items:flex-start;gap:5px}
- .source-review-heading h2{font-size:14px}.source-review-heading p{font-size:10px;line-height:1.7}
- .source-review-directory{padding:16px;border-right:0;border-bottom:1px solid var(--line)}
- .source-review-directory-heading{padding:0;flex-direction:row;align-items:baseline;justify-content:space-between;gap:10px}
- .source-review-search{margin:14px 0 12px}.source-review-search input{min-height:40px}
- .source-review-asset-list{display:flex;flex-direction:row;gap:6px;overflow:auto;scrollbar-width:thin;padding:3px 3px 6px}
- .source-review .source-review-asset{min-height:40px;width:auto;flex:0 0 auto;padding:7px 10px;gap:8px;border:1px solid var(--line)}
- .source-review-asset small,.source-review-directory-note{display:none}.source-review-mark{width:22px;height:22px;font-size:10px;border-radius:5px}.source-review-asset strong{font-size:11px}
- .source-review-toolbar{padding:18px 16px;gap:12px}.source-review-toolbar p{width:100%;gap:10px}.source-review-toolbar label{width:100%;justify-content:space-between}.source-review-toolbar select{max-width:70%;min-height:40px}
- .source-review-detail{padding:0 16px 20px}.source-review-tabs{gap:20px}.source-review-tabs button{min-height:44px;font-size:12px}
- .source-review-feature-filters{margin:16px 0;gap:6px}.source-review-feature-filters button{min-height:36px;padding:7px 10px}
- .source-review-results th,.source-review-results td{padding:14px 10px}.source-review-results th:first-child{width:100px}
- .source-review-detail .source-review-identity{grid-template-columns:84px minmax(0,1fr);gap:14px 12px}
-}
