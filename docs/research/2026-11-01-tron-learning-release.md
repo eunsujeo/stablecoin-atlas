@@ -13,3 +13,7 @@ Reproduce: `source .state/dev-env.sh`; `node --test tests/knowledge-*.test.mjs`;
 ## Local gate
 
 Full check exit0:870 main+74 archived tests pass,0fail,8pre-existing compiler skips.9 focused knowledge tests pass. TRON all3 full36-second plays and4 viewports pass; final render rerun passes keyboard object inspection, focus restoration and unchanged layout after target/latest-block wording correction and short block-appearance motion. Screenshots inspected at1280×800 and360×800. Existing production Ethereum and XRPL full regressions pass. Production deployment remains gated on this candidate's successful Actions run.
+
+## Production result
+
+Candidate518f48c6b74e0b98747be42cf7bc44979efdf2c4 passed Actions41317714219 before main update. Existing LOCAL_GIT broker deployed successfully, health200/SHA match, prior28d3b2c retained. Real production TRON all3 full36-second plays,4 viewports,network switching,KPI/SR history/parent/solid synchronization,keyboard focus and reduced motion pass. Frame p95≤16.8ms in this headless sample. CollectorPID69372 unchanged. Evidence `docs/design/knowledge/production-tron/verification.json`. Ethereum production Epoch3,consensus3 andtransaction2 full-scenario checks also pass; no runtime fixes were needed for them.
