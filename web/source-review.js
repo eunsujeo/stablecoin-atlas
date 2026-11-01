@@ -45,8 +45,7 @@ export function initializeSourceReview(root,snapshot){
       const profiles=sourceReviewProfiles.filter(p=>p.coinId===id);
       if(query&&!found.some(p=>p.coinId===id))continue;
       const button=node('button',undefined,'source-review-asset');button.type='button';button.dataset.coinId=id;button.setAttribute('aria-pressed',String(id===coinId));
-      const mark=node('span',id.slice(0,1).toUpperCase(),'source-review-mark');mark.setAttribute('aria-hidden','true');
-      const text=node('span');text.append(node('strong',id.toUpperCase()),node('small',`검토 프로필 ${profiles.length}곳`));button.title=profiles.map(p=>p.network).join(' / ');button.append(mark,text);
+      const text=node('span');text.append(node('strong',id.toUpperCase()),node('small',`검토 프로필 ${profiles.length}곳`));button.title=profiles.map(p=>p.network).join(' / ');button.append(text);
       button.addEventListener('click',()=>{
         rememberedChains.set(coinId,chainId);coinId=id;chainId=rememberedChains.get(id)??sourceProfileKey(profiles[0]);
         for(const entry of list.children)entry.setAttribute('aria-pressed',String(entry.dataset.coinId===id));
