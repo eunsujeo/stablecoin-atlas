@@ -24,3 +24,11 @@ Local model/production-route/Ethereum tests58 PASS at targeted verification. New
 Logs `.state/agent-logs/knowledge-xrpl-*`. Reproduce with Node environment `.state/dev-env.sh`, `node --import tsx --test tests/knowledge*.test.mjs tests/ethereum-learning*.test.mjs`, `node tools/knowledge-browser-check.mjs`, `node experiments/blockchain-knowledge/beginner-browser-check.mjs`, `npm run check`. The new UI is not a full validator client and fixed teaching values are never network observations.
 
 Pre-commit checks: `npm run check` exit0,866 main+74 archived=940 PASS,0 FAIL,8 pre-existing compiler SKIP. Ethereum browser full Slot/consensus/Fork replay and desktop/mobile regression PASS. Existing production-mode dashboard browser PASS (themes, filters, responsive overview/assets/live and no candidate assets). Final XRPL render and model/route58 targeted tests PASS. Production browser blocks only known Cloudflare analytics hosts and records those attempts separately; unexpected external hosts remain a failure.
+
+## Production result
+
+Candidate `28d3b2ce40ef41b52ab9ef60361d30b290d6b690` passed GitHub Actions run41316687016 before identical SHA reached main. Existing LOCAL_GIT broker rebuilt/tested/packed and reported SUCCESS; previous896e74a retained. Public health and existing reader `/market-data.json` HTTP200. XRPL production browser passed3 full36s plays,4 viewports,seek/rewind/KPI/dialog/reduced-motion. Real production dashboard passed filters/themes/overview/assets/live/mobile. CollectorPID69372 unchanged; web alone rotated toPID115915.
+
+Ethereum production full plays passed at median/p9516.7ms; the final no-JS test initially used a local-only300ms reload wait and failed before remote page arrived. Replaced fixed wait with DOM readiness; rerun required, no runtime workaround. Evidence directories: `docs/design/knowledge/production-xrpl`, `production-ethereum`, `production-dashboard`. Screenshots stay local.
+
+Ethereum remote rerun completed `BEGINNER_BROWSER_PASS`, including no-JS readiness check. Full-play frame median16.7ms, p95≤16.8ms; no frame over25ms in this headless sample. This is browser timing evidence, not a guarantee on every device.

@@ -1,9 +1,9 @@
 // Development candidates: unchanged data, in-place switching and full-page rendering.
 import {spawn} from 'node:child_process';import {mkdtemp,rm,writeFile,readFile,mkdir} from 'node:fs/promises';import {tmpdir} from 'node:os';import {join} from 'node:path';import assert from 'node:assert/strict';
-const base=process.argv[2]??'http://127.0.0.1:54873',development=!process.argv.includes('--production');
+const base=process.argv[2]??'http://127.0.0.1:54873',live=process.argv.includes('--live'),development=!live&&!process.argv.includes('--production');
 import {productionDocument} from './production-policy.mjs';
 const productionHTML=productionDocument(await readFile('web/index.html')).toString('base64');
-if(!/^http:\/\/127\.0\.0\.1:\d+$/.test(base))throw Error('LOCAL_ONLY');
+if(!/^http:\/\/127\.0\.0\.1:\d+$/.test(base)&&!(live&&base==='https://atlas.whatto.me'))throw Error('LOCAL_OR_APPROVED_PRODUCTION_ONLY');
 const snapshots=new Map();let failing=false;
 const profile=await mkdtemp(join(tmpdir(),'atlas-design-'));
 const chrome=spawn(process.env.ATLAS_CHROME_BIN??'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',['--headless=new','--remote-debugging-pipe','--disable-background-networking','--disable-component-update','--disable-sync','--disable-default-apps','--disable-extensions','--no-first-run',`--user-data-dir=${profile}`,'about:blank'],{stdio:['ignore','ignore','ignore','pipe','pipe']});
@@ -13,7 +13,7 @@ function send(method,params={},page=true){return new Promise((resolve,reject)=>{
 async function continueRequest(p){
  try{
   const url=new URL(p.request.url);if(url.origin!==base){await send('Fetch.failRequest',{requestId:p.requestId,errorReason:'BlockedByClient'});return;}
-  if(!development&&(url.pathname==='/'||url.pathname==='/index.html')){await send('Fetch.fulfillRequest',{requestId:p.requestId,responseCode:200,responseHeaders:[{name:'Content-Type',value:'text/html; charset=utf-8'}],body:productionHTML});return;}
+  if(!live&&!development&&(url.pathname==='/'||url.pathname==='/index.html')){await send('Fetch.fulfillRequest',{requestId:p.requestId,responseCode:200,responseHeaders:[{name:'Content-Type',value:'text/html; charset=utf-8'}],body:productionHTML});return;}
   if(url.pathname.endsWith('.json')){
    if(failing&&['/market-data.json','/registration-index.json','/network-usage-data.json','/asset-review-data.json'].includes(url.pathname)){await send('Fetch.fulfillRequest',{requestId:p.requestId,responseCode:503,body:Buffer.from('UNAVAILABLE').toString('base64')});return;}
    const key=url.pathname+url.search;
@@ -40,7 +40,7 @@ chrome.stdio[4].on('data',bytes=>{
 });
 async function evaluate(expression){const r=await send('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true});if(r.exceptionDetails)throw Error('EVALUATION_FAILED');return r.result.value;}
 const darkReview=process.argv.includes('--dark-review');
-const out=(darkReview?'docs/design/pop-outline-dark-refinement/':'docs/design/pop-outline-selected/')+(development?'development':'production');
+const out=live?'docs/design/knowledge/production-dashboard':(darkReview?'docs/design/pop-outline-dark-refinement/':'docs/design/pop-outline-selected/')+(development?'development':'production');
 await mkdir(out,{recursive:true});
 async function until(expression){for(let i=0;i<150;i++){if(await evaluate(expression))return;await new Promise(r=>setTimeout(r,400));}throw Error('WAIT_TIMEOUT: '+expression);}
 async function shot(name){await until("document.readyState==='complete'");await evaluate('document.fonts.ready.then(()=>true)');await new Promise(r=>setTimeout(r,200));const r=await send('Page.captureScreenshot',{format:'png'});await writeFile(out+'/'+name+'.png',Buffer.from(r.data,'base64'));}
@@ -77,7 +77,7 @@ try{
  await viewport(1600,1100);await evaluate("location.hash='#overview'");await until("!document.querySelector('#overview-screen').hidden");await evaluate('scrollTo(0,0)');await click('.metric-help-button');await shot('tooltip');await key('Escape');
  await evaluate("document.querySelector('.sidebar a').focus()");await key('Tab');assert.equal(await evaluate("document.activeElement.matches(':focus-visible')"),true);
  failing=true;await send('Storage.clearDataForOrigin',{origin:base,storageTypes:'indexeddb,cache_storage'});await send('Page.reload');await until("document.querySelector('#overview-supply')?.getAttribute('aria-busy')==='false'&&!document.querySelector('#overview-error').hidden");await shot('unavailable');
- assert.equal(errors.length,0);assert.equal(requests.filter(u=>/^https?:/.test(u)&&!u.startsWith(base+'/')).length,0);
+ assert.equal(errors.length,0);assert.equal(requests.filter(u=>/^https?:/.test(u)&&!u.startsWith(base+'/')&&!(live&&['static.cloudflareinsights.com','cloudflareinsights.com'].includes(new URL(u).hostname))).length,0);
  assert.equal(requests.filter(u=>u.includes('/dev-design.')).length,0);
  await writeFile(out+'/verification.json',JSON.stringify({state:'PASS',mode:development?'development':'production',values,jsErrors:0,candidateAssetsLoaded:false},null,2));console.log('PASS: selected Pop Outline, persisted color mode, filters, responsive routes, no candidate assets');
 }finally{for(const p of pending.values())clearTimeout(p.timer);pending.clear();chrome.kill();await new Promise(r=>chrome.exitCode!==null?r():chrome.once('exit',r));await rm(profile,{recursive:true,force:true,maxRetries:5,retryDelay:200});}
