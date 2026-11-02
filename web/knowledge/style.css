@@ -38,3 +38,15 @@ html[data-learning=consensus] #lesson-rail{flex-wrap:wrap;gap:8px}
 .network-switch{display:flex;gap:8px;align-items:center;font-size:11px}.network-switch select{font-size:12px;padding:3px 8px}.network-sources{display:flex;flex-direction:column;gap:8px;margin-top:10px;font-size:12px}.network-sources a{color:var(--purple)}html[data-network]:not([data-network=ethereum]) #lesson-rail{gap:12px}#network-scenario,#network-detail{font-size:11px;padding:5px}html[data-network]:not([data-network=ethereum]) #lesson-stage{aspect-ratio:960/350}@media(max-width:760px){html[data-network]:not([data-network=ethereum]) #lesson-stage{aspect-ratio:420/740}.network-switch{font-size:0}.network-switch select{font-size:12px}.masthead .prototype{display:none}}
 
 html[data-network]:not([data-network=ethereum]) .footer-actions [data-term]{display:none}@media(max-width:760px){html[data-network]:not([data-network=ethereum]) .slot-cell-meta{font-size:12px}}
+
+/* Evidence-based tones; no dashboard tokens or layout changes. */
+html[data-network]:not([data-network=ethereum]) .kpi[data-tone]{background:var(--panel);color:var(--ink);border:1px solid var(--line)}
+html[data-network]:not([data-network=ethereum]) .kpi[data-tone] strong{color:var(--ink)}
+html[data-network]:not([data-network=ethereum]) .kpi[data-tone] small{color:var(--muted)}
+html[data-network]:not([data-network=ethereum]) .kpi[data-tone=warning]{border-color:var(--purple)}
+html[data-network]:not([data-network=ethereum]) .kpi[data-tone=warning] strong{color:var(--purple)}
+html[data-network]:not([data-network=ethereum]) .kpi[data-tone=success]{border-color:var(--teal)}
+html[data-network]:not([data-network=ethereum]) .kpi[data-tone=success] strong{color:var(--teal)}
+html[data-network]:not([data-network=ethereum]) .kpi[data-tone=progress] strong{color:var(--blue)}
+.chapters [data-progress=unentered]{border-style:dashed}.chapters [data-progress=complete]{border-color:var(--teal)}
+#network-advanced{font-size:11px;padding:5px}html[data-network=base] #lesson-rail{flex-wrap:wrap;gap:6px}
