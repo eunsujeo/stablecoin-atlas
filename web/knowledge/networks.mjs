@@ -8,7 +8,7 @@ export const NETWORKS={base:{name:'Base',steps:BASE_STEPS,stepsFor:baseSteps,sta
 export function networkUX(s){
  if(s.lesson==='xrpl')return {tones:['neutral',s.accepted?'success':s.t>=12?'warning':'progress',s.validated?'success':s.candidate?'progress':'neutral',s.validated?'success':'warning'],stages:s.stageStates};
  if(s.lesson==='tron')return {tones:['neutral','neutral',s.support>=19?'success':s.support===18?'warning':'progress',s.solid>=5001?'success':'warning']};
- if(s.lesson==='solana')return {tones:['neutral',s.finalized?'success':s.replayed?'warning':'neutral',s.finalized?'success':s.scenario==='offline'?'warning':'progress','success']};
+ if(s.lesson==='solana')return {tones:['neutral',s.finalized?'success':s.replayed?'warning':'neutral',s.finalized?'success':s.validators.filter(v=>!v.offline).reduce((sum,v)=>sum+v.weight,0)<60?'warning':'progress','success']};
  if(s.lesson==='base'){const w=s.withdrawal,derived=s.deposit?s.deposit.executed:s.batch.derived,final=s.finalized===s.head&&s.head>500;return {tones:w?[final?'success':'warning',s.claim?.state==='INVALID'||s.claim?.state==='CHALLENGED'?'warning':w.gates.claimValid&&w.gates.claimResolved?'success':'neutral',w.eligible?'success':'warning',w.relayed?'success':'warning']:['neutral',derived?'success':'warning',final?'success':'neutral',derived?'success':'warning']};}
  return null;
 }
