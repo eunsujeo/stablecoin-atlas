@@ -80,3 +80,23 @@ node --import tsx tools/wallet-flow/cli.mjs export --directory "$FLOW_NEW_PRIVAT
 
 분석·보완 테스트는 `node --import tsx --test tests/wallet-flow*.test.mjs`로 실행한다.
 브라우저 검증은 분석 결과를 포함한 다섯 화면을 확인한다.
+
+## 송금 경로와 주소의 반복 운영 패턴
+
+기본 분석은 출발 → 입금 목적지 → 첫 후속 수신 주소의 선택 가능한 경로다.
+입금 TXID/주소에 정확히 묶인 Binance 출금→Upbit 입금 문맥은 USER_PROVIDED이며,
+주소 공개 라벨이나 소유권 인증으로 승격하지 않는다. 다른 TXID에는 전파하지 않는다.
+후속 수신 주소는 Upbit 소속으로 붙이지 않는다. 개인 식별 정보는 게시하지 않는다.
+
+주소 선택 시 해당 주소의 확보된 USDT 수신·송금, 상대별 반복 건수, 동일 금액 반복,
+관측 시간 분포(12구간), 역할 후보를 표시한다. 입력 기간 전체의 완전한 이력이 아니다.
+자원 이벤트와 실패 거래는 USDT 활동에 포함하지 않는다. 금액은 bigint 합계다.
+집금/배분 역할은 행동 후보다. Hot/Cold는 키 보관 방식과 별개 확인이 필요하다.
+핫월렛형 운영 후보는 표본의 1시간 미만 구간 내 10개 이상 서로 다른 송금 거래와
+5개 이상 수신 상대라는 명시적 탐색 기준을 사용한다. 확률이나 실제 키 연결 상태를
+추정하지 않는다. 미수집/드문 거래만으로 콜드 또는 준비금으로 분류하지 않는다.
+키 보관 구분 근거: https://www.binance.com/en/academy/glossary/wallet
+
+선택 입금의 경로와 후속 주소의 전체 관측 활동을 구분한다. 후속 주소의 송금은
+그 주소가 보낸 사실이며, 원래 입금 USDT가 어느 출금에 사용됐다는 설명이 아니다.
+주소 패턴 테스트: `node --import tsx --test tests/wallet-flow-profiles.test.mjs`.
