@@ -55,3 +55,28 @@ node --import tsx tools/wallet-flow-browser-check.mjs
 브라우저 검사는 Chrome CDP로 실제 렌더링하며 localhost의 명시적 `#fixture`에서만 테스트 응답을 주입한다. 테스트 TXID/주소는 가상이며 실제 Upbit 증거가 아니다. 1440×900,1280×800,390×844 / 다크·라이트 / 네 분석 화면, 키보드 선택·거래 상세·필터·미등록 TXID·자원 단위를 검사한다. 결과와 스크린샷은 `.state/wallet-flow-browser/`에 저장한다.
 
 2026-11-04 초기 관측: 실제 입금 6 USDT → 5분36초 뒤 6 USDT 후속 전송 후보, 그 전후 ENERGY/BANDWIDTH 위임·회수를 확인했다. 주소 발견 22개, 거래 24건, 이벤트 23건. 입금 주소의 공급자 이력 페이지는 완료했지만 후속 주소는 거래 한도로 partial, 나머지 20개는 미확장이다. 집금 이후 전체 경로·소유·비용 절감은 미확인이다. 탐색 1GET/418bytes, 분석 56HTTP/236915bytes, 재시도0. 출발 TXID와 모든 연결 근거는 정규화 snapshot에서 확인할 수 있다.
+
+## 분석 결과와 후속 송금 보완
+
+기본 화면은 입금 금액, 첫 후속 송금까지의 시간, 자원 위임·회수의 상대 시각,
+후속 수신 주소의 행동과 해당 수신 이후의 송금을 분리한다. 각 항목은 실제 TXID에 연결한다.
+주소 역할은 행동 기반 후보이며, 집금된 자금의 특정 출금 귀속·소유권·수수료 절감은 판정하지 않는다.
+초기 수집은 입금 전 이력을 포함하므로 거래 한도에 의해 후속 송금이 빠질 수 있다.
+이때 기존 근거를 재사용하는 수동 outgoing-continuation을 사용할 수 있다.
+
+```sh
+node --import tsx tools/wallet-flow/cli.mjs plan-followup --parent "$FLOW_PARENT_PRIVATE_RUN" --event "$FLOW_FORWARD_EVENT_ID"
+node --use-env-proxy --import tsx tools/wallet-flow/cli.mjs followup --parent "$FLOW_PARENT_PRIVATE_RUN" --event "$FLOW_FORWARD_EVENT_ID" --directory "$FLOW_NEW_PRIVATE_RUN"
+node --import tsx tools/wallet-flow/cli.mjs export --directory "$FLOW_NEW_PRIVATE_RUN" --output "$FLOW_NEW_REVIEW_FILE"
+```
+
+기존 입금의 직접 후속 전송만 anchor로 허용한다. 그 수신 시점부터 원래 기간 종료까지
+해당 수신 주소의 outgoing USDT 첫20개 색인 항목만 조회한다. 최대20개 새 거래,
+41HTTP/16MiB/180초/재시도0이며 기존 원본을 hash 재검증 후 재사용한다.
+다른 방향·전체 주소 이력의 완료 상태로 승격하지 않는다. 웹 요청으로 실행하지 않는다.
+2026-11-04 이 보완은 41HTTP/48,316bytes/새 거래20건으로 소비 완료됐다.
+통합44거래/43이벤트/42주소, 수신 이후20송금·20상대·39,446.317369 USDT를 관측했다.
+이는 수신 주소의 후속 활동 합계이며 선택 입금6 USDT의 추적 금액이 아니다.
+
+분석·보완 테스트는 `node --import tsx --test tests/wallet-flow*.test.mjs`로 실행한다.
+브라우저 검증은 분석 결과를 포함한 다섯 화면을 확인한다.

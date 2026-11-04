@@ -4,7 +4,7 @@
   "token": "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
   "kind": "observed",
   "rootTxid": "f00dd1d241084eb64c24a137f4f133277f6448c3edcd2352d20bba77bc2cd02e",
-  "createdAt": "2026-11-04T10:17:14.361Z",
+  "createdAt": "2026-11-04T11:37:41.968Z",
   "window": {
     "from": 1793752677000,
     "to": 1793774277000
@@ -129,6 +129,106 @@
     },
     {
       "address": "TX3gnuH3jjpoWEW9g9i3NfQ4QYFiFAvxuc",
+      "labels": [],
+      "balance": null
+    },
+    {
+      "address": "TK5xC3GtnHDK7SKakyiJjvd49BEQfammi5",
+      "labels": [],
+      "balance": null
+    },
+    {
+      "address": "TE3GnChe5t2nnHYBQGDCeNtbGuHTQuTJCX",
+      "labels": [],
+      "balance": null
+    },
+    {
+      "address": "TW3zGxTVVRbHWor1srpbncqC5wqRGtusv1",
+      "labels": [],
+      "balance": null
+    },
+    {
+      "address": "THTXuhFb1wiECbs98tQQNS9pShW9fEtVTf",
+      "labels": [],
+      "balance": null
+    },
+    {
+      "address": "TJUi2kaXjyJFgioFRmA5xoZQAEjLFk8N4a",
+      "labels": [],
+      "balance": null
+    },
+    {
+      "address": "TJXC77YDpLfS6epkRFMEAaPGmf8na3byEi",
+      "labels": [],
+      "balance": null
+    },
+    {
+      "address": "TVUd7yTCo2HLHg4VUDQaZ3huxkRSqqb7hL",
+      "labels": [],
+      "balance": null
+    },
+    {
+      "address": "TC9wR6z78eWiegiJzd3CK8R7Rjn78M3Ycg",
+      "labels": [],
+      "balance": null
+    },
+    {
+      "address": "TAgCUuBMgsMR9ewHqyvy7rpUamvjMZvZmJ",
+      "labels": [],
+      "balance": null
+    },
+    {
+      "address": "TCmAdsUupZsX4x2Qm5uxtLTCQ9x9WWh8iN",
+      "labels": [],
+      "balance": null
+    },
+    {
+      "address": "TL7U5aCXy3yeRngSTXBURir3oQUPdHFvvP",
+      "labels": [],
+      "balance": null
+    },
+    {
+      "address": "TVoVGsfdumxsBgQ4zbjhzCNQLwRVTg61MB",
+      "labels": [],
+      "balance": null
+    },
+    {
+      "address": "THSht6uZUzzhgxrb2Hn2Z6RJXmjJCQRWph",
+      "labels": [],
+      "balance": null
+    },
+    {
+      "address": "TNoSnvWQNT7yH6Lb3RXKbkrJMfWfbxhSBF",
+      "labels": [],
+      "balance": null
+    },
+    {
+      "address": "TEE5i4CGT2nKzg373xAvVXwHN1mMDBGtNs",
+      "labels": [],
+      "balance": null
+    },
+    {
+      "address": "TB1V3HRWW9h3HPjQV66DKCBhk69pQvtmrT",
+      "labels": [],
+      "balance": null
+    },
+    {
+      "address": "TLLaqpC6YQPHApHRoi8HBXP3553n6iKPNs",
+      "labels": [],
+      "balance": null
+    },
+    {
+      "address": "TVDYcr84oPDcM1upwd5UXKVAoNUMmSasMw",
+      "labels": [],
+      "balance": null
+    },
+    {
+      "address": "TDPuDuGkKTVsts9MoTQ9D9freGvo2QjKX2",
+      "labels": [],
+      "balance": null
+    },
+    {
+      "address": "TEqjwssbcm2vgfPq5hfZHoPfrEj7d5YbYc",
       "labels": [],
       "balance": null
     }
@@ -445,6 +545,266 @@
       "netUsage": "345",
       "netFeeSun": null,
       "sourceHash": "a58372285bee0f06817731bf23250a0386e697eaf4c53bd67397f8a8a4713412"
+    },
+    {
+      "txid": "87a8f7ceb32b6b8068c9dedbe8467e2acbbbee6f1167b798ea19a2019a6abbfd",
+      "blockNumber": 87694354,
+      "timestamp": 1793756691000,
+      "status": "SUCCESS",
+      "caller": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "feeSun": null,
+      "energyUsage": "130285",
+      "energyFeeSun": null,
+      "netUsage": "345",
+      "netFeeSun": null,
+      "sourceHash": "46990c080a7a8ca3c36a737c343789813a4a92f1cab746056f9cec5bee82aa65"
+    },
+    {
+      "txid": "afd7a79ce87c587d039faf9dbbb411e1ce6449967b07d75cffce0e0484d0180c",
+      "blockNumber": 87694355,
+      "timestamp": 1793756694000,
+      "status": "SUCCESS",
+      "caller": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "feeSun": null,
+      "energyUsage": "130285",
+      "energyFeeSun": null,
+      "netUsage": "345",
+      "netFeeSun": null,
+      "sourceHash": "84663d747775e76f46a13bb4b6bcbefa69d62ea1a30f2363252af10b64242b80"
+    },
+    {
+      "txid": "efb57e3e8b33845ce56623abf0abc302587229979a0cb18bb6e5e3335018bb24",
+      "blockNumber": 87694511,
+      "timestamp": 1793757162000,
+      "status": "SUCCESS",
+      "caller": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "feeSun": null,
+      "energyUsage": "130285",
+      "energyFeeSun": null,
+      "netUsage": "345",
+      "netFeeSun": null,
+      "sourceHash": "1defa79c3c76f5765abe55b44f8fcc990438d210c7e843a35d5e5469a7acd797"
+    },
+    {
+      "txid": "430da1158ff63bbda537f499c8a3e7e8f9f15cfafdf4c9e8f68c5e5eec21ee83",
+      "blockNumber": 87694532,
+      "timestamp": 1793757225000,
+      "status": "SUCCESS",
+      "caller": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "feeSun": null,
+      "energyUsage": "64285",
+      "energyFeeSun": null,
+      "netUsage": "345",
+      "netFeeSun": null,
+      "sourceHash": "78659fb660cab495fd756172aa6a9bd5cf4f864121bc407713b369fca0fbe457"
+    },
+    {
+      "txid": "bf77c8ba8f7b74348a55afa0e280c94d6860e868ad40435718608911c3676371",
+      "blockNumber": 87694573,
+      "timestamp": 1793757348000,
+      "status": "SUCCESS",
+      "caller": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "feeSun": null,
+      "energyUsage": "130285",
+      "energyFeeSun": null,
+      "netUsage": "345",
+      "netFeeSun": null,
+      "sourceHash": "34de9c7f83760a2a8460a47edbc8a6c15a5580ed4b0a7b5e5d8879ed5939675a"
+    },
+    {
+      "txid": "7bd58d27b467915f41a4198d487539778cd05ddf15e7af6b2a3258633c99a2a8",
+      "blockNumber": 87694594,
+      "timestamp": 1793757411000,
+      "status": "SUCCESS",
+      "caller": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "feeSun": null,
+      "energyUsage": "130285",
+      "energyFeeSun": null,
+      "netUsage": "345",
+      "netFeeSun": null,
+      "sourceHash": "2935d6cdffc29e3f703baf16c52e8e56a7d4e3a33a3a20f8fd50731a7cc47075"
+    },
+    {
+      "txid": "600abf43f6b2bc7e019914fe73ae34b334dfb0893b6dfe1f875cb2ff252ed949",
+      "blockNumber": 87694595,
+      "timestamp": 1793757414000,
+      "status": "SUCCESS",
+      "caller": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "feeSun": null,
+      "energyUsage": "130285",
+      "energyFeeSun": null,
+      "netUsage": "345",
+      "netFeeSun": null,
+      "sourceHash": "ecc8dc51ca78ec51cea7bb10e439d383dce91ae4ff0e5ce13bad90b171f26162"
+    },
+    {
+      "txid": "4d493bf1759725b37b9f0d94a65b15f7df5c63520807ba57aaac19abf8bc69b4",
+      "blockNumber": 87694610,
+      "timestamp": 1793757459000,
+      "status": "SUCCESS",
+      "caller": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "feeSun": null,
+      "energyUsage": "64285",
+      "energyFeeSun": null,
+      "netUsage": "345",
+      "netFeeSun": null,
+      "sourceHash": "c053aabce4e5d143aa0d459388b692c2ab9d35ef812c968f58e9e7420079541b"
+    },
+    {
+      "txid": "a8670a5cf5a26e53bb794b275df9fa353c679bffd7b5e47ea320c20cd252c46f",
+      "blockNumber": 87694614,
+      "timestamp": 1793757471000,
+      "status": "SUCCESS",
+      "caller": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "feeSun": null,
+      "energyUsage": "130285",
+      "energyFeeSun": null,
+      "netUsage": "345",
+      "netFeeSun": null,
+      "sourceHash": "eda070ac3ad7de6532b67e7589a0bc48d8ff0a2b82b4e6042f7b7e9c0cab65ca"
+    },
+    {
+      "txid": "94e6b0e16ddb9067830df3da218e5f9b026e302c46145fea3d3112093861153e",
+      "blockNumber": 87694635,
+      "timestamp": 1793757534000,
+      "status": "SUCCESS",
+      "caller": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "feeSun": null,
+      "energyUsage": "130285",
+      "energyFeeSun": null,
+      "netUsage": "345",
+      "netFeeSun": null,
+      "sourceHash": "b5847dae3ccae2e30d764f0f7591db199cad1f471aabe9ae97afaf4b96d0ec55"
+    },
+    {
+      "txid": "50a9c8b0d94e390b6df0e9b402cea8adc107ca0c36947b4c266bca3421880523",
+      "blockNumber": 87694650,
+      "timestamp": 1793757579000,
+      "status": "SUCCESS",
+      "caller": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "feeSun": null,
+      "energyUsage": "64285",
+      "energyFeeSun": null,
+      "netUsage": "345",
+      "netFeeSun": null,
+      "sourceHash": "d247f5d93e3121acfc33ba0d34c74f8947be7cedf557c6efa9c575f387ec6651"
+    },
+    {
+      "txid": "deb98f0830da081e20a1a4249823fbdc9d0a349bc46437f27da57d08ce78a558",
+      "blockNumber": 87694654,
+      "timestamp": 1793757591000,
+      "status": "SUCCESS",
+      "caller": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "feeSun": null,
+      "energyUsage": "130285",
+      "energyFeeSun": null,
+      "netUsage": "345",
+      "netFeeSun": null,
+      "sourceHash": "ae617390650b062495b544d15115155077bef55573c48eaa5b01f425bcd800a1"
+    },
+    {
+      "txid": "4fcfa35c77cf66724ed29094ce4501a60dfeb3084cfd505436419479fbc5e26f",
+      "blockNumber": 87694654,
+      "timestamp": 1793757591000,
+      "status": "SUCCESS",
+      "caller": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "feeSun": null,
+      "energyUsage": "130285",
+      "energyFeeSun": null,
+      "netUsage": "345",
+      "netFeeSun": null,
+      "sourceHash": "751bfd39ae7b2c542101700d78f7b1002fc41c97a0a9d58ad1924e2231921f58"
+    },
+    {
+      "txid": "857ae4f0b16409d8390b6e04d1688b8125caf6465dfea68caa69043ee0261f45",
+      "blockNumber": 87694654,
+      "timestamp": 1793757591000,
+      "status": "SUCCESS",
+      "caller": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "feeSun": null,
+      "energyUsage": "130285",
+      "energyFeeSun": null,
+      "netUsage": "345",
+      "netFeeSun": null,
+      "sourceHash": "a578f73bea00301415796cb86ad1b12d40241350d82e2b8e910c69b80354b2c2"
+    },
+    {
+      "txid": "96554983674dd122c595eba50a2914ac19e4e6ce981065b63611c17864b9ba56",
+      "blockNumber": 87694654,
+      "timestamp": 1793757591000,
+      "status": "SUCCESS",
+      "caller": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "feeSun": null,
+      "energyUsage": "64285",
+      "energyFeeSun": null,
+      "netUsage": "345",
+      "netFeeSun": null,
+      "sourceHash": "199e42c3c436d184d00e12be441495cedbc5e3650ffaba3658a99841222c0c7c"
+    },
+    {
+      "txid": "3b9aa587a5cc76ca458bd74d2025674ea8154317ff763cc167e2a137fad894bc",
+      "blockNumber": 87694654,
+      "timestamp": 1793757591000,
+      "status": "SUCCESS",
+      "caller": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "feeSun": null,
+      "energyUsage": "130285",
+      "energyFeeSun": null,
+      "netUsage": "345",
+      "netFeeSun": null,
+      "sourceHash": "a7e96c0044cdabe6746f933110b46230961ebbfa6f001b7e557cf5be48244f8b"
+    },
+    {
+      "txid": "72a4a3ed069973d6179601285ab3e69beb3817c58a9ac68a6df464a8edc3dfd6",
+      "blockNumber": 87694654,
+      "timestamp": 1793757591000,
+      "status": "SUCCESS",
+      "caller": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "feeSun": null,
+      "energyUsage": "64285",
+      "energyFeeSun": null,
+      "netUsage": "345",
+      "netFeeSun": null,
+      "sourceHash": "d348f0e4c79cba91fff532296280107a9f8941704173ea2438613e232704d9ff"
+    },
+    {
+      "txid": "1593e12276828d8d74ce552bfe9d2466e463ed91bcfb8c096e0f9816eadb68c4",
+      "blockNumber": 87694670,
+      "timestamp": 1793757639000,
+      "status": "SUCCESS",
+      "caller": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "feeSun": null,
+      "energyUsage": "64285",
+      "energyFeeSun": null,
+      "netUsage": "345",
+      "netFeeSun": null,
+      "sourceHash": "e12afc6fc2a5ee3a8ba57a5ced214dcbc9c172f70495736b78735ce511c44eea"
+    },
+    {
+      "txid": "a70349c10c405cba6b578b0666301e950999dfc941686cc1e5fe8839603d182f",
+      "blockNumber": 87694692,
+      "timestamp": 1793757705000,
+      "status": "SUCCESS",
+      "caller": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "feeSun": null,
+      "energyUsage": "64285",
+      "energyFeeSun": null,
+      "netUsage": "345",
+      "netFeeSun": null,
+      "sourceHash": "424987cf21dfeec7fa01d45519f9a9af42e9ce280482709d8275526d84eac8dd"
+    },
+    {
+      "txid": "9251c306d6e0ac39bb8d8c2a75445344bc139758d7edde61239c921442dde724",
+      "blockNumber": 87694692,
+      "timestamp": 1793757705000,
+      "status": "SUCCESS",
+      "caller": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "feeSun": null,
+      "energyUsage": "130285",
+      "energyFeeSun": null,
+      "netUsage": "345",
+      "netFeeSun": null,
+      "sourceHash": "16fba98d42c49c058a9df0423d8e8aa1bdba3e4ae07be63bffffb7e9293f3974"
     }
   ],
   "events": [
@@ -654,6 +1014,186 @@
       "to": "TNQdhT4XhJwF9t5xFNWidvE6esfPyEqhyV",
       "amountRaw": "51853965",
       "resource": null
+    },
+    {
+      "id": "87a8f7ceb32b6b8068c9dedbe8467e2acbbbee6f1167b798ea19a2019a6abbfd:log:0",
+      "txid": "87a8f7ceb32b6b8068c9dedbe8467e2acbbbee6f1167b798ea19a2019a6abbfd",
+      "kind": "USDT_TRANSFER",
+      "from": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "to": "TK5xC3GtnHDK7SKakyiJjvd49BEQfammi5",
+      "amountRaw": "165455018",
+      "resource": null
+    },
+    {
+      "id": "afd7a79ce87c587d039faf9dbbb411e1ce6449967b07d75cffce0e0484d0180c:log:0",
+      "txid": "afd7a79ce87c587d039faf9dbbb411e1ce6449967b07d75cffce0e0484d0180c",
+      "kind": "USDT_TRANSFER",
+      "from": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "to": "TE3GnChe5t2nnHYBQGDCeNtbGuHTQuTJCX",
+      "amountRaw": "668831262",
+      "resource": null
+    },
+    {
+      "id": "efb57e3e8b33845ce56623abf0abc302587229979a0cb18bb6e5e3335018bb24:log:0",
+      "txid": "efb57e3e8b33845ce56623abf0abc302587229979a0cb18bb6e5e3335018bb24",
+      "kind": "USDT_TRANSFER",
+      "from": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "to": "TW3zGxTVVRbHWor1srpbncqC5wqRGtusv1",
+      "amountRaw": "743122862",
+      "resource": null
+    },
+    {
+      "id": "430da1158ff63bbda537f499c8a3e7e8f9f15cfafdf4c9e8f68c5e5eec21ee83:log:0",
+      "txid": "430da1158ff63bbda537f499c8a3e7e8f9f15cfafdf4c9e8f68c5e5eec21ee83",
+      "kind": "USDT_TRANSFER",
+      "from": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "to": "THTXuhFb1wiECbs98tQQNS9pShW9fEtVTf",
+      "amountRaw": "742019488",
+      "resource": null
+    },
+    {
+      "id": "bf77c8ba8f7b74348a55afa0e280c94d6860e868ad40435718608911c3676371:log:0",
+      "txid": "bf77c8ba8f7b74348a55afa0e280c94d6860e868ad40435718608911c3676371",
+      "kind": "USDT_TRANSFER",
+      "from": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "to": "TJUi2kaXjyJFgioFRmA5xoZQAEjLFk8N4a",
+      "amountRaw": "20174768378",
+      "resource": null
+    },
+    {
+      "id": "7bd58d27b467915f41a4198d487539778cd05ddf15e7af6b2a3258633c99a2a8:log:0",
+      "txid": "7bd58d27b467915f41a4198d487539778cd05ddf15e7af6b2a3258633c99a2a8",
+      "kind": "USDT_TRANSFER",
+      "from": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "to": "TJXC77YDpLfS6epkRFMEAaPGmf8na3byEi",
+      "amountRaw": "1457208151",
+      "resource": null
+    },
+    {
+      "id": "600abf43f6b2bc7e019914fe73ae34b334dfb0893b6dfe1f875cb2ff252ed949:log:0",
+      "txid": "600abf43f6b2bc7e019914fe73ae34b334dfb0893b6dfe1f875cb2ff252ed949",
+      "kind": "USDT_TRANSFER",
+      "from": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "to": "TVUd7yTCo2HLHg4VUDQaZ3huxkRSqqb7hL",
+      "amountRaw": "3720238095",
+      "resource": null
+    },
+    {
+      "id": "4d493bf1759725b37b9f0d94a65b15f7df5c63520807ba57aaac19abf8bc69b4:log:0",
+      "txid": "4d493bf1759725b37b9f0d94a65b15f7df5c63520807ba57aaac19abf8bc69b4",
+      "kind": "USDT_TRANSFER",
+      "from": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "to": "TC9wR6z78eWiegiJzd3CK8R7Rjn78M3Ycg",
+      "amountRaw": "200000000",
+      "resource": null
+    },
+    {
+      "id": "a8670a5cf5a26e53bb794b275df9fa353c679bffd7b5e47ea320c20cd252c46f:log:0",
+      "txid": "a8670a5cf5a26e53bb794b275df9fa353c679bffd7b5e47ea320c20cd252c46f",
+      "kind": "USDT_TRANSFER",
+      "from": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "to": "TAgCUuBMgsMR9ewHqyvy7rpUamvjMZvZmJ",
+      "amountRaw": "10000000",
+      "resource": null
+    },
+    {
+      "id": "94e6b0e16ddb9067830df3da218e5f9b026e302c46145fea3d3112093861153e:log:0",
+      "txid": "94e6b0e16ddb9067830df3da218e5f9b026e302c46145fea3d3112093861153e",
+      "kind": "USDT_TRANSFER",
+      "from": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "to": "TCmAdsUupZsX4x2Qm5uxtLTCQ9x9WWh8iN",
+      "amountRaw": "222275816",
+      "resource": null
+    },
+    {
+      "id": "50a9c8b0d94e390b6df0e9b402cea8adc107ca0c36947b4c266bca3421880523:log:0",
+      "txid": "50a9c8b0d94e390b6df0e9b402cea8adc107ca0c36947b4c266bca3421880523",
+      "kind": "USDT_TRANSFER",
+      "from": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "to": "TL7U5aCXy3yeRngSTXBURir3oQUPdHFvvP",
+      "amountRaw": "448737174",
+      "resource": null
+    },
+    {
+      "id": "deb98f0830da081e20a1a4249823fbdc9d0a349bc46437f27da57d08ce78a558:log:0",
+      "txid": "deb98f0830da081e20a1a4249823fbdc9d0a349bc46437f27da57d08ce78a558",
+      "kind": "USDT_TRANSFER",
+      "from": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "to": "TVoVGsfdumxsBgQ4zbjhzCNQLwRVTg61MB",
+      "amountRaw": "2720226940",
+      "resource": null
+    },
+    {
+      "id": "4fcfa35c77cf66724ed29094ce4501a60dfeb3084cfd505436419479fbc5e26f:log:0",
+      "txid": "4fcfa35c77cf66724ed29094ce4501a60dfeb3084cfd505436419479fbc5e26f",
+      "kind": "USDT_TRANSFER",
+      "from": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "to": "THSht6uZUzzhgxrb2Hn2Z6RJXmjJCQRWph",
+      "amountRaw": "2868280889",
+      "resource": null
+    },
+    {
+      "id": "857ae4f0b16409d8390b6e04d1688b8125caf6465dfea68caa69043ee0261f45:log:0",
+      "txid": "857ae4f0b16409d8390b6e04d1688b8125caf6465dfea68caa69043ee0261f45",
+      "kind": "USDT_TRANSFER",
+      "from": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "to": "TNoSnvWQNT7yH6Lb3RXKbkrJMfWfbxhSBF",
+      "amountRaw": "150063898",
+      "resource": null
+    },
+    {
+      "id": "96554983674dd122c595eba50a2914ac19e4e6ce981065b63611c17864b9ba56:log:0",
+      "txid": "96554983674dd122c595eba50a2914ac19e4e6ce981065b63611c17864b9ba56",
+      "kind": "USDT_TRANSFER",
+      "from": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "to": "TEE5i4CGT2nKzg373xAvVXwHN1mMDBGtNs",
+      "amountRaw": "744550000",
+      "resource": null
+    },
+    {
+      "id": "3b9aa587a5cc76ca458bd74d2025674ea8154317ff763cc167e2a137fad894bc:log:0",
+      "txid": "3b9aa587a5cc76ca458bd74d2025674ea8154317ff763cc167e2a137fad894bc",
+      "kind": "USDT_TRANSFER",
+      "from": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "to": "TB1V3HRWW9h3HPjQV66DKCBhk69pQvtmrT",
+      "amountRaw": "2231473215",
+      "resource": null
+    },
+    {
+      "id": "72a4a3ed069973d6179601285ab3e69beb3817c58a9ac68a6df464a8edc3dfd6:log:0",
+      "txid": "72a4a3ed069973d6179601285ab3e69beb3817c58a9ac68a6df464a8edc3dfd6",
+      "kind": "USDT_TRANSFER",
+      "from": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "to": "TLLaqpC6YQPHApHRoi8HBXP3553n6iKPNs",
+      "amountRaw": "743000000",
+      "resource": null
+    },
+    {
+      "id": "1593e12276828d8d74ce552bfe9d2466e463ed91bcfb8c096e0f9816eadb68c4:log:0",
+      "txid": "1593e12276828d8d74ce552bfe9d2466e463ed91bcfb8c096e0f9816eadb68c4",
+      "kind": "USDT_TRANSFER",
+      "from": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "to": "TVDYcr84oPDcM1upwd5UXKVAoNUMmSasMw",
+      "amountRaw": "993526500",
+      "resource": null
+    },
+    {
+      "id": "a70349c10c405cba6b578b0666301e950999dfc941686cc1e5fe8839603d182f:log:0",
+      "txid": "a70349c10c405cba6b578b0666301e950999dfc941686cc1e5fe8839603d182f",
+      "kind": "USDT_TRANSFER",
+      "from": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "to": "TDPuDuGkKTVsts9MoTQ9D9freGvo2QjKX2",
+      "amountRaw": "432539683",
+      "resource": null
+    },
+    {
+      "id": "9251c306d6e0ac39bb8d8c2a75445344bc139758d7edde61239c921442dde724:log:0",
+      "txid": "9251c306d6e0ac39bb8d8c2a75445344bc139758d7edde61239c921442dde724",
+      "kind": "USDT_TRANSFER",
+      "from": "TLsYkz4vkTqL2bGvNAhaf4NU9H4eSPvwqc",
+      "to": "TEqjwssbcm2vgfPq5hfZHoPfrEj7d5YbYc",
+      "amountRaw": "10000000",
+      "resource": null
     }
   ],
   "coverage": [
@@ -672,7 +1212,8 @@
       "reasons": [
         "Address history is provider-indexed; incoming resource visibility and internal TRX are not guaranteed.",
         "transfers page/transaction limit reached; omitted events are unknown.",
-        "transactions page/transaction limit reached; omitted events are unknown."
+        "transactions page/transaction limit reached; omitted events are unknown.",
+        "입금 후 송금 방향 보완: 2026-11-04T01:43:33.000Z ~ 2026-11-04T06:37:57.000Z, 첫 20개 색인 항목 중 새 거래 20건. 다음 페이지 미조회. 다른 방향·기간의 완전성을 뜻하지 않음."
       ]
     },
     {
@@ -829,6 +1370,166 @@
     },
     {
       "address": "TNQdhT4XhJwF9t5xFNWidvE6esfPyEqhyV",
+      "transfers": "not-collected",
+      "transactions": "not-collected",
+      "reasons": [
+        "Address discovered but not expanded within the collection bound."
+      ]
+    },
+    {
+      "address": "TK5xC3GtnHDK7SKakyiJjvd49BEQfammi5",
+      "transfers": "not-collected",
+      "transactions": "not-collected",
+      "reasons": [
+        "Address discovered but not expanded within the collection bound."
+      ]
+    },
+    {
+      "address": "TE3GnChe5t2nnHYBQGDCeNtbGuHTQuTJCX",
+      "transfers": "not-collected",
+      "transactions": "not-collected",
+      "reasons": [
+        "Address discovered but not expanded within the collection bound."
+      ]
+    },
+    {
+      "address": "TW3zGxTVVRbHWor1srpbncqC5wqRGtusv1",
+      "transfers": "not-collected",
+      "transactions": "not-collected",
+      "reasons": [
+        "Address discovered but not expanded within the collection bound."
+      ]
+    },
+    {
+      "address": "THTXuhFb1wiECbs98tQQNS9pShW9fEtVTf",
+      "transfers": "not-collected",
+      "transactions": "not-collected",
+      "reasons": [
+        "Address discovered but not expanded within the collection bound."
+      ]
+    },
+    {
+      "address": "TJUi2kaXjyJFgioFRmA5xoZQAEjLFk8N4a",
+      "transfers": "not-collected",
+      "transactions": "not-collected",
+      "reasons": [
+        "Address discovered but not expanded within the collection bound."
+      ]
+    },
+    {
+      "address": "TJXC77YDpLfS6epkRFMEAaPGmf8na3byEi",
+      "transfers": "not-collected",
+      "transactions": "not-collected",
+      "reasons": [
+        "Address discovered but not expanded within the collection bound."
+      ]
+    },
+    {
+      "address": "TVUd7yTCo2HLHg4VUDQaZ3huxkRSqqb7hL",
+      "transfers": "not-collected",
+      "transactions": "not-collected",
+      "reasons": [
+        "Address discovered but not expanded within the collection bound."
+      ]
+    },
+    {
+      "address": "TC9wR6z78eWiegiJzd3CK8R7Rjn78M3Ycg",
+      "transfers": "not-collected",
+      "transactions": "not-collected",
+      "reasons": [
+        "Address discovered but not expanded within the collection bound."
+      ]
+    },
+    {
+      "address": "TAgCUuBMgsMR9ewHqyvy7rpUamvjMZvZmJ",
+      "transfers": "not-collected",
+      "transactions": "not-collected",
+      "reasons": [
+        "Address discovered but not expanded within the collection bound."
+      ]
+    },
+    {
+      "address": "TCmAdsUupZsX4x2Qm5uxtLTCQ9x9WWh8iN",
+      "transfers": "not-collected",
+      "transactions": "not-collected",
+      "reasons": [
+        "Address discovered but not expanded within the collection bound."
+      ]
+    },
+    {
+      "address": "TL7U5aCXy3yeRngSTXBURir3oQUPdHFvvP",
+      "transfers": "not-collected",
+      "transactions": "not-collected",
+      "reasons": [
+        "Address discovered but not expanded within the collection bound."
+      ]
+    },
+    {
+      "address": "TVoVGsfdumxsBgQ4zbjhzCNQLwRVTg61MB",
+      "transfers": "not-collected",
+      "transactions": "not-collected",
+      "reasons": [
+        "Address discovered but not expanded within the collection bound."
+      ]
+    },
+    {
+      "address": "THSht6uZUzzhgxrb2Hn2Z6RJXmjJCQRWph",
+      "transfers": "not-collected",
+      "transactions": "not-collected",
+      "reasons": [
+        "Address discovered but not expanded within the collection bound."
+      ]
+    },
+    {
+      "address": "TNoSnvWQNT7yH6Lb3RXKbkrJMfWfbxhSBF",
+      "transfers": "not-collected",
+      "transactions": "not-collected",
+      "reasons": [
+        "Address discovered but not expanded within the collection bound."
+      ]
+    },
+    {
+      "address": "TEE5i4CGT2nKzg373xAvVXwHN1mMDBGtNs",
+      "transfers": "not-collected",
+      "transactions": "not-collected",
+      "reasons": [
+        "Address discovered but not expanded within the collection bound."
+      ]
+    },
+    {
+      "address": "TB1V3HRWW9h3HPjQV66DKCBhk69pQvtmrT",
+      "transfers": "not-collected",
+      "transactions": "not-collected",
+      "reasons": [
+        "Address discovered but not expanded within the collection bound."
+      ]
+    },
+    {
+      "address": "TLLaqpC6YQPHApHRoi8HBXP3553n6iKPNs",
+      "transfers": "not-collected",
+      "transactions": "not-collected",
+      "reasons": [
+        "Address discovered but not expanded within the collection bound."
+      ]
+    },
+    {
+      "address": "TVDYcr84oPDcM1upwd5UXKVAoNUMmSasMw",
+      "transfers": "not-collected",
+      "transactions": "not-collected",
+      "reasons": [
+        "Address discovered but not expanded within the collection bound."
+      ]
+    },
+    {
+      "address": "TDPuDuGkKTVsts9MoTQ9D9freGvo2QjKX2",
+      "transfers": "not-collected",
+      "transactions": "not-collected",
+      "reasons": [
+        "Address discovered but not expanded within the collection bound."
+      ]
+    },
+    {
+      "address": "TEqjwssbcm2vgfPq5hfZHoPfrEj7d5YbYc",
       "transfers": "not-collected",
       "transactions": "not-collected",
       "reasons": [
@@ -1172,6 +1873,252 @@
       "bytes": 72255,
       "retrievedAt": "2026-11-04T10:17:14.358Z",
       "endpointKind": "/v1/accounts/{address}/transactions"
+    },
+    {
+      "sha256": "2de8c923806efe3bbd8b2f93083b38e87708fc4f436fffe776680f3f9ee1efdb",
+      "bytes": 7997,
+      "retrievedAt": "2026-11-04T11:36:58.834Z",
+      "endpointKind": "/v1/accounts/{address}/transactions/trc20"
+    },
+    {
+      "sha256": "318724fb09d837b021ccb7e9e1ea96e602f7fa0c3ec31d2a91845225e90feb95",
+      "bytes": 1248,
+      "retrievedAt": "2026-11-04T11:36:58.992Z",
+      "endpointKind": "/walletsolidity/gettransactionbyid"
+    },
+    {
+      "sha256": "46990c080a7a8ca3c36a737c343789813a4a92f1cab746056f9cec5bee82aa65",
+      "bytes": 769,
+      "retrievedAt": "2026-11-04T11:37:00.098Z",
+      "endpointKind": "/walletsolidity/gettransactioninfobyid"
+    },
+    {
+      "sha256": "445fce7571c541231b72b23da18884f978eb0c053c3ea56fd384f5f59f682e50",
+      "bytes": 1248,
+      "retrievedAt": "2026-11-04T11:37:01.202Z",
+      "endpointKind": "/walletsolidity/gettransactionbyid"
+    },
+    {
+      "sha256": "84663d747775e76f46a13bb4b6bcbefa69d62ea1a30f2363252af10b64242b80",
+      "bytes": 769,
+      "retrievedAt": "2026-11-04T11:37:02.681Z",
+      "endpointKind": "/walletsolidity/gettransactioninfobyid"
+    },
+    {
+      "sha256": "b884ce92b22fa5fadd9432b220facc4627ce48cc8df08f305c16e0ffc1923609",
+      "bytes": 1248,
+      "retrievedAt": "2026-11-04T11:37:03.418Z",
+      "endpointKind": "/walletsolidity/gettransactionbyid"
+    },
+    {
+      "sha256": "1defa79c3c76f5765abe55b44f8fcc990438d210c7e843a35d5e5469a7acd797",
+      "bytes": 769,
+      "retrievedAt": "2026-11-04T11:37:04.516Z",
+      "endpointKind": "/walletsolidity/gettransactioninfobyid"
+    },
+    {
+      "sha256": "20d62a4c2c2f007c37ea8ba8de03f71a6ca278887cbc6192866cde9f130b2df0",
+      "bytes": 1248,
+      "retrievedAt": "2026-11-04T11:37:05.603Z",
+      "endpointKind": "/walletsolidity/gettransactionbyid"
+    },
+    {
+      "sha256": "78659fb660cab495fd756172aa6a9bd5cf4f864121bc407713b369fca0fbe457",
+      "bytes": 766,
+      "retrievedAt": "2026-11-04T11:37:06.697Z",
+      "endpointKind": "/walletsolidity/gettransactioninfobyid"
+    },
+    {
+      "sha256": "2f453e356411d320189875be45326b3121e1cd95cb1cdb91253011d362964b6a",
+      "bytes": 1248,
+      "retrievedAt": "2026-11-04T11:37:07.820Z",
+      "endpointKind": "/walletsolidity/gettransactionbyid"
+    },
+    {
+      "sha256": "34de9c7f83760a2a8460a47edbc8a6c15a5580ed4b0a7b5e5d8879ed5939675a",
+      "bytes": 769,
+      "retrievedAt": "2026-11-04T11:37:08.903Z",
+      "endpointKind": "/walletsolidity/gettransactioninfobyid"
+    },
+    {
+      "sha256": "24dd347007201ac8c71ce81c7c3149fb0d3c37b6fcbb0b584eabe3ab16145599",
+      "bytes": 1248,
+      "retrievedAt": "2026-11-04T11:37:10.015Z",
+      "endpointKind": "/walletsolidity/gettransactionbyid"
+    },
+    {
+      "sha256": "2935d6cdffc29e3f703baf16c52e8e56a7d4e3a33a3a20f8fd50731a7cc47075",
+      "bytes": 769,
+      "retrievedAt": "2026-11-04T11:37:11.123Z",
+      "endpointKind": "/walletsolidity/gettransactioninfobyid"
+    },
+    {
+      "sha256": "ec5f7b387b9bd3acc7647dc11b42690826747d6fae90b4ce02b4b0e1b50baf3e",
+      "bytes": 1248,
+      "retrievedAt": "2026-11-04T11:37:12.346Z",
+      "endpointKind": "/walletsolidity/gettransactionbyid"
+    },
+    {
+      "sha256": "ecc8dc51ca78ec51cea7bb10e439d383dce91ae4ff0e5ce13bad90b171f26162",
+      "bytes": 769,
+      "retrievedAt": "2026-11-04T11:37:13.360Z",
+      "endpointKind": "/walletsolidity/gettransactioninfobyid"
+    },
+    {
+      "sha256": "57ecdeedacf6160cfcc66572a34048803b6a70f9d5f1fb97ffeb1cc4ba6b02a3",
+      "bytes": 1248,
+      "retrievedAt": "2026-11-04T11:37:14.933Z",
+      "endpointKind": "/walletsolidity/gettransactionbyid"
+    },
+    {
+      "sha256": "c053aabce4e5d143aa0d459388b692c2ab9d35ef812c968f58e9e7420079541b",
+      "bytes": 766,
+      "retrievedAt": "2026-11-04T11:37:15.535Z",
+      "endpointKind": "/walletsolidity/gettransactioninfobyid"
+    },
+    {
+      "sha256": "d120aa2f263431e7f43a5eac0775e91677a331f888e667a497f6e2185643f3ed",
+      "bytes": 1248,
+      "retrievedAt": "2026-11-04T11:37:16.621Z",
+      "endpointKind": "/walletsolidity/gettransactionbyid"
+    },
+    {
+      "sha256": "eda070ac3ad7de6532b67e7589a0bc48d8ff0a2b82b4e6042f7b7e9c0cab65ca",
+      "bytes": 769,
+      "retrievedAt": "2026-11-04T11:37:17.717Z",
+      "endpointKind": "/walletsolidity/gettransactioninfobyid"
+    },
+    {
+      "sha256": "322caa6894f00c2432ced1528f1b302d4683040b1e86977d514bf5e7acd164f4",
+      "bytes": 1248,
+      "retrievedAt": "2026-11-04T11:37:18.846Z",
+      "endpointKind": "/walletsolidity/gettransactionbyid"
+    },
+    {
+      "sha256": "b5847dae3ccae2e30d764f0f7591db199cad1f471aabe9ae97afaf4b96d0ec55",
+      "bytes": 769,
+      "retrievedAt": "2026-11-04T11:37:19.918Z",
+      "endpointKind": "/walletsolidity/gettransactioninfobyid"
+    },
+    {
+      "sha256": "c72cf56ca069b84354e62890832b92259c618b033c1e0227bcccdf84404d6c8b",
+      "bytes": 1248,
+      "retrievedAt": "2026-11-04T11:37:21.051Z",
+      "endpointKind": "/walletsolidity/gettransactionbyid"
+    },
+    {
+      "sha256": "d247f5d93e3121acfc33ba0d34c74f8947be7cedf557c6efa9c575f387ec6651",
+      "bytes": 766,
+      "retrievedAt": "2026-11-04T11:37:22.126Z",
+      "endpointKind": "/walletsolidity/gettransactioninfobyid"
+    },
+    {
+      "sha256": "47cb8a85eab6e95ceaa5a811cdb6514f2096ce0b92022aeab26a4ae0a973558c",
+      "bytes": 1248,
+      "retrievedAt": "2026-11-04T11:37:23.245Z",
+      "endpointKind": "/walletsolidity/gettransactionbyid"
+    },
+    {
+      "sha256": "ae617390650b062495b544d15115155077bef55573c48eaa5b01f425bcd800a1",
+      "bytes": 769,
+      "retrievedAt": "2026-11-04T11:37:24.800Z",
+      "endpointKind": "/walletsolidity/gettransactioninfobyid"
+    },
+    {
+      "sha256": "321b2b73e9cb13ad1c2f0cd13a85e300c52a29e32deac32862ccef11540c4a3b",
+      "bytes": 1248,
+      "retrievedAt": "2026-11-04T11:37:25.440Z",
+      "endpointKind": "/walletsolidity/gettransactionbyid"
+    },
+    {
+      "sha256": "751bfd39ae7b2c542101700d78f7b1002fc41c97a0a9d58ad1924e2231921f58",
+      "bytes": 769,
+      "retrievedAt": "2026-11-04T11:37:26.539Z",
+      "endpointKind": "/walletsolidity/gettransactioninfobyid"
+    },
+    {
+      "sha256": "bed627bb173592799cfbe198b2f92673b6d6f8df1185ea69852250540760c38c",
+      "bytes": 1248,
+      "retrievedAt": "2026-11-04T11:37:27.640Z",
+      "endpointKind": "/walletsolidity/gettransactionbyid"
+    },
+    {
+      "sha256": "a578f73bea00301415796cb86ad1b12d40241350d82e2b8e910c69b80354b2c2",
+      "bytes": 769,
+      "retrievedAt": "2026-11-04T11:37:28.741Z",
+      "endpointKind": "/walletsolidity/gettransactioninfobyid"
+    },
+    {
+      "sha256": "15a7ee3c189f0c609d230cd4b2d81f2e68d67c859551bd762148861dca7d2a6b",
+      "bytes": 1248,
+      "retrievedAt": "2026-11-04T11:37:29.846Z",
+      "endpointKind": "/walletsolidity/gettransactionbyid"
+    },
+    {
+      "sha256": "199e42c3c436d184d00e12be441495cedbc5e3650ffaba3658a99841222c0c7c",
+      "bytes": 766,
+      "retrievedAt": "2026-11-04T11:37:31.354Z",
+      "endpointKind": "/walletsolidity/gettransactioninfobyid"
+    },
+    {
+      "sha256": "d3489216ae42e8ec5ec84a9962fcb525748a69edcbdddb44a841c817f37da4b8",
+      "bytes": 1248,
+      "retrievedAt": "2026-11-04T11:37:32.080Z",
+      "endpointKind": "/walletsolidity/gettransactionbyid"
+    },
+    {
+      "sha256": "a7e96c0044cdabe6746f933110b46230961ebbfa6f001b7e557cf5be48244f8b",
+      "bytes": 769,
+      "retrievedAt": "2026-11-04T11:37:33.662Z",
+      "endpointKind": "/walletsolidity/gettransactioninfobyid"
+    },
+    {
+      "sha256": "c01bd09d4851f62f83f19c639e3454ed4dcbdb95d23cee15ea62a000095fccc4",
+      "bytes": 1248,
+      "retrievedAt": "2026-11-04T11:37:34.751Z",
+      "endpointKind": "/walletsolidity/gettransactionbyid"
+    },
+    {
+      "sha256": "d348f0e4c79cba91fff532296280107a9f8941704173ea2438613e232704d9ff",
+      "bytes": 766,
+      "retrievedAt": "2026-11-04T11:37:35.351Z",
+      "endpointKind": "/walletsolidity/gettransactioninfobyid"
+    },
+    {
+      "sha256": "7234ad612f344164262a6c91f727070abff988e9e5d6b87d407f814764b2b690",
+      "bytes": 1248,
+      "retrievedAt": "2026-11-04T11:37:36.477Z",
+      "endpointKind": "/walletsolidity/gettransactionbyid"
+    },
+    {
+      "sha256": "e12afc6fc2a5ee3a8ba57a5ced214dcbc9c172f70495736b78735ce511c44eea",
+      "bytes": 766,
+      "retrievedAt": "2026-11-04T11:37:37.555Z",
+      "endpointKind": "/walletsolidity/gettransactioninfobyid"
+    },
+    {
+      "sha256": "68012ea84df3137f2daa9becba035e2327e5ab9aff3a20637c8e679b07dce00f",
+      "bytes": 1248,
+      "retrievedAt": "2026-11-04T11:37:39.341Z",
+      "endpointKind": "/walletsolidity/gettransactionbyid"
+    },
+    {
+      "sha256": "424987cf21dfeec7fa01d45519f9a9af42e9ce280482709d8275526d84eac8dd",
+      "bytes": 766,
+      "retrievedAt": "2026-11-04T11:37:39.768Z",
+      "endpointKind": "/walletsolidity/gettransactioninfobyid"
+    },
+    {
+      "sha256": "b1459a7c6b933848d41e1ed27da8625ec4f27a7d10ae2ab0afe195cc9489597a",
+      "bytes": 1248,
+      "retrievedAt": "2026-11-04T11:37:41.186Z",
+      "endpointKind": "/walletsolidity/gettransactionbyid"
+    },
+    {
+      "sha256": "16fba98d42c49c058a9df0423d8e8aa1bdba3e4ae07be63bffffb7e9293f3974",
+      "bytes": 769,
+      "retrievedAt": "2026-11-04T11:37:41.967Z",
+      "endpointKind": "/walletsolidity/gettransactioninfobyid"
     }
   ]
 }
