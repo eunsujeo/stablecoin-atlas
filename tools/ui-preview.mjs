@@ -111,7 +111,7 @@ export function createPreviewServer({ evidenceDirectory, marketDirectory, market
     const healthHost=req.url==='/healthz'&&hosts.has(req.headers.host)&&req.headers.origin===undefined;
     const acceptedHost=production?(publicHosts.has(req.headers.host)||healthHost):hosts.has(req.headers.host);
     const acceptedOrigin=req.headers.origin===undefined||(production?req.headers.origin===`https://${req.headers.host}`&&publicHosts.has(req.headers.host):origins.has(req.headers.origin));
-    const publicDocument=production&&/^(?:\/|\/index\.html|\/legacy\.html|\/source-review-notes\.html)(?:\?|$)/.test(req.url??'');
+    const publicDocument=production&&(req.url==='/wallet-flow/index.html'||/^(?:\/|\/index\.html|\/legacy\.html|\/source-review-notes\.html)(?:\?|$)/.test(req.url??''));
     const crossSiteNavigation=publicDocument&&req.headers.origin===undefined&&req.headers['sec-fetch-mode']==='navigate'&&req.headers['sec-fetch-dest']==='document';
     if(!acceptedHost||!acceptedOrigin||req.headers['sec-fetch-site']==='cross-site'&&!crossSiteNavigation){fail(403,'FORBIDDEN');return;}
     if(production&&!allowedProductionPath(req.url)){fail(404,'NOT_FOUND');return;}
