@@ -1,3 +1,4 @@
+import {flowAssets,flowSnapshotBytes} from './wallet-flow/http.mjs';
 import {knowledgeFiles} from './knowledge-assets.mjs';
 import {databaseFrankfurterFXReader} from './market-db/frankfurter-fx-preview.mjs';
 import {validateNetworkUsage} from '../web/network-usage-model.js';
@@ -32,6 +33,7 @@ import { databaseMarketReader } from './market-db/preview.mjs';
 import {databaseRegistrationReader,registrationRequest} from './market-db/registration-preview.mjs';
 
 const assets = new Map([
+ ...flowAssets.map(name=>['/wallet-flow/'+name,['../web/wallet-flow/'+name,name.endsWith('.html')?'text/html; charset=utf-8':name.endsWith('.css')?'text/css; charset=utf-8':'text/javascript; charset=utf-8']]),
  ...knowledgeFiles.map(name=>['/knowledge/'+name,['../web/knowledge/'+name,name.endsWith('.html')?'text/html; charset=utf-8':name.endsWith('.css')?'text/css; charset=utf-8':'text/javascript; charset=utf-8']]),
   ['/pop-outline.css', ['../web/pop-outline.css', 'text/css; charset=utf-8']],
  ['/network-usage-targets.js',['../web/network-usage-targets.js','text/javascript; charset=utf-8']],['/network-usage-model.js', ['../web/network-usage-model.js','text/javascript; charset=utf-8']],
@@ -138,6 +140,7 @@ export function createPreviewServer({ evidenceDirectory, marketDirectory, market
         return;
       }
     }
+    if(req.url==='/wallet-flow-data.json'){try{const bytes=await flowSnapshotBytes();res.writeHead(200,{'Content-Type':'application/json; charset=utf-8','Content-Length':bytes.length});res.end(req.method==='HEAD'?undefined:bytes);}catch{fail(503,'WALLET_FLOW_UNAVAILABLE');}return;}
     if(req.url==='/asset-review-data.json'){
       if(production&&!assetReviewReader){fail(503,'ASSET_REVIEW_UNAVAILABLE');return;}
       try{const data=await (assetReviewReader?assetReviewReader():reviewedAssetSnapshot);const bytes=Buffer.from(JSON.stringify(validateAssetReview(data)));
