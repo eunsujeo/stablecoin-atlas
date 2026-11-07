@@ -1,0 +1,11 @@
+#!/usr/bin/bash
+set -euo pipefail
+umask 077
+export PATH=/usr/sbin:/usr/bin:/sbin:/bin
+unset NODE_OPTIONS NODE_PATH NODE_TLS_REJECT_UNAUTHORIZED BASH_ENV ENV
+[[ ${EUID} -eq 0 && $# -eq 1 ]] || exit 64
+case "$1" in status|verify|enable|deploy|finish-yahoo-fx) ;; *) exit 64 ;; esac
+# Root-owned directory; no lock in a user-writable location.
+exec 9>/usr/local/libexec/atlas-maintenance/.lock
+/usr/bin/flock -n 9 || { echo MAINTENANCE_BUSY >&2; exit 1; }
+exec /usr/bin/node /usr/local/libexec/atlas-maintenance/maintenance.mjs "$1"

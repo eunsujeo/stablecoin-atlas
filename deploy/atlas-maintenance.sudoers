@@ -1,0 +1,2 @@
+# Exact arguments only. No shell, node, systemctl, home script, SETENV or wildcard grant.
+mob ALL=(root) NOPASSWD: NOSETENV: /usr/local/bin/atlas-maintenance status, /usr/local/bin/atlas-maintenance verify, /usr/local/bin/atlas-maintenance enable, /usr/local/bin/atlas-maintenance deploy, /usr/local/bin/atlas-maintenance finish-yahoo-fx
