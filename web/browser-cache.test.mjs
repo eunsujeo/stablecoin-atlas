@@ -1,7 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {createJSONClient,retryDeadline,cacheDigest} from './browser-cache.js';
 import {createResponseStore} from './browser-idb.js';
-import {apiRequestPolicy} from './browser-data.js';
+import {apiRequestPolicy,bindResumeRefresh} from './browser-data.js';
 import {cacheStatusText,cacheStatusPresentation} from './browser-cache-ui.js';
 const clone=x=>x===undefined?undefined:structuredClone(x);
 function storage(){const entries=new Map();let meta;return {entries,persistent:true,get:async k=>clone(entries.get(k)),put:async e=>{entries.set(e.key,clone(e));return true;},remove:async(k,d)=>{if(d===undefined||entries.get(k)?.digest===d)entries.delete(k);},clear:async()=>entries.clear(),meta:async()=>clone(meta),saveMeta:async e=>{if(!meta||meta.until<e.until)meta=clone(e);},removeMeta:async d=>{if(meta?.digest===d)meta=undefined;},close(){}};}
@@ -127,7 +127,7 @@ test('cache freshness notices age without rewriting the original observation or 
 test('background refresh stays compact; failures and rate limits take priority across API states',()=>{
  const row={label:'공급량',hasData:true,storedAt:1000,expiresAt:2000,persistent:true,state:'refreshing'};
  assert.equal(cacheStatusText(row,3000),'');
- assert.deepEqual(cacheStatusPresentation([row,{...row,label:'전송량'}],3000),{kind:'progress',text:'업데이트 중'});
+ assert.deepEqual(cacheStatusPresentation([row,{...row,label:'전송량'}],3000),{kind:'progress',text:'최신 자료 확인 중'});
  const error={...row,label:'전송량',state:'error'};
  assert.match(cacheStatusPresentation([row,error],3000).text,/전송량:.*갱신 실패.*마지막 정상 자료/);
  assert.equal(cacheStatusPresentation([row,error],3000).kind,'warning');
@@ -142,4 +142,22 @@ test('compact status preserves stale and cancelled meaning and clears after succ
  assert.equal(cacheStatusPresentation([{...row,hasData:false,state:'loading'}],3000).kind,'progress');
  assert.equal(cacheStatusPresentation([{...row,persistent:false}],1500).kind,'warning');
  assert.equal(row.state,'fresh');assert.equal(row.storedAt,1000);
+});
+
+test('fresh-first awaits expired data across reloads; failed reads alone return dated last-good',async()=>{
+ const store=storage();let now=1000;const seed=createJSONClient({store,now:()=>now,spacingMs:0,fetcher:async()=>data('10')});await seed.read('/market-data.json',options);await idle(seed);seed.close();now+=300001;
+ let gate=deferred(),calls=0;const client=createJSONClient({store,now:()=>now,spacingMs:0,fetcher:async()=>{calls++;return gate.promise;}});
+ let delivered=false;const read=client.read('/market-data.json',{...options,waitForFresh:true}).then(x=>{delivered=true;return x;});
+ while(calls<1)await new Promise(r=>setTimeout(r,1));assert.equal(delivered,false);assert.equal(client.states()[0].state,'refreshing');gate.resolve(data('20'));assert.deepEqual(await read,data('20'));await idle(client);
+ const saved=[...store.entries.values()][0];now+=300001;gate=deferred();const fallback=client.read('/market-data.json',{...options,waitForFresh:true});while(calls<2)await new Promise(r=>setTimeout(r,1));gate.reject(Error('offline'));assert.deepEqual(await fallback,data('20'));await idle(client);assert.equal(calls,2);assert.equal(client.states()[0].state,'error');assert.deepEqual([...store.entries.values()][0],saved);client.close();
+});
+test('manual force refresh bypasses a valid TTL, merges callers, and never revives cleared or cancelled cache',async()=>{
+ const store=storage();let gate,calls=0;const client=createJSONClient({store,spacingMs:0,fetcher:async(_u,{signal})=>{calls++;if(!gate)return data('10');return new Promise((resolve,reject)=>{gate.promise.then(resolve,reject);signal.addEventListener('abort',()=>reject(signal.reason),{once:true});});}});
+ await client.read('/a',options);await idle(client);gate=deferred();const opts={...options,waitForFresh:true,force:true};const ac=new AbortController();const a=client.read('/a',{...opts,signal:ac.signal}),b=client.read('/a',opts);while(calls<2)await new Promise(r=>setTimeout(r,1));ac.abort();await assert.rejects(a,{name:'AbortError'});gate.resolve(data('20'));assert.deepEqual(await b,data('20'));assert.equal(calls,2);await idle(client);
+ gate=deferred();const clearing=client.read('/a',opts);const rejection=assert.rejects(clearing,{name:'AbortError'});while(calls<3)await new Promise(r=>setTimeout(r,1));await client.clear();await rejection;assert.equal(store.entries.size,0);client.close();
+});
+test('resume refresh waits for visible page, merges focus/pageshow, and detaches cleanly',()=>{
+ const doc=new EventTarget(),win=new EventTarget();let now=1000,visible=true,calls=0;const detach=bindResumeRefresh(()=>{calls++;},{doc,win,now:()=>now,visible:()=>visible});
+ win.dispatchEvent(new Event('focus'));assert.equal(calls,0);now+=61000;visible=false;doc.dispatchEvent(new Event('visibilitychange'));assert.equal(calls,0);visible=true;doc.dispatchEvent(new Event('visibilitychange'));win.dispatchEvent(new Event('focus'));win.dispatchEvent(new Event('pageshow'));assert.equal(calls,1);
+ now+=61000;doc.dispatchEvent(new Event('atlas:navigate'));assert.equal(calls,2);detach();now+=61000;win.dispatchEvent(new Event('focus'));assert.equal(calls,2);
 });

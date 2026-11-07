@@ -1,5 +1,5 @@
 import {validateNetworkUsage} from './network-usage-model.js';
-import {cachedJSON,browserData} from './browser-data.js';
+import {cachedJSON,browserData,bindResumeRefresh} from './browser-data.js';
 import {bindCacheStatus} from './browser-cache-ui.js';
 import {initializeSupplyOverview} from './supply-overview.js';
 import {validateFX,usableFX,availableFX,fxDisplayNote,fxSourceLabel,priceLabel,readCurrency,saveCurrency} from './fx-model.js';
@@ -31,8 +31,8 @@ const rememberTrend=()=>{
 };
 const when=value=>new Date(value).toLocaleString('ko-KR',{hour12:false});
 const labels={PASS:'통과',FAIL:'실패',INCONCLUSIVE:'판정 불충분',NOT_TESTED:'미검증',NOT_APPLICABLE:'비적용',UNSUPPORTED:'지원 범위 밖'};
-async function json(path,{signal,optional=false,revalidate=false,validate,context}={}){
-  return cachedJSON(path,{cache:revalidate?'no-cache':'no-store',signal,optional,validate,context,timeoutMs:15000});
+async function json(path,{signal,optional=false,revalidate=false,force=false,validate,context}={}){
+  return cachedJSON(path,{cache:revalidate?'no-cache':'no-store',signal,optional,force,validate,context,timeoutMs:15000});
 }
 function renderSourceReview(sourceReviewProfiles){
   const assets=new Set(sourceReviewProfiles.map(p=>p.coinId)),networks=new Set(sourceReviewProfiles.map(p=>p.chainId??p.networkKey));
@@ -216,15 +216,15 @@ async function loadTrend(){
   }catch{if(sequence===trendSequence)state.trendError=true;}
   finally{if(sequence===trendSequence){finish();trendFinish=null;state.trendLoading=false;populateTrendNetworks();renderMarketTrend();}}
 }
-let cacheRefreshPending=false;
+
 const overviewCacheMatch=url=>['/market-data.json','/registration-index.json','/fx-data.json','/network-usage-data.json','/evidence/index.json'].includes(url)||url.startsWith('/registration-history.json?');
 bindCacheStatus($('#overview-screen'),overviewCacheMatch);
-browserData.subscribe(event=>{if(event.updated&&overviewCacheMatch(event.url)){if(state.loading)cacheRefreshPending=true;else if(state.loaded)load();}});
-async function load(){
+browserData.subscribe(event=>{if(event.updated&&overviewCacheMatch(event.url)){if(!state.loading&&state.loaded)load();}});
+async function load({force=false}={}){
   if(state.loading)return;state.loading=true;$('#overview-reload').disabled=true;
   const finish=beginLoading($('#overview-screen'),{ready:!!(state.index||state.market),targets:[['#overview-market-trend','chart'],['#overview-chain-breakdown','rows'],['#overview-market-rows','rows'],['#overview-metrics','cards']]});
   try {
-  const results=await Promise.allSettled([publicMode?Promise.resolve(null):json('/evidence/index.json').then(dashboardEvidence),json('/market-data.json').then(validateMarket),json('/registration-index.json',{optional:true}).then(x=>x===null?null:validateRegistrationIndex(x)),json('/fx-data.json').then(validateFX),json('/network-usage-data.json',{optional:true}).then(x=>x===null?null:validateNetworkUsage(x))]);
+  const results=await Promise.allSettled([publicMode?Promise.resolve(null):json('/evidence/index.json',{force}).then(dashboardEvidence),json('/market-data.json',{force}).then(validateMarket),json('/registration-index.json',{optional:true,force}).then(x=>x===null?null:validateRegistrationIndex(x)),json('/fx-data.json',{force}).then(validateFX),json('/network-usage-data.json',{optional:true,force}).then(x=>x===null?null:validateNetworkUsage(x))]);
   const failed=[];
   for(const [index,key]of ['index','market'].entries()){
     if(results[index].status==='fulfilled')state[key]=results[index].value;
@@ -241,13 +241,14 @@ async function load(){
   $('#overview-error').hidden=!failed.length&&!collectionFailed;
   $('#overview-error').textContent=failed.length?`${failed.join(' · ')}를 읽지 못했습니다. 이전 정상 자료가 있으면 원래 시각을 유지해 표시합니다.`:'최근 시장 수집 또는 자료 생성 실패 · 마지막 정상 자료와 원본 관측 시각을 표시합니다.';
   }catch{$('#overview-error').hidden=false;$('#overview-error').textContent='화면 표시 중 오류가 발생했습니다. 다시 읽어주세요.';}
-  finally {finish();state.loading=false;state.loaded=true;$('#overview-reload').disabled=false;if(cacheRefreshPending){cacheRefreshPending=false;queueMicrotask(load);}}
+  finally {finish();state.loading=false;state.loaded=true;$('#overview-reload').disabled=false;}
 }
 function activate(){if(!$('#overview-screen').hidden&&!state.loaded)load();}
-$('#overview-reload').addEventListener('click',load);$('#overview-scope')?.addEventListener('change',()=>{renderEvidence();renderEvidenceRankings();});$('#overview-rank-metric')?.addEventListener('change',renderEvidenceRankings);$('#overview-theme').addEventListener('click',()=>$('#theme-toggle').click());
+$('#overview-reload').addEventListener('click',()=>load({force:true}));$('#overview-scope')?.addEventListener('change',()=>{renderEvidence();renderEvidenceRankings();});$('#overview-rank-metric')?.addEventListener('change',renderEvidenceRankings);$('#overview-theme').addEventListener('click',()=>$('#theme-toggle').click());
 const theme=()=>{$('#overview-theme').textContent=document.documentElement.dataset.theme==='light'?'☾ 다크':'☀ 라이트';};
 new MutationObserver(theme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});theme();
 document.addEventListener('atlas:navigate',activate);activate();
+bindResumeRefresh(()=>load({force:true}),{visible:()=>!document.hidden&&!$('#overview-screen').hidden});
 setInterval(()=>{if(!$('#overview-screen').hidden&&!document.hidden)load();},60000);
 
 $('#overview-trend-coin').addEventListener('change',()=>{state.selectedCoin=$('#overview-trend-coin').value;state.selectedNetwork='all';$('#overview-trend-network').value='all';populateTrendSource();rememberTrend();loadTrend();});

@@ -12,7 +12,7 @@ export function cacheStatusPresentation(rows,now=Date.now()){
  const stale=row=>row.hasData&&(row.state==='stale'||row.state==='fresh'&&row.expiresAt!==null&&row.expiresAt<=now);
  const warnings=rows.filter(row=>!stale(row)).map(row=>cacheStatusText(row,now)).filter(Boolean);
  if(warnings.length)return {kind:'warning',text:warnings.join(' · ')};
- if(rows.some(row=>['loading','refreshing'].includes(row.state)))return {kind:'progress',text:'업데이트 중'};
+ if(rows.some(row=>['loading','refreshing'].includes(row.state)))return {kind:'progress',text:'최신 자료 확인 중'};
  if(rows.some(stale))return {kind:'stale',text:'저장 자료 표시 · 업데이트 필요'};
  return {kind:'idle',text:''};
 }
@@ -21,6 +21,6 @@ export function bindCacheStatus(root,matches){
  const compact=document.createElement('span');compact.className='browser-cache-compact';compact.dataset.cacheFor=root.id;compact.setAttribute('role','status');compact.setAttribute('aria-atomic','true');compact.hidden=true;
  const header=root.querySelector('.page-header')??root.closest('[id$="-screen"]')?.querySelector('.page-header');
  const anchor=header?.querySelector('.header-actions')??root;anchor.classList.add('browser-cache-anchor');let indicators=anchor.querySelector(':scope > .browser-cache-indicators');if(!indicators){indicators=document.createElement('span');indicators.className='browser-cache-indicators';anchor.append(indicators);}indicators.append(compact);
- const render=()=>{const view=cacheStatusPresentation(browserData.states().filter(r=>matches(r.url))),hidden=!!root.closest('[hidden]');note.textContent=view.kind==='warning'?view.text:'';note.hidden=hidden||view.kind!=='warning';compact.textContent=view.kind==='warning'?'':view.text;compact.dataset.state=view.kind;compact.hidden=hidden||view.kind==='warning'||view.kind==='idle';};
+ const render=()=>{const view=cacheStatusPresentation(browserData.states().filter(r=>matches(r.url))),hidden=!!root.closest('[hidden]');note.textContent=view.kind==='warning'?view.text:'';note.hidden=hidden||view.kind!=='warning';compact.textContent=view.kind==='warning'?'':view.kind==='progress'&&root.dataset.loading==='refresh'?'이전 자료 표시 · 최신 자료 확인 중':view.text;compact.dataset.state=view.kind;compact.hidden=hidden||view.kind==='warning'||view.kind==='idle';};
  browserData.subscribe(render);document.addEventListener('atlas:navigate',render);window.addEventListener('hashchange',render);render();return note;
 }

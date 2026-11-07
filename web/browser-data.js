@@ -45,5 +45,14 @@ export const browserData=createJSONClient({channel});
 export function cachedJSON(path,{validate,context='',...options}={}){
  const {url,...policy}=apiRequestPolicy(path);if(options.headers||options.method&&options.method!=='GET'||options.credentials&&options.credentials!==(policy.credentials??'same-origin'))throw Error('API_REQUEST_INVALID');
  if(!policy.validate&&typeof validate!=='function')throw Error('API_VALIDATOR_REQUIRED');
- return browserData.read(url,{...options,...policy,context,version:'atlas-json-v1',credentials:policy.credentials??'same-origin',validate:value=>{safeJSON(value);policy.validate?.(value);validate?.(value);}});
+ return browserData.read(url,{...options,...policy,waitForFresh:true,context,version:'atlas-json-v1',credentials:policy.credentials??'same-origin',validate:value=>{safeJSON(value);policy.validate?.(value);validate?.(value);}});
+}
+
+// A return from sleep/background/BFCache is a new read, not an automatic retry.
+export function bindResumeRefresh(refresh,{visible=()=>!document.hidden,now=()=>Date.now(),doc=globalThis.document,win=globalThis.window,minInterval=60000}={}){
+ let last=now();
+ const resume=()=>{if(!visible())return;const at=now();if(at-last<minInterval)return;last=at;refresh();};
+ const bindings=[[doc,'visibilitychange'],[doc,'atlas:navigate'],[win,'focus'],[win,'pageshow']];
+ for(const [target,type]of bindings)target?.addEventListener(type,resume);
+ return ()=>{for(const [target,type]of bindings)target?.removeEventListener(type,resume);};
 }

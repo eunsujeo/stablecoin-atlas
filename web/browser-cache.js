@@ -101,7 +101,7 @@ export function createJSONClient({store=createResponseStore(),fetcher=fetchJSON,
   },running.controller.signal).catch(error=>{if(!running.started)emit(running,error?.status===429?'rate-limited':error?.name==='AbortError'?'cancelled':'error');throw error;}).finally(()=>{running.finished=true;if(pending.get(job.key)===running)pending.delete(job.key);});
   return running;
  }
- async function read(url,{validate,ttl,version='1',limit=defaultJSONByteLimit,label=url,context='',signal,...options}={}){
+ async function read(url,{validate,ttl,version='1',limit=defaultJSONByteLimit,label=url,context='',signal,waitForFresh=false,force=false,...options}={}){
   if(closed)throw Error('CLIENT_CLOSED');
   if(typeof validate!=='function'||!Number.isFinite(ttl)||ttl<1||!Number.isSafeInteger(limit)||limit<1||limit>defaultJSONByteLimit||typeof context!=='string'||context.length>200)throw Error('CACHE_POLICY_INVALID');
   if(signal?.aborted)throw aborted(signal);
@@ -110,8 +110,19 @@ export function createJSONClient({store=createResponseStore(),fetcher=fetchJSON,
   if(entry){
    job.hadCache=true;job.lastGoodAt=entry.storedAt;
    const value=JSON.parse(entry.text);validate(value);
-   if(now()-entry.storedAt<ttl){emit(job,'fresh',{source:'cache'});return value;}
-   emit(job,cooldown>now()?'rate-limited':'stale',{source:'cache'});
+   if(!force&&now()-entry.storedAt<ttl){emit(job,'fresh',{source:'cache'});return value;}
+   emit(job,cooldown>now()?'rate-limited':waitForFresh?'refreshing':'stale',{source:'cache'});
+   if(waitForFresh&&cooldown<=now()){
+    try{
+     const text=await attach(refresh(job,options),signal);
+     if(closed||job.epoch!==epoch||signal?.aborted)throw signal?.reason??new DOMException('The request was superseded.','AbortError');
+     const current=JSON.parse(text);validate(current);return current;
+    }catch(error){
+     // Cancellation/clear must never resurrect a last-good value from the previous request.
+     if(closed||job.epoch!==epoch||signal?.aborted||error?.name==='AbortError')throw error;
+     return value;
+    }
+   }
    if(cooldown<=now())attach(refresh(job,options),signal).catch(()=>{});
    return value;
   }
