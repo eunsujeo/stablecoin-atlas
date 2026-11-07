@@ -50,3 +50,6 @@ html[data-network]:not([data-network=ethereum]) .kpi[data-tone=success] strong{c
 html[data-network]:not([data-network=ethereum]) .kpi[data-tone=progress] strong{color:var(--blue)}
 .chapters [data-progress=unentered]{border-style:dashed}.chapters [data-progress=complete]{border-color:var(--teal)}
 #network-advanced{font-size:11px;padding:5px}html[data-network=base] #lesson-rail{flex-wrap:wrap;gap:6px}
+/* A visible exit independent of lesson/network history; works without JavaScript. */
+.return-to-atlas{font-size:12px;text-decoration:none;border:1px solid var(--line);border-radius:var(--small-radius);padding:5px 10px;background:var(--control);white-space:nowrap;min-height:34px;display:inline-flex;align-items:center}.return-to-atlas:hover{background:var(--hover)}
+@media(max-width:760px){.masthead{gap:10px}.masthead .wordmark span{display:none}.masthead .wordmark{font-size:18px}.return-to-atlas{padding:5px 8px}.masthead .prototype{display:none}}

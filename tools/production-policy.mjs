@@ -1,8 +1,6 @@
-import {flowAssets} from './wallet-flow/http.mjs';
 import {knowledgeFiles} from './knowledge-assets.mjs';
 // Separate publication policy. A newly added preview route is private by default.
 export const publicAssets=new Set([
- ...flowAssets.map(name=>'/wallet-flow/'+name),
  ...knowledgeFiles.map(name=>'/knowledge/'+name),
   '/browser-json.js','/browser-idb.js','/browser-cache.js','/browser-data.js','/browser-cache-ui.js',
   '/','/index.html','/legacy.html','/production.js','/styles.css','/pop-outline.css','/loading.css','/loading.js',
@@ -14,7 +12,7 @@ export const publicAssets=new Set([
   '/allium-dashboard-model.js','/fx-model.js','/activity-model.js','/reviewed-supply-model.js','/reviewed-supply.js',
   '/survey-model.js','/survey.js','/geography-model.js','/geography.js','/evidence-model.js',
 ]);
-const publicData=new Set(['/wallet-flow-data.json','/network-usage-data.json','/asset-review-data.json','/market-data.json','/registration-index.json','/activity-data.json','/reviewed-supply-data.json','/survey-data.json','/fx-data.json']);
+const publicData=new Set(['/network-usage-data.json','/asset-review-data.json','/market-data.json','/registration-index.json','/activity-data.json','/reviewed-supply-data.json','/survey-data.json','/fx-data.json']);
 export function allowedProductionPath(url){
   if(typeof url!=='string'||url.length>2048)return false;
   if(publicAssets.has(url)||publicData.has(url)||url==='/healthz')return true;
