@@ -1,0 +1,18 @@
+[Unit]
+Description=Daily USD/KRW reference quote from Yahoo Finance
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=atlascollector
+Group=atlasweb
+WorkingDirectory=/usr/local/lib/atlas-deploy
+ExecStart=/usr/bin/node --use-env-proxy tools/yahoo-fx-store.mjs collect /var/lib/atlas-collector/yahoo-fx-store /var/lib/atlas-public/yahoo-fx.json
+TimeoutStartSec=45
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/atlas-collector /var/lib/atlas-public

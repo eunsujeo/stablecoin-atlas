@@ -237,7 +237,9 @@ test('real loopback release health validates all public assets and JSON APIs and
  const server=await startPreviewServer(0,{production:{hosts:['atlas.example.com'],commit:A},marketReader:async()=>market,registrationReader:async url=>url.startsWith('/registration-history')?history:index,assetReviewReader:async()=>reviewedAssetSnapshot,networkUsageReader:async()=>usageV2Fixture(),activityReader:async()=>{throw Error('UNUSED');},reviewedSupplyReader:async()=>{throw Error('UNUSED');},surveyReader:async()=>{throw Error('UNUSED');},fxReader:async()=>fx});
  const release=new URL('../',import.meta.url).pathname,config={port:server.address().port,hosts:['atlas.example.com']};
  try{
-  assert.equal((await verifyWebRelease({sha:A,release,config})).state,'HEALTHY');await assert.rejects(verifyWebRelease({sha:B,release,config}),/SHA/);
+  assert.equal((await verifyWebRelease({sha:A,release,config})).state,'HEALTHY');
+  const missingFX=await verifyWebRelease({sha:A,release,config,request:async o=>o.path==='/fx-data.json'?{status:503,body:Buffer.from('FX_UNAVAILABLE')}:loopbackRequest(o)});assert.equal(missingFX.state,'HEALTHY');assert.equal(missingFX.fx.state,'UNAVAILABLE');
+  await assert.rejects(verifyWebRelease({sha:A,release,config,request:async o=>o.path==='/fx-data.json'?{status:503,body:Buffer.from('UNEXPECTED')}:loopbackRequest(o)}),/HEALTH_FX_RESPONSE/);await assert.rejects(verifyWebRelease({sha:B,release,config}),/SHA/);
   for(const path of ['/styles.css','/network-usage-data.json','/registration-index.json','/fx-data.json'])await assert.rejects(verifyWebRelease({sha:A,release,config,request:async o=>o.path===path?{status:200,body:Buffer.from('{}')}:loopbackRequest(o)}));
  }finally{server.closeAllConnections();await new Promise(r=>server.close(r));}
 });

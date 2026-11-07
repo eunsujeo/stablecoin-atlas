@@ -17,8 +17,12 @@ export async function verifyWebRelease({sha,release,config,request=loopbackReque
  const market=decode(await get('/market-data.json'));validateMarket(market);requireThat(market.readState?.source==='POSTGRESQL','HEALTH_DATABASE');
  const index=validateRegistrationIndex(decode(await get('/registration-index.json')));
  for(const coin of index.coins){const metric=coin.metrics.find(m=>m.metric==='NETWORK_CIRCULATING');if(!metric)continue;const query=new URLSearchParams({selection:index.selectionId,coin:coin.id,metric:metric.metric});validateRegisteredHistory(decode(await get('/registration-history.json?'+query)),index,{coinId:coin.id,metric:metric.metric});}
- validateNetworkUsage(decode(await get('/network-usage-data.json')));validateAssetReview(decode(await get('/asset-review-data.json')));validateFX(decode(await get('/fx-data.json')));
- return {state:'HEALTHY',commit:sha};
+ validateNetworkUsage(decode(await get('/network-usage-data.json')));validateAssetReview(decode(await get('/asset-review-data.json')));
+ const response=await request({port:config.port,host:config.hosts[0],path:'/fx-data.json',timeout:15000,limit:65536});
+ let fx;
+ if(response.status===503){requireThat(response.body.toString('utf8')==='FX_UNAVAILABLE','HEALTH_FX_RESPONSE');fx={state:'UNAVAILABLE',impact:'KRW_ONLY'};}
+ else {requireThat(response.status===200,'HEALTH_FX_RESPONSE');const p=validateFX(decode(response.body));fx={state:'AVAILABLE',provider:p.provider??'ECB',date:p.date};}
+ return {state:'HEALTHY',commit:sha,fx};
 }
 
 export async function waitForWebRelease(options,{ready=checkWebHealth,verify=verifyWebRelease}={}){requireThat(await ready(options.sha,{host:options.config.hosts[0],port:options.config.port,attempts:12}),'HEALTH_NOT_READY');return verify(options);}

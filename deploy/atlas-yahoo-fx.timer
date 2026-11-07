@@ -1,0 +1,11 @@
+[Unit]
+Description=Refresh Yahoo USD/KRW once daily
+
+[Timer]
+OnCalendar=*-*-* 00:15:00 UTC
+# Do not catch up unexpectedly during install/reboot; manual collection is explicit.
+Persistent=false
+Unit=atlas-yahoo-fx.service
+
+[Install]
+WantedBy=timers.target

@@ -1,5 +1,5 @@
 import {knowledgeFiles} from './knowledge-assets.mjs';
-import {databaseFrankfurterFXReader} from './market-db/frankfurter-fx-preview.mjs';
+import {referenceFXReader} from './reference-fx-reader.mjs';
 import {validateNetworkUsage} from '../web/network-usage-model.js';
 import {databaseNetworkUsageReader} from './market-db/network-usage-preview.mjs';
 import {reviewedAssetSnapshot} from './asset-review-source.mjs';
@@ -235,7 +235,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     // An explicit file is authoritative; inherited writer credentials cannot override it.
     const env=args.database?await workspaceEnvironment(args.envFile,args.envFile?{}:process.env):undefined;
     if(args.database&&!env.DATABASE_URL)throw new Error('DATABASE_CONFIG_REQUIRED');
-    const server = await startPreviewServer(args.port,{fxDirectory:args.fxDirectory,...(args.registrationFile?{registrationReader:localRegistrationReader(args.registrationFile)}:{}),...(args.surveyFile?{surveyReader:localSurveyReader(args.surveyFile)}:{}),...(args.database?{fxReader:databaseFrankfurterFXReader({env}),networkUsageReader:databaseNetworkUsageReader({env}),assetReviewReader:databaseAssetReviewReader({env}),contractReviewReader:databaseContractReviewReader({env}),marketReader:databaseMarketReader({env}),registrationReader:databaseRegistrationReader({env}),activityReader:databaseActivityReader({env}),reviewedSupplyReader:databaseReviewedSupplyReader({env}),surveyReader:databaseSurveyReader({env})}:{})});
+    const server = await startPreviewServer(args.port,{fxDirectory:args.fxDirectory,...(args.registrationFile?{registrationReader:localRegistrationReader(args.registrationFile)}:{}),...(args.surveyFile?{surveyReader:localSurveyReader(args.surveyFile)}:{}),...(args.database?{fxReader:referenceFXReader({env,file:process.env.ATLAS_YAHOO_FX_FILE}),networkUsageReader:databaseNetworkUsageReader({env}),assetReviewReader:databaseAssetReviewReader({env}),contractReviewReader:databaseContractReviewReader({env}),marketReader:databaseMarketReader({env}),registrationReader:databaseRegistrationReader({env}),activityReader:databaseActivityReader({env}),reviewedSupplyReader:databaseReviewedSupplyReader({env}),surveyReader:databaseSurveyReader({env})}:{})});
     console.log(`Local preview: http://127.0.0.1:${server.address().port} (${args.database?'PostgreSQL read-only':'local JSON'})`);
     for (const signal of ['SIGINT', 'SIGTERM']) process.once(signal, () => { server.close(() => { process.exitCode = 0; }); server.closeIdleConnections(); });
   } catch { console.error('Preview could not start. Check the port or use --port 0.'); process.exitCode = 1; }

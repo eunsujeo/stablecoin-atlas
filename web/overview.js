@@ -2,7 +2,7 @@ import {validateNetworkUsage} from './network-usage-model.js';
 import {cachedJSON,browserData} from './browser-data.js';
 import {bindCacheStatus} from './browser-cache-ui.js';
 import {initializeSupplyOverview} from './supply-overview.js';
-import {validateFX,usableFX,fxSourceLabel,priceLabel,readCurrency,saveCurrency} from './fx-model.js';
+import {validateFX,usableFX,availableFX,fxDisplayNote,fxSourceLabel,priceLabel,readCurrency,saveCurrency} from './fx-model.js';
 import {overviewMarketRows} from './overview-market-model.js';
 import {readChartPreferences,saveChartPreferences,readChartURL,syncChartURL} from './overview-preferences.js';
 import {validateRegistrationIndex,validateRegisteredHistory,registrationChartData,sameRegisteredSource} from './registration-model.js';
@@ -172,13 +172,13 @@ function renderMarket(){
 }
 function renderMarketTable(){
  const host=$('#overview-market-rows');host.replaceChildren();
- $('#overview-price-currency').value=state.currency;saveCurrency(state.currency);$('#overview-market-price-label').textContent='가격 ('+state.currency+')';
- const fxNote=$('#overview-fx-note');fxNote.hidden=state.currency!=='KRW';fxNote.textContent=usableFX(state.fx)?fxSourceLabel(state.fx)+' · 기준일 '+state.fx.date+' · 참고 환산':'원화 환산용 환율 자료 미확보';
+ $('#overview-price-currency').value=state.currency;saveCurrency(state.currency);$('#overview-market-price-label').textContent='가격 ('+(state.currency==='KRW'&&!availableFX(state.fx)?'USD':state.currency)+')';
+ const fxNote=$('#overview-fx-note');fxNote.hidden=state.currency!=='KRW';fxNote.textContent=fxDisplayNote(state.fx);
  const rows=overviewMarketRows(state.market,state.registration);
  const metricCell=(value,price=false)=>{
   const cell=node('td');if(!value){cell.append(node('span','—','muted'));cell.title='자료 미확보';return cell;}
   cell.textContent=price?priceLabel(value.amount,state.currency,state.fx):displayAmount(value.amount);
-  cell.title=`${value.amount} ${price?'USD':'tokens'} · ${value.day?'일별 기준 '+value.day+' · ':''}${value.observedAt?'기준시각 '+when(value.observedAt):price?'가격 기준시각 미제공':'기준시각 미제공'} · 수집 ${when(value.fetchedAt)}${price&&state.currency==='KRW'?' · 참고 원화 환산 · 환율 기준 '+(state.fx?.date??'미확보'):''}`;
+  cell.title=`${value.amount} ${price?'USD':'tokens'} · ${value.day?'일별 기준 '+value.day+' · ':''}${value.observedAt?'기준시각 '+when(value.observedAt):price?'가격 기준시각 미제공':'기준시각 미제공'} · 수집 ${when(value.fetchedAt)}${price&&state.currency==='KRW'&&availableFX(state.fx)?' · 참고 원화 환산 · 환율 기준 '+(state.fx?.date??'미확보'):''}`;
   return cell;
  };
  for(const row of rows){
@@ -232,7 +232,7 @@ async function load(){
   }
   if(results[2].status==='fulfilled'){state.registration=results[2].value;state.registrationFailed=false;}else{state.registrationFailed=true;failed.push('공급량 자료');}
   if(results[3].status==='fulfilled')state.fx=results[3].value;
-  if(results[3].status==='rejected'||!usableFX(state.fx))failed.push('참고 환율(FX)');
+  // FX is supplementary: its own dated notice must not mark market data as failed.
   networkUsage=results[4].status==='fulfilled'?{data:results[4].value,state:results[4].value?'AVAILABLE':'DISABLED'}:{data:networkUsage.data,state:networkUsage.data?'LAST_GOOD':'UNAVAILABLE'};
   state.marketFailed=results[1].status!=='fulfilled';
   if(!publicMode){renderEvidence();renderEvidenceRankings();}renderMarket();

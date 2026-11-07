@@ -74,7 +74,7 @@ jobs:
         run: |
           # Hosted ARM64 toolcache has Node on PATH but no /usr/bin/node. Provision only this disposable CI host.
           if [ ! -e /usr/bin/node ]; then sudo ln -s "$(command -v node)" /usr/bin/node; fi
-          systemd-analyze verify deploy/atlas-deploy-apply.service deploy/atlas-deploy-agent.service deploy/atlas-deploy-agent.timer deploy/atlas-usage.service deploy/atlas-usage.timer
+          systemd-analyze verify deploy/atlas-deploy-apply.service deploy/atlas-deploy-agent.service deploy/atlas-deploy-agent.timer deploy/atlas-usage.service deploy/atlas-usage.timer deploy/atlas-yahoo-fx.service deploy/atlas-yahoo-fx.timer
       - name: Production Node24 web and deployment regression
         run: node --use-env-proxy --import tsx --test --test-concurrency=2 tests/deploy*.test.mjs tests/production*.test.mjs web/*.test.mjs
       - name: Build immutable Linux ARM64 runtime bundle

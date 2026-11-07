@@ -1,15 +1,15 @@
 import {connectDatabase} from './connection.mjs';
 import {readFXSnapshot} from './fx.mjs';
-import {validateFX,usableFX} from '../../web/fx-model.js';
+import {validateFX,usableFX,availableFX} from '../../web/fx-model.js';
 
 // Share only an in-flight read: every later request checks DB and freshness again.
-export function databaseFXReader({env,connect=connectDatabase,read=readFXSnapshot,now=Date.now}={}){
+export function databaseFXReader({env,connect=connectDatabase,read=readFXSnapshot,now=Date.now,allowExpired=false}={}){
  let pending;
  return ()=>{
   if(pending)return pending;
   pending=(async()=>{let c;try{
-   c=await connect(env);const at=now(),p=validateFX(await read(c,{now:at}));
-   if(!usableFX(p,at)||Date.parse(p.fetchedAt??p.importedAt)>at)throw Error('FX_UNAVAILABLE');
+   c=await connect(env);const at=now(),p=validateFX(await read(c,{now:at,allowExpired}));
+   if(!(allowExpired?availableFX(p,at):usableFX(p,at))||Date.parse(p.fetchedAt??p.importedAt)>at)throw Error('FX_UNAVAILABLE');
    const keys=p.schemaVersion===2?['schemaVersion','kind','provider','rateType','base','quote','date','krwPerUSD','sourceHash','fetchedAt','importedAt']:['schemaVersion','kind','base','date','usdPerEUR','krwPerEUR','sourceHash','fetchedAt','importedAt'];
    return Object.fromEntries(keys.map(k=>[k,p[k]]));
   }catch{throw Error('FX_UNAVAILABLE');}finally{await c?.end().catch(()=>{});}})();
